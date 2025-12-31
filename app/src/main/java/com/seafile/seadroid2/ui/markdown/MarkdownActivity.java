@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Menu;
@@ -15,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
@@ -26,7 +24,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.ActivityMarkdownBinding;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.util.FileMimeUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -206,7 +203,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         Uri uri = FileProvider.getUriForFile(this, BuildConfig.FILE_PROVIDER_AUTHORITIES, new File(path));
         editAsMarkDown.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
-        String mime = FileMimeUtils.getMimeType(new File(path));
+        String mime = com.seafile.seadroid2.framework.util.FileUtils.getMimeType(new File(path));
         editAsMarkDown.setDataAndType(uri, mime);
 
         if ("text/plain".equals(mime)) {

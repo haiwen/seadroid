@@ -1,23 +1,40 @@
 package com.seafile.seadroid2.framework.motionphoto;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.provider.OpenableColumns;
 
 import androidx.core.util.Pair;
 
+import com.adobe.internal.xmp.XMPException;
+import com.adobe.internal.xmp.XMPMeta;
 import com.adobe.internal.xmp.XMPMetaFactory;
+import com.adobe.internal.xmp.options.IteratorOptions;
+import com.adobe.internal.xmp.options.SerializeOptions;
+import com.adobe.internal.xmp.properties.XMPPropertyInfo;
+import com.blankj.utilcode.util.FileIOUtils;
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.xmp.XmpDirectory;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.jni.HeicNative;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -40,347 +57,82 @@ public final class MotionPhotoDetector {
     public static final String CONTAINER_NS = "http://ns.google.com/photos/1.0/container/";
     public static final String ITEM_NS = "http://ns.google.com/photos/1.0/container/item/";
 
-    /**
-     * 需求：
-     * 1、从 InputStream 中提取 XMP 数据，不需要读取整个文件，只需顺序扫描头部标记。
-     * 2、测量 JPEG 图像的实际长度，通过检测 SOI/EOI 标记位置，确定长度。
-     * <p>
-     * 返回：
-     * Pair<String,Integer>，
-     * Pair.first = XMP String
-     * Pair.second = jpeg length
-     */
-    public static Pair<String, Long> extractXmpFromJpegStream(InputStream is) throws IOException {
-        String xmpString = null;
-        long jpegLength = 0L;
-        long totalBytesRead = 0L;
-
-        int b1 = is.read();
-        int b2 = is.read();
-        // JPEG 格式图片必须以 SOI (FF D8) 开始
-        if (b1 != 0xFF || b2 != 0xD8) {
-            return null;
-        }
-        totalBytesRead += 2;
-
-        while (true) {
-            int b = is.read();
-            if (b == -1) break;
-            totalBytesRead++;
-
-            if (b != 0xFF) {
-                continue;
-            }
-
-            int marker = is.read();
-            if (marker == -1) break;
-            totalBytesRead++;
-
-            // 跳过填充的 0xFF
-            while (marker == 0xFF) {
-                marker = is.read();
-                if (marker == -1) break;
-                totalBytesRead++;
-            }
-            if (marker == -1) break;
-
-            // SOS (Start of Scan) 后面是图像数据，不再有 APP 段
-            if (marker == 0xDA) {
-                // 扫描 EOI (FF D9)
-                while (true) {
-                    int d = is.read();
-                    if (d == -1) break;
-                    totalBytesRead++;
-
-                    if (d == 0xFF) {
-                        int m = is.read();
-                        if (m == -1) break;
-                        totalBytesRead++;
-
-                        if (m == 0xD9) { // EOI
-                            jpegLength = totalBytesRead;
-                            // 找到 EOI 后，任务完成
-                            return new Pair<>(xmpString, jpegLength);
-                        }
-                    }
-                }
-                break;
-            }
-
-            // 读取长度 (2 bytes)
-            int lenHi = is.read();
-            int lenLo = is.read();
-            if (lenHi == -1 || lenLo == -1) break;
-            totalBytesRead += 2;
-            int length = (lenHi << 8) | lenLo;
-
-            // 长度包含长度字节本身，所以数据长度需减 2
-            int dataLength = length - 2;
-            if (dataLength < 0) break;
-
-            if (marker == 0xE1) { // APP1
-                byte[] data = new byte[dataLength];
-                int totalRead = 0;
-                while (totalRead < dataLength) {
-                    int count = is.read(data, totalRead, dataLength - totalRead);
-                    if (count == -1) break;
-                    totalRead += count;
-                }
-                totalBytesRead += totalRead;
-
-                if (totalRead < dataLength) break;
-
-                if (startsWith(data, 0, XMP_HEADER_XMP)) {
-                    int headerLen = XMP_HEADER_XMP.length;
-                    xmpString = new String(data, headerLen, dataLength - headerLen, StandardCharsets.UTF_8);
-                } else if (startsWith(data, 0, XMP_HEADER_XAP)) {
-                    int headerLen = XMP_HEADER_XAP.length;
-                    xmpString = new String(data, headerLen, dataLength - headerLen, StandardCharsets.UTF_8);
-                }
-            } else {
-                // 跳过其他 marker 的数据
-                long skipped = 0;
-                while (skipped < dataLength) {
-                    long s = is.skip(dataLength - skipped);
-                    if (s > 0) {
-                        skipped += s;
-                    } else {
-                        // skip 失败尝试读取
-                        if (is.read() == -1) break;
-                        skipped++;
-                    }
-                }
-                totalBytesRead += skipped;
-            }
-        }
-
-        return new Pair<>(xmpString, jpegLength);
-    }
-
-    public static Pair<String, Long> extractXmpFromJpegFile(byte[] jpeg) {
-        String xmpString = null;
-        long jpegLength = 0;
-        int offset = 0;
-
-        // JPEG 必须以 SOI 开始
-        if (jpeg.length < 2 || (jpeg[0] & 0xFF) != 0xFF || (jpeg[1] & 0xFF) != 0xD8) {
-            return null;
-        }
-        offset = 2;
-
-        while (offset < jpeg.length) {
-            // Find marker start 0xFF
-            if ((jpeg[offset] & 0xFF) != 0xFF) {
-                offset++;
-                continue;
-            }
-
-            // Skip padding 0xFFs
-            while (offset < jpeg.length && (jpeg[offset] & 0xFF) == 0xFF) {
-                offset++;
-            }
-
-            if (offset >= jpeg.length) break;
-
-            int marker = jpeg[offset] & 0xFF;
-            offset++;
-
-            // SOS 后面是图像数据，不再有 APP 段
-            if (marker == 0xDA /* SOS */) {
-                // Scan for EOI (FF D9)
-                while (offset + 1 < jpeg.length) {
-                    if ((jpeg[offset] & 0xFF) == 0xFF) {
-                        // Check next byte
-                        if ((jpeg[offset + 1] & 0xFF) == 0xD9) {
-                            jpegLength = offset + 2;
-                            return new Pair<>(xmpString, jpegLength);
-                        }
-                    }
-                    offset++;
-                }
-                break;
-            }
-
-            // Read length (2 bytes)
-            if (offset + 2 > jpeg.length) break;
-            int length = ((jpeg[offset] & 0xFF) << 8) | (jpeg[offset + 1] & 0xFF);
-            offset += 2;
-
-            if (length < 2) break; // Invalid length
-
-            // Process segment
-            int dataLength = length - 2;
-            if (offset + dataLength > jpeg.length) break;
-
-            if (marker == 0xE1 /* APP1 */) {
-                int headerLen = -1;
-                if (startsWith(jpeg, offset, XMP_HEADER_XMP)) {
-                    headerLen = XMP_HEADER_XMP.length;
-                } else if (startsWith(jpeg, offset, XMP_HEADER_XAP)) {
-                    headerLen = XMP_HEADER_XAP.length;
-                }
-                if (headerLen > 0) {
-                    int xmpStart = offset + headerLen;
-                    int xmpLength = dataLength - headerLen;
-                    if (xmpLength > 0) {
-                        xmpString = new String(
-                                jpeg,
-                                xmpStart,
-                                xmpLength,
-                                StandardCharsets.UTF_8
-                        );
-                    }
-                }
-            }
-
-            offset += dataLength;
-        }
-
-        return new Pair<>(xmpString, jpegLength);
-    }
-
-    private static boolean startsWith(byte[] data, int offset, byte[] prefix) {
-        if (offset + prefix.length > data.length) return false;
-        for (int i = 0; i < prefix.length; i++) {
-            if (data[offset + i] != prefix[i]) return false;
-        }
-        return true;
-    }
-
-    public static MotionPhotoDescriptor parseMotionPhotoXmpWithJpegUri(Context context, Uri uri, boolean copyToLocal) {
-        MotionPhotoDescriptor defaultDesc = new MotionPhotoDescriptor();
-
-        // 1. 第一遍：流式解析 XMP，避免将整个文件读入内存
-        String xmp = null;
-        long realLength = 0;
-        try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-            if (is == null) {
-                return defaultDesc;
-            }
-            Pair<String, Long> result = extractXmpFromJpegStream(is);
-            if (result != null) {
-                xmp = result.first;
-                realLength = result.second;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return defaultDesc;
-        }
-
-        if (TextUtils.isEmpty(xmp)) {
-            return defaultDesc;
-        }
-
-        // 2. 解析 Descriptor
-        MotionPhotoDescriptor d;
+    public static MotionPhotoDescriptor extractJpegXmp(InputStream p) {
         try {
-            d = parse(xmp);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return defaultDesc;
+            Metadata metadata = ImageMetadataReader.readMetadata(p);
+            return extractXmp(metadata, true);
+        } catch (ImageProcessingException | IOException e) {
+            return new MotionPhotoDescriptor();
         }
-
-        if (copyToLocal) {
-            // 3. 只有当确实是 Motion Photo 且解析成功时，才将文件保存到临时文件
-            // 重新打开流以进行复制
-            try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                File tempFile = null;
-                if (is != null) {
-                    tempFile = DataManager.createTempFile("temp-jmp-", ".jpeg");
-                    FileUtils.copyInputStreamToFile(is, tempFile);
-                    d.tempJpegPath = tempFile.getAbsolutePath();
-                }
-
-
-                // re-calculate
-                int primaryIndex = getSpecialSemanticPosition(d.items, "Primary");
-                int gainMapIndex = getSpecialSemanticPosition(d.items, "GainMap");
-                int videoIndex = getSpecialSemanticPosition(d.items, "MotionPhoto");
-
-                if (primaryIndex == -1) {
-                    return d;
-                }
-
-                //
-                d.items.get(primaryIndex).length = realLength;
-                d.items.get(primaryIndex).offset = 2L;
-
-                // gain map: add a jpeg offset into Padding field
-                if (gainMapIndex != -1) {
-                    long padding = d.items.get(gainMapIndex).padding;
-                    d.items.get(gainMapIndex).offset = padding + realLength;
-                }
-
-                long fileLength = tempFile != null ? tempFile.length() : 0L;
-                if (videoIndex != -1) {
-                    long length = d.items.get(videoIndex).length;
-                    d.items.get(videoIndex).offset = fileLength - length;
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        return d;
     }
 
-
-    public static MotionPhotoDescriptor parseMotionPhotoXmpWithJpegFile(String filePath) {
+    public static MotionPhotoDescriptor extractJpegXmp(File p) {
         try {
-            MotionPhotoDescriptor defaultDesc = new MotionPhotoDescriptor();
-            if (TextUtils.isEmpty(filePath)) {
-                return defaultDesc;
-            }
+            Metadata metadata = ImageMetadataReader.readMetadata(p);
+            return extractXmp(metadata, true);
+        } catch (ImageProcessingException | IOException e) {
+            return new MotionPhotoDescriptor();
+        }
+    }
 
-            File f = new File(filePath);
-            if (!f.exists()) {
-                return defaultDesc;
-            }
+    public static MotionPhotoDescriptor extractJpegXmp(byte[] jpeg) {
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(jpeg));
+            return extractXmp(metadata, true);
+        } catch (ImageProcessingException | IOException e) {
+            return new MotionPhotoDescriptor();
+        }
+    }
 
-            byte[] fileBytes = FileUtils.readFileToByteArray(f);
-            Pair<String, Long> result = extractXmpFromJpegFile(fileBytes);
-            if (result == null || TextUtils.isEmpty(result.first)) {
-                return defaultDesc;
-            }
+    public static MotionPhotoDescriptor extractHeicXmp(File p) {
+        try {
+            String xml = HeicNative.nativeExtractHeicMotionPhotoXMP(p.getAbsolutePath());
+            MotionPhotoDescriptor descriptor = parse(xml, false);
+            return descriptor;
+        } catch (Exception e) {
+            return new MotionPhotoDescriptor();
+        }
+    }
 
-            String xmp = result.first;
-            Long realLength = result.second;
+//    public static MotionPhotoDescriptor extractHeicXmp(InputStream p) {
+//        try {
+//
+//            Metadata metadata = ImageMetadataReader.readMetadata(p);
+//            return extractXmp(metadata, false);
+//        } catch (ImageProcessingException | IOException e) {
+//            return new MotionPhotoDescriptor();
+//        }
+//    }
 
-            MotionPhotoDescriptor d = parse(xmp);
+    public static MotionPhotoDescriptor extractXmp(Metadata metadata, boolean isJpeg) {
+        MotionPhotoDescriptor descriptor = new MotionPhotoDescriptor();
+        if (metadata == null) {
+            return descriptor;
+        }
+        XmpDirectory xmpDirectory = metadata.getFirstDirectoryOfType(XmpDirectory.class);
+        if (xmpDirectory == null) {
+            return descriptor;
+        }
+        XMPMeta xmpMeta = xmpDirectory.getXMPMeta();
+        if (xmpMeta == null) {
+            return descriptor;
+        }
 
-            // re-calculate
-            int primaryIndex = getSpecialSemanticPosition(d.items, "Primary");
-            int gainMapIndex = getSpecialSemanticPosition(d.items, "GainMap");
-            int videoIndex = getSpecialSemanticPosition(d.items, "MotionPhoto");
-
-            if (primaryIndex == -1) {
-                return d;
-            }
-
-            //
-            d.items.get(primaryIndex).length = realLength;
-            d.items.get(primaryIndex).offset = 2L;
-
-            // gain map: add a jpeg offset into Padding field
-            if (gainMapIndex != -1) {
-                long padding = d.items.get(gainMapIndex).padding;
-                d.items.get(gainMapIndex).offset = padding + realLength;
-            }
-
-            long fileLength = f != null ? f.length() : 0L;
-            if (videoIndex != -1) {
-                long length = d.items.get(videoIndex).length;
-                d.items.get(videoIndex).offset = fileLength - length;
-            }
-
-            return d;
+        SerializeOptions options = new SerializeOptions();
+        options.setOmitPacketWrapper(false);   // true=只要 <rdf:RDF>，false=保留<?xpacket?> 包裹
+        options.setUseCompactFormat(true);     // 紧凑格式
+        options.setIndent("  ");
+        try {
+            String xml = XMPMetaFactory.serializeToString(xmpMeta, options);
+            descriptor = parse(xml, isJpeg);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
+
+        return descriptor;
     }
+
 
     /**
      * 解析 Motion Photo XMP
@@ -389,7 +141,7 @@ public final class MotionPhotoDetector {
      * @return MotionPhotoDescriptor 对象
      * @throws Exception
      */
-    public static MotionPhotoDescriptor parse(String xmpString) throws Exception {
+    public static MotionPhotoDescriptor parse(String xmpString, boolean isJpeg) throws Exception {
         MotionPhotoDescriptor descriptor = new MotionPhotoDescriptor();
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -407,7 +159,8 @@ public final class MotionPhotoDetector {
         String microVideoStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideo");
         if (TextUtils.equals("1", microVideoStr)) {
             descriptor.source = MotionPhotoDescriptor.Source.MICRO_VIDEO;
-            descriptor.isMotionPhoto = true;
+            descriptor.mpType = isJpeg ? MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_JPEG
+                    : MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_HEIC;
 
             String presentationTsStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideoPresentationTimestampUs");
             String microVideoVersion = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideoVersion");
@@ -432,19 +185,23 @@ public final class MotionPhotoDetector {
 
         // Google V2 Motion Photo
         String motionPhotoStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MotionPhoto");
-        descriptor.isMotionPhoto = TextUtils.equals("1", motionPhotoStr);
-        if (!descriptor.isMotionPhoto) {
+        if (!TextUtils.equals("1", motionPhotoStr)) {
             descriptor.source = MotionPhotoDescriptor.Source.CONTAINER;
             return descriptor;
         }
 
+        descriptor.source = MotionPhotoDescriptor.Source.MOTION_PHOTO;
+        descriptor.mpType = isJpeg ? MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_JPEG
+                : MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_HEIC;
+
+
         String motionPhotoVerStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MotionPhotoVersion");
-        if (!motionPhotoVerStr.isEmpty()) {
+        if (!TextUtils.isEmpty(motionPhotoVerStr)) {
             descriptor.motionPhotoVersion = Integer.parseInt(motionPhotoVerStr);
         }
 
         String presentationTsStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MotionPhotoPresentationTimestampUs");
-        if (!presentationTsStr.isEmpty()) {
+        if (!TextUtils.isEmpty(presentationTsStr)) {
             descriptor.motionPhotoPresentationTimestampUs = parseLongSafe(presentationTsStr);
         }
 
@@ -477,6 +234,308 @@ public final class MotionPhotoDetector {
 
         return descriptor;
     }
+
+    /**
+     * 根据输入流，补全“读取 JPEG 图像数据的实际长度”方法
+     *
+     */
+    private static long calcuRealJpegLength(InputStream is) throws IOException {
+        long totalBytesRead = 0L;
+        int b1 = is.read();
+        int b2 = is.read();
+        if (b1 != 0xFF || b2 != 0xD8) {
+            return -1;
+        }
+        totalBytesRead += 2;
+
+        while (true) {
+            int b = is.read();
+            if (b == -1) break;
+            totalBytesRead++;
+
+            if (b != 0xFF) {
+                continue;
+            }
+
+            int marker = is.read();
+            if (marker == -1) break;
+            totalBytesRead++;
+
+            while (marker == 0xFF) {
+                marker = is.read();
+                if (marker == -1) break;
+                totalBytesRead++;
+            }
+            if (marker == -1) break;
+
+            if (marker == 0xDA) {
+                while (true) {
+                    int d = is.read();
+                    if (d == -1) break;
+                    totalBytesRead++;
+
+                    if (d == 0xFF) {
+                        int m = is.read();
+                        if (m == -1) break;
+                        totalBytesRead++;
+                        if (m == 0xD9) {
+                            return totalBytesRead;
+                        }
+                    }
+                }
+                break;
+            }
+
+            int lenHi = is.read();
+            int lenLo = is.read();
+            if (lenHi == -1 || lenLo == -1) break;
+            totalBytesRead += 2;
+            int length = (lenHi << 8) | lenLo;
+
+            int dataLength = length - 2;
+            if (dataLength <= 0) continue;
+
+            long skipped = 0;
+            while (skipped < dataLength) {
+                long s = is.skip(dataLength - skipped);
+                if (s > 0) {
+                    skipped += s;
+                } else {
+                    int readOne = is.read();
+                    if (readOne == -1) break;
+                    skipped++;
+                }
+            }
+            totalBytesRead += skipped;
+        }
+
+        return -1;
+    }
+
+    private static long calcuRealJpegLength(byte[] jpegBytes) {
+        if (jpegBytes == null || jpegBytes.length < 2 || (jpegBytes[0] & 0xFF) != 0xFF || (jpegBytes[1] & 0xFF) != 0xD8) {
+            return -1;
+        }
+
+        int offset = 2;
+        while (offset < jpegBytes.length) {
+            if ((jpegBytes[offset] & 0xFF) != 0xFF) {
+                offset++;
+                continue;
+            }
+
+            while (offset < jpegBytes.length && (jpegBytes[offset] & 0xFF) == 0xFF) {
+                offset++;
+            }
+            if (offset >= jpegBytes.length) break;
+
+            int marker = jpegBytes[offset] & 0xFF;
+            offset++;
+
+            if (marker == 0xDA) {
+                while (offset + 1 < jpegBytes.length) {
+                    if ((jpegBytes[offset] & 0xFF) == 0xFF && (jpegBytes[offset + 1] & 0xFF) == 0xD9) {
+                        return offset + 2;
+                    }
+                    offset++;
+                }
+                break;
+            }
+
+            if (offset + 2 > jpegBytes.length) break;
+            int length = ((jpegBytes[offset] & 0xFF) << 8) | (jpegBytes[offset + 1] & 0xFF);
+            offset += 2;
+            int dataLength = length - 2;
+            if (dataLength < 0) break;
+            offset += dataLength;
+        }
+
+        return -1;
+
+    }
+
+    private static boolean startsWith(byte[] data, int offset, byte[] prefix) {
+        if (offset + prefix.length > data.length) return false;
+        for (int i = 0; i < prefix.length; i++) {
+            if (data[offset + i] != prefix[i]) return false;
+        }
+        return true;
+    }
+
+    private static String getXmpPropertyStringSafe(XMPMeta xmpMeta, String namespace, String propertyName) {
+        try {
+            return xmpMeta.getPropertyString(namespace, propertyName);
+        } catch (XMPException e) {
+            return null;
+        }
+    }
+
+
+    public static MotionPhotoDescriptor parseJpegXmpWithUri(Context context, Uri uri, boolean copyToLocal) {
+        MotionPhotoDescriptor defaultDesc = new MotionPhotoDescriptor();
+        long size = queryUriLength(context, uri);
+        final long MAX_IN_MEMORY = 20L * 1024L * 1024L;
+        MotionPhotoDescriptor d = new MotionPhotoDescriptor();
+        long realLength = -1;
+        File tempFile = null;
+        if (size > MAX_IN_MEMORY) {
+            try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                if (is == null) {
+                    return defaultDesc;
+                }
+                tempFile = DataManager.createTempFile("tmp-jmp-", ".jpeg");
+                FileUtils.copyInputStreamToFile(is, tempFile);
+                d = extractJpegXmp(tempFile);
+                realLength = calcuRealJpegLength(new FileInputStream(tempFile));
+
+            } catch (Exception e) {
+                SafeLogs.e(e);
+                return defaultDesc;
+            }
+        } else {
+            byte[] bytes;
+            try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                if (is == null) {
+                    return defaultDesc;
+                }
+                bytes = IOUtils.toByteArray(is);
+                d = extractJpegXmp(bytes);
+                realLength = calcuRealJpegLength(bytes);
+            } catch (Exception e) {
+                SafeLogs.e(e);
+                return defaultDesc;
+            }
+        }
+
+        if (d.mpType == MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE) {
+            return defaultDesc;
+        }
+
+        if (d.source == MotionPhotoDescriptor.Source.CONTAINER) {
+            return d;
+        }
+
+        if (copyToLocal) {
+            try {
+                if (tempFile == null) {
+                    try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                        if (is == null) {
+                            return defaultDesc;
+                        }
+                        tempFile = DataManager.createTempFile("tmp-jmp-", ".jpeg");
+                        FileUtils.copyInputStreamToFile(is, tempFile);
+                    }
+                }
+                d.tempJpegPath = tempFile.getAbsolutePath();
+
+                int primaryIndex = getSpecialSemanticPosition(d.items, "Primary");
+                int gainMapIndex = getSpecialSemanticPosition(d.items, "GainMap");
+                int videoIndex = getSpecialSemanticPosition(d.items, "MotionPhoto");
+
+                if (primaryIndex == -1) {
+                    return d;
+                }
+
+                d.items.get(primaryIndex).length = realLength;
+                d.items.get(primaryIndex).offset = 0L;
+
+                if (gainMapIndex != -1 && realLength != -1) {
+                    long padding = d.items.get(gainMapIndex).padding;
+                    d.items.get(gainMapIndex).offset = padding + realLength;
+                }
+
+                long fileLength = tempFile.length();
+                if (videoIndex != -1) {
+                    long length = d.items.get(videoIndex).length;
+                    d.items.get(videoIndex).offset = fileLength - length;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return d;
+    }
+
+    private static long queryUriLength(Context context, Uri uri) {
+        try (Cursor c = context.getContentResolver().query(uri, new String[]{OpenableColumns.SIZE}, null, null, null)) {
+            if (c != null && c.moveToFirst()) {
+                int idx = c.getColumnIndex(OpenableColumns.SIZE);
+                if (idx >= 0) {
+                    long s = c.getLong(idx);
+                    if (s > 0) return s;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        try (AssetFileDescriptor afd = context.getContentResolver().openAssetFileDescriptor(uri, "r")) {
+            if (afd != null) {
+                long s = afd.getLength();
+                if (s > 0) return s;
+            }
+        } catch (Exception ignored) {
+        }
+        return -1L;
+    }
+
+
+    public static MotionPhotoDescriptor parseJpegXmpWithFile(String filePath) {
+        try {
+            MotionPhotoDescriptor desc = new MotionPhotoDescriptor();
+            if (TextUtils.isEmpty(filePath)) {
+                return desc;
+            }
+
+            File f = new File(filePath);
+            if (!f.exists()) {
+                return desc;
+            }
+
+            desc = extractJpegXmp(f);
+
+            long realLength = calcuRealJpegLength(new FileInputStream(f));
+
+            if (desc.mpType == MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE) {
+                return desc;
+            }
+
+            if (desc.source == MotionPhotoDescriptor.Source.CONTAINER) {
+                return desc;
+            }
+
+
+            // re-calculate
+            int primaryIndex = getSpecialSemanticPosition(desc.items, "Primary");
+            int gainMapIndex = getSpecialSemanticPosition(desc.items, "GainMap");
+            int videoIndex = getSpecialSemanticPosition(desc.items, "MotionPhoto");
+
+            if (primaryIndex == -1) {
+                return desc;
+            }
+
+            //
+            desc.items.get(primaryIndex).length = 0L;
+            desc.items.get(primaryIndex).offset = 0L;
+
+            // gain map: add a jpeg offset into Padding field
+            if (gainMapIndex != -1) {
+                long padding = desc.items.get(gainMapIndex).padding;
+                desc.items.get(gainMapIndex).offset = padding + realLength;
+            }
+
+            long fileLength = f.length();
+            if (videoIndex != -1) {
+                long length = desc.items.get(videoIndex).length;
+                desc.items.get(videoIndex).offset = fileLength - length;
+            }
+
+            return desc;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
     public static int getSpecialSemanticPosition(List<MotionPhotoDescriptor.MotionPhotoItem> items, String semantic) {
         for (int i = 0; i < items.size(); i++) {

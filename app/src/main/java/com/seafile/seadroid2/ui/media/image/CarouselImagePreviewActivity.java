@@ -48,6 +48,7 @@ import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
@@ -813,7 +814,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private void shareFile() {
         DirentModel direntModel = getSelectedDirent();
-        Objs.showCreateShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
+        WidgetUtils.showCreateShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
     }
 
     private CopyMoveContext copyMoveContext = null;

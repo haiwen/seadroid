@@ -37,11 +37,15 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.FileIOUtils;
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.PathUtils;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
@@ -84,6 +88,7 @@ import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
+import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
@@ -110,20 +115,34 @@ import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.view.TipsViews;
 import com.seafile.seadroid2.view.ViewSortPopupWindow;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.stream.Collectors;
 
+import io.reactivex.Completable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import kotlin.ranges.IntRange;
 
 public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
@@ -442,14 +461,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         binding.stickyContainer.setVisibility(View.GONE);
 
         // cache menu state
-         setMenuVisibleStateById("search", menu.findItem(R.id.menu_action_search).isVisible());
+        setMenuVisibleStateById("search", menu.findItem(R.id.menu_action_search).isVisible());
         setMenuVisibleStateById("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
         setMenuVisibleStateById("createRepo", menu.findItem(R.id.create_repo).isVisible());
         setMenuVisibleStateById("add", menu.findItem(R.id.add).isVisible());
         setMenuVisibleStateById("select", menu.findItem(R.id.select).isVisible());
 
         // hide other menu items
-         menu.findItem(R.id.menu_action_search).setVisible(false);
+        menu.findItem(R.id.menu_action_search).setVisible(false);
         menu.findItem(R.id.menu_action_sort).setVisible(false);
         menu.findItem(R.id.create_repo).setVisible(false);
         menu.findItem(R.id.add).setVisible(false);
@@ -464,7 +483,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         binding.getRoot().post(new Runnable() {
             @Override
             public void run() {
-                 menu.findItem(R.id.menu_action_search).setVisible(getMenuVisibleStateById("search"));
+                menu.findItem(R.id.menu_action_search).setVisible(getMenuVisibleStateById("search"));
                 menu.findItem(R.id.menu_action_sort).setVisible(getMenuVisibleStateById("sortGroup"));
                 menu.findItem(R.id.create_repo).setVisible(getMenuVisibleStateById("createRepo"));
                 menu.findItem(R.id.add).setVisible(getMenuVisibleStateById("add"));
@@ -478,7 +497,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private boolean getMenuVisibleStateById(String id) {
         Boolean b = menuIdState.getOrDefault(id, true);
-        if (b == null){
+        if (b == null) {
             return false;
         }
         return b;
@@ -1500,15 +1519,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
 
         //temp
-        saveAsLauncherSourcePath = destinationFile;
+        saveAsLauncherSourceFile = destinationFile;
         //launch
         saveAsLauncher.launch(intent);
     }
 
-    private File saveAsLauncherSourcePath;
+    private File saveAsLauncherSourceFile;
 
     private void saveAsTo(Uri destinationUri) {
-        if (saveAsLauncherSourcePath == null || !saveAsLauncherSourcePath.exists()) {
+        if (saveAsLauncherSourceFile == null || !saveAsLauncherSourceFile.exists()) {
             return;
         }
 
@@ -1516,7 +1535,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         SLogs.e(TAG, "saveAsTo", "start copy");
 
         ContentResolver resolver = requireContext().getContentResolver();
-        try (InputStream inputStream = new FileInputStream(saveAsLauncherSourcePath);
+        try (InputStream inputStream = new FileInputStream(saveAsLauncherSourceFile);
              OutputStream outputStream = resolver.openOutputStream(destinationUri)) {
 
             if (outputStream == null) {
@@ -1768,9 +1787,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (which == 0) {
                 shareFile(direntModel);
             } else if (which == 1) {
-                Objs.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), direntModel, false);
+                WidgetUtils.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), direntModel, false);
             } else if (which == 2) {
-                Objs.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), direntModel, true);
+                WidgetUtils.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), direntModel, true);
             }
         }).show();
     }
@@ -1782,12 +1801,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         if (dirent.isDir()) {
-            Objs.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), dirent, false);
+            WidgetUtils.showCreateShareLinkDialog(requireContext(), getChildFragmentManager(), dirent, false);
         } else {
 
             File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
             if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
-                Objs.shareDirToWeChat(this, dirent.repo_id, dirent.full_path);
+                WidgetUtils.shareDirToWeChat(this, dirent.repo_id, dirent.full_path);
             } else {
                 Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.SHARE);
                 fileActivityLauncher.launch(intent);
@@ -1811,11 +1830,60 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         File destinationFile = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
         if (TextUtils.equals(dirent.id, dirent.local_file_id) && destinationFile.exists()) {
-            Objs.exportFile(RepoQuickFragment.this, destinationFile);
+            checkMotionPhotoAndExport(destinationFile);
         } else {
             Intent intent = FileActivity.start(requireActivity(), dirent, FileReturnActionEnum.EXPORT);
             fileActivityLauncher.launch(intent);
         }
+    }
+
+    private void checkMotionPhotoAndExport(File destinationFile) {
+        Single.fromCallable(() -> {
+                    if (!Utils.isHeic(destinationFile.getName())) {
+                        return destinationFile;
+                    }
+
+                    MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(destinationFile);
+                    if (!descriptor.isMotionPhoto()) {
+                        return destinationFile;
+                    }
+
+                    try {
+
+                        Path path = Files.createTempFile("tmp-jmp-", ".tmp");
+                        File tmpFile = path.toFile();
+
+                        String outPath = HeicNative.nativeConvertHeicMotionPhotoToJpeg(destinationFile.getAbsolutePath(), Utils.getVendorNormalized(), tmpFile.getAbsolutePath());
+                        if (TextUtils.isEmpty(outPath)) {
+                            FileUtils.delete(tmpFile);
+                            return destinationFile;
+                        }
+
+                        SLogs.e(outPath);
+                        // Rename to .jpg to ensure correct file type recognition
+                        String baseName = FilenameUtils.getBaseName(destinationFile.getName());
+                        Path targetPath = path.resolveSibling(baseName + ".jpg");
+                        
+                        // Use REPLACE_EXISTING to handle cases where the file might already exist
+                        Files.move(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+                        return targetPath.toFile();
+                    } catch (IOException e) {
+                        SLogs.e("Error converting motion photo", e);
+                    }
+                    return destinationFile;
+
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(d -> showLoadingDialog())
+                .doFinally(this::dismissLoadingDialog)
+                .subscribe(file -> {
+                    WidgetUtils.exportFile(RepoQuickFragment.this, file);
+                }, error -> {
+                    SLogs.e("Check motion photo failed", error);
+                    WidgetUtils.exportFile(RepoQuickFragment.this, destinationFile);
+                });
+
     }
 
 
@@ -1942,10 +2010,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 File destinationFile = new File(localFullPath);
                 if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
 
-                    Objs.exportFile(RepoQuickFragment.this, destinationFile);
+                    WidgetUtils.exportFile(RepoQuickFragment.this, destinationFile);
                 } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
 
-                    Objs.shareFileToWeChat(RepoQuickFragment.this, destinationFile);
+                    WidgetUtils.shareFileToWeChat(RepoQuickFragment.this, destinationFile);
                 } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
 
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
@@ -2360,6 +2428,17 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
+        boolean isJpeg = Utils.isJpeg(fileName);
+        if (isJpeg) {
+            MotionPhotoDescriptor descriptor = MotionPhotoDetector.parseJpegXmpWithUri(requireContext(), uri, false);
+            if (descriptor.isMotionPhoto()) {
+                String parentPath = Utils.getParentPath(destinationPath);
+                String puraName = FilenameUtils.getBaseName(fileName);
+                //convert extend formet jpeg to heic
+                destinationPath = Utils.pathJoin(parentPath, puraName);
+                destinationPath += ".heic";
+            }
+        }
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
 
         if (repoModel == null) {
@@ -2367,6 +2446,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
+        String finalDestinationPath = destinationPath;
         mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
             @Override
             public void accept(DirentFileModel direntFileModel) {
@@ -2378,12 +2458,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
 
                 if (direntFileModel != null) {
-                    showFileExistDialog(uri, fileName);
+                    showFileExistDialog(uri, FilenameUtils.getName(finalDestinationPath));
                 } else {
                     addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
                 }
             }
         });
+    }
+
+    private void checkMotionPhoto() {
+
     }
 
     private void showFileExistDialog(final Uri uri, String fileName) {

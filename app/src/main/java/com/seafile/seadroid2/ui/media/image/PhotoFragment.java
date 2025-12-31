@@ -6,6 +6,7 @@ import static android.view.View.VISIBLE;
 import android.content.res.Configuration;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -22,8 +23,14 @@ import androidx.annotation.OptIn;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
+import com.adobe.internal.xmp.XMPException;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
@@ -40,6 +47,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.FragmentPhotoViewBinding;
@@ -51,7 +59,9 @@ import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.ui.media.data_source.MotionPhotoDataSourceFactory;
 import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
 import com.seafile.seadroid2.view.photoview.OnViewActionEndListener;
@@ -308,6 +318,14 @@ public class PhotoFragment extends BaseFragment {
             @Override
             public void onDrag(ScrollDirection direction, float dx, float dy) {
                 onPhotoViewDrag(direction, dy);
+            }
+        });
+
+        binding.photoView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                playLivePhotoVideo();
+                return false;
             }
         });
     }
@@ -568,7 +586,7 @@ public class PhotoFragment extends BaseFragment {
                         binding.progressBar.setVisibility(GONE);
                         try {
                             //
-//                            checkMotionPhoto(oriUrl);
+                            checkMotionPhoto(oriUrl);
 
                             //
                             HashMap<String, String> hashMap = loadExifMeta(oriUrl);
@@ -581,89 +599,87 @@ public class PhotoFragment extends BaseFragment {
                 })
                 .into(binding.photoView);
     }
-//
-//    private void checkMotionPhoto(String localPath) {
-//        if (motionPhotoType == -1) {
-//            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(localPath);
-//        }
-//
-//        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-//            binding.btnLivePhoto.setVisibility(VISIBLE);
-//        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-//            binding.btnLivePhoto.setVisibility(VISIBLE);
-//        } else {
-//            binding.btnLivePhoto.setVisibility(GONE);
-//        }
-//    }
+
+    private void checkMotionPhoto(String localPath) {
+        if (motionPhotoType == -1) {
+            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(localPath);
+        }
+
+        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
+            binding.btnLivePhoto.setVisibility(VISIBLE);
+        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
+            binding.btnLivePhoto.setVisibility(VISIBLE);
+        } else {
+            binding.btnLivePhoto.setVisibility(GONE);
+        }
+    }
 
     // no load yet.
-//    private int motionPhotoType = -1;
-//
-//    @Todo
-//    @OptIn(markerClass = Unstable.class)
-//    private void playLivePhotoVideo() {
-//
-//        try {
-//            MediaSource source = buildMotionPhotoMediaSource(destinationFile);
-//            if (source == null) {
-//                return;
-//            }
-//
-//            ExoPlayer exoPlayer = new ExoPlayer.Builder(requireContext()).build();
-//
-//            binding.playerView.setPlayer(exoPlayer);
-//            exoPlayer.addListener(new Player.Listener() {
-//                @Override
-//                public void onPlaybackStateChanged(int playbackState) {
-//                    switch (playbackState) {
-//                        case Player.STATE_BUFFERING: //loading
-//
-//                            break;
-//                        case Player.STATE_READY:
-//                            binding.photoView.setVisibility(View.INVISIBLE);
-//                            binding.playerView.setVisibility(View.VISIBLE);
-//                            break;
-//                        case Player.STATE_ENDED:
-//                            binding.photoView.setVisibility(View.VISIBLE);
-//                            binding.playerView.setVisibility(View.INVISIBLE);
-//                            break;
-//                    }
-//                }
-//            });
-//            exoPlayer.setMediaSource(source);
-//            exoPlayer.prepare();
-//            exoPlayer.play();
-//        } catch (IOException | XMPException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    @Todo
-//    private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
-//        if (motionPhotoType == -1) {
-//            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(imageFile.getAbsolutePath());
-//        }
-//
-//        byte[] videoBytes = null;
-//        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-//            videoBytes = HeicNative.nativeExtractHeicMotionPhotoVideo(imageFile.getAbsolutePath());
-//        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-//            videoBytes = HeicNative.nativeExtractJpegMotionPhotoVideo(imageFile.getAbsolutePath());
-//        }
-//
-//        if (videoBytes == null || videoBytes.length == 0) {
-//            return null;
-//        }
-//
-//        androidx.media3.datasource.DataSource.Factory factory = new MotionPhotoDataSourceFactory(videoBytes);
-//
-//        MediaItem mediaItem = new MediaItem.Builder()
-//                .setUri(Uri.fromFile(imageFile))
-//                .build();
-//
-//        return new ProgressiveMediaSource.Factory(factory)
-//                .createMediaSource(mediaItem);
-//    }
+    private int motionPhotoType = -1;
+
+    @OptIn(markerClass = Unstable.class)
+    private void playLivePhotoVideo() {
+
+        try {
+            MediaSource source = buildMotionPhotoMediaSource(destinationFile);
+            if (source == null) {
+                return;
+            }
+
+            ExoPlayer exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+
+            binding.playerView.setPlayer(exoPlayer);
+            exoPlayer.addListener(new Player.Listener() {
+                @Override
+                public void onPlaybackStateChanged(int playbackState) {
+                    switch (playbackState) {
+                        case Player.STATE_BUFFERING: //loading
+
+                            break;
+                        case Player.STATE_READY:
+                            binding.photoView.setVisibility(View.INVISIBLE);
+                            binding.playerView.setVisibility(View.VISIBLE);
+                            break;
+                        case Player.STATE_ENDED:
+                            binding.photoView.setVisibility(View.VISIBLE);
+                            binding.playerView.setVisibility(View.INVISIBLE);
+                            break;
+                    }
+                }
+            });
+            exoPlayer.setMediaSource(source);
+            exoPlayer.prepare();
+            exoPlayer.play();
+        } catch (IOException | XMPException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
+        if (motionPhotoType == -1) {
+            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(imageFile.getAbsolutePath());
+        }
+
+        byte[] videoBytes = null;
+        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
+            videoBytes = HeicNative.nativeExtractHeicMotionPhotoVideo(imageFile.getAbsolutePath());
+        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
+            videoBytes = HeicNative.nativeExtractJpegMotionPhotoVideo(imageFile.getAbsolutePath());
+        }
+
+        if (videoBytes == null || videoBytes.length == 0) {
+            return null;
+        }
+
+        androidx.media3.datasource.DataSource.Factory factory = new MotionPhotoDataSourceFactory(videoBytes);
+
+        MediaItem mediaItem = new MediaItem.Builder()
+                .setUri(Uri.fromFile(imageFile))
+                .build();
+
+        return new ProgressiveMediaSource.Factory(factory)
+                .createMediaSource(mediaItem);
+    }
 
 
     // local gif file

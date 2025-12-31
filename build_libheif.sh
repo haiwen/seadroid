@@ -321,9 +321,8 @@ build_libde265() {
 }
 
 # ============================================
-# 编译 Bento4
+# build Bento4 (not use)
 # ============================================
-
 build_bento4() {
     log_info "=========================================="
     log_info "开始编译 Bento4..."
@@ -414,7 +413,7 @@ EOF
 }
 
 # ============================================
-# 编译 ffmpeg
+# build ffmpeg (not use)
 # ============================================
 
 build_ffmpeg() {
@@ -437,9 +436,8 @@ build_ffmpeg() {
 
     cd ffmpeg
 
-    # 为每个架构编译
     for ABI in "${ABIS[@]}"; do
-        log_info "编译 ffmpeg for $ABI..."
+        log_info "build ffmpeg for $ABI..."
 
         BUILD_DIR="build-$ABI"
         INSTALL_DIR="$PREFIX_DIR/ffmpeg/$ABI"
@@ -520,14 +518,14 @@ build_ffmpeg() {
 
 build_libheif() {
     log_info "=========================================="
-    log_info "开始编译 libheif $LIBHEIF_VERSION..."
+    log_info "build libheif $LIBHEIF_VERSION..."
     log_info "=========================================="
 
     cd $SRC_DIR
 
     # 下载 libheif
     if [ ! -d "libheif" ]; then
-        log_info "克隆 libheif 源码..."
+        log_info "clone libheif source code..."
         git clone https://github.com/strukturag/libheif.git
     else
         log_info "libheif 源码已存在,跳过下载"
@@ -539,7 +537,7 @@ build_libheif() {
 
     # 为每个架构编译
     for ABI in "${ABIS[@]}"; do
-        log_info "编译 libheif for $ABI..."
+        log_info "build libheif for $ABI..."
 
         BUILD_DIR="build-$ABI"
         INSTALL_DIR="$PREFIX_DIR/libheif/$ABI"
@@ -594,10 +592,10 @@ build_libheif() {
 
         cd ..
 
-        log_success "libheif for $ABI 编译完成"
+        log_success "libheif for $ABI build complete"
     done
 
-    log_success "✅ libheif 全部编译完成!"
+    log_success "✅ libheif $LIBHEIF_VERSION build complete"
 }
 
 # ============================================
@@ -606,7 +604,7 @@ build_libheif() {
 
 copy_to_project() {
     log_info "=========================================="
-    log_info "复制库文件到项目..."
+    log_info "copy libheif files to project..."
     log_info "=========================================="
 
     TARGET_DIR="$PROJECT_DIR/app/src/main/cpp/libheif"
@@ -616,7 +614,7 @@ copy_to_project() {
     mkdir -p $TARGET_DIR/lib
 
     # 复制头文件
-    log_info "复制头文件..."
+    log_info "copy libheif header files..."
     if [ "$NEED_LIBHEIF" = "true" ]; then
         cp -r $PREFIX_DIR/libheif/arm64-v8a/include/libheif $TARGET_DIR/include/
     fi
@@ -667,10 +665,10 @@ copy_to_project() {
         #     fi
         # fi
 
-        log_success "$ABI 库文件复制完成"
+        log_success "$ABI lib files copy complete"
     done
 
-    log_success "✅ 文件复制完成!"
+    log_success "✅ libheif $LIBHEIF_VERSION files copy complete"
 }
 
 # ============================================
@@ -679,13 +677,13 @@ copy_to_project() {
 
 strip_libraries() {
     log_info "=========================================="
-    log_info "Strip 库文件以减小体积..."
+    log_info "Strip libheif $LIBHEIF_VERSION libraries to reduce size..."
     log_info "=========================================="
 
     TARGET_DIR="$PROJECT_DIR/app/src/main/cpp/libheif/lib"
 
     for ABI in "${ABIS[@]}"; do
-        log_info "Strip $ABI 库文件..."
+        log_info "Strip $ABI lib files..."
 
         # 选择对应的 strip 工具
         case $ABI in
@@ -711,13 +709,13 @@ strip_libraries() {
             # for ffmpeg_lib in $TARGET_DIR/$ABI/libav*.so $TARGET_DIR/$ABI/libsw*.so $TARGET_DIR/$ABI/libpostproc.so; do
             #     [ -f "$ffmpeg_lib" ] && $STRIP_TOOL "$ffmpeg_lib"
             # done
-            log_success "$ABI 库文件 strip 完成"
+            log_success "$ABI lib files strip complete"
         else
-            log_warn "未找到 strip 工具: $STRIP_TOOL"
+            log_warn "not found strip tool: $STRIP_TOOL"
         fi
     done
 
-    log_success "✅ Strip 完成!"
+    log_success "✅ libheif $LIBHEIF_VERSION libraries strip complete"
 }
 
 # ============================================
@@ -726,7 +724,7 @@ strip_libraries() {
 
 show_statistics() {
     log_info "=========================================="
-    log_info "编译统计信息"
+    log_info "libheif $LIBHEIF_VERSION libraries statistics"
     log_info "=========================================="
 
     TARGET_DIR="$PROJECT_DIR/app/src/main/cpp/libheif/lib"

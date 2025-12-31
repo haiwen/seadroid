@@ -64,6 +64,20 @@ public class Utils {
     private Utils() {
     }
 
+    public static String getVendorNormalized() {
+        String raw = android.os.Build.MANUFACTURER;
+        if (raw == null) return "";
+        String v = raw.trim().toLowerCase(Locale.ROOT);
+        return switch (v) {
+            case "oppo", "oplus" -> "oppo";
+            case "huawei" -> "huawei";
+            case "xiaomi" -> "xiaomi";
+            case "vivo" -> "vivo";
+            case "samsung" -> "samsung";
+            default -> v;
+        };
+    }
+
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
             // the caller should not give null
@@ -308,7 +322,7 @@ public class Utils {
             return true;
         }
 
-        if (FileMimeUtils.isOfficeOrTextFile(mime)) {
+        if (FileUtils.isOfficeOrTextFile(mime)) {
             return true;
         }
 
