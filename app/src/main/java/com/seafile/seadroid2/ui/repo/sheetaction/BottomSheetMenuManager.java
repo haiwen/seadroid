@@ -13,6 +13,7 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.ui.bottomsheetmenu.ActionMenu;
 
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -51,16 +54,22 @@ public class BottomSheetMenuManager {
             return;
         }
 
-        if (isInRepo) {
-            List<DirentModel> direntModels = selectedItems.stream()
-                    .map(b -> (DirentModel) b)
-                    .collect(Collectors.toList());
-            inflateDirentMenuWithSelected(context, direntModels, disableMenuIds, removedMenuIds);
-        } else {
-            List<RepoModel> repoModels = selectedItems.stream()
+        BaseModel baseModel = selectedItems.get(0);
+        if (baseModel instanceof RepoModel) {
+            List<RepoModel> models = selectedItems.stream()
                     .map(b -> (RepoModel) b)
                     .collect(Collectors.toList());
-            inflateRepoMenuWithSelected(context, repoModels, disableMenuIds, removedMenuIds);
+            inflateRepoMenuWithSelected(context, models, disableMenuIds, removedMenuIds);
+        } else if (baseModel instanceof DirentModel) {
+            List<DirentModel> models = selectedItems.stream()
+                    .map(b -> (DirentModel) b)
+                    .collect(Collectors.toList());
+            inflateDirentMenuWithSelected(context, models, disableMenuIds, removedMenuIds);
+        } else if (baseModel instanceof SearchModel) {
+            List<SearchModel> models = selectedItems.stream()
+                    .map(b -> (SearchModel) b)
+                    .collect(Collectors.toList());
+            inflateSearchMenuWithSelected(context, models, disableMenuIds, removedMenuIds);
         }
     }
 
@@ -132,6 +141,60 @@ public class BottomSheetMenuManager {
         }
     }
 
+    public void inflateSearchMenuWithSelected(Context context, List<SearchModel> selectedDirentList, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
+        if (CollectionUtils.isEmpty(selectedDirentList)) {
+            justInflateDirentMenu(context);
+            return;
+        }
+
+        SearchModel searchModel = selectedDirentList.get(0);
+
+        Single<List<RepoModel>> rSingle = AppDatabase.getInstance().repoDao().getRepoById(searchModel.repo_id);
+        Single<PermissionEntity> permissionSingle = rSingle.flatMap(new Function<List<RepoModel>, SingleSource<PermissionEntity>>() {
+            @Override
+            public SingleSource<PermissionEntity> apply(List<RepoModel> repoModels) throws Exception {
+                if (CollectionUtils.isEmpty(repoModels)) {
+                    return Single.just(new PermissionEntity());
+                }
+
+                RepoModel repoModel = repoModels.get(0);
+                if (repoModel.isCustomPermission()) {
+
+                    return AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoModel.repo_id, repoModel.getCustomPermissionNum())
+                            .flatMap(new Function<List<PermissionEntity>, SingleSource<PermissionEntity>>() {
+                                @Override
+                                public SingleSource<PermissionEntity> apply(List<PermissionEntity> permissionEntities) throws Exception {
+                                    PermissionEntity repoPerm;
+                                    if (CollectionUtils.isEmpty(permissionEntities)) {
+                                        repoPerm = permissionEntities.get(0);
+                                    } else {
+                                        repoPerm = new PermissionEntity(repoModel.repo_id, "r");
+                                    }
+                                    return Single.just(repoPerm);
+                                }
+                            });
+                }
+                return Single.just(new PermissionEntity(repoModel.repo_id, repoModel.permission));
+            }
+        });
+
+
+        addSingleDisposable(permissionSingle, new Consumer<PermissionEntity>() {
+            @Override
+            public void accept(PermissionEntity permissionEntity) throws Exception {
+                int menuId = R.menu.bottom_sheet_op_dirent;
+
+                List<PermissionEntity> permissionList = new ArrayList<>();
+                if (permissionEntity.isValid()) {
+                    permissionList.add(permissionEntity);
+                }
+
+                toParseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
+            }
+        });
+    }
+
+
     public void inflateDirentMenuWithSelected(Context context, List<DirentModel> selectedDirentList, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
         if (CollectionUtils.isEmpty(selectedDirentList)) {
             justInflateDirentMenu(context);
@@ -197,7 +260,6 @@ public class BottomSheetMenuManager {
             }
         });
     }
-
 
     private void toParseMenu(Context context, int menuId, List<PermissionEntity> permissionList, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
         List<MenuItem> items = parseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
@@ -303,6 +365,11 @@ public class BottomSheetMenuManager {
             return null;
         }
 
+        boolean isExistsSearchModel = selectedList.stream().anyMatch(m -> m instanceof SearchModel);
+        if (isExistsSearchModel) {
+            return CollectionUtils.newArrayList(R.id.star, R.id.share, R.id.rename, R.id.delete, R.id.upload);
+        }
+
         if (selectedList.size() == 1) {
             BaseModel baseModel = selectedList.get(0);
             if (baseModel instanceof RepoModel m) {
@@ -314,37 +381,45 @@ public class BottomSheetMenuManager {
             }
 
             return null;
-        } else {
-            long selectedRepoModelCount = selectedList.stream()
-                    .filter(f -> f instanceof RepoModel)
-                    .count();
-            if (selectedRepoModelCount > 0) {
-                return CollectionUtils.newArrayList(R.id.delete);
-            }
-
-            long selectedFolderCount = selectedList.stream()
-                    .filter(f -> f instanceof DirentModel)
-                    .map(m -> (DirentModel) m)
-                    .filter(DirentModel::isDir)
-                    .count();
-
-            if (selectedFolderCount > 0) {
-                return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.upload, R.id.save_as);
-            }
-
-            long selectedDirentModelCount = selectedList.stream()
-                    .filter(f -> f instanceof DirentModel)
-                    .count();
-            if (selectedDirentModelCount > 0) {
-                return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.save_as);
-            }
-
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename);
         }
+
+        long selectedRepoModelCount = selectedList.stream()
+                .filter(f -> f instanceof RepoModel)
+                .count();
+        if (selectedRepoModelCount > 0) {
+            return CollectionUtils.newArrayList(R.id.delete);
+        }
+
+        long selectedFolderCount = selectedList.stream()
+                .filter(f -> f instanceof DirentModel)
+                .map(m -> (DirentModel) m)
+                .filter(DirentModel::isDir)
+                .count();
+
+        if (selectedFolderCount > 0) {
+            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.upload, R.id.save_as);
+        }
+
+        long selectedDirentModelCount = selectedList.stream()
+                .filter(f -> f instanceof DirentModel)
+                .count();
+        if (selectedDirentModelCount > 0) {
+            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.save_as);
+        }
+
+        return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename);
     }
 
+    /**
+     *
+     */
     public List<Integer> getWillBeRemovedMenuIds(List<BaseModel> selectedList) {
         if (CollectionUtils.isEmpty(selectedList)) {
+            return CollectionUtils.newArrayList(R.id.unstar);
+        }
+
+        boolean isExistsSearchModel = selectedList.stream().anyMatch(m -> m instanceof SearchModel);
+        if (isExistsSearchModel) {
             return CollectionUtils.newArrayList(R.id.unstar);
         }
 
@@ -358,7 +433,7 @@ public class BottomSheetMenuManager {
             }
 
             //remove all starred menu
-            return CollectionUtils.newArrayList(R.id.star, R.id.unstar);
+            return CollectionUtils.newArrayList(R.id.star, R.id.unstar, R.id.upload, R.id.download);
         }
 
         boolean isAllStarred = true;

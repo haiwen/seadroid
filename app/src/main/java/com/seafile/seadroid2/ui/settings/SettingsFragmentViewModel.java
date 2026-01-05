@@ -86,7 +86,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
         Single<String> single = Single.create(new SingleOnSubscribe<String>() {
             @Override
             public void subscribe(SingleEmitter<String> emitter) throws Exception {
-                if (emitter.isDisposed()) {
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 

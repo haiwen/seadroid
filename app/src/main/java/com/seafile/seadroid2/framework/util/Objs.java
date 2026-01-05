@@ -354,9 +354,10 @@ public class Objs {
                 return Single.create(new SingleOnSubscribe<List<DirentModel>>() {
                     @Override
                     public void subscribe(SingleEmitter<List<DirentModel>> emitter) throws Exception {
-                        if (emitter.isDisposed()) {
+                        if (emitter == null){
                             return;
                         }
+
                         List<DirentModel> list = parseDirentsForDB(
                                 direntWrapperModel.dirent_list,
                                 direntWrapperModel.dir_id,

@@ -56,7 +56,7 @@ public class CopyMoveViewModel extends BaseViewModel {
         Single<ResultModel> moveSingle = Single.create(new SingleOnSubscribe<ResultModel>() {
             @Override
             public void subscribe(SingleEmitter<ResultModel> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 

@@ -24,6 +24,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -67,6 +68,12 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         DirentModel direntModel = DirentModel.convertActivityModelToThis(model);
         return start(context, direntModel, actionEnum);
     }
+
+    public static Intent startFromSearch(Context context, SearchModel model, FileReturnActionEnum actionEnum) {
+        DirentModel direntModel = DirentModel.convertSearchModelToThis(model);
+        return start(context, direntModel, actionEnum);
+    }
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,6 +219,14 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     }
 
     private void onFileDownloadProgress(long transferredSize, long totalSize) {
+        if (totalSize == 0) {
+            String txt = Utils.readableFileSize(transferredSize);
+            binding.progressText.setText(txt);
+            SLogs.d("progress: " + txt);
+
+            return;
+        }
+
         if (binding.progressBar.isIndeterminate()) {
             binding.progressBar.setIndeterminate(false);
             binding.progressBar.setMax(100);

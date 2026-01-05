@@ -290,7 +290,7 @@ public class PhotoViewModel extends BaseViewModel {
         return Single.create(new SingleOnSubscribe<File>() {
             @Override
             public void subscribe(SingleEmitter<File> emitter) throws Exception {
-                if (emitter.isDisposed()) {
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 

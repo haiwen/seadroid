@@ -2510,7 +2510,7 @@ static std::string GetSupportedVendorsMotionPhotoXMPCharacters(const std::string
         xmp += "GCamera:MicroVideo=\"1\"\n"
                "GCamera:MicroVideoVersion=\"1\"\n"
                "GCamera:MicroVideoOffset=\"" + std::to_string(videoLength) + "\"\n"
-                                                                             "GCamera:MicroVideoPresentationTimestampUs=\"0\"\n";
+               "GCamera:MicroVideoPresentationTimestampUs=\"0\"\n";
         return xmp;
     }
     return xmp;

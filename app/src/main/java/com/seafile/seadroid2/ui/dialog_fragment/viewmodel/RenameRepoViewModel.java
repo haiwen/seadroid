@@ -62,7 +62,7 @@ public class RenameRepoViewModel extends BaseViewModel {
                 return Single.create(new SingleOnSubscribe<String>() {
                     @Override
                     public void subscribe(SingleEmitter<String> emitter) throws Exception {
-                        if (emitter.isDisposed()){
+                        if (emitter == null || emitter.isDisposed()) {
                             return;
                         }
 
@@ -122,7 +122,7 @@ public class RenameRepoViewModel extends BaseViewModel {
                 return Single.create(new SingleOnSubscribe<String>() {
                     @Override
                     public void subscribe(SingleEmitter<String> emitter) throws Exception {
-                        if (emitter.isDisposed()){
+                        if (emitter == null || emitter.isDisposed()) {
                             return;
                         }
 
@@ -237,7 +237,7 @@ public class RenameRepoViewModel extends BaseViewModel {
                 return Single.create(new SingleOnSubscribe<FileCreateModel>() {
                     @Override
                     public void subscribe(SingleEmitter<FileCreateModel> emitter) throws IOException {
-                        if (emitter.isDisposed()){
+                        if (emitter == null || emitter.isDisposed()) {
                             return;
                         }
 

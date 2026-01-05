@@ -27,6 +27,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -168,7 +169,7 @@ public class Utils {
             return null;
         }
 
-        return path.substring(path.lastIndexOf("/") + 1);
+        return FilenameUtils.getName(path);
     }
 
     public static final String[] _units = new String[]{"B", "KB", "MB", "GB", "TB"};

@@ -11,6 +11,7 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Utils;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
@@ -103,11 +104,13 @@ public class SearchModel extends BaseModel implements Parcelable {
 
         d.related_account = model.related_account;
         d.name = Utils.getFileNameFromPath(model.fullpath);
+
         d.repo_id = model.repo_id;
         d.repo_name = model.repo_name;
         d.last_modified_at = model.last_modified;
         d.size = model.size;
         d.parent_dir = Utils.getParentPath(model.fullpath);
+        d.uid = d.getUID();
         return d;
     }
 

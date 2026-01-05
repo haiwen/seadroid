@@ -113,7 +113,7 @@ public class NewRepoViewModel extends BaseViewModel {
         return Single.create(new SingleOnSubscribe<SeafException>() {
             @Override
             public void subscribe(SingleEmitter<SeafException> emitter) {
-                if (emitter.isDisposed()) {
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 

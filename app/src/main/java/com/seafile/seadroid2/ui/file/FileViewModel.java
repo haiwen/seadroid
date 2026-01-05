@@ -154,7 +154,7 @@ public class FileViewModel extends BaseViewModel {
         Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                if (emitter.isDisposed()) {
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 
