@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.file;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -25,6 +26,9 @@ import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
+import com.seafile.seadroid2.framework.transport.LargeObjectIntent;
+import com.seafile.seadroid2.framework.transport.LargeObjectTransport;
+import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -54,8 +58,10 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
     public static Intent start(Context context, DirentModel direntModel, FileReturnActionEnum actionEnum) {
         Intent starter = new Intent(context, FileActivity.class);
-        starter.putExtra("dirent", direntModel);
+//        starter.putExtra("dirent", direntModel);
         starter.putExtra("action", actionEnum.name());
+        //
+        TransportHolder.get().put("dirent", direntModel);
         return starter;
     }
 
@@ -95,12 +101,11 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
             throw new IllegalArgumentException("missing args");
         }
 
-        if (!intent.hasExtra("dirent")) {
-            throw new IllegalArgumentException("missing args");
-        }
-
         action = intent.getStringExtra("action");
-        direntModel = intent.getParcelableExtra("dirent");
+
+        direntModel = TransportHolder.get().get("dirent");
+        TransportHolder.get().remove("dirent");
+
         if (null == direntModel) {
             throw new IllegalArgumentException("missing dirent args");
         }

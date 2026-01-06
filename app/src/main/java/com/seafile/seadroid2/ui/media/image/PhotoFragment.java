@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -56,6 +57,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -321,11 +323,28 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
+//        binding.photoView.setOnViewTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    playLivePhotoVideo();
+//                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+//                    stopPlay();
+//                }
+//                return false;
+//            }
+//        });
         binding.photoView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 playLivePhotoVideo();
                 return false;
+            }
+        });
+        binding.btnLivePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playLivePhotoVideo();
             }
         });
     }
@@ -616,37 +635,60 @@ public class PhotoFragment extends BaseFragment {
 
     // no load yet.
     private int motionPhotoType = -1;
+    private ExoPlayer exoPlayer;
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        releasePlayer();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        stopPlay();
+    }
 
     @OptIn(markerClass = Unstable.class)
     private void playLivePhotoVideo() {
 
         try {
+
+            if (exoPlayer != null && exoPlayer.isPlaying()) {
+                return;
+            }
+
             MediaSource source = buildMotionPhotoMediaSource(destinationFile);
             if (source == null) {
                 return;
             }
 
-            ExoPlayer exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+            if (exoPlayer == null) {
+                exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+                binding.playerView.setPlayer(exoPlayer);
 
-            binding.playerView.setPlayer(exoPlayer);
-            exoPlayer.addListener(new Player.Listener() {
-                @Override
-                public void onPlaybackStateChanged(int playbackState) {
-                    switch (playbackState) {
-                        case Player.STATE_BUFFERING: //loading
+                exoPlayer.addListener(new Player.Listener() {
+                    @Override
+                    public void onPlaybackStateChanged(int playbackState) {
+                        switch (playbackState) {
+                            case Player.STATE_BUFFERING: //loading
 
-                            break;
-                        case Player.STATE_READY:
-                            binding.photoView.setVisibility(View.INVISIBLE);
-                            binding.playerView.setVisibility(View.VISIBLE);
-                            break;
-                        case Player.STATE_ENDED:
-                            binding.photoView.setVisibility(View.VISIBLE);
-                            binding.playerView.setVisibility(View.INVISIBLE);
-                            break;
+                                break;
+                            case Player.STATE_READY:
+                                binding.photoView.setVisibility(View.INVISIBLE);
+                                binding.playerView.setVisibility(View.VISIBLE);
+                                break;
+                            case Player.STATE_ENDED:
+                                binding.photoView.setVisibility(View.VISIBLE);
+                                binding.playerView.setVisibility(View.INVISIBLE);
+                                break;
+                        }
                     }
-                }
-            });
+                });
+            }
+
             exoPlayer.setMediaSource(source);
             exoPlayer.prepare();
             exoPlayer.play();
@@ -654,6 +696,26 @@ public class PhotoFragment extends BaseFragment {
             throw new RuntimeException(e);
         }
     }
+
+    private void stopPlay() {
+        if (exoPlayer == null) {
+            return;
+        }
+
+        exoPlayer.stop();
+        exoPlayer.clearMediaItems();
+
+        binding.playerView.setVisibility(View.INVISIBLE);
+        binding.photoView.setVisibility(View.VISIBLE);
+    }
+
+    private void releasePlayer() {
+        if (exoPlayer != null) {
+            exoPlayer.release();
+            exoPlayer = null;
+        }
+    }
+
 
     private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
         if (motionPhotoType == -1) {

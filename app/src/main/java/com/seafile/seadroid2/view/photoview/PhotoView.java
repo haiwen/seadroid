@@ -93,6 +93,10 @@ public class PhotoView extends AppCompatImageView {
         attacher.setOnClickListener(l);
     }
 
+    public void setOnViewTouchListener(OnTouchListener l) {
+        attacher.setOnToucherListener(l);
+    }
+
     @Override
     public void setScaleType(ScaleType scaleType) {
         if (attacher == null) {

@@ -84,7 +84,7 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
     private OnScaleChangedListener mScaleChangeListener;
     private OnSingleFlingListener mSingleFlingListener;
     private OnViewDragListener mOnViewDragListener;
-
+    private View.OnTouchListener mOnToucherListener;
     private View.OnClickListener mOnClickListener;
     private OnViewActionEndListener mOnViewActionEndListener;
 
@@ -450,7 +450,10 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
             if (mGestureDetector != null && mGestureDetector.onTouchEvent(ev)) {
                 handled = true;
             }
+        }
 
+        if (mOnToucherListener != null) {
+            mOnToucherListener.onTouch(v, ev);
         }
         return handled;
     }
@@ -483,6 +486,10 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
 
     public void setOnLongClickListener(OnLongClickListener listener) {
         mLongClickListener = listener;
+    }
+
+    public void setOnToucherListener(View.OnTouchListener listener) {
+        mOnToucherListener = listener;
     }
 
     public void setOnClickListener(View.OnClickListener listener) {
@@ -520,8 +527,7 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
                 animate);
     }
 
-    public void setScale(float scale, float focalX, float focalY,
-                         boolean animate) {
+    public void setScale(float scale, float focalX, float focalY, boolean animate) {
         // Check to see if the scale is within bounds
         if (scale < mMinScale || scale > mMaxScale) {
             throw new IllegalArgumentException("Scale must be within the range of minScale and maxScale");

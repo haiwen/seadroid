@@ -25,6 +25,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.MenuRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -478,37 +479,42 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     };
 
     public void onMenuItemExpand(Menu menu, MenuItem item) {
+        if (menu == null) {
+            return;
+        }
         binding.stickyContainer.setVisibility(View.GONE);
 
-        // cache menu state
+        // cache item state
         setMenuVisibleStateById("search", menu.findItem(R.id.menu_action_search).isVisible());
         setMenuVisibleStateById("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
         setMenuVisibleStateById("createRepo", menu.findItem(R.id.create_repo).isVisible());
         setMenuVisibleStateById("add", menu.findItem(R.id.add).isVisible());
         setMenuVisibleStateById("select", menu.findItem(R.id.select).isVisible());
 
-        // hide other menu items
-        menu.findItem(R.id.menu_action_search).setVisible(false);
-        menu.findItem(R.id.menu_action_sort).setVisible(false);
-        menu.findItem(R.id.create_repo).setVisible(false);
-        menu.findItem(R.id.add).setVisible(false);
-        menu.findItem(R.id.select).setVisible(false);
+        // hide item
+        visibleMenuById(menu, R.id.menu_action_search, false);
+        visibleMenuById(menu, R.id.menu_action_sort, false);
+        visibleMenuById(menu, R.id.create_repo, false);
+        visibleMenuById(menu, R.id.add, false);
+        visibleMenuById(menu, R.id.select, false);
 
         adapter.notifySearchDataChanged(true, null);
     }
 
     public void onMenuItemCollapse(Menu menu, MenuItem item) {
+        if (menu == null) {
+            return;
+        }
         binding.stickyContainer.setVisibility(View.VISIBLE);
 
         binding.getRoot().post(new Runnable() {
             @Override
             public void run() {
-                menu.findItem(R.id.menu_action_search).setVisible(getMenuVisibleStateById("search"));
-                menu.findItem(R.id.menu_action_sort).setVisible(getMenuVisibleStateById("sortGroup"));
-                menu.findItem(R.id.create_repo).setVisible(getMenuVisibleStateById("createRepo"));
-                menu.findItem(R.id.add).setVisible(getMenuVisibleStateById("add"));
-                menu.findItem(R.id.select).setVisible(getMenuVisibleStateById("select"));
-                requireActivity().invalidateOptionsMenu();
+                visibleMenuById(menu, R.id.menu_action_search, "search");
+                visibleMenuById(menu, R.id.menu_action_sort, "sortGroup");
+                visibleMenuById(menu, R.id.create_repo, "createRepo");
+                visibleMenuById(menu, R.id.add, "add");
+                visibleMenuById(menu, R.id.select, "select");
             }
         });
 
@@ -521,6 +527,19 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return false;
         }
         return b;
+    }
+
+    private void visibleMenuById(Menu menu, int id, String menuName) {
+        visibleMenuById(menu, id, getMenuVisibleStateById(menuName));
+    }
+
+    private void visibleMenuById(Menu menu, int id, boolean visible) {
+        MenuItem item = menu.findItem(id);
+        if (item == null) {
+            return;
+        }
+
+        item.setVisible(visible);
     }
 
     private void setMenuVisibleStateById(String id, boolean visible) {
@@ -1543,7 +1562,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         closeActionMode();
 
         BaseModel model = models.get(0);
-        operateFile(model,FileReturnActionEnum.SAVE_AS);
+        operateFile(model, FileReturnActionEnum.SAVE_AS);
     }
 
     private void saveAsFor(File destinationFile) {
@@ -1687,7 +1706,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         closeActionMode();
 
         BaseModel model = models.get(0);
-        operateFile(model,FileReturnActionEnum.OPEN_WITH);
+        operateFile(model, FileReturnActionEnum.OPEN_WITH);
     }
 
     private void operateFile(BaseModel model, FileReturnActionEnum actionEnum) {
@@ -1916,10 +1935,18 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         return destinationFile;
                     }
 
-                    MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(destinationFile);
-                    if (!descriptor.isMotionPhoto()) {
+                    int motionPhotoType = HeicNative.nativeCheckMotionPhotoType(destinationFile.getAbsolutePath());
+                    if (motionPhotoType == 0) {//JPEG MP
+                        return destinationFile;
+                    } else if (motionPhotoType == 1) {//HEIC MP
+                        // convert to jpeg
+                    } else if (motionPhotoType == 2) {// a File
                         return destinationFile;
                     }
+//                    MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(destinationFile);
+//                    if (!descriptor.isMotionPhoto()) {
+//                        return destinationFile;
+//                    }
 
                     try {
                         Path path = Files.createTempFile("tmp-jmp-", ".tmp");
@@ -2001,7 +2028,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                         return new DirentModel();
                     }
                 })
-                .filter(f -> !TextUtils.isEmpty(f.name))1
+                .filter(f -> !TextUtils.isEmpty(f.name))
+                .collect(Collectors.toList());
 
 
         copyMoveContext = new CopyMoveContext(repoID, repoName, dirPath, ds, op);
@@ -2092,8 +2120,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 File destinationFile = new File(localFullPath);
                 if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
-
-                    WidgetUtils.exportFile(RepoQuickFragment.this, destinationFile);
+                    checkMotionPhotoAndExport(destinationFile);
                 } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
 
                     WidgetUtils.shareFileToWeChat(RepoQuickFragment.this, destinationFile);

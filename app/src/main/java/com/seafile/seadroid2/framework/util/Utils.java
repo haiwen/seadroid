@@ -28,6 +28,7 @@ import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
 
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -417,6 +418,19 @@ public class Utils {
 
     public static String getCurrentHourMinute() {
         return (String) DateFormat.format("hh:mm", new Date());
+    }
+
+    public static boolean isJson(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return false;
+        }
+
+        try {
+            Object value = new JSONTokener(str).nextValue();
+            return value instanceof JSONObject || value instanceof JSONArray;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -810,7 +824,7 @@ public class Utils {
      * Converts latitude and longitude values to a fixed format
      *
      * @param coordinate 经纬度值
-     * @param direction  方向（N/S/E/W）
+     * @param direction 方向（N/S/E/W）
      * @return 格式化后的字符串
      */
     private static String convertCoordinate(double coordinate, String direction) {
@@ -822,4 +836,3 @@ public class Utils {
         return String.format("%s%d°%d'%.0f\"", direction, degrees, minutes, seconds);
     }
 }
-

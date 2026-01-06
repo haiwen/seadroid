@@ -21,18 +21,34 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <ImageView
+        <LinearLayout
             android:id="@+id/btn_live_photo"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_marginStart="16dp"
             android:layout_marginTop="112dp"
-            android:foreground="?selectableItemBackground"
-            android:padding="4dp"
-            android:visibility="gone"
-            android:src="@drawable/icon_live_photo_play"
-            app:tint="@color/white" />
+            android:background="@drawable/selector_shape_solid_white_radius_16"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingEnd="8dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:padding="4dp"
+                android:src="@drawable/icon_live_photo"
+                app:tint="@color/dark_gray" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/live"
+                android:textColor="@color/dark_gray"
+                android:textSize="12sp" />
+        </LinearLayout>
+
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -117,6 +133,5 @@
             android:visibility="visible" />
 
     </FrameLayout>
-
 
 </FrameLayout>

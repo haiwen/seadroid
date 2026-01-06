@@ -367,6 +367,13 @@ public class BottomSheetMenuManager {
 
         boolean isExistsSearchModel = selectedList.stream().anyMatch(m -> m instanceof SearchModel);
         if (isExistsSearchModel) {
+            // Batch operations are not supported.
+            if (selectedList.size() > 1) {
+                return CollectionUtils.newArrayList(R.id.star, R.id.share, R.id.export, R.id.rename, R.id.delete,
+                        R.id.copy, R.id.move, R.id.upload, R.id.download, R.id.open_with, R.id.save_as);
+            }
+
+            //Only supported: Export, Copy, Move, Download, Open With, Save As
             return CollectionUtils.newArrayList(R.id.star, R.id.share, R.id.rename, R.id.delete, R.id.upload);
         }
 

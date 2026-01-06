@@ -2000,11 +2000,10 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
 
     // 判断文件格式
     bool isJpeg = (header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF);
-    bool isHeic = (header[4] == 'f' && header[5] == 't' && header[6] == 'y' &&
-                   header[7] == 'p');
+    bool isHeic = (header[4] == 'f' && header[5] == 't' && header[6] == 'y' && header[7] == 'p');
 
-    LOGD_MP("[CheckType] File: %s, size: %ld, isJpeg: %d, isHeic: %d", filePath,
-            fileSize, isJpeg, isHeic);
+    LOGD_MP("[CheckType] File: %s, size: %ld, isJpeg: %d, isHeic: %d",
+            filePath, fileSize, isJpeg, isHeic);
 
     if (isJpeg) {
         // ==================== JPEG 格式处理 ====================

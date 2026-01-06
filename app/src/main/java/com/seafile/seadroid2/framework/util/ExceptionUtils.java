@@ -151,20 +151,25 @@ public class ExceptionUtils {
         String errorContent = null;
         if (!TextUtils.isEmpty(bodyString)) {
             try {
-                Gson gson = new Gson();
-                ErrorModel errorModel = gson.fromJson(bodyString, ErrorModel.class);
-                if (errorModel != null && !TextUtils.isEmpty(errorModel.getError())) {
-                    errorContent = errorModel.getError();
-                } else if (errorModel != null) {
+                boolean bodyIsJson = Utils.isJson(bodyString);
+                if (bodyIsJson){
+                    Gson gson = new Gson();
+                    ErrorModel errorModel = gson.fromJson(bodyString, ErrorModel.class);
+                    if (errorModel != null && !TextUtils.isEmpty(errorModel.getError())) {
+                        errorContent = errorModel.getError();
+                    } else {
+                        errorContent = bodyString;
+                        SLogs.w("ExceptionUtils", "ErrorModel parsed but error field is empty. Body: " + bodyString);
+                    }
+                }else {
                     errorContent = bodyString;
-                    SLogs.w("ExceptionUtils", "ErrorModel parsed but error field is empty. Body: " + bodyString);
                 }
+
             } catch (JsonSyntaxException | IllegalStateException e) {
                 SLogs.e("ExceptionUtils", "Failed to parse error body as ErrorModel JSON object.");
                 SLogs.e("ExceptionUtils", "Body: " + bodyString);
                 SLogs.e(e);
             }
-
         }
 
         //400

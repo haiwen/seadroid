@@ -33,6 +33,7 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.model.objs.DirentShareLinkModel;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.util.FileExports;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.OnCreateDirentShareLinkListener;
@@ -88,16 +89,34 @@ public class WidgetUtils {
         Uri uri = FileProvider.getUriForFile(context, BuildConfig.FILE_PROVIDER_AUTHORITIES, file);
         openIntent.setDataAndType(uri, mime);
         openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+
         boolean isAvailable = isIntentAvailable(context, openIntent);
         if (isAvailable) {
-            context.startActivity(openIntent);
-        } else {
-            if (TextUtils.isEmpty(suffix)) {
-                suffix = mime;
+            try {
+                // Use Intent.createChooser to avoid SecurityException when system defaults to protected components (like NFC TagViewer)
+                Intent chooserIntent = Intent.createChooser(openIntent, context.getString(R.string.open_as));
+                chooserIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(chooserIntent);
+                SLogs.e("Third app has Available");
+            } catch (SecurityException e) {
+                SLogs.e("SecurityException when opening file: " + e.getMessage());
+                showAppNotFoundError(context, suffix, mime);
+            } catch (Exception e) {
+                SLogs.e("Exception when opening file: " + e.getMessage());
+                Toasts.show(R.string.activity_not_found);
             }
-            String message = String.format(context.getString(R.string.op_exception_suitable_app_not_found), suffix);
-            Toasts.show(message);
+        } else {
+            showAppNotFoundError(context, suffix, mime);
         }
+    }
+
+    private static void showAppNotFoundError(Context context, String suffix, String mime) {
+        if (TextUtils.isEmpty(suffix)) {
+            suffix = mime;
+        }
+        String message = String.format(context.getString(R.string.op_exception_suitable_app_not_found), suffix);
+        SLogs.e(message);
+        Toasts.show(message);
     }
 
     public static void openUrlByLocalBrowser(Context context, String url) {
@@ -123,6 +142,7 @@ public class WidgetUtils {
         return !list.isEmpty();
     }
 
+    //
     private static void showFileForAndroid(final BaseActivity activity, File file) {
         NotificationManager manager = (NotificationManager) activity.getSystemService(NOTIFICATION_SERVICE);
         NotificationChannel channel = new NotificationChannel(NotificationUtils.OPEN_APK_CHANNEL, NotificationUtils.OPEN_APK_CHANNEL, NotificationManager.IMPORTANCE_HIGH);
@@ -130,8 +150,10 @@ public class WidgetUtils {
 
         //wait
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activity, NotificationUtils.OPEN_APK_CHANNEL)
-                .setContentTitle(activity.getString(R.string.waiting))
+                .setContentTitle(file.getName())
+                .setContentText(activity.getString(R.string.downloading))
                 .setSmallIcon(R.drawable.icon)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true);
 
         manager.notify(NotificationUtils.NID_OPEN_APK, notificationBuilder.build());
@@ -150,11 +172,14 @@ public class WidgetUtils {
 
         //open
         PendingIntent pendingIntent = PendingIntent.getActivity(activity, NotificationUtils.NID_OPEN_APK, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        notificationBuilder.setContentTitle(file.getName() + " " + activity.getString(R.string.download_finished))
+        notificationBuilder
+                .setContentTitle(file.getName())
+                .setContentText(activity.getString(R.string.download_finished))
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.action_open, activity.getString(R.string.open), pendingIntent)
                 .build();
         manager.notify(NotificationUtils.NID_OPEN_APK, notificationBuilder.build());
+
     }
 
 
