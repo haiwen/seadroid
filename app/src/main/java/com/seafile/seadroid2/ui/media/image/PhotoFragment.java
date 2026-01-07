@@ -3,16 +3,21 @@ package com.seafile.seadroid2.ui.media.image;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.animation.ValueAnimator;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -57,7 +62,6 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -86,6 +90,7 @@ public class PhotoFragment extends BaseFragment {
     private boolean isNightMode = false;
     private boolean canScrollBottomLayout = true;
 
+    private ImagePreviewHelper imagePreviewHelper;
     private OnPhotoTapListener onPhotoTapListener;
     private String serverUrl;
     private File destinationFile;
@@ -169,6 +174,8 @@ public class PhotoFragment extends BaseFragment {
         if (!TextUtils.isEmpty(imageUrl)) {
             canScrollBottomLayout = false;
         }
+
+
     }
 
 
@@ -190,7 +197,16 @@ public class PhotoFragment extends BaseFragment {
 
         initView();
 
+        initHelper();
+
         load();
+    }
+
+    private void initHelper() {
+        if (canScrollBottomLayout) {
+            imagePreviewHelper = new ImagePreviewHelper(requireContext());
+            imagePreviewHelper.setActionViews(binding.btnLivePhoto);
+        }
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
@@ -269,6 +285,14 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
+        getParentViewModel().getTapLiveData().observe(requireActivity(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer unused) {
+                if (imagePreviewHelper != null) {
+                    imagePreviewHelper.tap();
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -299,6 +323,8 @@ public class PhotoFragment extends BaseFragment {
         binding.photoView.setOnViewActionEndListener(new OnViewActionEndListener() {
             @Override
             public void onEnd() {
+                stopPlay();
+
                 onActionUp();
             }
         });
@@ -310,9 +336,7 @@ public class PhotoFragment extends BaseFragment {
                     return;
                 }
 
-                if (onPhotoTapListener != null) {
-                    onPhotoTapListener.onPhotoTap(view, x, y);
-                }
+                getParentViewModel().getTapLiveData().setValue(0);
             }
         });
 
@@ -323,17 +347,6 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
-//        binding.photoView.setOnViewTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//                    playLivePhotoVideo();
-//                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-//                    stopPlay();
-//                }
-//                return false;
-//            }
-//        });
         binding.photoView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -341,6 +354,7 @@ public class PhotoFragment extends BaseFragment {
                 return false;
             }
         });
+
         binding.btnLivePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -424,6 +438,10 @@ public class PhotoFragment extends BaseFragment {
             DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.CANCELLED, isBottomShowing);
             getParentViewModel().getScrolling().setValue(showModel);
 
+            if (imagePreviewHelper != null) {
+                imagePreviewHelper.gradientLayout(showModel);
+            }
+
             //notice:
             //toggle first, in order to show the animation
             toggleBottomShowingValue();
@@ -438,6 +456,10 @@ public class PhotoFragment extends BaseFragment {
 
         DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.FINISHED, isBottomShowing);
         getParentViewModel().getScrolling().setValue(showModel);
+
+        if (imagePreviewHelper != null) {
+            imagePreviewHelper.gradientLayout(showModel);
+        }
 
         toggleDetailLayout();
         toggleBottomShowingValue();
@@ -462,6 +484,10 @@ public class PhotoFragment extends BaseFragment {
 
         DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.SCROLLING, isBottomShowing);
         getParentViewModel().getScrolling().setValue(showModel);
+
+        if (imagePreviewHelper != null) {
+            imagePreviewHelper.gradientLayout(showModel);
+        }
 
         photoTranslationY += (int) (dY);
         bottomTranslationY += (int) (dY * 2f);
@@ -655,7 +681,6 @@ public class PhotoFragment extends BaseFragment {
     private void playLivePhotoVideo() {
 
         try {
-
             if (exoPlayer != null && exoPlayer.isPlaying()) {
                 return;
             }
@@ -667,8 +692,7 @@ public class PhotoFragment extends BaseFragment {
 
             if (exoPlayer == null) {
                 exoPlayer = new ExoPlayer.Builder(requireContext()).build();
-                binding.playerView.setPlayer(exoPlayer);
-
+                exoPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
                 exoPlayer.addListener(new Player.Listener() {
                     @Override
                     public void onPlaybackStateChanged(int playbackState) {
@@ -687,18 +711,40 @@ public class PhotoFragment extends BaseFragment {
                         }
                     }
                 });
+
+                binding.playerView.setPlayer(exoPlayer);
             }
 
             exoPlayer.setMediaSource(source);
             exoPlayer.prepare();
             exoPlayer.play();
+            //
+            vibrateOnce();
         } catch (IOException | XMPException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private void vibrateOnce() {
+        try {
+            Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator == null) return;
+            long durationMs = 30L;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                VibrationEffect effect = VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE);
+                vibrator.vibrate(effect);
+            } else {
+                vibrator.vibrate(durationMs);
+            }
+        } catch (Throwable ignored) {
+        }
+    }
     private void stopPlay() {
         if (exoPlayer == null) {
+            return;
+        }
+
+        if (!exoPlayer.isPlaying()) {
             return;
         }
 

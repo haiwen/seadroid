@@ -65,7 +65,7 @@ public class SslConfirmDialog extends DialogFragment {
             if (account != null){
                 host = new URL(account.server).getHost();
             }else{
-                host = "host";
+                host = "Host";
             }
 
         } catch (MalformedURLException e) {

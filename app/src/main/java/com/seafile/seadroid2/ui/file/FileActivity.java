@@ -58,7 +58,6 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
     public static Intent start(Context context, DirentModel direntModel, FileReturnActionEnum actionEnum) {
         Intent starter = new Intent(context, FileActivity.class);
-//        starter.putExtra("dirent", direntModel);
         starter.putExtra("action", actionEnum.name());
         //
         TransportHolder.get().put("dirent", direntModel);

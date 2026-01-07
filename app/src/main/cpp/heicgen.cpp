@@ -207,7 +207,9 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
 /**
  * 生成静态 HEIC
  */
-extern "C" JNIEXPORT jboolean JNICALL
+extern "C" JNIEXPORT jboolean
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeGenStillHeicSeq(
         JNIEnv *env, jclass clazz, jbyteArray jpegBytes, jstring outputPath) {
     const char *outPath = env->GetStringUTFChars(outputPath, nullptr);
@@ -254,7 +256,9 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenStillHeicSeq(
 /**
  * 获取 libheif 版本
  */
-extern "C" JNIEXPORT jstring JNICALL
+extern "C" JNIEXPORT jstring
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeGetLibVersion(JNIEnv *env,
                                                               jclass clazz) {
     const char *version = heif_get_version();
@@ -607,7 +611,9 @@ static heif_image *DecodeJpegToHeifImage(const std::vector<uint8_t> &data) {
  *  5、exif 数据
  *   - 如果 exif data 数据可用，则可以使用 heif_context_add_exif_metadata  接口实现绑定。
  */
-extern "C" JNIEXPORT jstring JNICALL
+extern "C" JNIEXPORT jstring
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
         JNIEnv *env, jclass clazz, jbyteArray primaryImageBytes,
         jbyteArray hdrBytes,
@@ -987,13 +993,17 @@ static std::string ExtractXmpValue(const std::string &xmp, const std::string &ta
     return "";
 }
 
-extern "C" JNIEXPORT jstring JNICALL
+extern "C" JNIEXPORT jstring
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoXMP(JNIEnv *env, jclass clazz, jstring inputFilePath);
 
 
 static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath);
 
-extern "C" JNIEXPORT jstring JNICALL
+extern "C" JNIEXPORT jstring
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoXMP(JNIEnv *env, jclass clazz, jstring inputFilePath) {
     if (inputFilePath == nullptr) {
         return nullptr;
@@ -1066,48 +1076,86 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
     }
 
     // 查找 MotionPhoto Item 的 Length
-    size_t motionPhotoItemPos = info.xmpContent.find("MotionPhoto</Item:Semantic>");
-    if (motionPhotoItemPos == std::string::npos) {
-        motionPhotoItemPos = info.xmpContent.find("Item:Semantic=\"MotionPhoto\"");
-    }
-
-    if (motionPhotoItemPos != std::string::npos) {
-        size_t searchStart = (motionPhotoItemPos > 200) ? motionPhotoItemPos - 200 : 0;
-        size_t searchEnd = std::min(motionPhotoItemPos + 500, info.xmpContent.size());
-        std::string itemContext = info.xmpContent.substr(searchStart, searchEnd - searchStart);
-
-        std::string lengthStr = ExtractXmpValue(itemContext, "Item:Length");
-        if (!lengthStr.empty()) {
-            info.videoLength = SafeStol(lengthStr);
-            LOGD_MP("[ParseXMP] MotionPhoto Item:Length = %ld", info.videoLength);
+    {
+        size_t pos = 0;
+        while (true) {
+            pos = info.xmpContent.find("<Container:Item", pos);
+            if (pos == std::string::npos) break;
+            size_t end = info.xmpContent.find("/>", pos);
+            if (end == std::string::npos) {
+                end = info.xmpContent.find(">", pos);
+                if (end == std::string::npos) break;
+            }
+            std::string tag = info.xmpContent.substr(pos, end - pos);
+            auto getAttr = [&](const std::string &s, const std::string &key) -> std::string {
+                std::string pattern = key + "=\"";
+                size_t kpos = s.find(pattern);
+                if (kpos == std::string::npos) return "";
+                size_t vstart = kpos + pattern.size();
+                size_t vend = s.find("\"", vstart);
+                if (vend == std::string::npos) return "";
+                return s.substr(vstart, vend - vstart);
+            };
+            std::string semantic = getAttr(tag, "Item:Semantic");
+            if (semantic == "MotionPhoto") {
+                std::string lengthStr = getAttr(tag, "Item:Length");
+                if (!lengthStr.empty()) {
+                    info.videoLength = SafeStol(lengthStr);
+                    LOGD_MP("[ParseXMP] MotionPhoto Item:Length = %ld", info.videoLength);
+                }
+                std::string paddingStr = getAttr(tag, "Item:Padding");
+                if (!paddingStr.empty()) {
+                    info.videoPadding = SafeStol(paddingStr);
+                    LOGD_MP("[ParseXMP] MotionPhoto Item:Padding = %ld", info.videoPadding);
+                }
+                info.videoMime = getAttr(tag, "Item:Mime");
+                if (!info.videoMime.empty()) {
+                    LOGD_MP("[ParseXMP] MotionPhoto Item:Mime = %s", info.videoMime.c_str());
+                }
+                break;
+            }
+            pos = end + 2;
         }
-
-        std::string paddingStr = ExtractXmpValue(itemContext, "Item:Padding");
-        if (!paddingStr.empty()) {
-            info.videoPadding = SafeStol(paddingStr);
-            LOGD_MP("[ParseXMP] MotionPhoto Item:Padding = %ld", info.videoPadding);
-        }
-
-        info.videoMime = ExtractXmpValue(itemContext, "Item:Mime");
-        if (!info.videoMime.empty()) {
-            LOGD_MP("[ParseXMP] MotionPhoto Item:Mime = %s", info.videoMime.c_str());
+        if (info.videoLength == 0) {
+            std::string vendorLen = ExtractXmpValue(info.xmpContent, "OpCamera:VideoLength");
+            if (!vendorLen.empty()) {
+                info.videoLength = SafeStol(vendorLen);
+                LOGD_MP("[ParseXMP] Vendor VideoLength = %ld", info.videoLength);
+            }
         }
     }
 
     // 查找 Primary Item 的 Padding
-    size_t primaryItemPos = info.xmpContent.find("Primary</Item:Semantic>");
-    if (primaryItemPos == std::string::npos) {
-        primaryItemPos = info.xmpContent.find("Item:Semantic=\"Primary\"");
-    }
-    if (primaryItemPos != std::string::npos) {
-        size_t searchStart = primaryItemPos;
-        size_t searchEnd = std::min(primaryItemPos + 300, info.xmpContent.size());
-        std::string primaryContext = info.xmpContent.substr(searchStart, searchEnd - searchStart);
-
-        std::string primaryPaddingStr = ExtractXmpValue(primaryContext, "Item:Padding");
-        if (!primaryPaddingStr.empty()) {
-            info.primaryPadding = SafeStol(primaryPaddingStr);
-            LOGD_MP("[ParseXMP] Primary Item:Padding = %ld", info.primaryPadding);
+    {
+        size_t pos = 0;
+        while (true) {
+            pos = info.xmpContent.find("<Container:Item", pos);
+            if (pos == std::string::npos) break;
+            size_t end = info.xmpContent.find("/>", pos);
+            if (end == std::string::npos) {
+                end = info.xmpContent.find(">", pos);
+                if (end == std::string::npos) break;
+            }
+            std::string tag = info.xmpContent.substr(pos, end - pos);
+            auto getAttr = [&](const std::string &s, const std::string &key) -> std::string {
+                std::string pattern = key + "=\"";
+                size_t kpos = s.find(pattern);
+                if (kpos == std::string::npos) return "";
+                size_t vstart = kpos + pattern.size();
+                size_t vend = s.find("\"", vstart);
+                if (vend == std::string::npos) return "";
+                return s.substr(vstart, vend - vstart);
+            };
+            std::string semantic = getAttr(tag, "Item:Semantic");
+            if (semantic == "Primary") {
+                std::string primaryPaddingStr = getAttr(tag, "Item:Padding");
+                if (!primaryPaddingStr.empty()) {
+                    info.primaryPadding = SafeStol(primaryPaddingStr);
+                    LOGD_MP("[ParseXMP] Primary Item:Padding = %ld", info.primaryPadding);
+                }
+                break;
+            }
+            pos = end + 2;
         }
     }
 
@@ -1439,15 +1487,21 @@ static std::vector<uint8_t> ExtractJpegExif(const char *path) {
  * @param inputFilePath HEIC Motion Photo 文件路径
  * @return MP4 视频数据的字节数组，失败返回 null
  */
-extern "C" JNIEXPORT jbyteArray JNICALL
+extern "C" JNIEXPORT jbyteArray
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByMpvdCC(
         JNIEnv *env, jclass clazz, jstring inputFilePath);
 
-extern "C" JNIEXPORT jbyteArray JNICALL
+extern "C" JNIEXPORT jbyteArray
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP(
         JNIEnv *env, jclass clazz, jstring inputFilePath);
 
-extern "C" JNIEXPORT jbyteArray JNICALL
+extern "C" JNIEXPORT jbyteArray
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideo(
         JNIEnv *env, jclass clazz, jstring inputFilePath) {
     LOGI_MP("============================================================");
@@ -1499,7 +1553,9 @@ static bool ReadFileFully(const char *filePath, std::vector<uint8_t> &outData, l
     return true;
 }
 
-extern "C" JNIEXPORT jbyteArray JNICALL
+extern "C" JNIEXPORT jbyteArray
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByMpvdCC(
         JNIEnv *env, jclass clazz, jstring inputFilePath) {
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
@@ -1584,7 +1640,9 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByMpv
     return result;
 }
 
-extern "C" JNIEXPORT jbyteArray JNICALL
+extern "C" JNIEXPORT jbyteArray
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP(
         JNIEnv *env, jclass clazz, jstring inputFilePath) {
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
@@ -1698,7 +1756,9 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP
  * @param inputFilePath JPEG Motion Photo 文件路径
  * @return MP4 视频数据的字节数组，失败返回 null
  */
-extern "C" JNIEXPORT jbyteArray JNICALL
+extern "C" JNIEXPORT jbyteArray
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
         JNIEnv *env, jclass clazz, jstring inputFilePath) {
     LOGI_MP("============================================================");
@@ -1707,16 +1767,15 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
 
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
     if (!filePath) {
-        LOGE_MP("[ExtractJPEG] Failed to get input file path");
+        LOGE_MP("[ExtractJPEGVideo] Failed to get input file path");
         return nullptr;
     }
-    LOGD_MP("[ExtractJPEG] Input file: %s", filePath);
+    LOGD_MP("[ExtractJPEGVideo] Input file: %s", filePath);
 
     // 打开文件
     FILE *file = fopen(filePath, "rb");
     if (!file) {
-        LOGE_MP("[ExtractJPEG] Failed to open file: %s (errno=%d)", filePath,
-                errno);
+        LOGE_MP("[ExtractJPEGVideo] Failed to open file: %s (errno=%d)", filePath, errno);
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
@@ -1725,11 +1784,10 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
-    LOGD_MP("[ExtractJPEG] File size: %ld bytes (%.2f MB)", fileSize,
-            fileSize / (1024.0 * 1024.0));
+    LOGD_MP("[ExtractJPEGVideo] File size: %ld bytes (%.2f MB)", fileSize, fileSize / (1024.0 * 1024.0));
 
     if (fileSize < 16) {
-        LOGE_MP("[ExtractJPEG] File too small to be a valid Motion Photo");
+        LOGE_MP("[ExtractJPEGVideo] File too small to be a valid Motion Photo");
         fclose(file);
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
@@ -1741,33 +1799,32 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
     fclose(file);
 
     if (bytesRead != static_cast<size_t>(fileSize)) {
-        LOGE_MP("[ExtractJPEG] Failed to read file (read %zu of %ld)", bytesRead,
-                fileSize);
+        LOGE_MP("[ExtractJPEGVideo] Failed to read file (read %zu of %ld)", bytesRead, fileSize);
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
-    LOGD_MP("[ExtractJPEG] File loaded into memory: %zu bytes", bytesRead);
+    LOGD_MP("[ExtractJPEGVideo] File loaded into memory: %zu bytes", bytesRead);
 
     // 验证 JPEG 文件头 (FF D8 FF)
     if (fileData[0] != 0xFF || fileData[1] != 0xD8 || fileData[2] != 0xFF) {
-        LOGE_MP("[ExtractJPEG] Not a valid JPEG file (header: %02X %02X %02X)",
+        LOGE_MP("[ExtractJPEGVideo] Not a valid JPEG file (header: %02X %02X %02X)",
                 fileData[0], fileData[1], fileData[2]);
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
-    LOGD_MP("[ExtractJPEG] Valid JPEG header detected (FF D8 FF)");
+    LOGD_MP("[ExtractJPEGVideo] Valid JPEG header detected (FF D8 FF)");
 
     long mp4StartPos = -1;
     uint32_t mp4Size = 0;
     const char *locateMethod = "unknown";
 
     // ==================== 方式一：尝试 XMP 方式 ====================
-    LOGI_MP("[ExtractJPEG] Trying XMP method (Google style)...");
+    LOGI_MP("[ExtractJPEGVideo] Trying XMP method (Google style)...");
     MotionPhotoXmpInfo xmpInfo = ParseJpegMotionPhotoXmp(fileData);
 
     if (xmpInfo.isMotionPhoto && xmpInfo.videoLength > 0) {
         LOGI_MP(
-                "[ExtractJPEG] XMP method: Motion Photo confirmed, video length = %ld",
+                "[ExtractJPEGVideo] XMP method: Motion Photo confirmed, video length = %ld",
                 xmpInfo.videoLength);
 
         // 计算视频起始位置
@@ -1785,37 +1842,36 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
                     fileData[mp4StartPos + 6] == 'y' &&
                     fileData[mp4StartPos + 7] == 'p') {
                     LOGD_MP(
-                            "[ExtractJPEG] XMP method: Verified ftyp at calculated position");
+                            "[ExtractJPEGVideo] XMP method: Verified ftyp at calculated position");
                 } else {
-                    LOGW_MP("[ExtractJPEG] XMP method: No ftyp at calculated position, "
+                    LOGW_MP("[ExtractJPEGVideo] XMP method: No ftyp at calculated position, "
                             "data may be invalid");
-                    LOGW_MP("[ExtractJPEG]   Expected 'ftyp', got: %02X %02X %02X %02X",
+                    LOGW_MP("[ExtractJPEGVideo]   Expected 'ftyp', got: %02X %02X %02X %02X",
                             fileData[mp4StartPos + 4], fileData[mp4StartPos + 5],
                             fileData[mp4StartPos + 6], fileData[mp4StartPos + 7]);
                 }
             }
 
-            LOGD_MP("[ExtractJPEG] XMP method: MP4 starts at offset %ld",
+            LOGD_MP("[ExtractJPEGVideo] XMP method: MP4 starts at offset %ld",
                     mp4StartPos);
         } else {
-            LOGW_MP("[ExtractJPEG] XMP method: Invalid calculated position %ld",
+            LOGW_MP("[ExtractJPEGVideo] XMP method: Invalid calculated position %ld",
                     mp4StartPos);
             mp4StartPos = -1;
         }
     } else {
         if (!xmpInfo.isMotionPhoto) {
-            LOGD_MP("[ExtractJPEG] XMP method: Not a Google Motion Photo "
+            LOGD_MP("[ExtractJPEGVideo] XMP method: Not a Google Motion Photo "
                     "(GCamera:MotionPhoto != 1)");
         } else {
-            LOGD_MP("[ExtractJPEG] XMP method: No video length in XMP (Item:Length "
+            LOGD_MP("[ExtractJPEGVideo] XMP method: No video length in XMP (Item:Length "
                     "not found)");
         }
     }
 
     // ==================== 方式二：回退到 ftyp 搜索方式 ====================
     if (mp4StartPos < 0) {
-        LOGI_MP(
-                "[ExtractJPEG] Falling back to ftyp search method (Huawei style)...");
+        LOGI_MP("[ExtractJPEGVideo] Falling back to ftyp search method (Huawei style)...");
 
         const uint8_t ftypSignature[4] = {0x66, 0x74, 0x79, 0x70}; // "ftyp"
         long ftypPos = -1;
@@ -1829,9 +1885,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
                 fileData[i + 2] == ftypSignature[2] &&
                 fileData[i + 3] == ftypSignature[3]) {
                 ftypPos = i;
-                LOGD_MP(
-                        "[ExtractJPEG] ftyp method: Found 'ftyp' signature at offset %ld",
-                        ftypPos);
+                LOGD_MP("[ExtractJPEGVideo] ftyp method: Found 'ftyp' signature at offset %ld", ftypPos);
                 break;
             }
         }
@@ -1849,32 +1903,31 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
                     (static_cast<uint32_t>(fileData[mp4StartPos + 2]) << 8) |
                     static_cast<uint32_t>(fileData[mp4StartPos + 3]);
 
-            LOGD_MP("[ExtractJPEG] ftyp method: ftyp box size = %u bytes",
-                    ftypBoxSize);
+            LOGD_MP("[ExtractJPEGVideo] ftyp method: ftyp box size = %u bytes", ftypBoxSize);
 
             // 验证 ftyp box size 是否合理
             if (ftypBoxSize < 8 || ftypBoxSize > 256) {
-                LOGW_MP("[ExtractJPEG] ftyp method: Unusual ftyp box size: %u "
+                LOGW_MP("[ExtractJPEGVideo] ftyp method: Unusual ftyp box size: %u "
                         "(expected 8-256)",
                         ftypBoxSize);
             }
 
-            LOGD_MP("[ExtractJPEG] ftyp method: MP4 starts at offset %ld",
+            LOGD_MP("[ExtractJPEGVideo] ftyp method: MP4 starts at offset %ld",
                     mp4StartPos);
         } else {
             LOGE_MP(
-                    "[ExtractJPEG] ftyp method: 'ftyp' not found or invalid position");
+                    "[ExtractJPEGVideo] ftyp method: 'ftyp' not found or invalid position");
         }
     }
 
     // ==================== 提取结果检查 ====================
     if (mp4StartPos < 0 || mp4Size == 0) {
-        LOGE_MP("[ExtractJPEG] Failed to locate MP4 video data");
+        LOGE_MP("[ExtractJPEGVideo] Failed to locate MP4 video data");
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
 
-    LOGD_MP("[ExtractJPEG] MP4 data: offset %ld, size %u bytes, method: %s",
+    LOGD_MP("[ExtractJPEGVideo] MP4 data: offset %ld, size %u bytes, method: %s",
             mp4StartPos, mp4Size, locateMethod);
 
     // 打印 MP4 文件头信息
@@ -1885,7 +1938,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
                 (static_cast<uint32_t>(fileData[mp4StartPos + 2]) << 8) |
                 static_cast<uint32_t>(fileData[mp4StartPos + 3]);
 
-        LOGD_MP("[ExtractJPEG] MP4 first box: size=%u, type='%c%c%c%c', "
+        LOGD_MP("[ExtractJPEGVideo] MP4 first box: size=%u, type='%c%c%c%c', "
                 "brand='%c%c%c%c'",
                 firstBoxSize, fileData[mp4StartPos + 4], fileData[mp4StartPos + 5],
                 fileData[mp4StartPos + 6], fileData[mp4StartPos + 7],
@@ -1895,22 +1948,19 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
 
     // 计算 JPEG 图片大小
     long jpegSize = mp4StartPos;
-    LOGD_MP("[ExtractJPEG] JPEG image size: %ld bytes (%.2f KB)", jpegSize,
-            jpegSize / 1024.0);
+    LOGD_MP("[ExtractJPEGVideo] JPEG image size: %ld bytes (%.2f KB)", jpegSize, jpegSize / 1024.0);
 
     // 创建 Java byte array
     jbyteArray result = env->NewByteArray(static_cast<jsize>(mp4Size));
     if (!result) {
-        LOGE_MP("[ExtractJPEG] Failed to allocate Java byte array for %u bytes",
-                mp4Size);
+        LOGE_MP("[ExtractJPEGVideo] Failed to allocate Java byte array for %u bytes", mp4Size);
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
 
     // 复制 MP4 数据到 Java byte array
-    env->SetByteArrayRegion(
-            result, 0, static_cast<jsize>(mp4Size),
-            reinterpret_cast<const jbyte *>(fileData.data() + mp4StartPos));
+    env->SetByteArrayRegion(result, 0, static_cast<jsize>(mp4Size),
+                            reinterpret_cast<const jbyte *>(fileData.data() + mp4StartPos));
 
     LOGI_MP("============================================================");
     LOGI_MP("SUCCESS!");
@@ -1960,7 +2010,9 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
 #define MOTION_PHOTO_TYPE_HEIC 1
 #define MOTION_PHOTO_TYPE_NONE 2
 
-extern "C" JNIEXPORT jint JNICALL
+extern "C" JNIEXPORT jint
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         JNIEnv *env, jclass clazz, jstring inputFilePath) {
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
@@ -2226,7 +2278,7 @@ static std::vector<uint8_t> ExtractHeicExifTiff(const char *filePath) {
                     break;
                 }
             }
-            
+
             LOGD_MP("[ExtractHeicExif] Exif block found but no valid TIFF header detected");
         }
     } else {
@@ -2509,7 +2561,7 @@ static std::string GetSupportedVendorsMotionPhotoXMPCharacters(const std::string
         xmp += "GCamera:MicroVideo=\"1\"\n"
                "GCamera:MicroVideoVersion=\"1\"\n"
                "GCamera:MicroVideoOffset=\"" + std::to_string(videoLength) + "\"\n"
-               "GCamera:MicroVideoPresentationTimestampUs=\"0\"\n";
+                                                                             "GCamera:MicroVideoPresentationTimestampUs=\"0\"\n";
         return xmp;
     }
     return xmp;
@@ -2578,7 +2630,9 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, std::string
  * @param primaryHdrVideoSizeArray long array
  * - 长度为3：[Image offset, HDR offset, Video offset]
  * */
-extern "C" JNIEXPORT jstring JNICALL
+extern "C" JNIEXPORT jstring
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNIEnv *env, jclass clazz,
                                                                              jstring inputJpegFilePath,
                                                                              jlongArray primaryHdrVideoSizeArray,
@@ -2796,7 +2850,9 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
  * 3、生成 JPEG 文件的位置使用 outputFilePath 参数地址。并最终返回 outputFilePath。
  *
  * */
-extern "C" JNIEXPORT jstring JNICALL
+extern "C" JNIEXPORT jstring
+
+JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertHeicMotionPhotoToJpeg(
         JNIEnv *env, jclass clazz, jstring inputFilePath, jstring vendor, jstring outputFilePath) {
     LOGI_MP("============================================================");
