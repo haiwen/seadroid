@@ -21,6 +21,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.xmp.XmpDirectory;
 import com.seafile.seadroid2.annotation.Todo;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -35,6 +36,7 @@ import org.w3c.dom.NodeList;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -46,6 +48,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 @Todo
 public final class MotionPhotoDetector {
+    public static final String TAG = "MotionPhotoDetector";
+
     private MotionPhotoDetector() {
     }
 
@@ -56,6 +60,22 @@ public final class MotionPhotoDetector {
     public static final String GCAMERA_NS = "http://ns.google.com/photos/1.0/camera/";
     public static final String CONTAINER_NS = "http://ns.google.com/photos/1.0/container/";
     public static final String ITEM_NS = "http://ns.google.com/photos/1.0/container/item/";
+
+    public static MotionPhotoDescriptor extractJpegXmp(Context context, Uri p) {
+        MotionPhotoDescriptor descriptor = new MotionPhotoDescriptor();
+        try (InputStream is = context.getContentResolver().openInputStream(p)) {
+            if (is == null) {
+                SafeLogs.e(TAG, "parseJpegXmpWithUri()", "openInputStream is null");
+                return descriptor;
+            }
+
+            Metadata metadata = ImageMetadataReader.readMetadata(is);
+            return extractXmp(metadata, true);
+        } catch (ImageProcessingException | IOException e) {
+            SafeLogs.e(TAG, "parseJpegXmpWithUri()", e.getMessage());
+            return descriptor;
+        }
+    }
 
     public static MotionPhotoDescriptor extractJpegXmp(InputStream p) {
         try {
@@ -235,226 +255,342 @@ public final class MotionPhotoDetector {
         return descriptor;
     }
 
+    public static long calcPrimaryJpegLength(File f) throws IOException {
+        return calcPrimaryJpegLength(new FileInputStream(f));
+    }
+
     /**
-     * 根据输入流，补全“读取 JPEG 图像数据的实际长度”方法
-     *
+     * 从 InputStream 中顺序扫描，计算 Primary JPEG 的真实字节长度
      */
-    private static long calcuRealJpegLength(InputStream is) throws IOException {
-        long totalBytesRead = 0L;
+    public static long calcPrimaryJpegLength(InputStream is) throws IOException {
+        if (is == null) {
+            return -1;
+        }
+
+        long offset = 0;
+
+        // --- SOI ---
         int b1 = is.read();
         int b2 = is.read();
         if (b1 != 0xFF || b2 != 0xD8) {
             return -1;
         }
-        totalBytesRead += 2;
+        offset += 2;
 
         while (true) {
             int b = is.read();
-            if (b == -1) break;
-            totalBytesRead++;
+            if (b == -1) {
+                break;
+            }
+            offset++;
 
             if (b != 0xFF) {
                 continue;
             }
 
-            int marker = is.read();
-            if (marker == -1) break;
-            totalBytesRead++;
-
-            while (marker == 0xFF) {
+            // 跳过 padding FF
+            int marker;
+            do {
                 marker = is.read();
-                if (marker == -1) break;
-                totalBytesRead++;
+                if (marker == -1) return -1;
+                offset++;
+            } while (marker == 0xFF);
+
+            // standalone marker（无 length）
+            if (isStandaloneMarker(marker)) {
+                if (marker == 0xD9) { // EOI
+                    return offset;
+                }
+                continue;
             }
-            if (marker == -1) break;
 
+            // --- SOS ---
             if (marker == 0xDA) {
-                while (true) {
-                    int d = is.read();
-                    if (d == -1) break;
-                    totalBytesRead++;
+                // 读取 SOS header 长度
+                int lh = is.read();
+                int ll = is.read();
+                if (lh == -1 || ll == -1) return -1;
+                offset += 2;
 
-                    if (d == 0xFF) {
-                        int m = is.read();
-                        if (m == -1) break;
-                        totalBytesRead++;
-                        if (m == 0xD9) {
-                            return totalBytesRead;
+                int len = (lh << 8) | ll;
+                if (len < 2) return -1;
+
+                // 跳过 SOS header 剩余部分
+                long skipped = skipFully(is, len - 2);
+                if (skipped != len - 2) return -1;
+                offset += skipped;
+
+                // 扫描熵编码数据直到 EOI
+                while (true) {
+                    int data = is.read();
+                    if (data == -1) return -1;
+                    offset++;
+
+                    if (data == 0xFF) {
+                        int next = is.read();
+                        if (next == -1) return -1;
+                        offset++;
+
+                        if (next == 0x00) {
+                            // byte stuffing
+                            continue;
                         }
+                        if (next == 0xD9) {
+                            // EOI
+                            return offset;
+                        }
+                        // 其他 marker：继续扫描
                     }
                 }
-                break;
             }
 
-            int lenHi = is.read();
-            int lenLo = is.read();
-            if (lenHi == -1 || lenLo == -1) break;
-            totalBytesRead += 2;
-            int length = (lenHi << 8) | lenLo;
-
-            int dataLength = length - 2;
-            if (dataLength <= 0) continue;
-
-            long skipped = 0;
-            while (skipped < dataLength) {
-                long s = is.skip(dataLength - skipped);
-                if (s > 0) {
-                    skipped += s;
-                } else {
-                    int readOne = is.read();
-                    if (readOne == -1) break;
-                    skipped++;
-                }
+            // --- 普通 marker，读取 length ---
+            int lh = is.read();
+            int ll = is.read();
+            if (lh == -1 || ll == -1) {
+                return -1;
             }
-            totalBytesRead += skipped;
+            offset += 2;
+
+            int len = (lh << 8) | ll;
+            if (len < 2) {
+                return -1;
+            }
+
+            long skipped = skipFully(is, len - 2);
+            if (skipped != len - 2) {
+                return -1;
+            }
+            offset += skipped;
         }
 
         return -1;
     }
 
-    private static long calcuRealJpegLength(byte[] jpegBytes) {
-        if (jpegBytes == null || jpegBytes.length < 2 || (jpegBytes[0] & 0xFF) != 0xFF || (jpegBytes[1] & 0xFF) != 0xD8) {
+    private static long skipFully(InputStream is, long bytes) throws IOException {
+        long remaining = bytes;
+        while (remaining > 0) {
+            long skipped = is.skip(remaining);
+            if (skipped <= 0) {
+                // fallback: 读一个字节防止死循环
+                if (is.read() == -1) {
+                    break;
+                }
+                skipped = 1;
+            }
+            remaining -= skipped;
+        }
+        return bytes - remaining;
+    }
+
+    /**
+     * 计算 Primary JPEG 的真实字节长度（直到第一个合法 EOI）
+     *
+     * @param jpegBytes JPEG 字节数据
+     * @return JPEG 真实长度（EOI 之后的 offset），失败返回 -1
+     */
+    public static long calcPrimaryJpegLength(byte[] jpegBytes) {
+        if (jpegBytes == null || jpegBytes.length < 4) {
+            return -1;
+        }
+
+        // SOI
+        if ((jpegBytes[0] & 0xFF) != 0xFF || (jpegBytes[1] & 0xFF) != 0xD8) {
             return -1;
         }
 
         int offset = 2;
-        while (offset < jpegBytes.length) {
+        final int size = jpegBytes.length;
+
+        while (offset < size) {
+            // 寻找 marker 前导 FF
             if ((jpegBytes[offset] & 0xFF) != 0xFF) {
                 offset++;
                 continue;
             }
 
-            while (offset < jpegBytes.length && (jpegBytes[offset] & 0xFF) == 0xFF) {
+            // 跳过填充 FF
+            while (offset < size && (jpegBytes[offset] & 0xFF) == 0xFF) {
                 offset++;
             }
-            if (offset >= jpegBytes.length) break;
+            if (offset >= size) {
+                break;
+            }
 
             int marker = jpegBytes[offset] & 0xFF;
             offset++;
 
+            // 无 length 的 standalone marker
+            if (isStandaloneMarker(marker)) {
+                if (marker == 0xD9) { // EOI
+                    return offset;
+                }
+                continue;
+            }
+
+            // SOS：进入熵编码段
             if (marker == 0xDA) {
-                while (offset + 1 < jpegBytes.length) {
-                    if ((jpegBytes[offset] & 0xFF) == 0xFF && (jpegBytes[offset + 1] & 0xFF) == 0xD9) {
-                        return offset + 2;
+                // 跳过 SOS header
+                if (offset + 2 > size) return -1;
+                int len = ((jpegBytes[offset] & 0xFF) << 8)
+                        | (jpegBytes[offset + 1] & 0xFF);
+                offset += len;
+
+                // 扫描熵编码数据，直到遇到 EOI
+                while (offset + 1 < size) {
+                    int b = jpegBytes[offset] & 0xFF;
+                    if (b == 0xFF) {
+                        int next = jpegBytes[offset + 1] & 0xFF;
+                        if (next == 0x00) {
+                            // byte stuffing
+                            offset += 2;
+                            continue;
+                        }
+                        if (next == 0xD9) {
+                            // EOI
+                            return offset + 2;
+                        }
                     }
                     offset++;
                 }
                 break;
             }
 
-            if (offset + 2 > jpegBytes.length) break;
-            int length = ((jpegBytes[offset] & 0xFF) << 8) | (jpegBytes[offset + 1] & 0xFF);
-            offset += 2;
-            int dataLength = length - 2;
-            if (dataLength < 0) break;
-            offset += dataLength;
+            // 普通带 length 的 marker
+            if (offset + 2 > size) {
+                return -1;
+            }
+
+            int len = ((jpegBytes[offset] & 0xFF) << 8)
+                    | (jpegBytes[offset + 1] & 0xFF);
+            if (len < 2) {
+                return -1;
+            }
+
+            offset += len;
         }
 
         return -1;
-
     }
 
-    private static boolean startsWith(byte[] data, int offset, byte[] prefix) {
-        if (offset + prefix.length > data.length) return false;
-        for (int i = 0; i < prefix.length; i++) {
-            if (data[offset + i] != prefix[i]) return false;
-        }
-        return true;
+    /**
+     * JPEG 中不带 length 的 marker
+     */
+    private static boolean isStandaloneMarker(int marker) {
+        return (marker >= 0xD0 && marker <= 0xD7) // RST0~RST7
+                || marker == 0xD8                // SOI
+                || marker == 0xD9                // EOI
+                || marker == 0x01;               // TEM
     }
-
-    private static String getXmpPropertyStringSafe(XMPMeta xmpMeta, String namespace, String propertyName) {
-        try {
-            return xmpMeta.getPropertyString(namespace, propertyName);
-        } catch (XMPException e) {
-            return null;
-        }
-    }
-
 
     public static MotionPhotoDescriptor parseJpegXmpWithUri(Context context, Uri uri, boolean copyToLocal) {
-        MotionPhotoDescriptor defaultDesc = new MotionPhotoDescriptor();
-        long size = queryUriLength(context, uri);
-        final long MAX_IN_MEMORY = 20L * 1024L * 1024L;
-        MotionPhotoDescriptor d = new MotionPhotoDescriptor();
-        long realLength = -1;
+        MotionPhotoDescriptor descriptor = new MotionPhotoDescriptor();
+
+        // extract xmp
+        try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+            if (is == null) {
+                SafeLogs.e(TAG, "parseJpegXmpWithUri()", "openInputStream is null");
+                return descriptor;
+            }
+
+            descriptor = extractJpegXmp(is);
+        } catch (IOException e) {
+            SafeLogs.e(TAG, "parseJpegXmpWithUri()", e.getMessage());
+            return descriptor;
+        }
+
+        // check mp
+        if (!descriptor.isMotionPhoto()) {
+            SafeLogs.e(TAG, "parseJpegXmpWithUri()", "not motion photo");
+            return descriptor;
+        }
+
+        long primaryLength = -1;
+        try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+            primaryLength = calcPrimaryJpegLength(is);
+        } catch (IOException e) {
+            SafeLogs.e(TAG, "parseJpegXmpWithUri()", e.getMessage());
+        }
+
+        // copy to local
         File tempFile = null;
-        if (size > MAX_IN_MEMORY) {
+        if (copyToLocal) {
             try (InputStream is = context.getContentResolver().openInputStream(uri)) {
                 if (is == null) {
-                    return defaultDesc;
+                    SafeLogs.e(TAG, "parseJpegXmpWithUri()", "openInputStream[2] is null");
+                    return descriptor;
                 }
+
                 tempFile = DataManager.createTempFile("tmp-jmp-", ".jpeg");
                 FileUtils.copyInputStreamToFile(is, tempFile);
-                d = extractJpegXmp(tempFile);
-                realLength = calcuRealJpegLength(new FileInputStream(tempFile));
 
+                descriptor.tempJpegPath = tempFile.getAbsolutePath();
             } catch (Exception e) {
-                SafeLogs.e(e);
-                return defaultDesc;
-            }
-        } else {
-            byte[] bytes;
-            try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                if (is == null) {
-                    return defaultDesc;
-                }
-                bytes = IOUtils.toByteArray(is);
-                d = extractJpegXmp(bytes);
-                realLength = calcuRealJpegLength(bytes);
-            } catch (Exception e) {
-                SafeLogs.e(e);
-                return defaultDesc;
+                SafeLogs.e(TAG, "parseJpegXmpWithUri() - copyInputStreamToFile", e.getMessage());
+                return descriptor;
             }
         }
 
-        if (d.mpType == MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE) {
-            return defaultDesc;
+
+        int primaryIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.PRIMARY);
+        // not found primary semantic, it is not a motion photo
+        if (primaryIndex == -1) {
+            SafeLogs.e(TAG, "parseJpegXmpWithUri()", "primaryIndex = -1");
+            descriptor.mpType = MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE;
+            return descriptor;
         }
 
-        if (d.source == MotionPhotoDescriptor.Source.CONTAINER) {
-            return d;
-        }
+        //
+        descriptor.totalSize = queryUriLength(context, uri);
+        applyJpegItemOffsets(descriptor, primaryLength);
 
-        if (copyToLocal) {
-            try {
-                if (tempFile == null) {
-                    try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                        if (is == null) {
-                            return defaultDesc;
-                        }
-                        tempFile = DataManager.createTempFile("tmp-jmp-", ".jpeg");
-                        FileUtils.copyInputStreamToFile(is, tempFile);
-                    }
-                }
-                d.tempJpegPath = tempFile.getAbsolutePath();
 
-                int primaryIndex = getSpecialSemanticPosition(d.items, "Primary");
-                int gainMapIndex = getSpecialSemanticPosition(d.items, "GainMap");
-                int videoIndex = getSpecialSemanticPosition(d.items, "MotionPhoto");
+        return descriptor;
+    }
 
-                if (primaryIndex == -1) {
-                    return d;
-                }
-
-                d.items.get(primaryIndex).length = realLength;
-                d.items.get(primaryIndex).offset = 0L;
-
-                if (gainMapIndex != -1 && realLength != -1) {
-                    long padding = d.items.get(gainMapIndex).padding;
-                    d.items.get(gainMapIndex).offset = padding + realLength;
-                }
-
-                long fileLength = tempFile.length();
-                if (videoIndex != -1) {
-                    long length = d.items.get(videoIndex).length;
-                    d.items.get(videoIndex).offset = fileLength - length;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+    public static MotionPhotoDescriptor parseJpegXmpWithFile(String filePath) {
+        MotionPhotoDescriptor descriptor = new MotionPhotoDescriptor();
+        try {
+            if (TextUtils.isEmpty(filePath)) {
+                return descriptor;
             }
-        }
 
-        return d;
+            File file = new File(filePath);
+            if (!file.exists()) {
+                return descriptor;
+            }
+
+            // extract xmp
+            descriptor = extractJpegXmp(file);
+
+            if (!descriptor.isMotionPhoto()) {
+                SafeLogs.e(TAG, "parseJpegXmpWithUri()", "not a motion photo");
+                return descriptor;
+            }
+
+
+            int primaryIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.PRIMARY);
+
+            // not found primary semantic, it is not a motion photo
+            if (primaryIndex == -1) {
+                SafeLogs.e(TAG, "parseJpegXmpWithUri()", "primaryIndex = -1");
+                descriptor.mpType = MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE;
+                return descriptor;
+            }
+
+            // calc primary jpeg length
+            long primaryLength = calcPrimaryJpegLength(file);
+
+            //
+            descriptor.totalSize = file.length();
+            applyJpegItemOffsets(descriptor, primaryLength);
+
+        } catch (Exception e) {
+            descriptor.mpType = MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE;
+            SafeLogs.e(TAG, "parseJpegXmpWithFile()", e.getMessage());
+        }
+        return descriptor;
+
     }
 
     private static long queryUriLength(Context context, Uri uri) {
@@ -478,64 +614,36 @@ public final class MotionPhotoDetector {
         return -1L;
     }
 
-
-    public static MotionPhotoDescriptor parseJpegXmpWithFile(String filePath) {
-        try {
-            MotionPhotoDescriptor desc = new MotionPhotoDescriptor();
-            if (TextUtils.isEmpty(filePath)) {
-                return desc;
-            }
-
-            File f = new File(filePath);
-            if (!f.exists()) {
-                return desc;
-            }
-
-            desc = extractJpegXmp(f);
-
-            long realLength = calcuRealJpegLength(new FileInputStream(f));
-
-            if (desc.mpType == MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE) {
-                return desc;
-            }
-
-            if (desc.source == MotionPhotoDescriptor.Source.CONTAINER) {
-                return desc;
-            }
-
-
-            // re-calculate
-            int primaryIndex = getSpecialSemanticPosition(desc.items, "Primary");
-            int gainMapIndex = getSpecialSemanticPosition(desc.items, "GainMap");
-            int videoIndex = getSpecialSemanticPosition(desc.items, "MotionPhoto");
-
-            if (primaryIndex == -1) {
-                return desc;
-            }
-
-            //
-            desc.items.get(primaryIndex).length = 0L;
-            desc.items.get(primaryIndex).offset = 0L;
-
-            // gain map: add a jpeg offset into Padding field
-            if (gainMapIndex != -1) {
-                long padding = desc.items.get(gainMapIndex).padding;
-                desc.items.get(gainMapIndex).offset = padding + realLength;
-            }
-
-            long fileLength = f.length();
-            if (videoIndex != -1) {
-                long length = desc.items.get(videoIndex).length;
-                desc.items.get(videoIndex).offset = fileLength - length;
-            }
-
-            return desc;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    private static void applyJpegItemOffsets(MotionPhotoDescriptor descriptor, long primaryLength) {
+        int primaryIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.PRIMARY);
+        int gainMapIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.GAIN_MAP);
+        int videoIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.MOTION_PHOTO);
+        if (primaryIndex == -1) {
+            return;
         }
 
+        descriptor.items.get(primaryIndex).length = primaryLength;
+        descriptor.items.get(primaryIndex).offset = 0L;
+        long primaryPadding = 0L;
+        if (descriptor.items.get(primaryIndex).padding != null) {
+            primaryPadding = descriptor.items.get(primaryIndex).padding;
+        }
+        if (gainMapIndex != -1 && primaryLength != -1) {
+            descriptor.items.get(gainMapIndex).offset = primaryLength + primaryPadding;
+        }
+        if (videoIndex != -1) {
+            if (gainMapIndex != -1) {
+                MotionPhotoDescriptor.MotionPhotoItem gainItem = descriptor.items.get(gainMapIndex);
+                long gainPadding = 0L;
+                if (gainItem.padding != null) {
+                    gainPadding = gainItem.padding;
+                }
+                descriptor.items.get(videoIndex).offset = gainItem.offset + gainItem.length + gainPadding;
+            } else {
+                descriptor.items.get(videoIndex).offset = primaryLength + primaryPadding;
+            }
+        }
     }
-
 
     public static int getSpecialSemanticPosition(List<MotionPhotoDescriptor.MotionPhotoItem> items, String semantic) {
         for (int i = 0; i < items.size(); i++) {

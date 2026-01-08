@@ -62,6 +62,8 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -647,7 +649,17 @@ public class PhotoFragment extends BaseFragment {
 
     private void checkMotionPhoto(String localPath) {
         if (motionPhotoType == -1) {
-            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(localPath);
+            if (Utils.isJpeg(localPath)) {
+                MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(new File(localPath));
+                if (descriptor.isMotionPhoto()) {
+                    motionPhotoType = HeicNative.MOTION_PHOTO_TYPE_JPEG;
+                }
+            } else if (Utils.isHeic(localPath)) {
+                MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(new File(localPath));
+                if (descriptor.isMotionPhoto()){
+                    motionPhotoType = HeicNative.MOTION_PHOTO_TYPE_HEIC;
+                }
+            }
         }
 
         if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
@@ -739,6 +751,7 @@ public class PhotoFragment extends BaseFragment {
         } catch (Throwable ignored) {
         }
     }
+
     private void stopPlay() {
         if (exoPlayer == null) {
             return;

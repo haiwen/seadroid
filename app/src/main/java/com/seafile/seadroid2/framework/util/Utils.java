@@ -193,20 +193,8 @@ public class Utils {
         return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
     }
 
-    private static @Nullable String getFileSuffix(String fileName) {
-        if (TextUtils.isEmpty(fileName)) {
-            return null;
-        }
-
-        if (!fileName.contains(".")) {
-            return null;
-        }
-
-        return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
-    }
-
     public static boolean isJpeg(String name) {
-        String suffix = getFileSuffix(name);
+        String suffix = FilenameUtils.getExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -220,7 +208,7 @@ public class Utils {
     }
 
     public static boolean isHeic(String name) {
-        String suffix = getFileSuffix(name);
+        String suffix = FilenameUtils.getExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -243,7 +231,7 @@ public class Utils {
             return false;
         }
 
-        String suffix = getFileSuffix(fileName);
+        String suffix = FilenameUtils.getExtension(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -258,7 +246,7 @@ public class Utils {
     }
 
     public static boolean isViewableImage(String name) {
-        String suffix = getFileSuffix(name);
+        String suffix = FilenameUtils.getExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -286,7 +274,7 @@ public class Utils {
     }
 
     public static boolean isVideoFile(String name) {
-        String suffix = getFileSuffix(name);
+        String suffix = FilenameUtils.getExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -310,7 +298,7 @@ public class Utils {
     }
 
     public static boolean isTextFile(String fileName) {
-        String suffix = getFileSuffix(fileName);
+        String suffix = FilenameUtils.getExtension(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }

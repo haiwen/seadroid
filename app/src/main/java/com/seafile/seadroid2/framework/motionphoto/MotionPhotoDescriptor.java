@@ -15,7 +15,7 @@ public final class MotionPhotoDescriptor {
      */
     public MotionPhotoTypeEnum mpType = MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE;
     public long motionPhotoVersion;
-
+    public long totalSize;
     /**
      * suggested playback time microseconds
      */

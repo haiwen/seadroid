@@ -2538,13 +2538,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
-        boolean isJpeg = Utils.isJpeg(fileName);
-        if (isJpeg) {
-            MotionPhotoDescriptor descriptor = MotionPhotoDetector.parseJpegXmpWithUri(requireContext(), uri, false);
+        if (Utils.isJpeg(fileName)) {
+            MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(requireContext(), uri);
             if (descriptor.isMotionPhoto()) {
                 String parentPath = Utils.getParentPath(destinationPath);
                 String puraName = FilenameUtils.getBaseName(fileName);
-                //convert extend formet jpeg to heic
+                //convert extend format jpeg to heic
                 destinationPath = Utils.pathJoin(parentPath, puraName);
                 destinationPath += ".heic";
             }
