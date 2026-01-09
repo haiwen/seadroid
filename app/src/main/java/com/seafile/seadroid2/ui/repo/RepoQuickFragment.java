@@ -1337,6 +1337,32 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return false;
     }
 
+    /**
+     * true: can continue to back
+     */
+    public void backToRepoList() {
+        if (adapter == null) {
+            return;
+        }
+
+        if (GlobalNavContext.getCurrentNavContext().inRepo()) {
+
+            //
+            closeActionMode();
+
+            binding.swipeRefreshLayout.setRefreshing(false);
+
+            getViewModel().clearAll();
+
+            removeScrolledPosition();
+
+            GlobalNavContext.popAll();
+
+            loadData(RefreshStatusEnum.ONLY_LOCAL, true);
+        }
+    }
+
+
     private void showPasswordDialogCallback(String repo_id, String repo_name, OnResultListener<RepoModel> resultListener) {
         BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(repo_id, repo_name);
         passwordDialogFragment.setResultListener(resultListener);

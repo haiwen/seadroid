@@ -69,3 +69,6 @@ build_count.txt
 /app/.cxx
 /libheif-android-build
 /.vscode
+/.claude
+/.kotlin
+CLAUDE.md

@@ -21,6 +21,12 @@ public class GlobalNavContext {
         post();
     }
 
+    public static void popAll() {
+        getCurrentNavContext().popAll();
+        post();
+    }
+
+
     /**
      * restore from the sp
      */
