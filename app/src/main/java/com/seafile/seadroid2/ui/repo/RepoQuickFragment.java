@@ -1138,11 +1138,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void showErrorView(SeafException seafException) {
         int strInt = !GlobalNavContext.getCurrentNavContext().inRepo() ? R.string.error_when_load_repos : R.string.error_when_load_dirents;
-
-        String msg = getString(strInt);
-        msg += "\n";
-        msg += seafException.getMessage();
-        showErrorView(msg);
+        showErrorView(strInt);
     }
 
     private void showErrorView(int textRes) {

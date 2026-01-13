@@ -45,8 +45,6 @@ public class ProgressRequestBody extends RequestBody {
         return file.length();
     }
 
-    private static final int UPDATE_INTERVAL_MS = 1000;
-
     @Override
     public void writeTo(@NonNull BufferedSink sink) throws IOException {
         try (Source source = Okio.source(file); Buffer buffer = new Buffer()) {
@@ -72,7 +70,7 @@ public class ProgressRequestBody extends RequestBody {
                 bytesWrittenSinceUpdate += readCount;
                 // Throttle progress updates
                 long now = System.currentTimeMillis();
-                if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
+                if (now - lastUpdateTime >= ProgressUriRequestBody.UPDATE_INTERVAL_MS) {
                     updateProgress(bytesWrittenSinceUpdate, fileLength);
                     lastUpdateTime = now;
                 }

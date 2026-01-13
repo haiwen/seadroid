@@ -42,11 +42,10 @@ public class ProgressResponseBody extends ResponseBody {
         return bufferedSource;
     }
 
-    public long temp = System.currentTimeMillis();
-
     private ForwardingSource source(Source source) {
         return new ForwardingSource(source) {
             long totalBytesRead = 0L;
+            long lastUpdateTime = System.currentTimeMillis();
 
             @Override
             public long read(Buffer sink, long byteCount) throws IOException {
@@ -56,8 +55,8 @@ public class ProgressResponseBody extends ResponseBody {
 
                 long nowt = System.currentTimeMillis();
                 // 1s refresh progress
-                if (nowt - temp >= 1000) {
-                    temp = nowt;
+                if (nowt - lastUpdateTime >= ProgressUriRequestBody.UPDATE_INTERVAL_MS) {
+                    lastUpdateTime = nowt;
                     if (fileTransferProgressListener != null) {
                         fileTransferProgressListener.onProgressNotify(totalBytesRead, responseBody.contentLength());
                     }

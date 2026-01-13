@@ -290,6 +290,9 @@ public class PhotoFragment extends BaseFragment {
         getParentViewModel().getTapLiveData().observe(requireActivity(), new Observer<Integer>() {
             @Override
             public void onChanged(Integer unused) {
+                if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_NONE || motionPhotoType == -1){
+                    return;
+                }
                 if (imagePreviewHelper != null) {
                     imagePreviewHelper.tap();
                 }

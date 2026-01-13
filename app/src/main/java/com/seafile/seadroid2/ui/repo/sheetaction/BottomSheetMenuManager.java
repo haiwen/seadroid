@@ -369,12 +369,24 @@ public class BottomSheetMenuManager {
         if (isExistsSearchModel) {
             // Batch operations are not supported.
             if (selectedList.size() > 1) {
-                return CollectionUtils.newArrayList(R.id.star, R.id.share, R.id.export, R.id.rename, R.id.delete,
-                        R.id.copy, R.id.move, R.id.upload, R.id.download, R.id.open_with, R.id.save_as);
+                return CollectionUtils.newArrayList(
+                        R.id.star, R.id.share, R.id.export, R.id.rename,
+                        R.id.delete, R.id.copy, R.id.move, R.id.upload,
+                        R.id.download, R.id.open_with, R.id.save_as);
+            } else {
+                SearchModel sm = (SearchModel) selectedList.get(0);
+                if (sm.isDir()) {
+                    return CollectionUtils.newArrayList(
+                            R.id.star, R.id.share, R.id.rename, R.id.delete,
+                            R.id.upload, R.id.export, R.id.open_with,
+                            R.id.download, R.id.save_as);
+                } else {
+                    //Only supported: Export, Copy, Move, Download, Open With, Save As
+                    return CollectionUtils.newArrayList(
+                            R.id.star, R.id.share, R.id.rename,
+                            R.id.delete, R.id.upload);
+                }
             }
-
-            //Only supported: Export, Copy, Move, Download, Open With, Save As
-            return CollectionUtils.newArrayList(R.id.star, R.id.share, R.id.rename, R.id.delete, R.id.upload);
         }
 
         if (selectedList.size() == 1) {

@@ -211,9 +211,19 @@ public final class MotionPhotoDetector {
                 descriptor.motionPhotoVersion = Integer.parseInt(microVideoVersion);
             }
 
+            descriptor.items = new ArrayList<>();
+            MotionPhotoDescriptor.MotionPhotoItem primary = new MotionPhotoDescriptor.MotionPhotoItem();
+            primary.padding = 0L;
+            primary.length = 0L;
+            primary.offset = 0L;
+            primary.semantic = Constants.MotionPhoto.PRIMARY;
+            descriptor.items.add(primary);
+
             if (!microVideoOffset.isEmpty()) {
-                descriptor.items = new ArrayList<>();
                 MotionPhotoDescriptor.MotionPhotoItem mpi = new MotionPhotoDescriptor.MotionPhotoItem();
+                mpi.semantic = Constants.MotionPhoto.MOTION_PHOTO;
+                mpi.mime = "video/mp4";
+                mpi.padding = 0L;
                 mpi.length = parseLongSafe(microVideoOffset);
                 descriptor.items.add(mpi);
             }
