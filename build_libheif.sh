@@ -51,7 +51,7 @@ ABIS=(
     "armeabi-v7a"
     "arm64-v8a"
 #    "x86"
-#    "x86_64"
+    "x86_64"
 )
 
 # LibHeif version
@@ -95,67 +95,67 @@ log_error() {
 }
 
 # ============================================
-# 检查环境
+# Check environment
 # ============================================
 
 check_environment() {
-    log_info "检查编译环境..."
+    log_info "Checking build environment..."
 
-    # 检查操作系统
+    # Check operating system
     if [[ "$OSTYPE" != "darwin"* ]]; then
-        log_error "此脚本仅适用于 macOS"
-        log_error "Linux 用户请使用其他版本的脚本"
+        log_error "This script is only for macOS"
+        log_error "Linux users please use another version of the script"
         exit 1
     fi
 
-    # 检查 NDK
+    # Check NDK
     if [ ! -d "$ANDROID_NDK" ]; then
-        log_error "Android NDK 未找到: $ANDROID_NDK"
+        log_error "Android NDK not found: $ANDROID_NDK"
         exit 1
     fi
-    log_success "找到 Android NDK: $ANDROID_NDK"
+    log_success "Found Android NDK: $ANDROID_NDK"
 
-    # 检查项目目录
+    # Check project directory
     if [ ! -d "$PROJECT_DIR" ]; then
-        log_error "项目目录未找到: $PROJECT_DIR"
+        log_error "Project directory not found: $PROJECT_DIR"
         exit 1
     fi
-    log_success "找到项目目录: $PROJECT_DIR"
+    log_success "Found project directory: $PROJECT_DIR"
 
-    # 检查 Homebrew 工具
+    # Check Homebrew tools
     local tools=("cmake" "git" "ninja" "pkg-config")
     for tool in "${tools[@]}"; do
         if ! command -v $tool &> /dev/null; then
-            log_error "未找到工具: $tool"
-            log_error "请使用 Homebrew 安装: brew install $tool"
+            log_error "Tool not found: $tool"
+            log_error "Please install using Homebrew: brew install $tool"
             exit 1
         fi
     done
-    log_success "所有必需工具已安装"
+    log_success "All required tools installed"
 
-    # 检查 NASM
+    # Check NASM
     if ! command -v nasm &> /dev/null; then
-        log_warn "未找到 NASM"
-        log_warn "建议安装: brew install nasm"
+        log_warn "NASM not found"
+        log_warn "Recommended to install: brew install nasm"
     else
-        log_success "找到 NASM: $(which nasm)"
+        log_success "Found NASM: $(which nasm)"
     fi
 }
 
 build_libjpeg() {
     log_info "=========================================="
-    log_info "开始编译 libjpeg-turbo..."
+    log_info "Starting to build libjpeg-turbo..."
     log_info "=========================================="
     cd $SRC_DIR
     if [ ! -d "libjpeg-turbo" ]; then
-        log_info "克隆 libjpeg-turbo 源码..."
+        log_info "Cloning libjpeg-turbo source code..."
         git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
     else
-        log_info "libjpeg-turbo 源码已存在,跳过下载"
+        log_info "libjpeg-turbo source code already exists, skipping download"
     fi
     cd libjpeg-turbo
     for ABI in "${ABIS[@]}"; do
-        log_info "编译 libjpeg-turbo for $ABI..."
+        log_info "Building libjpeg-turbo for $ABI..."
         BUILD_DIR="build-$ABI"
         INSTALL_DIR="$PREFIX_DIR/libjpeg/$ABI"
         rm -rf $BUILD_DIR
@@ -173,17 +173,17 @@ build_libjpeg() {
         ninja -j$NPROC
         ninja install
         cd ..
-        log_success "libjpeg-turbo for $ABI 编译完成"
+        log_success "libjpeg-turbo for $ABI build complete"
     done
-    log_success "✅ libjpeg-turbo 全部编译完成!"
+    log_success "✅ libjpeg-turbo build complete!"
 }
 
 # ============================================
-# 初始化目录
+# Initialize directories
 # ============================================
 
 init_directories() {
-    log_info "初始化编译目录..."
+    log_info "Initializing build directories..."
 
     export PREFIX_DIR="$BUILD_ROOT/prefix"
     export SRC_DIR="$BUILD_ROOT/src"
@@ -191,26 +191,26 @@ init_directories() {
     mkdir -p $PREFIX_DIR
     mkdir -p $SRC_DIR
 
-    log_success "编译目录创建完成: $BUILD_ROOT"
+    log_success "Build directories created: $BUILD_ROOT"
 }
 
 # ============================================
-# 编译 x265
+# Build x265
 # ============================================
 
 build_x265() {
     log_info "=========================================="
-    log_info "开始编译 x265..."
+    log_info "Starting to build x265..."
     log_info "=========================================="
 
     cd $SRC_DIR
 
-    # 下载 x265
+    # Download x265
     if [ ! -d "x265" ]; then
-        log_info "克隆 x265 源码..."
+        log_info "Cloning x265 source code..."
         git clone https://bitbucket.org/multicoreware/x265_git.git x265
     else
-        log_info "x265 源码已存在,跳过下载"
+        log_info "x265 source code already exists, skipping download"
     fi
 
     # Patch x265 CMakeLists.txt
@@ -226,9 +226,9 @@ build_x265() {
 
     cd x265/build
 
-    # 为每个架构编译
+    # Build for each architecture
     for ABI in "${ABIS[@]}"; do
-        log_info "编译 x265 for $ABI..."
+        log_info "Building x265 for $ABI..."
 
         BUILD_DIR="android-$ABI"
         INSTALL_DIR="$PREFIX_DIR/x265/$ABI"
@@ -260,36 +260,36 @@ build_x265() {
 
         cd ..
 
-        log_success "x265 for $ABI 编译完成"
+        log_success "x265 for $ABI build complete"
     done
 
-    log_success "✅ x265 全部编译完成!"
+    log_success "✅ x265 build complete!"
 }
 
 # ============================================
-# 编译 libde265
+# Build libde265
 # ============================================
 
 build_libde265() {
     log_info "=========================================="
-    log_info "开始编译 libde265..."
+    log_info "Starting to build libde265..."
     log_info "=========================================="
 
     cd $SRC_DIR
 
-    # 下载 libde265
+    # Download libde265
     if [ ! -d "libde265" ]; then
-        log_info "克隆 libde265 源码..."
+        log_info "Cloning libde265 source code..."
         git clone https://github.com/strukturag/libde265.git
     else
-        log_info "libde265 源码已存在,跳过下载"
+        log_info "libde265 source code already exists, skipping download"
     fi
 
     cd libde265
 
-    # 为每个架构编译
+    # Build for each architecture
     for ABI in "${ABIS[@]}"; do
-        log_info "编译 libde265 for $ABI..."
+        log_info "Building libde265 for $ABI..."
 
         BUILD_DIR="build-$ABI"
         INSTALL_DIR="$PREFIX_DIR/libde265/$ABI"
@@ -314,10 +314,10 @@ build_libde265() {
 
         cd ..
 
-        log_success "libde265 for $ABI 编译完成"
+        log_success "libde265 for $ABI build complete"
     done
 
-    log_success "✅ libde265 全部编译完成!"
+    log_success "✅ libde265 build complete!"
 }
 
 # ============================================
@@ -325,23 +325,23 @@ build_libde265() {
 # ============================================
 build_bento4() {
     log_info "=========================================="
-    log_info "开始编译 Bento4..."
+    log_info "Starting to build Bento4..."
     log_info "=========================================="
 
     cd $SRC_DIR
 
-    # 下载 Bento4
+    # Download Bento4
     if [ ! -d "Bento4" ]; then
-        log_info "克隆 Bento4 源码..."
+        log_info "Cloning Bento4 source code..."
         git clone https://github.com/axiomatic-systems/Bento4.git
     else
-        log_info "Bento4 源码已存在,跳过下载"
+        log_info "Bento4 source code already exists, skipping download"
     fi
 
     cd Bento4
 
-    # Bento4 没有直接提供 CMake 安装支持，我们需要手动编译源文件
-    # 创建一个简单的 CMakeLists.txt 用于编译
+    # Bento4 doesn't provide CMake install support, we need to manually compile source files
+    # Create a simple CMakeLists.txt for compilation
 
     cat > CMakeLists.txt <<EOF
 cmake_minimum_required(VERSION 3.10)
@@ -374,9 +374,9 @@ target_include_directories(ap4 PUBLIC
 )
 EOF
 
-    # 为每个架构编译
+    # Build for each architecture
     for ABI in "${ABIS[@]}"; do
-        log_info "编译 Bento4 for $ABI..."
+        log_info "Building Bento4 for $ABI..."
 
         BUILD_DIR="cmake-build-$ABI"
         INSTALL_DIR="$PREFIX_DIR/bento4/$ABI"
@@ -394,7 +394,7 @@ EOF
 
         ninja -j$NPROC
 
-        # 手动安装
+        # Manual installation
         mkdir -p $INSTALL_DIR/lib
         mkdir -p $INSTALL_DIR/include/Bento4
 
@@ -406,10 +406,10 @@ EOF
 
         cd ..
 
-        log_success "Bento4 for $ABI 编译完成"
+        log_success "Bento4 for $ABI build complete"
     done
 
-    log_success "✅ Bento4 全部编译完成!"
+    log_success "✅ Bento4 build complete!"
 }
 
 # ============================================
@@ -418,20 +418,20 @@ EOF
 
 build_ffmpeg() {
     log_info "=========================================="
-    log_info "开始编译 ffmpeg..."
+    log_info "Starting to build ffmpeg..."
     log_info "=========================================="
 
     cd $SRC_DIR
 
-    # 下载 ffmpeg
+    # Download ffmpeg
     if [ ! -d "ffmpeg" ]; then
-        log_info "克隆 ffmpeg 源码..."
+        log_info "Cloning ffmpeg source code..."
         if ! git clone --depth 1 --branch n6.1 https://github.com/FFmpeg/FFmpeg.git ffmpeg; then
-            log_warn "GitHub 克隆失败，尝试官方镜像"
+            log_warn "GitHub clone failed, trying official mirror"
             git clone --depth 1 --branch n6.1 https://git.ffmpeg.org/ffmpeg.git ffmpeg
         fi
     else
-        log_info "ffmpeg 源码已存在,跳过下载"
+        log_info "ffmpeg source code already exists, skipping download"
     fi
 
     cd ffmpeg
@@ -446,7 +446,7 @@ build_ffmpeg() {
         mkdir -p $BUILD_DIR
         cd $BUILD_DIR
 
-        # 设置交叉编译工具链
+        # Set cross-compilation toolchain
         case $ABI in
             "armeabi-v7a")
                 ARCH="arm"
@@ -467,14 +467,14 @@ build_ffmpeg() {
 
         SYSROOT="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/sysroot"
 
-        # x86 架构需要禁用汇编优化以避免 PIC 链接错误
+        # x86 architecture needs to disable assembly optimization to avoid PIC linking errors
         EXTRA_FLAGS=""
         if [ "$ABI" = "x86" ]; then
             EXTRA_FLAGS="--disable-asm"
-            log_info "x86 架构：禁用汇编优化"
+            log_info "x86 architecture: disabling assembly optimization"
         fi
 
-        # 配置 ffmpeg
+        # Configure ffmpeg
         ../configure \
             --prefix=$INSTALL_DIR \
             --enable-cross-compile \
@@ -506,14 +506,14 @@ build_ffmpeg() {
         make install
 
         cd ..
-        log_success "ffmpeg for $ABI 编译完成"
+        log_success "ffmpeg for $ABI build complete"
     done
 
-    log_success "✅ ffmpeg 全部编译完成!"
+    log_success "✅ ffmpeg build complete!"
 }
 
 # ============================================
-# 编译 libheif
+# Build libheif
 # ============================================
 
 build_libheif() {
@@ -523,19 +523,19 @@ build_libheif() {
 
     cd $SRC_DIR
 
-    # 下载 libheif
+    # Download libheif
     if [ ! -d "libheif" ]; then
         log_info "clone libheif source code..."
         git clone https://github.com/strukturag/libheif.git
     else
-        log_info "libheif 源码已存在,跳过下载"
+        log_info "libheif source code already exists, skipping download"
     fi
 
     cd libheif
     git fetch --tags
     git checkout $LIBHEIF_VERSION
 
-    # 为每个架构编译
+    # Build for each architecture
     for ABI in "${ABIS[@]}"; do
         log_info "build libheif for $ABI..."
 
@@ -599,7 +599,7 @@ build_libheif() {
 }
 
 # ============================================
-# 复制到项目
+# Copy to project
 # ============================================
 
 copy_to_project() {
@@ -609,11 +609,11 @@ copy_to_project() {
 
     TARGET_DIR="$PROJECT_DIR/app/src/main/cpp/libheif"
 
-    # 创建目录
+    # Create directories
     mkdir -p $TARGET_DIR/include
     mkdir -p $TARGET_DIR/lib
 
-    # 复制头文件
+    # Copy header files
     log_info "copy libheif header files..."
     if [ "$NEED_LIBHEIF" = "true" ]; then
         cp -r $PREFIX_DIR/libheif/arm64-v8a/include/libheif $TARGET_DIR/include/
@@ -622,23 +622,23 @@ copy_to_project() {
         mkdir -p $TARGET_DIR/include/libjpeg
         cp -r $PREFIX_DIR/libjpeg/arm64-v8a/include/* $TARGET_DIR/include/libjpeg/
     fi
-    # [已注释] 复制 Bento4 头文件 - 当前只编译 libheif 和 libjpeg
+    # [Commented] Copy Bento4 headers - currently only building libheif and libjpeg
     # if [ "$NEED_BENTO4" = "true" ]; then
     #     mkdir -p $TARGET_DIR/include/Bento4
     #     cp -r $PREFIX_DIR/bento4/arm64-v8a/include/Bento4/* $TARGET_DIR/include/Bento4/
     # fi
-    # [已注释] 复制 ffmpeg 头文件 - 当前只编译 libheif 和 libjpeg
+    # [Commented] Copy ffmpeg headers - currently only building libheif and libjpeg
     # if [ "$NEED_FFMPEG" = "true" ] || [ -d "$PREFIX_DIR/ffmpeg/arm64-v8a/include" ]; then
     #     mkdir -p $TARGET_DIR/include/ffmpeg
     #     cp -r $PREFIX_DIR/ffmpeg/arm64-v8a/include/* $TARGET_DIR/include/ffmpeg/
     # fi
 
-    # 复制库文件
+    # Copy library files
     for ABI in "${ABIS[@]}"; do
-        log_info "复制 $ABI 库文件..."
+        log_info "Copying $ABI library files..."
         mkdir -p $TARGET_DIR/lib/$ABI
 
-        # 复制 libheif
+        # Copy libheif
         if [ "$NEED_LIBHEIF" = "true" ]; then
             cp $PREFIX_DIR/libheif/$ABI/lib/libheif.so $TARGET_DIR/lib/$ABI/
         fi
@@ -649,7 +649,7 @@ copy_to_project() {
          if [ "$NEED_LIBDE265" = "true" ]; then
              cp $PREFIX_DIR/libde265/$ABI/lib/libde265.so $TARGET_DIR/lib/$ABI/
          fi
-        # [已注释] 复制 Bento4 - 当前只编译 libheif 和 libjpeg
+        # [Commented] Copy Bento4 - currently only building libheif and libjpeg
         # if [ "$NEED_BENTO4" = "true" ]; then
         #     cp $PREFIX_DIR/bento4/$ABI/lib/libap4.so $TARGET_DIR/lib/$ABI/
         # fi
@@ -658,7 +658,7 @@ copy_to_project() {
             cp $PREFIX_DIR/libjpeg/$ABI/lib/libjpeg.so $TARGET_DIR/lib/$ABI/
         fi
 
-        # [已注释] 复制 ffmpeg 库文件 - 当前只编译 libheif 和 libjpeg
+        # [Commented] Copy ffmpeg library files - currently only building libheif and libjpeg
         # if [ "$NEED_FFMPEG" = "true" ] || [ -d "$PREFIX_DIR/ffmpeg/$ABI/lib" ]; then
         #     if [ -d "$PREFIX_DIR/ffmpeg/$ABI/lib" ]; then
         #         cp $PREFIX_DIR/ffmpeg/$ABI/lib/*.so $TARGET_DIR/lib/$ABI/ 2>/dev/null || true
@@ -672,7 +672,7 @@ copy_to_project() {
 }
 
 # ============================================
-# Strip 库文件
+# Strip library files
 # ============================================
 
 strip_libraries() {
@@ -685,7 +685,7 @@ strip_libraries() {
     for ABI in "${ABIS[@]}"; do
         log_info "Strip $ABI lib files..."
 
-        # 选择对应的 strip 工具
+        # Select corresponding strip tool
         case $ABI in
             "armeabi-v7a")
                 STRIP_TOOL="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/arm-linux-androideabi-strip"
@@ -701,17 +701,17 @@ strip_libraries() {
         if [ -f "$STRIP_TOOL" ]; then
             [ -f "$TARGET_DIR/$ABI/libheif.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libheif.so
             [ -f "$TARGET_DIR/$ABI/libjpeg.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libjpeg.so
-            # [已注释] 当前只编译 libheif 和 libjpeg
+            # [Commented] Currently only building libheif and libjpeg
             # [ -f "$TARGET_DIR/$ABI/libx265.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libx265.so
             # [ -f "$TARGET_DIR/$ABI/libde265.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libde265.so
             # [ -f "$TARGET_DIR/$ABI/libap4.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libap4.so
-            # [已注释] Strip ffmpeg 库文件 - 当前只编译 libheif 和 libjpeg
+            # [Commented] Strip ffmpeg library files - currently only building libheif and libjpeg
             # for ffmpeg_lib in $TARGET_DIR/$ABI/libav*.so $TARGET_DIR/$ABI/libsw*.so $TARGET_DIR/$ABI/libpostproc.so; do
             #     [ -f "$ffmpeg_lib" ] && $STRIP_TOOL "$ffmpeg_lib"
             # done
             log_success "$ABI lib files strip complete"
         else
-            log_warn "not found strip tool: $STRIP_TOOL"
+            log_warn "Strip tool not found: $STRIP_TOOL"
         fi
     done
 
@@ -719,7 +719,7 @@ strip_libraries() {
 }
 
 # ============================================
-# 显示统计信息
+# Show statistics
 # ============================================
 
 show_statistics() {
@@ -731,52 +731,52 @@ show_statistics() {
 
     for ABI in "${ABIS[@]}"; do
     if [ -d "$TARGET_DIR/$ABI" ]; then
-        log_info "架构: $ABI"
+        log_info "Architecture: $ABI"
             ls -lh $TARGET_DIR/$ABI/*.so
         echo ""
     fi
     done
 
-    log_info "总大小:"
+    log_info "Total size:"
     du -sh $TARGET_DIR
 }
 
 # ============================================
-# 清理临时文件
+# Cleanup temporary files
 # ============================================
 
 cleanup() {
     echo ""
-    log_info "是否删除临时构建目录? (源代码将始终保留) [y/N]"
+    log_info "Delete temporary build directories? (Source code will be kept) [y/N]"
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        log_info "清理临时构建文件..."
-        # 只删除构建目录，保留源代码
+        log_info "Cleaning up temporary build files..."
+        # Only delete build directories, keep source code
         if [ -d "$SRC_DIR" ]; then
             find $SRC_DIR -type d -name "build-*" -exec rm -rf {} + 2>/dev/null || true
             find $SRC_DIR -type d -name "android-*" -exec rm -rf {} + 2>/dev/null || true
             find $SRC_DIR -type d -name "cmake-build-*" -exec rm -rf {} + 2>/dev/null || true
         fi
-        log_info "源代码目录已保留: $SRC_DIR"
-        log_info "安装目录已保留: $PREFIX_DIR"
-        log_success "清理完成! (所有源代码已保留)"
+        log_info "Source code directory preserved: $SRC_DIR"
+        log_info "Installation directory preserved: $PREFIX_DIR"
+        log_success "Cleanup complete! (All source code preserved)"
     else
-        log_info "保留所有文件: $BUILD_ROOT"
-        log_info "源代码目录: $SRC_DIR"
-        log_info "如需重新编译,直接运行此脚本即可"
+        log_info "Keeping all files: $BUILD_ROOT"
+        log_info "Source code directory: $SRC_DIR"
+        log_info "You can run this script again to rebuild"
     fi
 }
 
 # ============================================
-# 检查依赖需求
+# Check dependency requirements
 # ============================================
 
 check_needs() {
-    log_info "检查已存在的库文件..."
+    log_info "Checking existing library files..."
 
     local TARGET_LIB_DIR="$PROJECT_DIR/app/src/main/cpp/libheif/lib"
 
-    # 默认需要编译的库（当前只编译 libheif 和 libjpeg）
+    # Default libraries to build (currently only building libheif and libjpeg)
     NEED_X265=false
     NEED_LIBDE265=false
     NEED_BENTO4=false
@@ -784,19 +784,19 @@ check_needs() {
     NEED_LIBJPEG=true
     NEED_FFMPEG=false
 
-    # 辅助函数：检查某个库是否在所有 ABI 下都存在
+    # Helper function: Check if a library exists for all ABIs
     check_lib_exists() {
         local lib_name=$1
         for ABI in "${ABIS[@]}"; do
             if [ ! -f "$TARGET_LIB_DIR/$ABI/$lib_name" ]; then
-                return 1 # 不存在
+                return 1 # Not exists
             fi
         done
-        return 0 # 存在
+        return 0 # Exists
     }
 
-    # 检查各库状态
-    # [已注释] 当前只编译 libheif 和 libjpeg，不检查其他库
+    # Check library status
+    # [Commented] Currently only building libheif and libjpeg, not checking other libraries
      if check_lib_exists "libx265.so"; then APP_HAS_X265=true; else APP_HAS_X265=false; fi
      if check_lib_exists "libde265.so"; then APP_HAS_DE265=true; else APP_HAS_DE265=false; fi
     # if check_lib_exists "libap4.so"; then APP_HAS_BENTO4=true; else APP_HAS_BENTO4=false; fi
@@ -804,36 +804,36 @@ check_needs() {
     if check_lib_exists "libheif.so"; then APP_HAS_HEIF=true; else APP_HAS_HEIF=false; fi
     if check_lib_exists "libjpeg.so"; then APP_HAS_JPEG=true; else APP_HAS_JPEG=false; fi
 
-    # [已注释] 1. Bento4 (无依赖)
+    # [Commented] 1. Bento4 (no dependencies)
     # if [ "$APP_HAS_BENTO4" = "true" ]; then
     #     NEED_BENTO4=false
-    #     log_info "Bento4 已存在，跳过编译"
+    #     log_info "Bento4 already exists, skipping build"
     # fi
 
-    # 2. LibHeif 检查（当前不依赖 x265, libde265）
+    # 2. LibHeif check (currently doesn't depend on x265, libde265)
     if [ "$APP_HAS_HEIF" = "true" ]; then
         NEED_LIBHEIF=false
-        log_info "libheif 已存在，跳过编译"
+        log_info "libheif already exists, skipping build"
     fi
 
      if [ "$APP_HAS_HEIF" = "true" ]; then
          NEED_LIBHEIF=false
-         log_info "libheif 已存在，跳过编译"
+         log_info "libheif already exists, skipping build"
 
-         # 如果 libheif 不需要编译，那么依赖项只需要检查是否在 App 中存在
+         # If libheif doesn't need to be built, dependencies only need to check if they exist in App
          if [ "$APP_HAS_X265" = "true" ]; then
              NEED_X265=false
-             log_info "x265 已存在，跳过编译"
+             log_info "x265 already exists, skipping build"
          fi
          if [ "$APP_HAS_DE265" = "true" ]; then
              NEED_LIBDE265=false
-             log_info "libde265 已存在，跳过编译"
+             log_info "libde265 already exists, skipping build"
          fi
      else
-         # LibHeif 需要编译，必须确保依赖项在 PREFIX_DIR 中可用
-         log_info "libheif 需要编译，检查依赖项..."
+         # LibHeif needs to be built, must ensure dependencies are available in PREFIX_DIR
+         log_info "libheif needs to be built, checking dependencies..."
 
-         # 检查 PREFIX 中的 x265
+         # Check x265 in PREFIX
          local prefix_has_x265=true
          for ABI in "${ABIS[@]}"; do
              if [ ! -f "$PREFIX_DIR/x265/$ABI/lib/libx265.so" ]; then prefix_has_x265=false; break; fi
@@ -841,15 +841,15 @@ check_needs() {
 
          if [ "$APP_HAS_X265" = "true" ] && [ "$prefix_has_x265" = "true" ]; then
              NEED_X265=false
-             log_info "x265 已存在且构建文件完整，跳过编译"
+             log_info "x265 exists and build files complete, skipping build"
          elif [ "$APP_HAS_X265" = "true" ] && [ "$prefix_has_x265" = "false" ]; then
              NEED_X265=true
-             log_warn "x265 在 App 中存在，但在构建目录缺失（编译 libheif 需要），将重新编译"
+             log_warn "x265 exists in App but missing from build directory (required for libheif build), will rebuild"
          elif [ "$APP_HAS_X265" = "false" ]; then
              NEED_X265=true
          fi
 
-         # 检查 PREFIX 中的 libde265
+         # Check libde265 in PREFIX
          local prefix_has_de265=true
          for ABI in "${ABIS[@]}"; do
              if [ ! -f "$PREFIX_DIR/libde265/$ABI/lib/libde265.so" ]; then prefix_has_de265=false; break; fi
@@ -857,10 +857,10 @@ check_needs() {
 
          if [ "$APP_HAS_DE265" = "true" ] && [ "$prefix_has_de265" = "true" ]; then
              NEED_LIBDE265=false
-             log_info "libde265 已存在且构建文件完整，跳过编译"
+             log_info "libde265 exists and build files complete, skipping build"
          elif [ "$APP_HAS_DE265" = "true" ] && [ "$prefix_has_de265" = "false" ]; then
              NEED_LIBDE265=true
-             log_warn "libde265 在 App 中存在，但在构建目录缺失（编译 libheif 需要），将重新编译"
+             log_warn "libde265 exists in App but missing from build directory (required for libheif build), will rebuild"
          elif [ "$APP_HAS_DE265" = "false" ]; then
              NEED_LIBDE265=true
          fi
@@ -868,48 +868,48 @@ check_needs() {
 
     if [ "$APP_HAS_JPEG" = "true" ]; then
         NEED_LIBJPEG=false
-        log_info "libjpeg 已存在，跳过编译"
+        log_info "libjpeg already exists, skipping build"
     fi
 
-    # [已注释] 检查 ffmpeg
+    # [Commented] Check ffmpeg
     # if [ "$APP_HAS_FFMPEG" = "true" ]; then
     #     NEED_FFMPEG=false
-    #     log_info "ffmpeg 已存在，跳过编译"
+    #     log_info "ffmpeg already exists, skipping build"
     # fi
 }
 
 # ============================================
-# 主函数
+# Main function
 # ============================================
 
 main() {
     echo ""
     log_info "=========================================="
-    log_info "LibHeif $LIBHEIF_VERSION Android 编译脚本"
-    log_info "macOS 专用版本"
+    log_info "LibHeif $LIBHEIF_VERSION Android Build Script"
+    log_info "macOS specific version"
     log_info "=========================================="
     echo ""
 
-    # 检查环境
+    # Check environment
     check_environment
     echo ""
 
-    # 初始化
+    # Initialize
     init_directories
     echo ""
 
-    # 检查依赖需求
+    # Check dependency requirements
     check_needs
     echo ""
 
-    # 记录开始时间
+    # Record start time
     local start_time=$(date +%s)
 
-    log_info "开始编译,这可能需要 30-60 分钟..."
-    log_info "使用 $NPROC 个 CPU 核心并行编译"
+    log_info "Starting build, this may take 30-60 minutes..."
+    log_info "Using $NPROC CPU cores for parallel compilation"
     echo ""
 
-    # 编译依赖
+    # Build dependencies
      if [ "$NEED_X265" = "true" ]; then
          build_x265
          echo ""
@@ -925,61 +925,61 @@ main() {
         echo ""
     fi
 
-    # [已注释] Bento4 编译 - 当前只编译 libheif 和 libjpeg
+    # [Commented] Bento4 build - currently only building libheif and libjpeg
     # if [ "$NEED_BENTO4" = "true" ]; then
     #     build_bento4
     #     echo ""
     # fi
 
-    # [已注释] ffmpeg 编译 - 当前只编译 libheif 和 libjpeg
+    # [Commented] ffmpeg build - currently only building libheif and libjpeg
     # if [ "$NEED_FFMPEG" = "true" ]; then
     #     build_ffmpeg
     #     echo ""
     # fi
 
-    # 编译 libheif
+    # Build libheif
     if [ "$NEED_LIBHEIF" = "true" ]; then
         build_libheif
         echo ""
     fi
 
-    # 复制文件
+    # Copy files
     copy_to_project
     echo ""
 
-    # Strip 库文件
+    # Strip library files
     strip_libraries
     echo ""
 
-    # 显示统计
+    # Show statistics
     show_statistics
     echo ""
 
-    # 计算耗时
+    # Calculate elapsed time
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
     local minutes=$((duration / 60))
     local seconds=$((duration % 60))
 
     log_success "=========================================="
-    log_success "🎉 编译完成!"
+    log_success "🎉 Build complete!"
     log_success "=========================================="
-    log_success "总耗时: ${minutes}分${seconds}秒"
-    log_success "输出目录: $PROJECT_DIR/app/src/main/cpp/libheif"
+    log_success "Total time: ${minutes} minutes ${seconds} seconds"
+    log_success "Output directory: $PROJECT_DIR/app/src/main/cpp/libheif"
     echo ""
 
-    log_info "下一步操作:"
+    log_info "Next steps:"
     log_info "1. cd $PROJECT_DIR"
     log_info "2. ./gradlew clean"
     log_info "3. ./gradlew assembleDebug"
-    log_info "4. 运行测试"
+    log_info "4. Run tests"
     echo ""
 
-    # 清理
+    # Cleanup
     cleanup
 
-    log_success "全部完成! 🎊"
+    log_success "All complete! 🎊"
 }
 
-# 运行主函数
+# Run main function
 main

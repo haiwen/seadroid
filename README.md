@@ -25,12 +25,85 @@ See [Contributors Graph](https://github.com/haiwen/seadroid/graphs/contributors)
 
 You will get `app/build/outputs/apk/seafile-${versionName}.apk` after the build finishes.
 
+## Build Native Libraries
+
+The app uses native libraries for HEIC/HEIF image format support. Prebuilt libraries are included in `app/src/main/cpp/libheif/`, but if you need to rebuild them:
+
+### Prerequisites
+
+**macOS only (currently)**
+- macOS operating system
+- Android NDK (r21 or later recommended)
+- Command line tools:
+  ```bash
+  brew install cmake ninja pkg-config git
+  brew install nasm  # Optional, for libjpeg-turbo optimization
+  ```
+
+**Environment variables** (optional, script will auto-detect):
+```bash
+export ANDROID_NDK_HOME=/path/to/ndk
+# or
+export ANDROID_NDK=/path/to/ndk
+# or
+export ANDROID_SDK_ROOT=/path/to/sdk
+```
+
+### Build libheif and dependencies
+
+Run the build script:
+
+```bash
+chmod +x build_libheif.sh
+./build_libheif.sh
+```
+
+This will:
+1. Download and compile the following libraries for Android (armeabi-v7a, arm64-v8a):
+   - **libjpeg-turbo** - JPEG image codec
+   - **x265** - H.265/HEVC video encoder
+   - **libde265** - H.265/HEVC video decoder
+   - **libheif** v1.20.2 - HEIF/HEIC image format support
+2. Copy compiled libraries to `app/src/main/cpp/libheif/lib/`
+3. Strip debug symbols to reduce size
+4. Keep source code in `libheif-android-build/src/` for future builds
+
+**Note**: The build process may take 30-60 minutes depending on your system.
+
+### Manual build configuration
+
+To customize the build, edit these variables in `build_libheif.sh`:
+
+```bash
+# Android API level (default: 28)
+export ANDROID_API=28
+
+# Target ABIs (default: armeabi-v7a, arm64-v8a)
+ABIS=(
+    "armeabi-v7a"
+    "arm64-v8a"
+)
+
+# LibHeif version (default: v1.20.2)
+LIBHEIF_VERSION="v1.20.2"
+```
+
+### Output
+
+After successful build, the following libraries will be available:
+- `app/src/main/cpp/libheif/lib/{ABI}/libheif.so`
+- `app/src/main/cpp/libheif/lib/{ABI}/libde265.so`
+- `app/src/main/cpp/libheif/lib/{ABI}/libx265.so`
+- `app/src/main/cpp/libheif/lib/{ABI}/libjpeg.so`
+
+Where `{ABI}` is one of: `armeabi-v7a`, `arm64-v8a`
+
 ## Develop in Android Studio
 
 ### Prerequisites
 
 * Android Studio
-* OpenJDK 8 / OracleJDK 8
+* OpenJDK 17 / OracleJDK 17
 
 ### Import project
 

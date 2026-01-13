@@ -31,9 +31,9 @@ extern "C" {
 #define LOGW_MP(...) __android_log_print(ANDROID_LOG_WARN, TAG_MP, __VA_ARGS__)
 
 /**
- * 将 RGBA 像素数据编码为单张 HEVC still image（带 alpha）
+ * Encode RGBA pixel data into a single HEVC still image (with alpha)
  *
- * 关键：这会创建一个完全独立的 HEVC intra image，可以独立解码
+ * Key: This creates a completely independent HEVC intra image that can be decoded independently
  */
 static heif_image *CreateHeifImageFromRGBA(const uint8_t *rgba, int width,
                                            int height, int stride) {
@@ -63,18 +63,18 @@ static heif_image *CreateHeifImageFromRGBA(const uint8_t *rgba, int width,
             dst_row[x * 4 + 0] = src_row[x * 4 + 0]; // R
             dst_row[x * 4 + 1] = src_row[x * 4 + 1]; // G
             dst_row[x * 4 + 2] = src_row[x * 4 + 2]; // B
-            dst_row[x * 4 + 3] = 255;                // A = 完全不透明
+            dst_row[x * 4 + 3] = 255;                // A
         }
     }
 
-    // 设置 NCLX 颜色配置文件（BT.709，limited range - 与 rally_burst 一致）
+    // Set NCLX color profile (BT.709, limited range - consistent with rally_burst)
     heif_color_profile_nclx *nclx = heif_nclx_color_profile_alloc();
     if (nclx) {
         nclx->color_primaries = heif_color_primaries_ITU_R_BT_709_5;
         nclx->transfer_characteristics =
                 heif_transfer_characteristic_ITU_R_BT_709_5;
         nclx->matrix_coefficients = heif_matrix_coefficients_ITU_R_BT_709_5;
-        nclx->full_range_flag = 0; // limited range (tv)，与 rally_burst 一致
+        nclx->full_range_flag = 0; // limited range (tv), consistent with rally_burst
         heif_image_set_nclx_color_profile(image, nclx);
         heif_nclx_color_profile_free(nclx);
     }
@@ -83,7 +83,7 @@ static heif_image *CreateHeifImageFromRGBA(const uint8_t *rgba, int width,
 }
 
 /**
- * 从 JPEG 数据解码并编码为 HEIC Primary Image
+ * Decode from JPEG data and encode as HEIC Primary Image
  */
 static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
                                        heif_context *ctx) {
@@ -119,7 +119,7 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
 
     LOGI("JPEG: %dx%d, components=%d", width, height, comps);
 
-    // 解码到 RGBA 格式
+    // Decode to RGBA format
     size_t src_row_stride = static_cast<size_t>(width * comps);
     std::vector<uint8_t> row(src_row_stride);
     size_t rgba_stride = static_cast<size_t>(width) * 4;
@@ -174,7 +174,7 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
 
     heif_encoder_set_lossy_quality(encoder, 90);
 
-    // 禁用 alpha 通道保存，避免生成 alpha 辅助轨道导致图像显示为黑色
+    // Disable alpha channel saving to avoid generating alpha auxiliary track which causes image to display as black
     heif_encoding_options *enc_options = heif_encoding_options_alloc();
     if (enc_options) {
         enc_options->save_alpha_channel = 0;
@@ -205,7 +205,7 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
 }
 
 /**
- * 生成静态 HEIC
+ * Generate static HEIC
  */
 extern "C" JNIEXPORT jboolean
 
@@ -254,7 +254,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenStillHeicSeq(
 }
 
 /**
- * 获取 libheif 版本
+ * Get libheif version
  */
 extern "C" JNIEXPORT jstring
 
@@ -266,7 +266,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGetLibVersion(JNIEnv *env,
 }
 
 /**
- * 自定义 heif_writer 用于写入内存缓冲区
+ * Custom heif_writer for writing to memory buffer
  */
 struct MemoryWriter {
     std::vector<uint8_t> data;
@@ -286,9 +286,9 @@ static heif_error memory_writer_write(heif_context *ctx, const void *data, size_
 static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength);
 
 /**
- * 写入 mpvd box (Motion Photo Video Data)
+ * Write mpvd box (Motion Photo Video Data)
  *
- * mpvd box 结构:
+ * mpvd box structure:
  * - 4 bytes: box size (big-endian)
  * - 4 bytes: box type 'mpvd'
  * - N bytes: MP4 video data
@@ -301,7 +301,7 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
     LOGD_MP("[WriteMpvdBox] boxSize=%u (header=8 + data=%zu)", boxSize,
             mp4Data.size());
 
-    // 写入 box size (big-endian)
+    // Write box size (big-endian)
     uint8_t sizeBytes[4] = {static_cast<uint8_t>((boxSize >> 24) & 0xFF),
                             static_cast<uint8_t>((boxSize >> 16) & 0xFF),
                             static_cast<uint8_t>((boxSize >> 8) & 0xFF),
@@ -315,7 +315,7 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
     }
     LOGD_MP("[WriteMpvdBox] wrote box size (4 bytes)");
 
-    // 写入 box type 'mpvd'
+    // Write box type 'mpvd'
     const char *boxType = "mpvd";
     if (fwrite(boxType, 1, 4, file) != 4) {
         LOGE_MP("[WriteMpvdBox] FAILED to write box type 'mpvd'");
@@ -323,7 +323,7 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
     }
     LOGD_MP("[WriteMpvdBox] wrote box type 'mpvd' (4 bytes)");
 
-    // 打印 MP4 文件开头的 magic bytes (ftyp)
+    // Print magic bytes at the beginning of MP4 file (ftyp)
     if (mp4Data.size() >= 12) {
         LOGD_MP("[WriteMpvdBox] MP4 header bytes: [%02X %02X %02X %02X] [%c%c%c%c] "
                 "[%c%c%c%c]",
@@ -332,7 +332,7 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
                 mp4Data[10], mp4Data[11]);
     }
 
-    // 写入 MP4 视频数据
+    // Write MP4 video data
     size_t written = fwrite(mp4Data.data(), 1, mp4Data.size(), file);
     if (written != mp4Data.size()) {
         LOGE_MP("[WriteMpvdBox] FAILED to write MP4 data (wrote %zu of %zu)",
@@ -346,8 +346,8 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
 }
 
 /**
- * 从 JPEG 数据解码并编码为 HEIC Primary Image (用于 Motion Photo)
- * 返回 image handle 用于后续添加 XMP metadata
+ * Decode from JPEG data and encode as HEIC Primary Image (用于 Motion Photo)
+ * Return image handle for subsequent XMP metadata addition
  */
 static heif_image_handle *EncodePrimaryImageForMotionPhoto(
         const std::vector<uint8_t> &jpegBytes, heif_context *ctx) {
@@ -393,7 +393,7 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
     LOGI_MP("[EncodePrimary] JPEG decoded: %dx%d, components=%d", width, height,
             comps);
 
-    // 解码到 RGBA 格式
+    // Decode to RGBA format
     size_t src_row_stride = static_cast<size_t>(width * comps);
     std::vector<uint8_t> row(src_row_stride);
     size_t rgba_stride = static_cast<size_t>(width) * 4;
@@ -446,7 +446,7 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
     }
     LOGD_MP("[EncodePrimary] heif_image created: %p", image);
 
-    // 获取 HEVC 编码器
+    // Get HEVC encoder
     heif_encoder *encoder = nullptr;
     heif_error err = heif_context_get_encoder_for_format(ctx, heif_compression_HEVC, &encoder);
     if (err.code != heif_error_Ok || !encoder) {
@@ -460,7 +460,7 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
     heif_encoder_set_lossy_quality(encoder, 90);
     LOGD_MP("[EncodePrimary] Encoder quality set to 90");
 
-    // 禁用 alpha 通道保存
+    // Disable alpha channel saving
     heif_encoding_options *enc_options = heif_encoding_options_alloc();
     if (enc_options) {
         enc_options->save_alpha_channel = 0;
@@ -577,35 +577,35 @@ static heif_image *DecodeJpegToHeifImage(const std::vector<uint8_t> &data) {
 }
 
 /**
- * 生成 Google Motion Photo 格式的 HEIC 动态照片
+ * Generate Google Motion Photo format HEIC motion photo
  *
- * 需求：
- * 使用 Google Motion Photo 格式生成 HEIC 动态照片
+ * Requirements:
+ * Generate HEIC motion photo using Google Motion Photo format
  *
- * 参考：
+ * Reference:
  * https://developer.android.com/media/platform/motion-photo-format?hl=zh-cn#isobmff-image-specific-behavior
  *
- * 结构：
+ * Structure:
  * - HEIC motion photo file (container)
  *   - ftyp box
  *   - meta box
- *      - XMP 里须包含 Google Motion Photo
- * 标识字段：例如(G)Camera:MotionPhoto、(G)Camera:MotionPhotoVersion、(G)Camera:MotionPhotoPresentationTimestampUs
- *      - XMP 的 Item 里必须Mime、Semantic、Length、Padding
- *      - ISOBMFF 图片的 XMP 还必须定义主媒体项目的 Padding 属性值为 8。
+ *      - XMP must contain Google Motion Photo
+ * Identifier fields: e.g.(G)Camera:MotionPhoto、(G)Camera:MotionPhotoVersion、(G)Camera:MotionPhotoPresentationTimestampUs
+ *      - XMP Item must have Mime, Semantic, Length, Padding
+ *      - ISOBMFF image XMP must also define Primary media item's Padding property value as 8.
  *   - mdat box: image contents
  *   - mpvd box: (MotionPhotoVideoData)
- *      - 存放 mp4 视频原始字节流。
- *      - 位置： the "mpvd" box must come after all the HEIC image file's boxes.
+ *      - Store mp4 video raw byte stream.
+ *      - Location:  the "mpvd" box must come after all the HEIC image file's boxes.
  *
- *  技术要求：
- *  1、libheif 提供了 XMP_metadata的操作 api，可以使用他们来操作
- *  2、primaryImageBytes、mp4VideoBytes分别是原始字节数组数据
- *  3、优先使用 libheif 自带 api。
- *  4、hdr 数据
- *   - 如果 hdr 可用，则需要用 auxiliary image + auxC + iref 来实现 GainMap 绑定。libheif 已经实现了此能力。
- *  5、exif 数据
- *   - 如果 exif data 数据可用，则可以使用 heif_context_add_exif_metadata  接口实现绑定。
+ *  Technical requirements:
+ *  1、libheif provides XMP_metadata operation APIs, you can use them
+ *  2、primaryImageBytes, mp4VideoBytes are raw byte array data
+ *  3、Prefer using libheif's built-in APIs.
+ *  4、HDR data
+ *   - If HDR is available, use auxiliary image + auxC + iref to implement GainMap binding. libheif has already implemented this capability.
+ *  5、EXIF data
+ *   - If EXIF data is available, you can use heif_context_add_exif_metadata interface to bind it.
  */
 extern "C" JNIEXPORT jstring
 
@@ -627,7 +627,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
     }
     LOGD_MP("[JNI] Output path: %s", outPath);
 
-    // 提取 JPEG 数据
+    // Extract JPEG data
     std::vector<uint8_t> jpegData;
     if (primaryImageBytes) {
         jsize len = env->GetArrayLength(primaryImageBytes);
@@ -651,7 +651,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
         env->ReleaseStringUTFChars(outputPath, outPath);
         return env->NewStringUTF("error: primary image data is empty");
     }
-//    // 提取 HDR 数据
+//    // Extract HDR data
 //    std::vector <uint8_t> hdrData;
 //    if (hdrBytes) {
 //        jsize len = env->GetArrayLength(hdrBytes);
@@ -672,7 +672,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
 //        LOGD_MP("[JNI] hdrBytes: NULL");
 //    }
 
-    // 复制 EXIF 数据
+    // Copy EXIF data
     std::vector<uint8_t> exifData;
     if (exifBytes) {
         jsize len = env->GetArrayLength(exifBytes);
@@ -692,7 +692,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
         LOGD_MP("[JNI] exifBytes: NULL");
     }
 
-    // 复制 MP4 视频数据
+    // Copy MP4 video data
     std::vector<uint8_t> mp4Data;
     if (mp4VideoBytes) {
         jsize len = env->GetArrayLength(mp4VideoBytes);
@@ -724,7 +724,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
     LOGI_MP("  MP4:  %zu bytes (%.2f KB)", mp4Data.size(), mp4Data.size() / 1024.0);
     LOGI_MP("------------------------------------------------------------");
 
-    // 创建 HEIF 上下文
+    // Create HEIF context
     LOGD_MP("[Step 1/6] Creating HEIF context...");
     heif_context *ctx = heif_context_alloc();
     if (!ctx) {
@@ -734,8 +734,8 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
     }
     LOGD_MP("[Step 1/6] HEIF context created: %p", ctx);
 
-    // 编码 Primary Image 并获取 handle
-    // 注意：不要在编码前设置 brands，否则会导致编码器获取失败
+    // Encode Primary Image and get handle
+    // Note: Do not set brands before encoding, otherwise encoder acquisition will fail
     LOGI_MP("[Step 2/6] Encoding primary image...");
     heif_image_handle *primaryHandle = EncodePrimaryImageForMotionPhoto(jpegData, ctx);
     if (!primaryHandle) {
@@ -794,18 +794,18 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
 }
 
 /**
- * Motion Photo XMP 元数据解析结果
+ * Motion Photo XMP metadata parsing result
  */
 struct MotionPhotoXmpInfo {
-    bool isMotionPhoto = false; // 是否为 Motion Photo
+    bool isMotionPhoto = false; // Whether it is a Motion Photo
     int version = 0;            // MotionPhotoVersion
-    long videoLength = 0;       // 视频数据长度 (Item:Length for MotionPhoto)
-    long videoPadding = 0;      // 视频前的填充字节 (Item:Padding)
-    long presentationTimestampUs = -1; // 主图所在的视频哪一帧的位置
-    long primaryPadding = 0;    // Primary 图片的填充字节
-    std::string videoMime;      // 视频 MIME 类型
-    std::string xmpContent;     // 原始 XMP 内容（用于调试）
-    long videoOffset = -1;      // 视频数据偏移 (GCamera:MicroVideoOffset)
+    long videoLength = 0;       // Video data length (Item:Length for MotionPhoto)
+    long videoPadding = 0;      // Padding bytes before video (Item:Padding)
+    long presentationTimestampUs = -1; // Position in video of the primary image frame
+    long primaryPadding = 0;    // Primary image padding bytes
+    std::string videoMime;      // Video MIME type
+    std::string xmpContent;     // Raw XMP content (for debugging)
+    long videoOffset = -1;      // Video data offset (GCamera:MicroVideoOffset)
 };
 
 static long SafeStol(const std::string &str, long defaultValue = 0) {
@@ -825,13 +825,13 @@ static int SafeStoi(const std::string &str, int defaultValue = 0) {
 }
 
 /**
- * 从字符串中提取指定标签的值
- * 支持两种格式：
- * 1. 属性格式: GCamera:MotionPhoto="1"
- * 2. 标签格式: <Item:Length>12345</Item:Length>
+ * Extract the value of a specified tag from a string
+ * Supports two formats:
+ * 1. Attribute format: GCamera:MotionPhoto="1"
+ * 2. Tag format: <Item:Length>12345</Item:Length>
  */
 static std::string ExtractXmpValue(const std::string &xmp, const std::string &tagName) {
-    // 尝试属性格式: tagName="value"
+    // Try attribute format: tagName="value"
     std::string attrPattern = tagName + "=\"";
     size_t pos = xmp.find(attrPattern);
     if (pos != std::string::npos) {
@@ -842,7 +842,7 @@ static std::string ExtractXmpValue(const std::string &xmp, const std::string &ta
         }
     }
 
-    // 尝试标签格式: <tagName>value</tagName>
+    // Try tag format: <tagName>value</tagName>
     std::string startTag = "<" + tagName + ">";
     std::string endTag = "</" + tagName + ">";
     pos = xmp.find(startTag);
@@ -888,7 +888,7 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
     MotionPhotoXmpInfo info;
     info.xmpContent = xmpContent;
 
-    // 1. 解析 GCamera:MotionPhoto (v2)
+    // 1. Parse GCamera:MotionPhoto (v2)
     std::string motionPhoto = ExtractXmpValue(info.xmpContent, "GCamera:MotionPhoto");
     if (motionPhoto == "1") {
         info.isMotionPhoto = true;
@@ -896,7 +896,7 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
         LOGD_MP("[ParseXMP] GCamera:MotionPhoto = 1 (confirmed Motion Photo)");
     }
 
-    // 解析 GCamera:MotionPhotoPresentationTimestampUs
+    // Parse GCamera:MotionPhotoPresentationTimestampUs
     std::string tsStr = ExtractXmpValue(info.xmpContent, "GCamera:MotionPhotoPresentationTimestampUs");
     if (!tsStr.empty()) {
         info.presentationTimestampUs = SafeStol(tsStr);
@@ -953,7 +953,7 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
         }
     }
 
-    // 2. 检查 v1 版本 (MicroVideo)
+    // 2. Check v1 version (MicroVideo)
     std::string microVideo = ExtractXmpValue(info.xmpContent, "GCamera:MicroVideo");
     if (microVideo == "1" && !info.isMotionPhoto) {
         info.isMotionPhoto = true;
@@ -975,7 +975,7 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
         return info;
     }
 
-    // 查找 Primary Item 的 Padding
+    // Find Primary Item's Padding
     {
         size_t pos = 0;
         while (true) {
@@ -1014,36 +1014,36 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
 
 
 /**
- * 使用 libheif 从 HEIC 文件中读取 XMP 元数据，解析 Motion Photo 信息
+ * Use libheif to read XMP metadata from HEIC file and parse Motion Photo information
 
-  * 主要的命名空间：
+  * Main namespaces:
  * GCAMERA = "http://ns.google.com/photos/1.0/camera/"
  * CONTAINER_NS = "http://ns.google.com/photos/1.0/container/"
  * RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  * ITEM_NS = "http://ns.google.com/photos/1.0/container/item/"
  *
- * Google XMP 关键字段：
- * v1版本:
+ * Google XMP key fields:
+ * v1 version:
  * - GCamera:MicroVideo="1"
  * - GCamera:MicroVideoOffset="1"
  * - GCamera:MicroVideoVersion="1"
  * - GCamera:MicroVideoPresentationTimestampUs="1"
  *
- * v2版本:
- * - GCamera:MotionPhoto="1" - 标识这是一个 Motion Photo
- * - GCamera:MotionPhotoVersion="1" - 版本号
+ * v2 version:
+ * - GCamera:MotionPhoto="1" - Identifier for Motion Photo
+ * - GCamera:MotionPhotoVersion="1" - Version number
  * - GCamera:MotionPhotoPresentationTimestampUs="1"
- * - Item:Semantic="MotionPhoto" 的 Item:Length - 视频数据的长度
- * - Item:Padding - 可能存在的填充字节
+ * - Item:Semantic="MotionPhoto" 的 Item:Length - Video data length
+ * - Item:Padding - Possibly existing padding bytes
  *
- * 参考：
+ * Reference:
  * https://developer.android.com/media/platform/motion-photo-format
- * @param filePath HEIC 文件路径
- * @return Motion Photo XMP 信息
+ * @param filePath HEIC file path
+ * @return Motion Photo XMP information
  */
 static MotionPhotoXmpInfo ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
     LOGD_MP("[ParseHeicXMP] Parsing XMP from HEIC using libheif: %s", filePath);
-    // 解析 XMP 内容
+    // Parse XMP content
     std::string xmpXml = ParseHeicMotionPhotoXmpWithLibheif2(filePath);
     MotionPhotoXmpInfo info = parseMotionPhotoXmpContent(xmpXml);
     if (!info.isMotionPhoto) {
@@ -1057,7 +1057,7 @@ static MotionPhotoXmpInfo ParseHeicMotionPhotoXmpWithLibheif(const char *filePat
 static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
     LOGD_MP("[ParseHeicXMP] Parsing XMP from HEIC using libheif: %s", filePath);
 
-    // 创建 HEIF context 并读取文件
+    // Create HEIF context and read file
     heif_context *ctx = heif_context_alloc();
     if (!ctx) {
         LOGE_MP("[ParseHeicXMP] Failed to allocate HEIF context");
@@ -1071,7 +1071,7 @@ static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
         return "";
     }
 
-    // 获取 primary image handle
+    // Get primary image handle
     heif_image_handle *handle = nullptr;
     err = heif_context_get_primary_image_handle(ctx, &handle);
     if (err.code != heif_error_Ok || !handle) {
@@ -1080,7 +1080,7 @@ static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
         return "";
     }
 
-    // 获取所有 metadata blocks
+    // Get all metadata blocks
     int numMetadata = heif_image_handle_get_number_of_metadata_blocks(handle, nullptr);
     LOGD_MP("[ParseHeicXMP] Found %d metadata blocks", numMetadata);
 
@@ -1114,7 +1114,7 @@ static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
                     if (err.code == heif_error_Ok) {
                         xmpXml = std::string(reinterpret_cast<const char *>(xmpData.data()), metadataSize);
                         LOGD_MP("[ParseHeicXMP] XMP content loaded, size=%zu", xmpXml.size());
-                        break; // 找到 XMP 后停止
+                        break; // Stop after finding XMP
                     } else {
                         LOGE_MP("[ParseHeicXMP] Failed to read XMP data: %s", err.message);
                     }
@@ -1130,44 +1130,44 @@ static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
 }
 
 /**
- * 需求：
- * 从 JPEG 文件数据中解析 XMP 元数据，提取 Motion Photo 信息
+ * Requirements:
+ * Parse XMP metadata from JPEG file data and extract Motion Photo information
  *
- * XMP 在 JPEG 中的位置：
- * - 存储在 APP1 段 (0xFF 0xE1)
+ * XMP 在 JPEG 中的Location: 
+ * - Stored in APP1 segment (0xFF 0xE1)
  *
- * 主要的命名空间：
+ * Main namespaces:
  * GCAMERA = "http://ns.google.com/photos/1.0/camera/"
  * CONTAINER_NS = "http://ns.google.com/photos/1.0/container/"
  * RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  * ITEM_NS = "http://ns.google.com/photos/1.0/container/item/"
  *
- * Google XMP 关键字段：
- * v1版本:
+ * Google XMP key fields:
+ * v1 version:
  * - GCamera:MicroVideo="1"
  * - GCamera:MicroVideoOffset="1"
  * - GCamera:MicroVideoVersion="1"
  * - GCamera:MicroVideoPresentationTimestampUs="1"
  *
- * v2版本:
- * - GCamera:MotionPhoto="1" - 标识这是一个 Motion Photo
- * - GCamera:MotionPhotoVersion="1" - 版本号
+ * v2 version:
+ * - GCamera:MotionPhoto="1" - Identifier for Motion Photo
+ * - GCamera:MotionPhotoVersion="1" - Version number
  * - GCamera:MotionPhotoPresentationTimestampUs="1"
- * - Item:Semantic="MotionPhoto" 的 Item:Length - 视频数据的长度
- * - Item:Padding - 可能存在的填充字节
+ * - Item:Semantic="MotionPhoto" 的 Item:Length - Video data length
+ * - Item:Padding - Possibly existing padding bytes
  *
- * 参考：
+ * Reference:
  * https://developer.android.com/media/platform/motion-photo-format
  */
 static MotionPhotoXmpInfo ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fileData) {
     MotionPhotoXmpInfo info;
 
-    // XMP 标识符
+    // XMP identifier
     const char *XMP_MARKER = "http://ns.adobe.com/xap/1.0/";
     const size_t XMP_MARKER_LEN = strlen(XMP_MARKER);
 
-    // 搜索 APP1 段 (0xFF 0xE1)
-    size_t pos = 2; // 跳过 JPEG SOI (FF D8)
+    // Search for APP1 segment (0xFF 0xE1)
+    size_t pos = 2; // Skip JPEG SOI (FF D8)
     while (pos < fileData.size() - 4) {
         if (fileData[pos] != 0xFF) {
             pos++;
@@ -1176,21 +1176,21 @@ static MotionPhotoXmpInfo ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fi
 
         uint8_t marker = fileData[pos + 1];
 
-        // 检查是否是 APP1 段 (0xE1)
+        // Check if it is APP1 segment (0xE1)
         if (marker == 0xE1) {
-            // 读取段长度 (big-endian, 包含长度字段本身的 2 字节)
+            // Read segment length (big-endian, including the 2 bytes of the length field itself)
             uint16_t segmentLen = (static_cast<uint16_t>(fileData[pos + 2]) << 8) |
                                   static_cast<uint16_t>(fileData[pos + 3]);
 
             size_t segmentDataStart = pos + 4;
             size_t segmentDataLen = segmentLen - 2;
 
-            // 检查是否是 XMP 段
+            // Check if it is XMP segment
             if (segmentDataLen > XMP_MARKER_LEN + 1 &&
                 memcmp(fileData.data() + segmentDataStart, XMP_MARKER,
                        XMP_MARKER_LEN) == 0) {
 
-                // XMP 内容在标识符后面（跳过结尾的 \0）
+                // XMP content is after the identifier (skip the trailing \0)
                 size_t xmpStart = segmentDataStart + XMP_MARKER_LEN + 1;
                 size_t xmpLen = segmentDataLen - XMP_MARKER_LEN - 1;
 
@@ -1202,21 +1202,21 @@ static MotionPhotoXmpInfo ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fi
                     LOGD_MP("[ParseXMP] Found XMP segment at offset %zu, length %zu", pos,
                             xmpLen);
 
-                    // 解析 XMP 内容
+                    // Parse XMP content
                     info = parseMotionPhotoXmpContent(info.xmpContent);
                     return info;
                 }
             }
         }
 
-        // 如果是 SOS (Start of Scan) 0xDA，后面是图像数据，停止搜索
+        // If it is SOS (Start of Scan) 0xDA, image data follows, stop searching
         if (marker == 0xDA) {
             LOGD_MP("[ParseXMP] Reached SOS marker, stopping APP segment search");
             break;
         }
 
-        // 跳过当前段
-        if (marker >= 0xE0 && marker <= 0xEF) { // APPn 段
+        // Skip current segment
+        if (marker >= 0xE0 && marker <= 0xEF) { // APPn segment
             if (pos + 3 < fileData.size()) {
                 uint16_t len = (static_cast<uint16_t>(fileData[pos + 2]) << 8) |
                                static_cast<uint16_t>(fileData[pos + 3]);
@@ -1226,7 +1226,7 @@ static MotionPhotoXmpInfo ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fi
             }
         } else if (marker == 0xDB || marker == 0xC0 || marker == 0xC2 ||
                    marker == 0xC4 || marker == 0xDD || marker == 0xFE) {
-            // 其他有长度的段: DQT, SOF0, SOF2, DHT, DRI, COM
+            // Other segments with length: DQT, SOF0, SOF2, DHT, DRI, COM
             if (pos + 3 < fileData.size()) {
                 uint16_t len = (static_cast<uint16_t>(fileData[pos + 2]) << 8) |
                                static_cast<uint16_t>(fileData[pos + 3]);
@@ -1244,7 +1244,7 @@ static MotionPhotoXmpInfo ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fi
 }
 
 /**
- * 提取 JPEG 图片的 EXIF 数据。
+ * Extract EXIF data from JPEG image.
  * */
 static std::vector<uint8_t> ExtractJpegExif(const char *path) {
     std::vector<uint8_t> exifData;
@@ -1310,9 +1310,9 @@ static std::vector<uint8_t> ExtractJpegExif(const char *path) {
 
 
 /**
- * 提取 Google HEIC Motion Photo 动态照片中的视频数据
- * @param inputFilePath HEIC Motion Photo 文件路径
- * @return MP4 视频数据的字节数组，失败返回 null
+ * Extract video data from Google HEIC Motion Photo
+ * @param inputFilePath HEIC Motion Photo file path
+ * @return MP4 video data byte array, returns null on failure
  */
 extern "C" JNIEXPORT jbyteArray
 
@@ -1528,30 +1528,30 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP
 
 
 /**
- * 提取 Google JPEG 格式 Motion Photo 动态照片中的视频数据
+ * Extract video data from Google JPEG format Motion Photo
  *
- * 需求：提取 Google JPEG 结构的动态照片的视频数据，以供 app 播放动态效果。
+ * Requirements:提取 Google JPEG 结构的动态照片的视频数据，以供 app 播放动态效果。
  *
- * JPEG Motion Photo 文件结构：
- * - JPEG 图片数据 (以 FF D8 开始，以 FF D9 结束)
- * - [可选] Padding 填充字节
- * - MP4 视频数据 (以 ftyp box 开始)
+ * JPEG Motion Photo 文件Structure:
+ * - JPEG image data (starts with FF D8, ends with FF D9)
+ * - [Optional] Padding bytes
+ * - MP4 video data (starts with ftyp box)
  *
- * 支持两种定位方式：
+ * Supports two positioning methods:
  *
- * 方式一：Google XMP 方式（优先）
- * - 从 JPEG APP1 段读取 XMP 元数据
- * - 查找 GCamera:MotionPhoto="1" 确认是 Motion Photo
- * - 使用 Item:Length 从文件末尾计算视频位置
- * - 视频起始位置 = 文件大小 - Item:Length
+ * Method 1: Google XMP method (priority)
+ * - Read XMP metadata from JPEG APP1 segment
+ * - Find GCamera:MotionPhoto="1" to confirm it's a Motion Photo
+ * - Use Item:Length to calculate video position from end of file
+ * - Video start position = file size - Item:Length
  *
- * 方式二：华为 ftyp 搜索方式（回退）
- * - 从文件中搜索 "ftyp" 标识（MP4 文件的开头）
- * - ftyp 前 4 字节是 box size，定位 MP4 起始位置
- * - 从 MP4 起始位置到文件末尾就是完整的 MP4 数据
+ * Method 2: Huawei ftyp search method (fallback)
+ * - Search for "ftyp" identifier in file (beginning of MP4 file)
+ * - 4 bytes before ftyp is box size, locate MP4 start position
+ * - From MP4 start position to end of file is complete MP4 data
  *
  * @param inputFilePath JPEG Motion Photo 文件路径
- * @return MP4 视频数据的字节数组，失败返回 null
+ * @return MP4 video data byte array, returns null on failure
  */
 extern "C" JNIEXPORT jbyteArray
 
@@ -1569,7 +1569,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
     }
     LOGD_MP("[ExtractJPEGVideo] Input file: %s", filePath);
 
-    // 打开文件
+    // Open file
     FILE *file = fopen(filePath, "rb");
     if (!file) {
         LOGE_MP("[ExtractJPEGVideo] Failed to open file: %s (errno=%d)", filePath, errno);
@@ -1577,7 +1577,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
         return nullptr;
     }
 
-    // 获取文件大小
+    // Get file size
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -1590,7 +1590,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
         return nullptr;
     }
 
-    // 读取整个文件到内存
+    // Read entire file into memory
     std::vector<uint8_t> fileData(fileSize);
     size_t bytesRead = fread(fileData.data(), 1, fileSize, file);
     fclose(file);
@@ -1602,7 +1602,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
     }
     LOGD_MP("[ExtractJPEGVideo] File loaded into memory: %zu bytes", bytesRead);
 
-    // 验证 JPEG 文件头 (FF D8 FF)
+    // Verify JPEG file header (FF D8 FF)
     if (fileData[0] != 0xFF || fileData[1] != 0xD8 || fileData[2] != 0xFF) {
         LOGE_MP("[ExtractJPEGVideo] Not a valid JPEG file (header: %02X %02X %02X)",
                 fileData[0], fileData[1], fileData[2]);
@@ -1615,7 +1615,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
     uint32_t mp4Size = 0;
     const char *locateMethod = "unknown";
 
-    // ==================== 方式一：尝试 XMP 方式 ====================
+    // ==================== 方式一：Try XMP method ====================
     LOGI_MP("[ExtractJPEGVideo] Trying XMP method (Google style)...");
     MotionPhotoXmpInfo xmpInfo = ParseJpegMotionPhotoXmp(fileData);
 
@@ -1624,16 +1624,16 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
                 "[ExtractJPEGVideo] XMP method: Motion Photo confirmed, video length = %ld",
                 xmpInfo.videoLength);
 
-        // 计算视频起始位置
+        // Calculate video start position
         mp4StartPos = fileSize - xmpInfo.videoLength;
 
         if (mp4StartPos > 0 && mp4StartPos < fileSize) {
             mp4Size = static_cast<uint32_t>(xmpInfo.videoLength);
             locateMethod = "XMP (Google)";
 
-            // 验证视频数据是否以 ftyp 开头
+            // Verify if video data starts with ftyp
             if (mp4StartPos + 8 <= fileSize) {
-                // 检查偏移+4位置是否为 "ftyp"
+                // Check if offset+4 position is "ftyp"
                 if (fileData[mp4StartPos + 4] == 'f' &&
                     fileData[mp4StartPos + 5] == 't' &&
                     fileData[mp4StartPos + 6] == 'y' &&
@@ -1666,14 +1666,14 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
         }
     }
 
-    // ==================== 方式二：回退到 ftyp 搜索方式 ====================
+    // ==================== 方式二：Fallback to ftyp search method ====================
     if (mp4StartPos < 0) {
         LOGI_MP("[ExtractJPEGVideo] Falling back to ftyp search method (Huawei style)...");
 
         const uint8_t ftypSignature[4] = {0x66, 0x74, 0x79, 0x70}; // "ftyp"
         long ftypPos = -1;
 
-        // 从文件中间往后搜索（因为 JPEG 数据在前面）
+        // Search from middle of file onwards (because JPEG data is in front)
         long searchStart = (fileSize > 1024) ? 1024 : 0;
 
         for (long i = searchStart; i < fileSize - 4; ++i) {
@@ -1688,12 +1688,12 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
         }
 
         if (ftypPos >= 4) {
-            // ftyp 前 4 字节是 ftyp box 的 size
+            // 4 bytes before ftyp is ftyp box size
             mp4StartPos = ftypPos - 4;
             mp4Size = static_cast<uint32_t>(fileSize - mp4StartPos);
             locateMethod = "ftyp search (Huawei)";
 
-            // 读取 ftyp box size 来验证
+            // Read ftyp box size to verify
             uint32_t ftypBoxSize =
                     (static_cast<uint32_t>(fileData[mp4StartPos]) << 24) |
                     (static_cast<uint32_t>(fileData[mp4StartPos + 1]) << 16) |
@@ -1702,7 +1702,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
 
             LOGD_MP("[ExtractJPEGVideo] ftyp method: ftyp box size = %u bytes", ftypBoxSize);
 
-            // 验证 ftyp box size 是否合理
+            // Verify if ftyp box size is reasonable
             if (ftypBoxSize < 8 || ftypBoxSize > 256) {
                 LOGW_MP("[ExtractJPEGVideo] ftyp method: Unusual ftyp box size: %u "
                         "(expected 8-256)",
@@ -1717,7 +1717,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
         }
     }
 
-    // ==================== 提取结果检查 ====================
+    // ==================== Extraction result check ====================
     if (mp4StartPos < 0 || mp4Size == 0) {
         LOGE_MP("[ExtractJPEGVideo] Failed to locate MP4 video data");
         env->ReleaseStringUTFChars(inputFilePath, filePath);
@@ -1727,7 +1727,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
     LOGD_MP("[ExtractJPEGVideo] MP4 data: offset %ld, size %u bytes, method: %s",
             mp4StartPos, mp4Size, locateMethod);
 
-    // 打印 MP4 文件头信息
+    // Print MP4 file header information
     if (mp4Size >= 12 && mp4StartPos + 12 <= fileSize) {
         uint32_t firstBoxSize =
                 (static_cast<uint32_t>(fileData[mp4StartPos]) << 24) |
@@ -1743,11 +1743,11 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
                 fileData[mp4StartPos + 10], fileData[mp4StartPos + 11]);
     }
 
-    // 计算 JPEG 图片大小
+    // Calculate JPEG image size
     long jpegSize = mp4StartPos;
     LOGD_MP("[ExtractJPEGVideo] JPEG image size: %ld bytes (%.2f KB)", jpegSize, jpegSize / 1024.0);
 
-    // 创建 Java byte array
+    // Create Java byte array
     jbyteArray result = env->NewByteArray(static_cast<jsize>(mp4Size));
     if (!result) {
         LOGE_MP("[ExtractJPEGVideo] Failed to allocate Java byte array for %u bytes", mp4Size);
@@ -1755,7 +1755,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
         return nullptr;
     }
 
-    // 复制 MP4 数据到 Java byte array
+    // Copy MP4 data to Java byte array
     env->SetByteArrayRegion(result, 0, static_cast<jsize>(mp4Size),
                             reinterpret_cast<const jbyte *>(fileData.data() + mp4StartPos));
 
@@ -1779,30 +1779,30 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
 }
 
 /**
- * 需求：根据输入的图片地址，检查图片是否为哪种 Motion Photo。
+ * Requirements:根据输入的图片地址，检查图片是否为哪种 Motion Photo。
  *
- * 逻辑：
- * 1. 读取文件原始字节确定图片真正的格式是 JPEG 或 HEIC。
+ * Logic:
+ * 1. Read file raw bytes to determine the actual format is JPEG or HEIC.
  *
- * 2. 若格式为 JPEG
- * 2.1 读取 XMP，若存在 MotionPhoto="1" 或者 MicroVideo="1" 字段，则确定为 JPEG_MOTION_PHOTO
+ * 2. If format is JPEG
+ * 2.1 Read XMP, if MotionPhoto="1" or MicroVideo="1" field exists, determine as JPEG_MOTION_PHOTO
  * 2.2 如果上述不成立，搜索 ftyp 标识（MP4 文件头），如果存在特定的“mp4”的视频字符，则确定为 JPEG_MOTION_PHOTO
- * 2.3 否则返回 MOTION_PHOTO_TYPE_NONE
+ * 2.3 Otherwise return MOTION_PHOTO_TYPE_NONE
  *
- * 3、若格式为 HEIC
- * 3.1 使用 libheif 读取 XMP,若存在 MotionPhoto="1" 或者 MicroVideo="1" 字段，则确定为 HEIC_MOTION_PHOTO
+ * 3. If format is HEIC
+ * 3.1 Use libheif to read XMP, if MotionPhoto="1" or MicroVideo="1" field exists, determine as HEIC_MOTION_PHOTO
  * 3.2 如果上述不成立，则检索 “mpvd” 字符，如果存在，则确定为 HEIC_MOTION_PHOTO
- * 3.3 否则返回 MOTION_PHOTO_TYPE_NONE
+ * 3.3 Otherwise return MOTION_PHOTO_TYPE_NONE
  *
- * 4、如果文件非 JPEG 和 HEIC，则直接返回 MOTION_PHOTO_TYPE_NONE
+ * 4. If file is neither JPEG nor HEIC, directly return MOTION_PHOTO_TYPE_NONE
  *
- * 返回：Motion Photo Type枚举：
- * JPEG_MOTION_PHOTO(0)：JPEG 格式的动态照片
- * HEIC_MOTION_PHOTO(1)：HEIC 格式的动态照片
- * MOTION_PHOTO_TYPE_NONE(2)：非动态照片
+ * Return: Motion Photo Type enum:
+ * JPEG_MOTION_PHOTO(0): JPEG format motion photo
+ * HEIC_MOTION_PHOTO(1): HEIC format motion photo
+ * MOTION_PHOTO_TYPE_NONE(2): Not a motion photo
  * */
 
-// Motion Photo Type 枚举值
+// Motion Photo Type enum values
 #define MOTION_PHOTO_TYPE_JPEG 0
 #define MOTION_PHOTO_TYPE_HEIC 1
 #define MOTION_PHOTO_TYPE_NONE 2
@@ -1818,7 +1818,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         return MOTION_PHOTO_TYPE_NONE;
     }
 
-    // 打开文件
+    // Open file
     FILE *file = fopen(filePath, "rb");
     if (!file) {
         LOGE_MP("[CheckType] Failed to open file: %s", filePath);
@@ -1826,7 +1826,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         return MOTION_PHOTO_TYPE_NONE;
     }
 
-    // 获取文件大小
+    // Get file size
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -1847,7 +1847,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         return MOTION_PHOTO_TYPE_NONE;
     }
 
-    // 判断文件格式
+    // Determine file format
     bool isJpeg = (header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF);
     bool isHeic = (header[4] == 'f' && header[5] == 't' && header[6] == 'y' && header[7] == 'p');
 
@@ -1855,10 +1855,10 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
             filePath, fileSize, isJpeg, isHeic);
 
     if (isJpeg) {
-        // ==================== JPEG 格式处理 ====================
+        // ==================== JPEG format processing ====================
         LOGD_MP("[CheckType] Detected JPEG format");
 
-        // 读取整个文件
+        // Read entire file
         fseek(file, 0, SEEK_SET);
         std::vector<uint8_t> fileData(fileSize);
         size_t bytesRead = fread(fileData.data(), 1, fileSize, file);
@@ -1871,21 +1871,21 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
             return MOTION_PHOTO_TYPE_NONE;
         }
 
-        // 方式1: 检查 XMP 元数据
+        // Method 1: Check XMP metadata
         MotionPhotoXmpInfo xmpInfo = ParseJpegMotionPhotoXmp(fileData);
         LOGD_MP("[CheckType] JPEG XMP check: isMotionPhoto=%d",
                 xmpInfo.isMotionPhoto);
 
-        // 如果 XMP 确认是动态照片，直接返回
+        // If XMP confirms it's a motion photo, return directly
         if (xmpInfo.isMotionPhoto) {
             LOGI_MP("[CheckType] Result: JPEG_MOTION_PHOTO (XMP=1)");
             env->ReleaseStringUTFChars(inputFilePath, filePath);
             return MOTION_PHOTO_TYPE_JPEG;
         }
 
-        // 方式2: XMP 未确认，搜索 ftyp 标识（MP4 文件头）
+        // Method 2: XMP not confirmed, search for ftyp identifier (MP4 file header)
         const uint8_t ftypSignature[4] = {0x66, 0x74, 0x79, 0x70}; // "ftyp"
-        // 从 JPEG 数据之后开始搜索（跳过前 1KB 的 JPEG 头部区域）
+        // Start searching after JPEG data (skip first 1KB JPEG header area)
         long searchStart = (fileSize > 1024) ? 1024 : 0;
         for (long i = searchStart; i < fileSize - 4; ++i) {
             if (fileData[i] == ftypSignature[0] &&
@@ -1902,41 +1902,41 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         LOGD_MP("[CheckType] JPEG is not a Motion Photo");
 
     } else if (isHeic) {
-        // ==================== HEIC 格式处理 ====================
+        // ==================== HEIC format processing ====================
         LOGD_MP("[CheckType] Detected HEIC format");
         fclose(file);
         file = nullptr;
 
-        // 方式1: 使用 libheif 检查 XMP 元数据
+        // Method 1: Use libheif to check XMP metadata
         MotionPhotoXmpInfo xmpInfo = ParseHeicMotionPhotoXmpWithLibheif(filePath);
         LOGD_MP("[CheckType] HEIC XMP check: isMotionPhoto=%d",
                 xmpInfo.isMotionPhoto);
 
-        // 如果 XMP 确认是动态照片，直接返回
+        // If XMP confirms it's a motion photo, return directly
         if (xmpInfo.isMotionPhoto) {
             LOGI_MP("[CheckType] Result: HEIC_MOTION_PHOTO (XMP=1)");
             env->ReleaseStringUTFChars(inputFilePath, filePath);
             return MOTION_PHOTO_TYPE_HEIC;
         }
 
-        // 方式2: XMP 未确认，搜索 mpvd box 中的 ftyp 标识
+        // Method 2: XMP not confirmed, search for ftyp identifier in mpvd box
         FILE *heicFile = fopen(filePath, "rb");
         if (heicFile) {
             std::vector<uint8_t> fileData(fileSize);
             fread(fileData.data(), 1, fileSize, heicFile);
             fclose(heicFile);
 
-            // 搜索 mpvd box
+            // Search for mpvd box
             const uint8_t mpvdSignature[4] = {0x6D, 0x70, 0x76, 0x64}; // "mpvd"
             for (long i = fileSize - 4; i >= 4; --i) {
                 if (fileData[i] == mpvdSignature[0] &&
                     fileData[i + 1] == mpvdSignature[1] &&
                     fileData[i + 2] == mpvdSignature[2] &&
                     fileData[i + 3] == mpvdSignature[3]) {
-                    // 找到 mpvd box，检查其中是否有 ftyp
+                    // Found mpvd box, check if it contains ftyp
                     long mpvdDataStart = i + 4;
                     if (mpvdDataStart + 8 <= fileSize) {
-                        // 检查 mpvd 数据区域是否以 ftyp 开头
+                        // Check if mpvd data area starts with ftyp
                         if (fileData[mpvdDataStart + 4] == 'f' &&
                             fileData[mpvdDataStart + 5] == 't' &&
                             fileData[mpvdDataStart + 6] == 'y' &&
@@ -1955,7 +1955,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         LOGD_MP("[CheckType] HEIC is not a Motion Photo");
 
     } else {
-        // 未知格式
+        // Unknown format
         LOGD_MP("[CheckType] Unknown format (header: %02X %02X %02X %02X %02X %02X "
                 "%02X %02X)",
                 header[0], header[1], header[2], header[3], header[4], header[5],
@@ -1964,7 +1964,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         file = nullptr;
     }
 
-    // 清理并返回非动态照片
+    // Cleanup and return not a motion photo
     if (file) {
         fclose(file);
     }
@@ -2277,7 +2277,7 @@ static bool WriteBytesToFile(const char *path, const std::vector<uint8_t> &bytes
 
 
 /**
- * 生成 Google Heic Motion Photo 格式的 XMP metadata
+ * Generate Google Heic Motion Photo format XMP metadata
  */
 static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength) {
     LOGD_MP("[GenerateXMP] START - mp4VideoLength=%zu", mp4VideoLength);
@@ -2408,16 +2408,16 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, std::string
 
 
 /**
- * 需求:
- * 将 JPEG Motion Photo 动态照片转换为 HEIC Motion Photo 动态照片。
+ * Requirements:
+ * Convert JPEG Motion Photo to HEIC Motion Photo.
  *
- * 逻辑：
- * 1、提取 JPEG 文件里的 JPEG 图像字节和 VIDEO 视频字节数据
- * 2、通过 nativeGenGoogleMotionPhotoWithHeic() 方法生成 HEIC 文件
- * 3、将生成后的文件写入到 outPath 文件地址里。并返回 outPath。
+ * Logic:
+ * 1. Extract JPEG image bytes and VIDEO video bytes from JPEG file
+ * 2. Generate HEIC file via nativeGenGoogleMotionPhotoWithHeic() method
+ * 3. Write generated file to outPath. And return outPath.
  *
  * @param primaryHdrVideoSizeArray long array
- * - 长度为6,分别是：
+ * - Length is 6, namely:
  *   - 0: Image offset
  *   - 1: Image length
  *   - 2: HDR offset
@@ -2443,7 +2443,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
     }
     LOGD_MP("[ExtractJPEG] Input file: %s", filePath);
 
-    // 打开文件
+    // Open file
     FILE *file = fopen(filePath, "rb");
     if (!file) {
         LOGE_MP("[ExtractJPEG] Failed to open file: %s (errno=%d)", filePath,
@@ -2452,7 +2452,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
         return nullptr;
     }
 
-    // 获取文件大小
+    // Get file size
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -2466,7 +2466,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
         return env->NewStringUTF("error: input file too small");
     }
 
-    // 读取整个文件到内存
+    // Read entire file into memory
     std::vector<uint8_t> fileData(fileSize);
     size_t bytesRead = fread(fileData.data(), 1, fileSize, file);
     fclose(file);
@@ -2476,7 +2476,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
         return env->NewStringUTF("error: failed to read input file");
     }
 
-    // 验证 JPEG 文件头 (FF D8 FF)
+    // Verify JPEG file header (FF D8 FF)
     if (fileData[0] != 0xFF || fileData[1] != 0xD8 || fileData[2] != 0xFF) {
         LOGE_MP("[Convert] Not a valid JPEG file (header: %02X %02X %02X)", fileData[0], fileData[1], fileData[2]);
         env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
@@ -2484,8 +2484,8 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
     }
     LOGD_MP("[Convert] Valid JPEG header detected (FF D8 FF)");
 
-    // 解析 primaryHdrVideoSizeArray 参数获取各部分偏移量
-    // 长度固定为 6：[Image Offset, Image Length, HDR Offset, HDR Length, Video Offset, Video Length]
+    // Parse primaryHdrVideoSizeArray parameter to get offsets of each part
+    // Fixed length of 6: [Image Offset, Image Length, HDR Offset, HDR Length, Video Offset, Video Length]
     long jpegStart = 0;
     long jpegLen = 0;
     long hdrStart = 0;
@@ -2525,7 +2525,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
 
     env->ReleaseLongArrayElements(primaryHdrVideoSizeArray, offsets, JNI_ABORT);
 
-    // 验证偏移量和长度有效性
+    // Validate offset and length validity
     bool hasHdr = (hdrStart != 0 || hdrLen != 0);
 
     if (jpegStart < 0 || jpegLen <= 0 || jpegStart + jpegLen > fileSize) {
@@ -2550,7 +2550,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
         return env->NewStringUTF("error: invalid Video data range");
     }
 
-    // 构造 Java byte arrays
+    // Construct Java byte arrays
     jbyteArray jpegArray = env->NewByteArray(static_cast<jsize>(jpegLen));
     if (!jpegArray) {
         LOGE_MP("[Convert] Failed to allocate JPEG byte array");
@@ -2586,7 +2586,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
             mp4Array, 0, static_cast<jsize>(videoLen),
             reinterpret_cast<const jbyte *>(fileData.data() + videoStart));
 
-    // 提取 Exif 数据
+    // Extract Exif data
     jbyteArray exifs = nullptr;
     std::vector<uint8_t> exifDataVec = ExtractJpegExif(filePath);
     if (!exifDataVec.empty()) {
@@ -2600,19 +2600,19 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
         LOGD_MP("[Convert] No Exif data found in JPEG");
     }
 
-    // 调用生成 HEIC Motion Photo 的方法
+    // Call method to generate HEIC Motion Photo
     LOGI_MP("[Convert] Generating HEIC Motion Photo with nativeGenHeicMotionPhoto()");
     jstring genResult = Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
             env, clazz, jpegArray, hdrArray, exifs, mp4Array, outPath);
 
     if (exifs) env->DeleteLocalRef(exifs);
 
-    // 释放大数组的局部引用
+    // Release local references of large arrays
     env->DeleteLocalRef(jpegArray);
     if (hdrArray) env->DeleteLocalRef(hdrArray);
     env->DeleteLocalRef(mp4Array);
 
-    // 释放输入路径
+    // Release input path
     env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
 
     if (!genResult) {
@@ -2641,17 +2641,17 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
 
 
 /**
- * 需求:
- * 将 HEIC Motion Photo 动态照片转换为 JPEG Motion Photo 动态照片。
+ * Requirements:
+ * Convert HEIC Motion Photo to JPEG Motion Photo.
  *
- * 逻辑：
- * 1、提取 HEIC 文件里数据
- *   1.1、提取 JPEG Motion Photo里的 Primary 主图图像数据
- *   1.2、通过 nativeExtractGoogleHeicMotionPhotoVideo() 方法提取视频数据
- *   1.3、提取 HEIC 的 XMP 数据
- *   1.4、提取 HEIC 的 EXIF 数据
- * 2、增加一个本地生成 JPEG Motion Photo 动态照片文件的方法，将第 1 步的数据写入到 JPEG 文件里。
- * 3、生成 JPEG 文件的位置使用 outputFilePath 参数地址。并最终返回 outputFilePath。
+ * Logic:
+ * 1、Extract data from HEIC file
+ *   1.1、Extract Primary main image data from JPEG Motion Photo
+ *   1.2、Extract video data via nativeExtractGoogleHeicMotionPhotoVideo() method
+ *   1.3、Extract HEIC XMP data
+ *   1.4、Extract HEIC EXIF data
+ * 2、Add a local method to generate JPEG Motion Photo file, write data from step 1 into JPEG file.
+ * 3、Use outputFilePath for generated JPEG file location. And finally return outputFilePath.
  *
  * */
 extern "C" JNIEXPORT jstring
