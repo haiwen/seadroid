@@ -647,6 +647,9 @@ public class PhotoFragment extends BaseFragment {
                 .into(binding.photoView);
     }
 
+
+    // no load yet.
+    private int motionPhotoType = -1;
     private void checkMotionPhoto(String localPath) {
         if (motionPhotoType == -1) {
             if (Utils.isJpeg(localPath)) {
@@ -671,8 +674,6 @@ public class PhotoFragment extends BaseFragment {
         }
     }
 
-    // no load yet.
-    private int motionPhotoType = -1;
     private ExoPlayer exoPlayer;
 
     @Override
@@ -693,6 +694,10 @@ public class PhotoFragment extends BaseFragment {
     private void playLivePhotoVideo() {
 
         try {
+            if (motionPhotoType == -1){
+                return;
+            }
+
             if (exoPlayer != null && exoPlayer.isPlaying()) {
                 return;
             }

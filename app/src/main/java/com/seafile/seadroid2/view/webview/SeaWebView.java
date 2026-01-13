@@ -80,7 +80,6 @@ public class SeaWebView extends NestedWebView {
         webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
         webSettings.setSupportZoom(false);
         webSettings.setBuiltInZoomControls(false);
-        webSettings.setDatabaseEnabled(true);
         webSettings.setDisplayZoomControls(false);
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
         webSettings.setDefaultTextEncodingName("UTF-8");

@@ -150,3 +150,6 @@
 -keep class androidx.arch.core.** { *; }
 -keep class androidx.appcompat.widget.** { *; }
 -keep class com.google.android.material.** { *; }
+
+-keep class com.drew.** { *; }
+-dontwarn com.drew.**

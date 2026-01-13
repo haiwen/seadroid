@@ -50,8 +50,8 @@ export ANDROID_API=28
 ABIS=(
     "armeabi-v7a"
     "arm64-v8a"
-    "x86"
-    "x86_64"
+#    "x86"
+#    "x86_64"
 )
 
 # LibHeif version
