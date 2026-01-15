@@ -99,4 +99,9 @@
     <!-- preference -->
     <color name="pref_background_color">@color/black</color>
     <color name="pref_divider_color">@color/material_grey_900</color>
+
+    <!-- live photo icon -->
+    <color name="live_photo_text_color">#F2F2F9</color>
+    <color name="live_photo_background_color">#242426</color>
+    <color name="live_photo_stroke_color">#545456</color>
 </resources>

@@ -56,12 +56,11 @@
     <color name="file_picker_des">#86848B</color>
 
     <!-- primary background color -->
-    <color name="window_background_color">@color/material_grey_100</color>
+    <color name="window_background_color">@color/material_grey_109</color>
     <color name="bar_background_color">@color/white</color>
     <color name="bar_title_color">@color/material_grey_900</color>
     <color name="bar_icon_tint_color">@color/material_grey_900</color>
-    <color name="bar_background_translucent_color">@color/material_grey_100_translucent</color>
-    <color name="swipe_refresh_background_color">@color/material_grey_100</color>
+    <color name="swipe_refresh_background_color">@color/material_grey_109</color>
     <color name="child_activity_background_color">@color/white</color>
 
     <color name="primary_icon_tint_color">@color/grey</color>
@@ -111,4 +110,9 @@
 
     <!-- sdoc -->
     <color name="sdoc_editor_bar_background_color">#f2f2f2</color>
+
+    <!-- live photo icon -->
+    <color name="live_photo_text_color">#1C1C1E</color>
+    <color name="live_photo_background_color">#F2F2F9</color>
+    <color name="live_photo_stroke_color">#C7C7CE</color>
 </resources>

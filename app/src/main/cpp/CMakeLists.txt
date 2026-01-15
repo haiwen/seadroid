@@ -20,6 +20,11 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libheif/lib/${ANDROID_ABI}")
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libheif/include")
 
+# Check if library directory exists for current ABI
+if(NOT EXISTS "${LIB_DIR}")
+    message(FATAL_ERROR "Library directory not found for ABI ${ANDROID_ABI}: ${LIB_DIR}")
+endif()
+
 # Add libheif (prebuilt)
 add_library(heif SHARED IMPORTED)
 set_target_properties(heif PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libheif.so")
@@ -38,6 +43,28 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
         heicgen.cpp)
 
+# Compiler flags
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
+        -Wall
+        -Wextra
+        -Werror=return-type
+        -fPIC
+)
+
+# Release build optimizations
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
+            -O3
+            -DNDEBUG
+            -fdata-sections
+            -ffunction-sections
+    )
+    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
+            -Wl,--gc-sections
+            -Wl,--strip-all
+    )
+endif()
+
 # Specifies libraries CMake should link to your target library.
 target_link_libraries(${CMAKE_PROJECT_NAME}
         # Android System Libraries
@@ -45,12 +72,15 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
         log
         jnigraphics
 
-        # Third-party Libraries (Order matters: dependents first)
+        # Third-party Libraries
+        # libjpeg-turbo (no dependencies)
         jpeg
 
-        # libheif (depends on de265, x265)
+        # HEVC decoders (no dependencies)
         de265
         x265
+
+        # libheif (depends on de265, x265)
         heif
 
         # Standard Libraries

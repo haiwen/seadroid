@@ -1085,6 +1085,8 @@ static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
     LOGD_MP("[ParseHeicXMP] Found %d metadata blocks", numMetadata);
 
     std::string xmpXml;
+    std::string motionPhotoXmp;
+
     if (numMetadata > 0) {
         std::vector<heif_item_id> metadataIds(numMetadata);
         heif_image_handle_get_list_of_metadata_block_IDs(
@@ -1112,15 +1114,45 @@ static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
                     std::vector<uint8_t> xmpData(metadataSize);
                     err = heif_image_handle_get_metadata(handle, id, xmpData.data());
                     if (err.code == heif_error_Ok) {
-                        xmpXml = std::string(reinterpret_cast<const char *>(xmpData.data()), metadataSize);
-                        LOGD_MP("[ParseHeicXMP] XMP content loaded, size=%zu", xmpXml.size());
-                        break; // Stop after finding XMP
+                        std::string currentXmp = std::string(reinterpret_cast<const char *>(xmpData.data()), metadataSize);
+                        LOGD_MP("[ParseHeicXMP] XMP content loaded, size=%zu", currentXmp.size());
+
+                        // Check if this XMP contains Motion Photo fields
+                        // Check for v2: GCamera:MotionPhoto="1"
+                        bool hasMotionPhoto = currentXmp.find("GCamera:MotionPhoto=\"1\"") != std::string::npos;
+                        // Check for v1: GCamera:MicroVideo="1"
+                        bool hasMicroVideo = currentXmp.find("GCamera:MicroVideo=\"1\"") != std::string::npos;
+
+                        if (hasMotionPhoto || hasMicroVideo) {
+                            LOGI_MP("[ParseHeicXMP] Found XMP with Motion Photo fields (hasMotionPhoto=%d, hasMicroVideo=%d)",
+                                   hasMotionPhoto, hasMicroVideo);
+                            motionPhotoXmp = currentXmp;
+                            break; // Found the correct XMP, stop searching
+                        } else {
+                            LOGD_MP("[ParseHeicXMP] XMP does not contain Motion Photo fields, continuing search...");
+                            // Keep the first XMP as fallback in case no Motion Photo XMP is found
+                            if (xmpXml.empty()) {
+                                xmpXml = currentXmp;
+                            }
+                        }
                     } else {
                         LOGE_MP("[ParseHeicXMP] Failed to read XMP data: %s", err.message);
                     }
                 }
             }
         }
+    }
+
+    // Return Motion Photo XMP if found, otherwise return the first XMP (fallback), or empty string
+    if (!motionPhotoXmp.empty()) {
+        LOGI_MP("[ParseHeicXMP] Using Motion Photo XMP (size=%zu)", motionPhotoXmp.size());
+        return motionPhotoXmp;
+    } else if (!xmpXml.empty()) {
+        LOGW_MP("[ParseHeicXMP] No Motion Photo XMP found, using first XMP as fallback (size=%zu)", xmpXml.size());
+        return xmpXml;
+    } else {
+        LOGW_MP("[ParseHeicXMP] No XMP metadata found");
+        return "";
     }
 
     heif_image_handle_release(handle);

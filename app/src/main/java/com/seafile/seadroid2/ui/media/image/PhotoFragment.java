@@ -6,6 +6,7 @@ import static android.view.View.VISIBLE;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -35,6 +37,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.ui.PlayerView;
 
 import com.adobe.internal.xmp.XMPException;
 import com.blankj.utilcode.util.FileUtils;
@@ -42,13 +45,16 @@ import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.blankj.utilcode.util.SpanUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -290,7 +296,7 @@ public class PhotoFragment extends BaseFragment {
         getParentViewModel().getTapLiveData().observe(requireActivity(), new Observer<Integer>() {
             @Override
             public void onChanged(Integer unused) {
-                if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_NONE || motionPhotoType == -1){
+                if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_NONE || motionPhotoType == -1) {
                     return;
                 }
                 if (imagePreviewHelper != null) {
@@ -357,13 +363,6 @@ public class PhotoFragment extends BaseFragment {
             public boolean onLongClick(View v) {
                 playLivePhotoVideo();
                 return false;
-            }
-        });
-
-        binding.btnLivePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playLivePhotoVideo();
             }
         });
     }
@@ -653,6 +652,7 @@ public class PhotoFragment extends BaseFragment {
 
     // no load yet.
     private int motionPhotoType = -1;
+
     private void checkMotionPhoto(String localPath) {
         if (motionPhotoType == -1) {
             if (Utils.isJpeg(localPath)) {
@@ -662,7 +662,7 @@ public class PhotoFragment extends BaseFragment {
                 }
             } else if (Utils.isHeic(localPath)) {
                 MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(new File(localPath));
-                if (descriptor.isMotionPhoto()){
+                if (descriptor.isMotionPhoto()) {
                     motionPhotoType = HeicNative.MOTION_PHOTO_TYPE_HEIC;
                 }
             }
@@ -697,7 +697,7 @@ public class PhotoFragment extends BaseFragment {
     private void playLivePhotoVideo() {
 
         try {
-            if (motionPhotoType == -1){
+            if (motionPhotoType == -1) {
                 return;
             }
 
@@ -721,17 +721,29 @@ public class PhotoFragment extends BaseFragment {
 
                                 break;
                             case Player.STATE_READY:
-                                binding.photoView.setVisibility(View.INVISIBLE);
                                 binding.playerView.setVisibility(View.VISIBLE);
+                                binding.photoView.setVisibility(GONE);
                                 break;
                             case Player.STATE_ENDED:
-                                binding.photoView.setVisibility(View.VISIBLE);
-                                binding.playerView.setVisibility(View.INVISIBLE);
+                                binding.photoView.setVisibility(VISIBLE);
+                                binding.playerView.setVisibility(View.GONE);
                                 break;
                         }
                     }
                 });
-
+//                Glide.with(requireContext()).load(destinationFile)
+//                        .into(new CustomTarget<Drawable>() {
+//                            @Override
+//                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+//                                binding.playerView.setDefaultArtwork(resource);
+//                                binding.playerView.setArtworkDisplayMode(PlayerView.IMAGE_DISPLAY_MODE_FIT);
+//                            }
+//
+//                            @Override
+//                            public void onLoadCleared(@Nullable Drawable placeholder) {
+//                                binding.playerView.setDefaultArtwork(null);
+//                            }
+//                        });
                 binding.playerView.setPlayer(exoPlayer);
             }
 
@@ -772,8 +784,8 @@ public class PhotoFragment extends BaseFragment {
         exoPlayer.stop();
         exoPlayer.clearMediaItems();
 
-        binding.playerView.setVisibility(View.INVISIBLE);
-        binding.photoView.setVisibility(View.VISIBLE);
+        binding.playerView.setVisibility(GONE);
+        binding.photoView.setVisibility(VISIBLE);
     }
 
     private void releasePlayer() {
