@@ -40,6 +40,7 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 import androidx.media3.ui.PlayerView;
 
 import com.adobe.internal.xmp.XMPException;
+import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
@@ -307,6 +308,14 @@ public class PhotoFragment extends BaseFragment {
     }
 
     private void initView() {
+
+        // live photo
+        FrameLayout.LayoutParams fl = (FrameLayout.LayoutParams) binding.btnLivePhoto.getLayoutParams();
+        fl.topMargin = BarUtils.getStatusBarHeight() + CarouselImagePreviewActivity.actionbarHeight + Constants.DP.DP_8;
+        fl.leftMargin = Constants.DP.DP_8;
+        binding.btnLivePhoto.setLayoutParams(fl);
+
+        // desc
         TextView descTextView = binding.errorView.findViewById(R.id.desc);
         SpanUtils.with(descTextView)
                 .append(getString(R.string.error_image_load))

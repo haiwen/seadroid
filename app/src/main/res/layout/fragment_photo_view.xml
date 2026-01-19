@@ -14,45 +14,54 @@
             android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
             android:background="@color/window_background_color"
+            android:visibility="gone"
             app:shutter_background_color="@color/window_background_color"
             app:use_controller="false" />
 
         <com.seafile.seadroid2.view.photoview.PhotoView
             android:id="@+id/photo_view"
-            android:background="@color/window_background_color"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@color/window_background_color" />
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/btn_live_photo"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:layout_gravity="start"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="112dp"
             android:background="@drawable/shape_solid_gray_radius_16"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="0dp"
-            android:paddingEnd="8dp"
+            android:paddingStart="1dp"
+            android:paddingEnd="12dp"
             android:visibility="gone">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:padding="4dp"
+                android:id="@+id/btn_live_photo_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginHorizontal="4dp"
                 android:src="@drawable/icon_live_photo"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btn_live_photo_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/live_photo_text_color" />
 
-            <TextView
+            <com.seafile.seadroid2.view.CenterTextView
+                android:id="@+id/btn_live_photo_text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:maxLines="1"
                 android:text="@string/live"
                 android:textColor="@color/live_photo_text_color"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/btn_live_photo_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btn_live_photo_icon"
+                app:layout_constraintTop_toTopOf="@+id/btn_live_photo_icon" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <ProgressBar

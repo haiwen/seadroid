@@ -169,7 +169,9 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         if (!TextUtils.equals(ColumnType.RATE, type) && metadata.value == null) {
 
             View ltr = LayoutInflater.from(kvView.getContext()).inflate(R.layout.layout_textview, null);
-            ltr.<TextView>findViewById(R.id.text_view).setText(R.string.empty);
+            TextView textView = ltr.<TextView>findViewById(R.id.text_view);
+            textView.setText(R.string.empty);
+            textView.setTextColor(ContextCompat.getColor(context, R.color.grey));
 
             kvView.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
             parent.addView(kvView);
@@ -342,6 +344,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
                 } else {
                     textView.setText(r);
                 }
+
                 textView.setTextColor(Color.parseColor(t.getTextColor()));
                 cardView.setCardBackgroundColor(Color.parseColor(t.getColor()));
             } else {

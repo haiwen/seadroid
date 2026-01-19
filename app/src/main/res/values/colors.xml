@@ -2,9 +2,9 @@
 <resources>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="grey">#6E6E6E</color>
+    <color name="grey">#666666</color>
     <color name="red">#FF0000</color>
-    <color name="light_grey">#BDBDBD</color>
+    <color name="light_grey">#DBDBDB</color>
     <color name="light_gray">#e9e9e9</color>
     <color name="dark_gray">#1E2129</color>
     <color name="light_black">#444444</color>
@@ -23,7 +23,7 @@
     <color name="fancy_dark_gray">#e1e2e3</color>
 
     <color name="fancy_orange_light">#FFC783</color> <!-- theme color -->
-    <color name="fancy_orange">#EB8205</color> <!-- theme color -->
+    <color name="fancy_orange">#ff9800</color> <!-- theme color -->
     <color name="fancy_orange_dark">#CF7300</color> <!-- theme color -->
     <color name="fancy_orange_translucent">#44EB8205</color> <!-- theme color -->
 
@@ -112,7 +112,7 @@
     <color name="sdoc_editor_bar_background_color">#f2f2f2</color>
 
     <!-- live photo icon -->
-    <color name="live_photo_text_color">#1C1C1E</color>
-    <color name="live_photo_background_color">#F2F2F9</color>
-    <color name="live_photo_stroke_color">#C7C7CE</color>
+    <color name="live_photo_text_color">#991c1c1e</color>
+    <color name="live_photo_background_color">#bff2f2f9</color>
+    <color name="live_photo_stroke_color">#bfc7c7ce</color>
 </resources>

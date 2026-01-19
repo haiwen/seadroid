@@ -43,15 +43,15 @@ public class OptionsTagModel implements Parcelable {
     public String getTextColor() {
         //grey
         if (TextUtils.equals("_outdated", id) && TextUtils.equals("_outdated", name)) {
-            return textColor;
+            return "#FFFFFF";
         }
         //red
         if (TextUtils.equals("_in_progress", id) && TextUtils.equals("_in_progress", name)) {
-            return "#FFFFFF";
+            return "#202428";
         }
         //yellow
         if (TextUtils.equals("_in_review", id) && TextUtils.equals("_in_review", name)) {
-            return textColor;
+            return "#202428";
         }
         //green
         if (TextUtils.equals("_done", id) && TextUtils.equals("_done", name)) {

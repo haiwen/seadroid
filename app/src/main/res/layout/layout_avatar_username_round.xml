@@ -9,10 +9,10 @@
     app:cardBackgroundColor="@color/light_gray"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:contentPaddingBottom="2dp"
-    app:contentPaddingLeft="6dp"
-    app:contentPaddingRight="6dp"
-    app:contentPaddingTop="2dp"
+    app:contentPaddingBottom="3dp"
+    app:contentPaddingLeft="5dp"
+    app:contentPaddingRight="8dp"
+    app:contentPaddingTop="3dp"
     app:strokeWidth="0dp">
 
     <LinearLayout
@@ -28,15 +28,14 @@
             android:src="@drawable/default_avatar"
             app:shapeAppearance="@style/ShapeCircleStyle" />
 
-        <TextView
+        <com.seafile.seadroid2.view.CenterTextView
             android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:gravity="center"
-            android:text="@string/app_name"
-            android:textColor="@color/grey"
-            android:textSize="13sp" />
+            android:text="@string/delete"
+            android:textColor="@color/item_title_color"
+            android:textSize="12sp" />
 
         <ImageView
             android:id="@+id/remove"

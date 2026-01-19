@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
@@ -64,7 +65,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private ViewPager2Adapter pagerAdapter;
     private ThumbnailAdapter thumbnailAdapter;
     private final String KEY_CURRENT_PAGE = "current_page";
-
+    public static int actionbarHeight = -1;
 
     /**
      * actionbar: toolBar/statusBar/navBar/bottomActionBar/thumbnailListBar
@@ -144,6 +145,14 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         outState.putBoolean("load_other_images_in_same_directory", load_other_images_in_same_directory);
     }
 
+    public static int getActionBarSize(Context context) {
+        TypedValue tv = new TypedValue();
+        if (context.getTheme().resolveAttribute(androidx.appcompat.R.attr.actionBarSize, tv, true)) {
+            return TypedValue.complexToDimensionPixelSize(
+                    tv.data, context.getResources().getDisplayMetrics());
+        }
+        return 0;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +174,11 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         initThumbnailList();
 
         initViewModel();
+
+
+        if (actionbarHeight == -1) {
+            actionbarHeight = getActionBarSize(this);
+        }
 
         getViewModel().load(repoId, repoName, parentDir, name, load_other_images_in_same_directory);
     }
@@ -611,7 +625,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     /**
      * when view pager changed, animate toolbar
-     * */
+     *
+     */
     private void animateToolbar() {
         if (!isActionBarVisible) {
             return;
