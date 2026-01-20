@@ -8,6 +8,9 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatTextView;
 
+/**
+ * Don't use locate attributes such as gravity
+ * */
 public class CenterTextView extends AppCompatTextView {
     public CenterTextView(Context context) {
         super(context);

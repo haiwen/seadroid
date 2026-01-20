@@ -214,7 +214,6 @@ public class PhotoFragment extends BaseFragment {
     private void initHelper() {
         if (canScrollBottomLayout) {
             imagePreviewHelper = new ImagePreviewHelper(requireContext());
-            imagePreviewHelper.setActionViews(binding.btnLivePhoto);
         }
     }
 
@@ -679,8 +678,14 @@ public class PhotoFragment extends BaseFragment {
 
         if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
             binding.btnLivePhoto.setVisibility(VISIBLE);
+            if (canScrollBottomLayout) {
+                imagePreviewHelper.setActionViews(binding.btnLivePhoto);
+            }
         } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
             binding.btnLivePhoto.setVisibility(VISIBLE);
+            if (canScrollBottomLayout) {
+                imagePreviewHelper.setActionViews(binding.btnLivePhoto);
+            }
         } else {
             binding.btnLivePhoto.setVisibility(GONE);
         }

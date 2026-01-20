@@ -38,17 +38,41 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
 
 public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileViewModel> {
     public static final String TAG = "ShareToSeafileActivity";
 
     private ActivityShareToSeafileBinding binding;
     private String dstRepoId, dstRepoName, dstDir;
+    private ShareParser.ShareResult shareResult;
     private Account account;
+    private Disposable disposable;
+    private ActivityResultLauncher<Intent> objSelectorLauncher;
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,15 +82,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
         registerResultLauncher();
 
-        getViewModel().getActionLiveData().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                SLogs.d(TAG, "can start file upload worker? " + aBoolean);
-                binding.progressBar.setIndeterminate(false);
-
-                BackupThreadExecutor.getInstance().runShareToSeafileUploadTask();
-            }
-        });
+        initViewModel();
 
         initWorkerBusObserver();
 
@@ -79,6 +95,12 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             }
         });
 
+        binding.progressBar.setIndeterminate(true);
+
+        checkReceiveParams();
+    }
+
+    private void launchObjSelector() {
         //launch obj selector activity
         Bundle bundle = new Bundle();
         bundle.putBoolean("isFilterUnavailable", false);
@@ -87,7 +109,71 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         objSelectorLauncher.launch(intent);
     }
 
-    private ActivityResultLauncher<Intent> objSelectorLauncher;
+
+    private void initViewModel() {
+        getViewModel().getActionLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                SLogs.d(TAG, "can start file upload worker? " + aBoolean);
+                binding.progressBar.setIndeterminate(false);
+
+                BackupThreadExecutor.getInstance().runShareToSeafileUploadTask();
+            }
+        });
+    }
+
+    private void checkReceiveParams() {
+        Intent intent = getIntent();
+        if (intent == null) {
+            Toasts.show("Invalid shared content");
+            finish();
+            return;
+        }
+
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        final ArrayList<Uri> fileUris = new ArrayList<>();
+
+        SLogs.d(TAG, "action: " + action, "type: " + type);
+
+        if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+            shareResult = ShareParser.parseSharedContent(intent, this);
+            if (shareResult.plainText != null) {
+                SLogs.d(TAG, "text content：" + shareResult.plainText);
+            }
+
+            for (Uri uri : shareResult.uriList) {
+                SLogs.d(TAG, "Receive Uri：" + uri);
+
+                fileUris.add(uri);
+            }
+        }
+
+
+        if (CollectionUtils.isEmpty(fileUris)) {
+            SLogs.d(TAG, "no shared files");
+            finish();
+            return;
+        }
+
+
+        disposable = isSafeSharedUri(fileUris.get(0))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) throws Exception {
+                        if (aBoolean) {
+                            launchObjSelector();
+                        } else {
+                            Toasts.show(R.string.not_supported);
+                            finish();
+                        }
+                    }
+                });
+
+    }
 
     private void registerResultLauncher() {
 
@@ -179,46 +265,18 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
     }
 
     private void notifyFileOverwriting() {
-        Intent intent = getIntent();
-        if (intent == null) {
-            Toasts.show("Invalid shared content");
-            finish();
+        if (shareResult == null || CollectionUtils.isEmpty(shareResult.uriList)) {
             return;
         }
 
-        String action = intent.getAction();
-        String type = intent.getType();
-
-        final ArrayList<Uri> fileUris = new ArrayList<>();
-
-        SLogs.d(TAG, "action: " + action, "type: " + type);
-
-        if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-            ShareParser.ShareResult shareResult = ShareParser.parseSharedContent(intent, this);
-            if (shareResult.plainText != null) {
-                SLogs.d(TAG, "text content：" + shareResult.plainText);
-            }
-
-            for (Uri uri : shareResult.uriList) {
-                SLogs.d(TAG, "Receive Uri：" + uri);
-                fileUris.add(uri);
-            }
-        }
-
-        if (CollectionUtils.isEmpty(fileUris)) {
-            SLogs.d(TAG, "no shared files");
-            finish();
-            return;
-        }
-
-        getViewModel().checkRemoteExists(this, account, dstRepoId, dstRepoName, dstDir, fileUris, new Consumer<Boolean>() {
+        getViewModel().checkRemoteExists(this, account, dstRepoId, dstRepoName, dstDir, shareResult.uriList, new Consumer<Boolean>() {
             @Override
             public void accept(Boolean b) throws Exception {
                 if (b) {
-                    showExistsDialog(ShareToSeafileActivity.this, fileUris);
+                    showExistsDialog(ShareToSeafileActivity.this, shareResult.uriList);
                 } else {
                     SLogs.d(TAG, "gen transfer model, and insert into queue, and upload it");
-                    getViewModel().upload(ShareToSeafileActivity.this, account, dstRepoId, dstRepoName, dstDir, fileUris, false);
+                    getViewModel().upload(ShareToSeafileActivity.this, account, dstRepoId, dstRepoName, dstDir, shareResult.uriList, false);
                 }
             }
         });
@@ -251,17 +309,76 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         builder.show();
     }
 
+    /**
+     * Security-critical check:
+     * 0、如果uri 是空，返回 false
+     * 1、不接收非 content 协议的文件
+     * 2、不接收 '/data/data/'目录和'/data/user/'目录里的文件
+     * 3、不接收文件路径包含包名路径
+     */
+    private Single<Boolean> isSafeSharedUri(Uri uri) {
+        return Single.create(new SingleOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+                // 0
+                if (uri == null) {
+                    emitter.onSuccess(false);
+                    return;
+                }
 
-    //
-    private void loadSharedFiles(Object extraStream) {
-//        if (extraStream instanceof ArrayList) {
-//            ConcurrentAsyncTask.execute(new LoadSharedFileTask(),
-//                    ((ArrayList<Uri>) extraStream).toArray(new Uri[]{}));
-//        } else if (extraStream instanceof Uri) {
-//            ConcurrentAsyncTask.execute(new LoadSharedFileTask(),
-//                    (Uri) extraStream);
-//        }
+                // 1、Reject file:// outright
+                if (!"content".equals(uri.getScheme())) {
+                    emitter.onSuccess(false);
+                    return;
+                }
 
+                //
+                if (uri.toString().contains("/data/data") || uri.toString().contains("/data/user")) {
+                    emitter.onSuccess(false);
+                    return;
+                }
+
+                // 2、Verify system-granted read capability
+                try {
+                    ContentResolver resolver = getContentResolver();
+                    try (java.io.InputStream is = resolver.openInputStream(uri)) {
+                        if (is == null) {
+                            emitter.onSuccess(false);
+                            return;
+                        }
+                    }
+                } catch (SecurityException | IOException e) {
+                    SLogs.w(TAG, "Cannot read shared uri: " + uri, e);
+                    emitter.onSuccess(false);
+                    return;
+                }
+
+
+                // 4、Verify path is not in private app directory, except cache
+                String streamToUpload = getSharedFilePath(uri);
+                if (TextUtils.isEmpty(streamToUpload)) {
+
+                    emitter.onSuccess(true);
+                    return;
+                }
+
+                // 3、Verify path does not contain package name
+                if (streamToUpload.contains(getPackageName())) {
+                    SLogs.w(TAG, "Rejected uri with package name: " + uri);
+                    emitter.onSuccess(false);
+                    return;
+                }
+
+                // 
+                if (streamToUpload.startsWith("/data/data") || streamToUpload.contains("/data/user")) {
+                    emitter.onSuccess(false);
+                    return;
+                }
+
+                //
+                emitter.onSuccess(true);
+            }
+        });
     }
 
     private String getSharedFilePath(Uri uri) {
@@ -269,18 +386,24 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             return null;
         }
 
-        if (uri.getScheme().equals("file")) {
+        if (Objects.equals(uri.getScheme(), "file")) {
             return uri.getPath();
-        } else {
-            ContentResolver contentResolver = getContentResolver();
-            Cursor cursor = contentResolver.query(uri, null, null, null, null);
+        }
+
+        ContentResolver contentResolver = getContentResolver();
+        String filePath;
+        try (Cursor cursor = contentResolver.query(uri, null, null, null, null)) {
             if (cursor == null || !cursor.moveToFirst()) {
                 return null;
             }
-            String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-            return filePath;
-        }
-    }
 
+            int dataIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            if (dataIndex == -1) {
+                return null;
+            }
+            filePath = cursor.getString(dataIndex);
+        }
+        return filePath;
+    }
 
 }
