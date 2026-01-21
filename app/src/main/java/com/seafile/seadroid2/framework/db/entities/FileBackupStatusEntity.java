@@ -132,11 +132,23 @@ public class FileBackupStatusEntity extends BaseModel {
 
     public String file_name;
 
+    // may be: file_name = a.heic, and original_name = a.jpg
+    public String original_name;
+    public String motion_photo;
+
     public String getFileName() {
         return file_name;
     }
 
+    public String getOriginalFileName() {
+        return file_name;
+    }
+
+
     public String getFullPathFileName() {
+        if (!TextUtils.isEmpty(original_name)) {
+            return Utils.pathJoin(parent_path, original_name);
+        }
         return Utils.pathJoin(parent_path, file_name);
     }
 
@@ -206,7 +218,9 @@ public class FileBackupStatusEntity extends BaseModel {
         File file = new File(entity.full_path);
         entity.file_name = transferModel.file_name;
         entity.file_size = file.length();
-        entity.file_format = FileUtils.getFileExtension(entity.full_path);
+        entity.original_name = transferModel.original_name;
+        entity.motion_photo = transferModel.hasExtraMotionPhoto() ? "1" : "0";
+        entity.file_format = FileUtils.getFileExtension(entity.file_name);
 //        entity.file_md5 = FileUtils.getFileMD5ToString(entity.full_path).toLowerCase();
         entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
         entity.created_at = System.currentTimeMillis();

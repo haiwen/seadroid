@@ -244,8 +244,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             //upload heic motion photo
             File heicFile = new File(currentTransferModel.motion_photo_path);
             String fn = FileUtils.getBaseName(currentTransferModel.file_name);
+            currentTransferModel.original_name = currentTransferModel.file_name;
+            currentTransferModel.file_name = fn + ".heic";// convert to new name.
+
             fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
-            builder.addFormDataPart("file", fn + ".heic", fileRequestBody);
+            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
 
         } else if (currentTransferModel.full_path.startsWith("content://")) {
             //uri: content://
@@ -350,6 +353,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             } else {
                 descriptor = MotionPhotoDetector.parseJpegXmpWithFile(currentTransferModel.full_path);
                 if (descriptor.isMotionPhoto()) {
+                    // Prepare the path(full_path,not tempJpegPath) to the convert to HEIC
                     currentTransferModel.motion_photo_path = currentTransferModel.full_path;
                 }
             }

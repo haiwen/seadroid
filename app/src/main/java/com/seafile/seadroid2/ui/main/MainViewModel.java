@@ -190,6 +190,32 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
+    public void checkRemoteDirent2(String repoId, String fullPath1, String fullPath2, java.util.function.Consumer<DirentFileModel> consumer) {
+        Single<DirentFileModel> detailSingle1 = HttpIO.getCurrentInstance()
+                .execute(FileService.class)
+                .getFileDetail(repoId, fullPath1);
+
+        Single<DirentFileModel> detailSingle2 = HttpIO.getCurrentInstance()
+                .execute(FileService.class)
+                .getFileDetail(repoId, fullPath2);
+
+        addSingleDisposable(detailSingle, new Consumer<DirentFileModel>() {
+            @Override
+            public void accept(DirentFileModel direntFileModel) throws Exception {
+                if (consumer != null) {
+                    consumer.accept(direntFileModel);
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                if (consumer != null) {
+                    consumer.accept(null);
+                }
+            }
+        });
+    }
+
     public void addUploadTask(Context context, Account account, RepoModel repoModel, Uri sourceUri, String parentDir, String fileName, boolean isReplace) {
         //sourceUri content://com.android.providers.media.documents/document/image:1000182224
         TransferModel transferModel = gen(context, account, repoModel.repo_id, repoModel.repo_name, sourceUri, fileName, parentDir, isReplace);

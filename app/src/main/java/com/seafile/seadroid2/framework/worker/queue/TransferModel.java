@@ -52,6 +52,7 @@ public class TransferModel implements Comparable<TransferModel> {
     private String parent_path;
     public String full_path;
     public String file_name;
+    public String original_name;
     public long created_at;
     public int retry_times = 0;
 
