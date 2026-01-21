@@ -102,6 +102,17 @@ public class BackupThreadExecutor {
         return albumBackupFuture != null && !albumBackupFuture.isDone();
     }
 
+    public boolean isUploading() {
+        return (manualFileUploadFuture != null && !manualFileUploadFuture.isDone())
+                || (shareFileUploadFuture != null && !shareFileUploadFuture.isDone())
+                || (localFileUpdateFuture != null && !localFileUpdateFuture.isDone())
+                || (folderBackupFuture != null && !folderBackupFuture.isDone())
+                || (albumBackupFuture != null && !albumBackupFuture.isDone());
+    }
+    public boolean isDownloading(){
+        return fileDownloadFuture != null && !fileDownloadFuture.isDone();
+    }
+
     public void stopAll() {
         stopAlbumBackup();
         stopFolderBackup();

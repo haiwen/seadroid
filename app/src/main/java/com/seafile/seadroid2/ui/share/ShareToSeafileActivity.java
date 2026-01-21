@@ -139,8 +139,11 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
         if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
             shareResult = ShareParser.parseSharedContent(intent, this);
-            if (shareResult.plainText != null) {
+            if (!TextUtils.isEmpty(shareResult.plainText) && CollectionUtils.isEmpty(shareResult.uriList)) {
                 SLogs.d(TAG, "text content：" + shareResult.plainText);
+                Toasts.show(R.string.not_supported_share);
+                finish();
+                return;
             }
 
             for (Uri uri : shareResult.uriList) {
