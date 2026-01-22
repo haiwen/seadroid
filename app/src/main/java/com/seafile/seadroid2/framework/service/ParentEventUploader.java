@@ -208,6 +208,47 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
 
+
+        //
+        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+
+        //
+        if (currentTransferModel.hasExtraMotionPhoto()) {
+            //upload heic motion photo
+            File heicFile = new File(currentTransferModel.motion_photo_path);
+            String fileName = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";// convert to new name.
+            currentTransferModel.original_name = currentTransferModel.file_name;
+            currentTransferModel.file_name = fileName;
+
+            fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
+            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
+
+            //
+            currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path)+currentTransferModel.file_name;
+
+        } else if (currentTransferModel.full_path.startsWith("content://")) {
+            //uri: content://
+            Uri fileUri = Uri.parse(currentTransferModel.full_path);
+            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), fileUri);
+            if (!isHasPermission) {
+                throw SeafException.PERMISSION_EXCEPTION;
+            }
+
+            uriRequestBody = new ProgressUriRequestBody(getContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
+            builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
+
+        } else {
+            //file
+            File originalFile = new File(currentTransferModel.full_path);
+            if (!originalFile.exists()) {
+                throw SeafException.NOT_FOUND_EXCEPTION;
+            }
+
+            fileRequestBody = new ProgressRequestBody(originalFile, _fileTransferProgressListener);
+            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
+        }
+
+
         if (currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE) {
             builder.addFormDataPart("target_file", currentTransferModel.target_path);
         } else {
@@ -235,42 +276,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel.transferred_size = 0;
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
-
-        //
-        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
-
-        //
-        if (currentTransferModel.hasExtraMotionPhoto()) {
-            //upload heic motion photo
-            File heicFile = new File(currentTransferModel.motion_photo_path);
-            String fn = FileUtils.getBaseName(currentTransferModel.file_name);
-            currentTransferModel.original_name = currentTransferModel.file_name;
-            currentTransferModel.file_name = fn + ".heic";// convert to new name.
-
-            fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
-            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
-
-        } else if (currentTransferModel.full_path.startsWith("content://")) {
-            //uri: content://
-            Uri fileUri = Uri.parse(currentTransferModel.full_path);
-            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), fileUri);
-            if (!isHasPermission) {
-                throw SeafException.PERMISSION_EXCEPTION;
-            }
-
-            uriRequestBody = new ProgressUriRequestBody(getContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
-            builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
-
-        } else {
-            //file
-            File originalFile = new File(currentTransferModel.full_path);
-            if (!originalFile.exists()) {
-                throw SeafException.NOT_FOUND_EXCEPTION;
-            }
-
-            fileRequestBody = new ProgressRequestBody(originalFile, _fileTransferProgressListener);
-            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
-        }
 
         //read create time/file size
         long createdTime = -1;

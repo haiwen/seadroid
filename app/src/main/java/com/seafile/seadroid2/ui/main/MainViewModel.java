@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.main;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
@@ -35,12 +36,19 @@ import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainViewModel extends BaseViewModel {
     private final String TAG = "MainViewModel";
@@ -128,29 +136,35 @@ public class MainViewModel extends BaseViewModel {
         Single<DirentWrapperModel> detailSingle = HttpIO.getCurrentInstance()
                 .execute(RepoService.class)
                 .getDirentsAsync(repoId, parentDir);
+
         addSingleDisposable(detailSingle, new Consumer<DirentWrapperModel>() {
             @Override
             public void accept(DirentWrapperModel wrapperModel) throws Exception {
                 if (wrapperModel == null || CollectionUtils.isEmpty(wrapperModel.dirent_list)) {
                     SLogs.d(TAG, "multipleCheckRemoteDirent()", "request " + parentDir + " children result is null or empty.");
-
                     for (Uri uri : uris) {
                         String fileName = Utils.getFilenameFromUri(context, uri);
+
                         TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, false);
                         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                     }
+                } else {
+                    for (Uri uri : uris) {
+                        Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri);
+                        String fileName = jpegPair.first;
+                        boolean isExists;
+                        if (jpegPair.second) { // is jpeg mp?
+                            String baseName = FilenameUtils.getBaseName(fileName);
+                            //convert extend format jpeg to heic
+                            String heicName = baseName + ".heic";
+                            isExists = wrapperModel.dirent_list.stream().anyMatch(f -> TextUtils.equals(f.name, heicName));
+                        } else {
+                            isExists = wrapperModel.dirent_list.stream().anyMatch(f -> TextUtils.equals(f.name, fileName));
+                        }
 
-                    if (consumer != null) {
-                        consumer.accept(true);
+                        TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isExists);
+                        GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                     }
-                    return;
-                }
-
-                for (Uri uri : uris) {
-                    String fileName = Utils.getFilenameFromUri(context, uri);
-                    boolean isExists = wrapperModel.dirent_list.stream().anyMatch(f -> TextUtils.equals(f.name, fileName));
-                    TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isExists);
-                    GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                 }
 
                 SLogs.d(TAG, "multipleCheckRemoteDirent()", "can upload " + uris.size() + " files");
@@ -190,16 +204,27 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void checkRemoteDirent2(String repoId, String fullPath1, String fullPath2, java.util.function.Consumer<DirentFileModel> consumer) {
+    public void checkRemoteDirent(String repoId, String destinationPath1, String destinationPath2, java.util.function.Consumer<DirentFileModel> consumer) {
+        if (TextUtils.isEmpty(destinationPath2)) {
+            checkRemoteDirent(repoId, destinationPath1, consumer);
+            return;
+        }
+
+
         Single<DirentFileModel> detailSingle1 = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
-                .getFileDetail(repoId, fullPath1);
+                .getFileDetail(repoId, destinationPath1)
+                .onErrorResumeNext(Single.never());
 
         Single<DirentFileModel> detailSingle2 = HttpIO.getCurrentInstance()
                 .execute(FileService.class)
-                .getFileDetail(repoId, fullPath2);
+                .getFileDetail(repoId, destinationPath2)
+                .onErrorResumeNext(Single.never());
 
-        addSingleDisposable(detailSingle, new Consumer<DirentFileModel>() {
+        Single<DirentFileModel> winner = Single.ambArray(detailSingle1, detailSingle2)
+                .timeout(10, TimeUnit.SECONDS);
+
+        addSingleDisposable(winner, new Consumer<DirentFileModel>() {
             @Override
             public void accept(DirentFileModel direntFileModel) throws Exception {
                 if (consumer != null) {

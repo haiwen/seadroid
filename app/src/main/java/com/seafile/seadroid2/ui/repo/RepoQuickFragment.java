@@ -25,7 +25,6 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.MenuRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -38,21 +37,17 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.FileIOUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.PathUtils;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
@@ -83,7 +78,6 @@ import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
-import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -131,20 +125,17 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.reactivex.Completable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import kotlin.ranges.IntRange;
 
@@ -1731,30 +1722,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         operateFile(model, FileReturnActionEnum.OPEN_WITH);
     }
 
-    private void operateFile(BaseModel model, FileReturnActionEnum actionEnum) {
-        if (model instanceof DirentModel dirent) {
-            if (dirent.isDir()) {
-                Toasts.show(R.string.not_supported);
-                return;
-            }
-
-            File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
-            if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
-                WidgetUtils.openWith(requireActivity(), local);
-            } else {
-                Intent intent = FileActivity.start(requireActivity(), dirent, actionEnum);
-                fileActivityLauncher.launch(intent);
-            }
-        } else if (model instanceof SearchModel m) {
-            if (m.isDir()) {
-                Toasts.show(R.string.not_supported);
-                return;
-            }
-
-            Intent intent = FileActivity.startFromSearch(requireActivity(), m, actionEnum);
-            fileActivityLauncher.launch(intent);
-        }
-    }
 
     // SearchModel supported
     public void download(List<BaseModel> models) {
@@ -1929,82 +1896,112 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         BaseModel model = models.get(0);
-        if (model instanceof DirentModel m) {
-            if (m.isDir()) {
-                Toasts.show(R.string.not_supported_share);
+        operateFile(model, FileReturnActionEnum.EXPORT);
+    }
+
+    private void operateFile(BaseModel model, FileReturnActionEnum actionEnum) {
+        if (model instanceof DirentModel dirent) {
+            if (dirent.isDir()) {
+                Toasts.show(R.string.not_supported);
                 return;
             }
-            File destinationFile = getLocalDestinationFile(m.repo_id, m.repo_name, m.full_path);
-            if (TextUtils.equals(m.id, m.local_file_id) && destinationFile.exists()) {
-                checkMotionPhotoAndExport(destinationFile);
+
+            File localFile = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+            if (TextUtils.equals(dirent.id, dirent.local_file_id) && localFile.exists()) {
+                if (actionEnum == FileReturnActionEnum.SAVE_AS) {
+                    checkMotionPhotoAndExport(localFile, FileReturnActionEnum.SAVE_AS);
+                } else if (actionEnum == FileReturnActionEnum.OPEN_WITH) {
+                    WidgetUtils.openWith(requireActivity(), localFile);
+                } else if (actionEnum == FileReturnActionEnum.EXPORT) {
+                    checkMotionPhotoAndExport(localFile, FileReturnActionEnum.EXPORT);
+                }
             } else {
-                Intent intent = FileActivity.start(requireActivity(), m, FileReturnActionEnum.EXPORT);
+                Intent intent = FileActivity.start(requireActivity(), dirent, actionEnum);
                 fileActivityLauncher.launch(intent);
             }
         } else if (model instanceof SearchModel m) {
             if (m.isDir()) {
-                Toasts.show(R.string.not_supported_share);
+                Toasts.show(R.string.not_supported);
                 return;
             }
-            Intent intent = FileActivity.startFromSearch(requireActivity(), m, FileReturnActionEnum.EXPORT);
+
+            Intent intent = FileActivity.startFromSearch(requireActivity(), m, actionEnum);
             fileActivityLauncher.launch(intent);
         }
     }
 
-    private void checkMotionPhotoAndExport(File destinationFile) {
-        Single.fromCallable(() -> {
-                    if (!Utils.isHeic(destinationFile.getName())) {
-                        return destinationFile;
-                    }
+    private Disposable disposable;
 
-                    int motionPhotoType = HeicNative.nativeCheckMotionPhotoType(destinationFile.getAbsolutePath());
-                    if (motionPhotoType == 0) {//JPEG MP
-                        return destinationFile;
-                    } else if (motionPhotoType == 1) {//HEIC MP
-                        // convert to jpeg
-                    } else if (motionPhotoType == 2) {// a File
-                        return destinationFile;
-                    }
-//                    MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(destinationFile);
-//                    if (!descriptor.isMotionPhoto()) {
-//                        return destinationFile;
-//                    }
+    private void checkMotionPhotoAndExport(File destinationFile, FileReturnActionEnum actionEnum) {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
 
-                    try {
-                        Path path = Files.createTempFile("tmp-jmp-", ".tmp");
-                        File tmpFile = path.toFile();
-
-                        String outPath = HeicNative.nativeConvertHeicMotionPhotoToJpeg(destinationFile.getAbsolutePath(), Utils.getVendorNormalized(), tmpFile.getAbsolutePath());
-                        if (TextUtils.isEmpty(outPath)) {
-                            FileUtils.delete(tmpFile);
-                            return destinationFile;
+        disposable = Single.create(new SingleOnSubscribe<File>() {
+                    @Override
+                    public void subscribe(SingleEmitter<File> emitter) throws Exception {
+                        if (!Utils.isHeic(destinationFile.getName())) {
+                            emitter.onSuccess(destinationFile);
+                            return;
                         }
 
-                        SLogs.e(outPath);
-                        // Rename to .jpg to ensure correct file type recognition
-                        String baseName = FilenameUtils.getBaseName(destinationFile.getName());
-                        Path targetPath = path.resolveSibling(baseName + ".jpg");
+                        int motionPhotoType = HeicNative.nativeCheckMotionPhotoType(destinationFile.getAbsolutePath());
+                        if (motionPhotoType == 0) {//JPEG MP
+                            emitter.onSuccess(destinationFile);
+                            return;
+                        } else if (motionPhotoType == 1) {//HEIC MP
+                            // convert to jpeg
+                        } else if (motionPhotoType == 2) {// a File
+                            emitter.onSuccess(destinationFile);
+                            return;
+                        }
 
-                        // Use REPLACE_EXISTING to handle cases where the file might already exist
-                        Files.move(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-                        return targetPath.toFile();
-                    } catch (IOException e) {
-                        SLogs.e("Error converting motion photo", e);
+                        try {
+                            Path path = Files.createTempFile("tmp-jmp-", ".tmp");
+                            File tmpFile = path.toFile();
+
+                            String outPath = HeicNative.nativeConvertHeicMotionPhotoToJpeg(destinationFile.getAbsolutePath(), Utils.getVendorNormalized(), tmpFile.getAbsolutePath());
+                            if (TextUtils.isEmpty(outPath)) {
+                                FileUtils.delete(tmpFile);
+                                emitter.onSuccess(destinationFile);
+                                return;
+                            }
+
+                            SLogs.e(outPath);
+                            // Rename to .jpg to ensure correct file type recognition
+                            String baseName = FilenameUtils.getBaseName(destinationFile.getName());
+                            Path targetPath = path.resolveSibling(baseName + ".jpg");
+
+                            // Use REPLACE_EXISTING to handle cases where the file might already exist
+                            Files.move(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+                            emitter.onSuccess(targetPath.toFile());
+                        } catch (IOException e) {
+                            SLogs.e("Error converting motion photo", e);
+                            emitter.onSuccess(destinationFile);
+                        }
                     }
-                    return destinationFile;
-
-                }).subscribeOn(Schedulers.io())
+                })
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(d -> showLoadingDialog())
                 .doFinally(this::dismissLoadingDialog)
                 .subscribe(file -> {
-                    WidgetUtils.exportFile(RepoQuickFragment.this, file);
+                    if (actionEnum == FileReturnActionEnum.EXPORT) {
+                        WidgetUtils.exportFile(RepoQuickFragment.this, file);
+                    } else if (actionEnum == FileReturnActionEnum.SAVE_AS) {
+                        saveAsFor(file);
+                    }
+
                 }, error -> {
                     SLogs.e("Check motion photo failed", error);
-                    WidgetUtils.exportFile(RepoQuickFragment.this, destinationFile);
+                    if (actionEnum == FileReturnActionEnum.EXPORT) {
+                        WidgetUtils.exportFile(RepoQuickFragment.this, destinationFile);
+                    } else if (actionEnum == FileReturnActionEnum.SAVE_AS) {
+                        saveAsFor(destinationFile);
+                    }
                 });
-
     }
 
 
@@ -2142,10 +2139,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 File destinationFile = new File(localFullPath);
                 if (TextUtils.equals(FileReturnActionEnum.EXPORT.name(), action)) {
-                    checkMotionPhotoAndExport(destinationFile);
+
+                    checkMotionPhotoAndExport(destinationFile, FileReturnActionEnum.EXPORT);
+
                 } else if (TextUtils.equals(FileReturnActionEnum.SHARE.name(), action)) {
 
                     WidgetUtils.shareFileToWeChat(RepoQuickFragment.this, destinationFile);
+
                 } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
 
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
@@ -2155,9 +2155,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
 
                     MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
-                } else if (TextUtils.equals(FileReturnActionEnum.SAVE_AS.name(), action)) {
 
-                    saveAsFor(destinationFile);
+                } else if (TextUtils.equals(FileReturnActionEnum.SAVE_AS.name(), action)) {
+                    checkMotionPhotoAndExport(destinationFile, FileReturnActionEnum.SAVE_AS);
                 }
             }
         });
@@ -2556,20 +2556,20 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         showLoadingDialog();
 
-        String fileName = Utils.getFilenameFromUri(requireContext(), uri);
         String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
+
+        Pair<String,Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(),uri);
+
+        String fileName = jpegPair.first;
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
-        if (Utils.isJpeg(fileName)) {
-            MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(requireContext(), uri);
-            if (descriptor.isMotionPhoto()) {
-                String parentPath = Utils.getParentPath(destinationPath);
-                String puraName = FilenameUtils.getBaseName(fileName);
-                //convert extend format jpeg to heic
-                destinationPath = Utils.pathJoin(parentPath, puraName);
-                destinationPath += ".heic";
-            }
+        String heicPath = null;
+        if (jpegPair.second){
+            String baseName = FilenameUtils.getBaseName(fileName);
+            //convert extend format jpeg to heic
+            heicPath = Utils.pathJoin(parent_dir, baseName) + ".heic";
         }
+
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
 
         if (repoModel == null) {
@@ -2577,8 +2577,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        String finalDestinationPath = destinationPath;
-        mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, new java.util.function.Consumer<DirentFileModel>() {
+        mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, heicPath, new java.util.function.Consumer<DirentFileModel>() {
             @Override
             public void accept(DirentFileModel direntFileModel) {
                 dismissLoadingDialog();
@@ -2589,7 +2588,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
 
                 if (direntFileModel != null) {
-                    showFileExistDialog(uri, FilenameUtils.getName(finalDestinationPath));
+                    showFileExistDialog(uri, FilenameUtils.getName(destinationPath));
                 } else {
                     addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
                 }
