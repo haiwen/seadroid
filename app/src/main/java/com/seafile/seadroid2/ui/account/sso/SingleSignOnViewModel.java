@@ -17,6 +17,8 @@ import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.main.MainService;
 
+import java.util.ArrayList;
+
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 
@@ -59,8 +61,17 @@ public class SingleSignOnViewModel extends BaseViewModel {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
+
                 String errMsg = getErrorMsgByThrowable(throwable);
                 Toasts.show(errMsg);
+                ServerInfoModel serverInfoModel = new ServerInfoModel();
+                serverInfoModel.features =new ArrayList<>();
+                serverInfoModel.features.add("seafile-basic");
+                serverInfoModel.features.add("seafile-pro");
+                serverInfoModel.features.add("file-search");
+
+                getServerInfoLiveData().setValue(serverInfoModel);
+
             }
         });
     }

@@ -64,7 +64,7 @@ public class SearchModel extends BaseModel implements Parcelable {
             return fullpath;
         }
 
-        String p = Utils.getPathFromFullPath(fullpath);
+        String p = Utils.getFullPath(fullpath);
         return repo_name + p;
     }
 
@@ -103,11 +103,13 @@ public class SearchModel extends BaseModel implements Parcelable {
 
         d.related_account = model.related_account;
         d.name = Utils.getFileNameFromPath(model.fullpath);
+
         d.repo_id = model.repo_id;
         d.repo_name = model.repo_name;
         d.last_modified_at = model.last_modified;
         d.size = model.size;
         d.parent_dir = Utils.getParentPath(model.fullpath);
+        d.uid = d.getUID();
         return d;
     }
 

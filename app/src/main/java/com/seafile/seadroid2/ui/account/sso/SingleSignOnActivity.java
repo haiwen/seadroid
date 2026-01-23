@@ -261,7 +261,7 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
             return;
         }
 
-        // https://dev.seafile.com/seahub/client-sso/13de82ce0861430ba5a9f672cf89fe41fbaa6c7c94487b92ff8c8d76c260/
+        // https://host/client-sso/13de82ce0861430ba5a9f672cf89fe41fbaa6c7c94487b92ff8c8d76c260/
         String link = StringUtils.trimEnd(ssoLink, "/");
         String token = link.substring(link.lastIndexOf("/") + 1);
         String host = getServerHost();

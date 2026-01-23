@@ -7,8 +7,15 @@ import java.util.List;
 @Todo
 public final class MotionPhotoDescriptor {
 
-    public boolean isMotionPhoto = false;
+    /**
+     * Motion Photo Type
+     *
+     * @see MotionPhotoTypeEnum
+     *
+     */
+    public MotionPhotoTypeEnum mpType = MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE;
     public long motionPhotoVersion;
+    public long totalSize;
     /**
      * suggested playback time microseconds
      */
@@ -16,23 +23,29 @@ public final class MotionPhotoDescriptor {
 
     public String tempJpegPath;
 
-    public Source source;
+    public Source source = Source.CONTAINER;
 
     public List<MotionPhotoItem> items;
 
     @Override
     public String toString() {
-        return "MotionPhotoDescriptor{" +
-                "isMotionPhoto=" + isMotionPhoto +
-                ", motionPhotoPresentationTimestampUs=" + motionPhotoPresentationTimestampUs +
-                ", source=" + source +
-                '}';
+        return "MotionPhotoDescriptor{" + mpType.name() + '}';
+    }
+
+    public boolean isMotionPhoto() {
+        return mpType != MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_NONE;
     }
 
     public enum Source {
         MOTION_PHOTO,
-        CONTAINER,//NOT Motion Photo
+        CONTAINER, //NOT Motion Photo
         MICRO_VIDEO
+    }
+
+    public enum MotionPhotoTypeEnum {
+        MOTION_PHOTO_TYPE_JPEG,
+        MOTION_PHOTO_TYPE_HEIC,
+        MOTION_PHOTO_TYPE_NONE
     }
 
     public static class MotionPhotoItem {

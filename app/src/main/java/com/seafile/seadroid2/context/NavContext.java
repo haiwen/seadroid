@@ -122,7 +122,19 @@ public class NavContext {
         if (isSaveIntoSp) {
             saveToSp();
         }
+    }
 
+    public void popAll() {
+        if (navStack.empty()) {
+            return;
+        }
+
+        //stack
+        navStack.clear();
+
+        if (isSaveIntoSp) {
+            saveToSp();
+        }
     }
 
     public void switchToPath(RepoModel repoModel, String full_path) {

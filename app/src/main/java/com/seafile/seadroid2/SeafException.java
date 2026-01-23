@@ -44,6 +44,7 @@ public class SeafException extends Exception {
     public static final int HTTP_443_OUT_OF_QUOTA = 443;
     public static final int HTTP_447_TOO_MANY_FILES_IN_LIBRARY = 447;
     public static final int HTTP_500_INTERNAL_SERVER_ERROR = 500;
+    public static final int HTTP_503_SERVICE_UNAVAILABLE = 503;
     public static final int HTTP_520_OPERATION_FAILED = 520;
 
 
@@ -72,7 +73,6 @@ public class SeafException extends Exception {
     public static final int HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS = 451;
     public static final int HTTP_501_NOT_IMPLEMENTED = 501;
     public static final int HTTP_502_BAD_GATEWAY = 502;
-    public static final int HTTP_503_SERVICE_UNAVAILABLE = 503;
     public static final int HTTP_504_GATEWAY_TIMEOUT = 504;
     public static final int HTTP_505_HTTP_VERSION_NOT_SUPPORTED = 505;
     public static final int HTTP_506_VARIANT_ALSO_NEGOTIATES = 506;

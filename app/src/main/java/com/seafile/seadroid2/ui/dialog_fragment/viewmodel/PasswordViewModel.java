@@ -135,7 +135,7 @@ public class PasswordViewModel extends BaseViewModel {
         Single<Exception> insertEncSingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
             public void subscribe(SingleEmitter<Exception> emitter) {
-                if (emitter.isDisposed()){
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 
@@ -212,7 +212,7 @@ public class PasswordViewModel extends BaseViewModel {
         Single<Exception> verifySingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
             public void subscribe(SingleEmitter<Exception> emitter) {
-                if (emitter.isDisposed()){
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 
@@ -238,10 +238,10 @@ public class PasswordViewModel extends BaseViewModel {
         Single<Exception> insertEncSingle = Single.create(new SingleOnSubscribe<Exception>() {
             @Override
             public void subscribe(SingleEmitter<Exception> emitter) {
-                if (emitter.isDisposed()){
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
-                
+
                 try {
                     Pair<String, String> pair = Crypto.generateKey(password, repoModel.random_key, repoModel.enc_version);
 

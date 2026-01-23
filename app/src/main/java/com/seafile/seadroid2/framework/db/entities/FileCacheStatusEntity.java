@@ -96,6 +96,7 @@ public class FileCacheStatusEntity extends BaseModel {
     public String file_id;
 
     public String file_name;
+    public String motion_photo;
 
     public String getFileName() {
         return file_name;
@@ -160,6 +161,7 @@ public class FileCacheStatusEntity extends BaseModel {
         entity.related_account = transferModel.related_account;
         entity.file_name = transferModel.file_name;
         entity.file_id = fileId;
+
 
         if (isDownload) {
             //

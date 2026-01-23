@@ -89,7 +89,7 @@ public class AccountViewModel extends BaseViewModel {
         Single<Account> single = Single.create(new SingleOnSubscribe<Account>() {
             @Override
             public void subscribe(SingleEmitter<Account> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
                 

@@ -3,14 +3,22 @@ package com.seafile.seadroid2.ui.media.image;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.animation.ValueAnimator;
+import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,27 +27,40 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.ui.PlayerView;
 
+import com.adobe.internal.xmp.XMPException;
+import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.blankj.utilcode.util.SpanUtils;
 import com.blankj.utilcode.util.TimeUtils;
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.compat.ContextCompatKt;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.FragmentPhotoViewBinding;
@@ -48,10 +69,14 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.ui.media.data_source.MotionPhotoDataSourceFactory;
 import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
 import com.seafile.seadroid2.view.photoview.OnViewActionEndListener;
@@ -74,6 +99,7 @@ public class PhotoFragment extends BaseFragment {
     private boolean isNightMode = false;
     private boolean canScrollBottomLayout = true;
 
+    private ImagePreviewHelper imagePreviewHelper;
     private OnPhotoTapListener onPhotoTapListener;
     private String serverUrl;
     private File destinationFile;
@@ -157,6 +183,8 @@ public class PhotoFragment extends BaseFragment {
         if (!TextUtils.isEmpty(imageUrl)) {
             canScrollBottomLayout = false;
         }
+
+
     }
 
 
@@ -178,7 +206,15 @@ public class PhotoFragment extends BaseFragment {
 
         initView();
 
+        initHelper();
+
         load();
+    }
+
+    private void initHelper() {
+        if (canScrollBottomLayout) {
+            imagePreviewHelper = new ImagePreviewHelper(requireContext());
+        }
     }
 
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
@@ -257,9 +293,28 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
+        getParentViewModel().getTapLiveData().observe(requireActivity(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer unused) {
+                if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_NONE || motionPhotoType == -1) {
+                    return;
+                }
+                if (imagePreviewHelper != null) {
+                    imagePreviewHelper.tap();
+                }
+            }
+        });
     }
 
     private void initView() {
+
+        // live photo
+        FrameLayout.LayoutParams fl = (FrameLayout.LayoutParams) binding.btnLivePhoto.getLayoutParams();
+        fl.topMargin = BarUtils.getStatusBarHeight() + CarouselImagePreviewActivity.actionbarHeight + Constants.DP.DP_8;
+        fl.leftMargin = Constants.DP.DP_8;
+        binding.btnLivePhoto.setLayoutParams(fl);
+
+        // desc
         TextView descTextView = binding.errorView.findViewById(R.id.desc);
         SpanUtils.with(descTextView)
                 .append(getString(R.string.error_image_load))
@@ -287,6 +342,8 @@ public class PhotoFragment extends BaseFragment {
         binding.photoView.setOnViewActionEndListener(new OnViewActionEndListener() {
             @Override
             public void onEnd() {
+                stopPlay();
+
                 onActionUp();
             }
         });
@@ -298,9 +355,7 @@ public class PhotoFragment extends BaseFragment {
                     return;
                 }
 
-                if (onPhotoTapListener != null) {
-                    onPhotoTapListener.onPhotoTap(view, x, y);
-                }
+                getParentViewModel().getTapLiveData().setValue(0);
             }
         });
 
@@ -308,6 +363,14 @@ public class PhotoFragment extends BaseFragment {
             @Override
             public void onDrag(ScrollDirection direction, float dx, float dy) {
                 onPhotoViewDrag(direction, dy);
+            }
+        });
+
+        binding.photoView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                playLivePhotoVideo();
+                return false;
             }
         });
     }
@@ -387,6 +450,10 @@ public class PhotoFragment extends BaseFragment {
             DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.CANCELLED, isBottomShowing);
             getParentViewModel().getScrolling().setValue(showModel);
 
+            if (imagePreviewHelper != null) {
+                imagePreviewHelper.gradientLayout(showModel);
+            }
+
             //notice:
             //toggle first, in order to show the animation
             toggleBottomShowingValue();
@@ -401,6 +468,10 @@ public class PhotoFragment extends BaseFragment {
 
         DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.FINISHED, isBottomShowing);
         getParentViewModel().getScrolling().setValue(showModel);
+
+        if (imagePreviewHelper != null) {
+            imagePreviewHelper.gradientLayout(showModel);
+        }
 
         toggleDetailLayout();
         toggleBottomShowingValue();
@@ -425,6 +496,10 @@ public class PhotoFragment extends BaseFragment {
 
         DetailLayoutShowModel showModel = new DetailLayoutShowModel((int) totalDistance, scrollDirection, ScrollStatus.SCROLLING, isBottomShowing);
         getParentViewModel().getScrolling().setValue(showModel);
+
+        if (imagePreviewHelper != null) {
+            imagePreviewHelper.gradientLayout(showModel);
+        }
 
         photoTranslationY += (int) (dY);
         bottomTranslationY += (int) (dY * 2f);
@@ -568,7 +643,7 @@ public class PhotoFragment extends BaseFragment {
                         binding.progressBar.setVisibility(GONE);
                         try {
                             //
-//                            checkMotionPhoto(oriUrl);
+                            checkMotionPhoto(oriUrl);
 
                             //
                             HashMap<String, String> hashMap = loadExifMeta(oriUrl);
@@ -581,89 +656,185 @@ public class PhotoFragment extends BaseFragment {
                 })
                 .into(binding.photoView);
     }
-//
-//    private void checkMotionPhoto(String localPath) {
-//        if (motionPhotoType == -1) {
-//            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(localPath);
-//        }
-//
-//        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-//            binding.btnLivePhoto.setVisibility(VISIBLE);
-//        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-//            binding.btnLivePhoto.setVisibility(VISIBLE);
-//        } else {
-//            binding.btnLivePhoto.setVisibility(GONE);
-//        }
-//    }
+
 
     // no load yet.
-//    private int motionPhotoType = -1;
+    private int motionPhotoType = -1;
+
+    private void checkMotionPhoto(String localPath) {
+        if (motionPhotoType == -1) {
+            if (Utils.isJpeg(localPath)) {
+                MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(new File(localPath));
+                if (descriptor.isMotionPhoto()) {
+                    motionPhotoType = HeicNative.MOTION_PHOTO_TYPE_JPEG;
+                }
+            } else if (Utils.isHeic(localPath)) {
+                MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(new File(localPath));
+                if (descriptor.isMotionPhoto()) {
+                    motionPhotoType = HeicNative.MOTION_PHOTO_TYPE_HEIC;
+                }
+            }
+        }
+
+        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
+            binding.btnLivePhoto.setVisibility(VISIBLE);
+            if (canScrollBottomLayout) {
+                imagePreviewHelper.setActionViews(binding.btnLivePhoto);
+            }
+        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
+            binding.btnLivePhoto.setVisibility(VISIBLE);
+            if (canScrollBottomLayout) {
+                imagePreviewHelper.setActionViews(binding.btnLivePhoto);
+            }
+        } else {
+            binding.btnLivePhoto.setVisibility(GONE);
+        }
+    }
+
+    private ExoPlayer exoPlayer;
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        releasePlayer();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        stopPlay();
+    }
+
+    @OptIn(markerClass = Unstable.class)
+    private void playLivePhotoVideo() {
+
+        try {
+            if (motionPhotoType == -1) {
+                return;
+            }
+
+            if (exoPlayer != null && exoPlayer.isPlaying()) {
+                return;
+            }
+
+            MediaSource source = buildMotionPhotoMediaSource(destinationFile);
+            if (source == null) {
+                return;
+            }
+
+            if (exoPlayer == null) {
+                exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+                exoPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+                exoPlayer.addListener(new Player.Listener() {
+                    @Override
+                    public void onPlaybackStateChanged(int playbackState) {
+                        switch (playbackState) {
+                            case Player.STATE_BUFFERING: //loading
+
+                                break;
+                            case Player.STATE_READY:
+                                binding.playerView.setVisibility(View.VISIBLE);
+                                binding.photoView.setVisibility(GONE);
+                                break;
+                            case Player.STATE_ENDED:
+                                binding.photoView.setVisibility(VISIBLE);
+                                binding.playerView.setVisibility(View.GONE);
+                                break;
+                        }
+                    }
+                });
+//                Glide.with(requireContext()).load(destinationFile)
+//                        .into(new CustomTarget<Drawable>() {
+//                            @Override
+//                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+//                                binding.playerView.setDefaultArtwork(resource);
+//                                binding.playerView.setArtworkDisplayMode(PlayerView.IMAGE_DISPLAY_MODE_FIT);
+//                            }
 //
-//    @Todo
-//    @OptIn(markerClass = Unstable.class)
-//    private void playLivePhotoVideo() {
-//
-//        try {
-//            MediaSource source = buildMotionPhotoMediaSource(destinationFile);
-//            if (source == null) {
-//                return;
-//            }
-//
-//            ExoPlayer exoPlayer = new ExoPlayer.Builder(requireContext()).build();
-//
-//            binding.playerView.setPlayer(exoPlayer);
-//            exoPlayer.addListener(new Player.Listener() {
-//                @Override
-//                public void onPlaybackStateChanged(int playbackState) {
-//                    switch (playbackState) {
-//                        case Player.STATE_BUFFERING: //loading
-//
-//                            break;
-//                        case Player.STATE_READY:
-//                            binding.photoView.setVisibility(View.INVISIBLE);
-//                            binding.playerView.setVisibility(View.VISIBLE);
-//                            break;
-//                        case Player.STATE_ENDED:
-//                            binding.photoView.setVisibility(View.VISIBLE);
-//                            binding.playerView.setVisibility(View.INVISIBLE);
-//                            break;
-//                    }
-//                }
-//            });
-//            exoPlayer.setMediaSource(source);
-//            exoPlayer.prepare();
-//            exoPlayer.play();
-//        } catch (IOException | XMPException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    @Todo
-//    private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
-//        if (motionPhotoType == -1) {
-//            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(imageFile.getAbsolutePath());
-//        }
-//
-//        byte[] videoBytes = null;
-//        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-//            videoBytes = HeicNative.nativeExtractHeicMotionPhotoVideo(imageFile.getAbsolutePath());
-//        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-//            videoBytes = HeicNative.nativeExtractJpegMotionPhotoVideo(imageFile.getAbsolutePath());
-//        }
-//
-//        if (videoBytes == null || videoBytes.length == 0) {
-//            return null;
-//        }
-//
-//        androidx.media3.datasource.DataSource.Factory factory = new MotionPhotoDataSourceFactory(videoBytes);
-//
-//        MediaItem mediaItem = new MediaItem.Builder()
-//                .setUri(Uri.fromFile(imageFile))
-//                .build();
-//
-//        return new ProgressiveMediaSource.Factory(factory)
-//                .createMediaSource(mediaItem);
-//    }
+//                            @Override
+//                            public void onLoadCleared(@Nullable Drawable placeholder) {
+//                                binding.playerView.setDefaultArtwork(null);
+//                            }
+//                        });
+                binding.playerView.setPlayer(exoPlayer);
+            }
+
+            exoPlayer.setMediaSource(source);
+            exoPlayer.prepare();
+            exoPlayer.play();
+            //
+            vibrateOnce();
+        } catch (IOException | XMPException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void vibrateOnce() {
+        try {
+            Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator == null) return;
+            long durationMs = 30L;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                VibrationEffect effect = VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE);
+                vibrator.vibrate(effect);
+            } else {
+                vibrator.vibrate(durationMs);
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private void stopPlay() {
+        if (exoPlayer == null) {
+            return;
+        }
+
+        if (!exoPlayer.isPlaying()) {
+            return;
+        }
+
+        exoPlayer.stop();
+        exoPlayer.clearMediaItems();
+
+        binding.playerView.setVisibility(GONE);
+        binding.photoView.setVisibility(VISIBLE);
+    }
+
+    private void releasePlayer() {
+        if (exoPlayer != null) {
+            exoPlayer.release();
+            exoPlayer = null;
+        }
+    }
+
+
+    private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
+        if (motionPhotoType == -1) {
+            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(imageFile.getAbsolutePath());
+        }
+
+        byte[] videoBytes = null;
+        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
+            videoBytes = HeicNative.nativeExtractHeicMotionPhotoVideo(imageFile.getAbsolutePath());
+        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
+            videoBytes = HeicNative.nativeExtractJpegMotionPhotoVideo(imageFile.getAbsolutePath());
+        }
+
+        if (videoBytes == null || videoBytes.length == 0) {
+            return null;
+        }
+
+        androidx.media3.datasource.DataSource.Factory factory = new MotionPhotoDataSourceFactory(videoBytes);
+
+        MediaItem mediaItem = new MediaItem.Builder()
+                .setUri(Uri.fromFile(imageFile))
+                .build();
+
+        return new ProgressiveMediaSource.Factory(factory)
+                .createMediaSource(mediaItem);
+    }
 
 
     // local gif file

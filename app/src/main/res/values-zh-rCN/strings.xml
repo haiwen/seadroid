@@ -735,4 +735,5 @@ Email: support@seafile.com<br>
   <string name="reconnected">已连接</string>
   <string name="saving">正在保存</string>
   <string name="saved">已保存</string>
+  <string name="live">实况</string>
 </resources>

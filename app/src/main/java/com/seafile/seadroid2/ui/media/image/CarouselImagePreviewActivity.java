@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
@@ -21,7 +22,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.viewpager2.widget.ViewPager2;
@@ -37,7 +37,6 @@ import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.context.CopyMoveContext;
 import com.seafile.seadroid2.databinding.ActivityCarouselImagePreviewBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
-import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -45,15 +44,14 @@ import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
-import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
 import com.seafile.seadroid2.view.photoview.ScrollDirection;
 import com.seafile.seadroid2.view.photoview.ScrollStatus;
@@ -67,7 +65,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private ViewPager2Adapter pagerAdapter;
     private ThumbnailAdapter thumbnailAdapter;
     private final String KEY_CURRENT_PAGE = "current_page";
-
+    public static int actionbarHeight = -1;
 
     /**
      * actionbar: toolBar/statusBar/navBar/bottomActionBar/thumbnailListBar
@@ -147,6 +145,14 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         outState.putBoolean("load_other_images_in_same_directory", load_other_images_in_same_directory);
     }
 
+    public static int getActionBarSize(Context context) {
+        TypedValue tv = new TypedValue();
+        if (context.getTheme().resolveAttribute(androidx.appcompat.R.attr.actionBarSize, tv, true)) {
+            return TypedValue.complexToDimensionPixelSize(
+                    tv.data, context.getResources().getDisplayMetrics());
+        }
+        return 0;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +174,11 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         initThumbnailList();
 
         initViewModel();
+
+
+        if (actionbarHeight == -1) {
+            actionbarHeight = getActionBarSize(this);
+        }
 
         getViewModel().load(repoId, repoName, parentDir, name, load_other_images_in_same_directory);
     }
@@ -330,6 +341,13 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 gradientLayout(model);
             }
         });
+
+        getViewModel().getTapLiveData().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                hideOrShowToolbar();
+            }
+        });
     }
 
     private void initPager() {
@@ -340,8 +358,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                if (whoScrolled == 1) {
-                    whoScrolled = -1;
+                if (whoControlSwipe == 1) {
+                    whoControlSwipe = -1;
                     return;
                 }
 
@@ -349,7 +367,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                     toolbar.setTitle(thumbnailAdapter.getItems().get(position + 1).name);
                 }
 
-                whoScrolled = 0;
+                whoControlSwipe = 0;
                 animateToolbar();
                 notifyCurrentStarredStatus();
                 getCenterScaleLayoutManager().scrollToPositionWithCenter(position + 1);
@@ -362,7 +380,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
      * 0: pager
      * 1: thumbnailRecyclerView
      */
-    private int whoScrolled = -1;
+    private int whoControlSwipe = -1;
 
     private void initThumbnailList() {
         thumbnailAdapter = new ThumbnailAdapter(this, getServerUrl());
@@ -393,12 +411,12 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             decorationManager.setOnCenterItemChangedListener(new CenterScaleLayoutManager.OnCenterItemChangedListener() {
                 @Override
                 public void onCenterItemChanged(int position) {
-                    if (whoScrolled == 0) {
-                        whoScrolled = -1;
+                    if (whoControlSwipe == 0) {
+                        whoControlSwipe = -1;
                         return;
                     }
 
-                    whoScrolled = 1;
+                    whoControlSwipe = 1;
                     animateToolbar();
                     notifyCurrentStarredStatus();
                     binding.pager.setCurrentItem(position - 1, false);
@@ -431,7 +449,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         List<Fragment> fragments = new ArrayList<>();
         for (DirentModel direntModel : direntList) {
             PhotoFragment photoFragment = PhotoFragment.newInstance(getServerUrl(), direntModel);
-            photoFragment.setOnPhotoTapListener((view, x, y) -> hideOrShowToolbar());
             fragments.add(photoFragment);
         }
 
@@ -511,7 +528,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         boolean isDetailShowing = showModel.isShowing;
 
         if (scrollStatus == ScrollStatus.CANCELLED) {
-//            alphaToolbar(isDetailShowing ? 0f : 1f);
             animateToolbar(!isDetailShowing);
             return;
         }
@@ -598,10 +614,19 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     }
 
     private void setStatusBarAlpha(int alpha) {
-        BarUtils.setNavBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha000(alpha));
-        BarUtils.setStatusBarColor(this, isNightMode ? getGreyAlpha911(alpha) : getGreyAlpha000(alpha));
+        BarUtils.setNavBarColor(this, isNightMode
+                ? ImagePreviewUtils.getGreyAlpha911(this, alpha)
+                : ImagePreviewUtils.getGreyAlpha000(this, alpha));
+
+        BarUtils.setStatusBarColor(this, isNightMode
+                ? ImagePreviewUtils.getGreyAlpha911(this, alpha)
+                : ImagePreviewUtils.getGreyAlpha000(this, alpha));
     }
 
+    /**
+     * when view pager changed, animate toolbar
+     *
+     */
     private void animateToolbar() {
         if (!isActionBarVisible) {
             return;
@@ -644,6 +669,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         animator.start();
     }
 
+
+    // on tap
     private void hideOrShowToolbar() {
         isActionBarVisible = !isActionBarVisible;
         hideOrShowToolbar(isActionBarVisible);
@@ -663,56 +690,17 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     }
 
     private void setPagerColor(boolean isGrey) {
-        int pagerColor = isGrey ? getGrey100() : getGrey911();
+        int pagerColor = isGrey ? ImagePreviewUtils.getGrey100(this) : ImagePreviewUtils.getGrey911(this);
         binding.pager.setBackgroundColor(pagerColor);
     }
 
     private void setBarLightMode(boolean visible) {
-        int color = visible ? getGrey000() : getGrey911();
+        int color = visible ? ImagePreviewUtils.getGrey000(this) : ImagePreviewUtils.getGrey911(this);
         BarUtils.setNavBarColor(this, visible ? color : Color.TRANSPARENT);
         BarUtils.setStatusBarColor(this, visible ? color : Color.TRANSPARENT);
 
         BarUtils.setStatusBarLightMode(this, visible);
         BarUtils.setNavBarLightMode(this, visible);
-    }
-
-    private int grey000 = 0;
-    private int grey100 = 0;
-    private int grey911 = 0;
-
-    public int getGrey000() {
-        if (grey000 == 0) {
-            grey000 = ContextCompat.getColor(this, R.color.white);
-        }
-        return grey000;
-    }
-
-    public int getGrey100() {
-        if (grey100 == 0) {
-            grey100 = ContextCompat.getColor(this, R.color.material_grey_109);
-        }
-        return grey100;
-    }
-
-    public int getGreyAlpha000(int alpha) {
-        int red = Color.red(getGrey000());
-        int green = Color.green(getGrey000());
-        int blue = Color.blue(getGrey000());
-        return Color.argb(alpha, red, green, blue);
-    }
-
-    public int getGrey911() {
-        if (grey911 == 0) {
-            grey911 = ContextCompatKt.getColorCompat(this, R.color.material_grey_911);
-        }
-        return grey911;
-    }
-
-    public int getGreyAlpha911(int alpha) {
-        int red = Color.red(getGrey911());
-        int green = Color.green(getGrey911());
-        int blue = Color.blue(getGrey911());
-        return Color.argb(alpha, red, green, blue);
     }
 
 
@@ -813,7 +801,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private void shareFile() {
         DirentModel direntModel = getSelectedDirent();
-        Objs.showCreateShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
+        WidgetUtils.showCreateShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
     }
 
     private CopyMoveContext copyMoveContext = null;

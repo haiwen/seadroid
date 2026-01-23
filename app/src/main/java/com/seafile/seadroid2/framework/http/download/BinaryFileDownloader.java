@@ -27,13 +27,15 @@ public class BinaryFileDownloader implements AutoCloseable {
             throw new IllegalStateException("Response doesn't contain a file");
         }
 
-        String d = Objects.requireNonNull(response.header(CONTENT_LENGTH, "1"));
+        String d = Objects.requireNonNull(response.header(CONTENT_LENGTH, "0"));
         long totalSize = Long.parseLong(d);
         return writer.write(responseBody.byteStream(), totalSize);
     }
 
     @Override
     public void close() throws Exception {
-        writer.close();
+        if (writer != null) {
+            writer.close();
+        }
     }
 }

@@ -20,6 +20,7 @@ import okio.Okio;
 import okio.Source;
 
 public class ProgressUriRequestBody extends RequestBody {
+    public static long UPDATE_INTERVAL_MS = 1000L;
 
     private final Uri uri;
     private final MediaType mediaType;
@@ -54,7 +55,6 @@ public class ProgressUriRequestBody extends RequestBody {
         return estimationFileLength;
     }
 
-    public long UPDATE_INTERVAL_MS = System.currentTimeMillis();
 
     @Override
     public void writeTo(@NonNull BufferedSink sink) throws IOException {

@@ -3,7 +3,7 @@ package com.seafile.seadroid2.ui.selector.folder_selector;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.Icons;
 
 import java.io.File;
@@ -28,13 +28,13 @@ public class FileBean implements Serializable {
         }
         this.file = file;
 
-        int[] n = FileTools.getChildrenNumber(file);
+        int[] n = FileUtils.getChildrenNumber(file);
         childrenFileNumber = n[0];
         childrenDirNumber = n[1];
-        modifyTime = FileTools.getFileLastModified(file);
+        modifyTime = FileUtils.getFileLastModified(file);
         if (!file.isDirectory()) {
-            size = FileTools.getSize(file);
-            simpleSize = FileTools.getSimpleSize(file);
+            size = FileUtils.getSize(file);
+            simpleSize = FileUtils.getSimpleSize(file);
         }
     }
 

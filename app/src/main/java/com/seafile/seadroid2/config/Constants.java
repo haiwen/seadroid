@@ -9,10 +9,12 @@ public class Constants {
     }
 
     public static final String URL_PRIVACY = "https://www.seafile.com/privacy/";
+
     public static class UA {
         private UA() {
             throw new IllegalStateException("Don't instantiate this class");
         }
+
         public static final String SEAFILE_UA = "Seafile/3.0";
         public static final String SEAFILE_ANDROID_UA = "Seafile Android/3.0";
         public static final String SEAFILE_ANDROID_DOWNLOAD_UA = "Seafile Android Downloader/3.0";
@@ -94,5 +96,13 @@ public class Constants {
         public static final int HIDDEN = -2;
         public static final int LOCKED = -3;
         public static final int LOCKED_AND_HIDDEN = -4;
+    }
+
+    public static class MotionPhoto {
+        public static final String MP_TYPE_JPEG = "jpeg";
+        public static final String MP_TYPE_HEIC = "heic";
+        public static final String PRIMARY = "Primary";
+        public static final String GAIN_MAP = "GainMap";
+        public static final String MOTION_PHOTO = "MotionPhoto";
     }
 }

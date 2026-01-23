@@ -7,8 +7,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.util.FileTools;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.framework.util.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,11 +57,11 @@ public class FolderSelectorViewModel extends BaseViewModel {
         Single<List<FileBean>> single = Single.create(new SingleOnSubscribe<List<FileBean>>() {
             @Override
             public void subscribe(SingleEmitter<List<FileBean>> emitter) throws Exception {
-                if (emitter.isDisposed()) {
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 
-                File file = FileTools.getFileByPath(path);
+                File file = FileUtils.getFileByPath(path);
                 if (file == null) {
                     emitter.onSuccess(Collections.emptyList());
                     return;

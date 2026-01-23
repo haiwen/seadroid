@@ -22,7 +22,7 @@ import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.databinding.ActivityFolderSelectorBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.framework.model.StorageInfo;
-import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -191,7 +191,7 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
 
 
     private void initRootPath() {
-        volumeList = FileTools.getAllStorageInfos(this);
+        volumeList = FileUtils.getAllStorageInfos(this);
         for (StorageInfo info : volumeList) {
             SLogs.d("Storage", "路径: " + info.path + "，类型: " + info.label +
                     "，可移除: " + info.isRemovable + "，是否主存储: " + info.isPrimary);

@@ -15,18 +15,23 @@ import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.context.GlobalNavContext;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 
+import org.apache.commons.io.FilenameUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -64,6 +69,20 @@ public class Utils {
     private Utils() {
     }
 
+    public static String getVendorNormalized() {
+        String raw = android.os.Build.MANUFACTURER;
+        if (raw == null) return "";
+        String v = raw.trim().toLowerCase(Locale.ROOT);
+        return switch (v) {
+            case "oppo", "oplus" -> "oppo";
+            case "huawei" -> "huawei";
+            case "xiaomi" -> "xiaomi";
+            case "vivo" -> "vivo";
+            case "samsung" -> "samsung";
+            default -> v;
+        };
+    }
+
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
             // the caller should not give null
@@ -78,7 +97,15 @@ public class Utils {
         }
     }
 
-    public static String getPathFromFullPath(String path) {
+    /**
+     * <pre>
+     * /a/b/c.txt -> /a/b/c/
+     * /a/b/c     -> /a/b/
+     * /a/b/c/    -> /a/b/c/
+     * </pre>
+     *
+     */
+    public static String getFullPath(String path) {
         if (path == null) {
             // the caller should not give null
             Log.w(DEBUG_TAG, "path is null");
@@ -93,7 +120,7 @@ public class Utils {
             return path;
         }
 
-        String parent = path.substring(0, path.lastIndexOf("/"));
+        String parent = FilenameUtils.getFullPath(path);
         if (parent.isEmpty()) {
             return "/";
         } else
@@ -154,7 +181,7 @@ public class Utils {
             return null;
         }
 
-        return path.substring(path.lastIndexOf("/") + 1);
+        return FilenameUtils.getName(path);
     }
 
     public static final String[] _units = new String[]{"B", "KB", "MB", "GB", "TB"};
@@ -177,20 +204,18 @@ public class Utils {
         return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
     }
 
-    private static @Nullable String getFileSuffix(String fileName) {
-        if (TextUtils.isEmpty(fileName)) {
-            return null;
+    public static Pair<String,Boolean> isJpegMotionPhoto(Context context, Uri uri) {
+        String fileName = Utils.getFilenameFromUri(context, uri);
+        if (!Utils.isJpeg(fileName)) {
+            return new Pair<>(fileName,false);
         }
 
-        if (!fileName.contains(".")) {
-            return null;
-        }
-
-        return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+        MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(context, uri);
+        return new Pair<>(fileName,descriptor.isMotionPhoto());
     }
 
     public static boolean isJpeg(String name) {
-        String suffix = getFileSuffix(name);
+        String suffix = FilenameUtils.getExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -204,7 +229,7 @@ public class Utils {
     }
 
     public static boolean isHeic(String name) {
-        String suffix = getFileSuffix(name);
+        String suffix = FilenameUtils.getExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -227,7 +252,7 @@ public class Utils {
             return false;
         }
 
-        String suffix = getFileSuffix(fileName);
+        String suffix = FilenameUtils.getExtension(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -242,7 +267,7 @@ public class Utils {
     }
 
     public static boolean isViewableImage(String name) {
-        String suffix = getFileSuffix(name);
+        String suffix = FilenameUtils.getExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -270,7 +295,7 @@ public class Utils {
     }
 
     public static boolean isVideoFile(String name) {
-        String suffix = getFileSuffix(name);
+        String suffix = FilenameUtils.getExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -294,7 +319,7 @@ public class Utils {
     }
 
     public static boolean isTextFile(String fileName) {
-        String suffix = getFileSuffix(fileName);
+        String suffix = FilenameUtils.getExtension(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -308,7 +333,7 @@ public class Utils {
             return true;
         }
 
-        if (FileMimeUtils.isOfficeOrTextFile(mime)) {
+        if (FileUtils.isOfficeOrTextFile(mime)) {
             return true;
         }
 
@@ -402,6 +427,19 @@ public class Utils {
 
     public static String getCurrentHourMinute() {
         return (String) DateFormat.format("hh:mm", new Date());
+    }
+
+    public static boolean isJson(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return false;
+        }
+
+        try {
+            Object value = new JSONTokener(str).nextValue();
+            return value instanceof JSONObject || value instanceof JSONArray;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -807,4 +845,3 @@ public class Utils {
         return String.format("%s%d°%d'%.0f\"", direction, degrees, minutes, seconds);
     }
 }
-

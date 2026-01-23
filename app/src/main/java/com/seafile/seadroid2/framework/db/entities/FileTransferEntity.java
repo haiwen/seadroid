@@ -11,21 +11,14 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.blankj.utilcode.util.EncryptUtils;
-import com.blankj.utilcode.util.FileUtils;
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
-import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
-import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-import com.seafile.seadroid2.framework.util.FileTools;
+import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
-import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
-
-import java.io.File;
 
 @Entity(tableName = "file_transfer_list", indices = {
         @Index(value = {"uid", "full_path", "related_account"}, unique = true, name = "index_transfer_path")
@@ -369,7 +362,7 @@ public class FileTransferEntity extends BaseModel {
         entity.file_id = direntModel.id;
         entity.setParent_path(Utils.getParentPath(direntModel.full_path));
         entity.file_name = direntModel.name;
-        entity.file_format = FileTools.getFileExtension(entity.full_path);
+        entity.file_format = FileUtils.getExtension(entity.full_path);
         entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
         entity.file_size = direntModel.size;
         entity.file_md5 = null;
@@ -415,7 +408,7 @@ public class FileTransferEntity extends BaseModel {
         entity.file_id = model.id;
         entity.setParent_path(Utils.getParentPath(entity.full_path));
         entity.file_name = model.name;
-        entity.file_format = FileTools.getFileExtension(entity.full_path);
+        entity.file_format = FileUtils.getExtension(entity.full_path);
         entity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entity.file_format);
         entity.file_size = 0;
         entity.file_md5 = null;

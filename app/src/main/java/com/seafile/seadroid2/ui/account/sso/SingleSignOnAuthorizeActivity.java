@@ -9,13 +9,19 @@ import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
+import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
@@ -65,21 +71,39 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         applyEdgeToEdge(binding.getRoot());
 
+        //web settings
+        WebSettings webSettings = binding.webview.getSettings();
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setDatabaseEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setBlockNetworkImage(false);
+        webSettings.setJavaScriptEnabled(true);
 
-        binding.webview.getSettings().setLoadsImagesAutomatically(true);
-        binding.webview.getSettings().setJavaScriptEnabled(true);
-        binding.webview.getSettings().setUserAgentString(System.getProperty("http.agent"));
-        binding.webview.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        webSettings.setAllowContentAccess(true);
+        webSettings.setAllowFileAccess(false);
+        webSettings.setAllowFileAccessFromFileURLs(false);
+        webSettings.setAllowUniversalAccessFromFileURLs(false);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        webSettings.setSupportZoom(false);
+        webSettings.setSupportMultipleWindows(false);// Not yet supported
+        webSettings.setBuiltInZoomControls(false);
+        webSettings.setDisplayZoomControls(false);
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        webSettings.setDefaultTextEncodingName("UTF-8");
 
         CustomWebviewClient client = new CustomWebviewClient();
         binding.webview.setWebViewClient(client);
 
+        //toolbar
         Toolbar toolbar = getActionBarToolbar();
         setSupportActionBar(toolbar);
         toolbar.setOnMenuItemClickListener(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.shib_login_title);
 
+        //view model
         initViewModel();
 
         String url = getIntent().getStringExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL);
@@ -263,6 +287,12 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
                         });
                 dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
             }
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            super.onReceivedError(view, request, error);
+            SLogs.e(TAG, "onReceivedError " + request.getUrl(), error.getDescription().toString());
         }
 
         @Override

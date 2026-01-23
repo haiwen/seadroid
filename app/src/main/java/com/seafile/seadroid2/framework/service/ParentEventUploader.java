@@ -5,9 +5,11 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.Constants;
@@ -15,20 +17,25 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
+import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Times;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.body.ProgressRequestBody;
 import com.seafile.seadroid2.framework.worker.body.ProgressUriRequestBody;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -36,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Headers;
@@ -200,6 +208,47 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
 
+
+        //
+        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+
+        //
+        if (currentTransferModel.hasExtraMotionPhoto()) {
+            //upload heic motion photo
+            File heicFile = new File(currentTransferModel.motion_photo_path);
+            String fileName = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";// convert to new name.
+            currentTransferModel.original_name = currentTransferModel.file_name;
+            currentTransferModel.file_name = fileName;
+
+            fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
+            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
+
+            //
+            currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
+
+        } else if (currentTransferModel.full_path.startsWith("content://")) {
+            //uri: content://
+            Uri fileUri = Uri.parse(currentTransferModel.full_path);
+            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), fileUri);
+            if (!isHasPermission) {
+                throw SeafException.PERMISSION_EXCEPTION;
+            }
+
+            uriRequestBody = new ProgressUriRequestBody(getContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
+            builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
+
+        } else {
+            //file
+            File originalFile = new File(currentTransferModel.full_path);
+            if (!originalFile.exists()) {
+                throw SeafException.NOT_FOUND_EXCEPTION;
+            }
+
+            fileRequestBody = new ProgressRequestBody(originalFile, _fileTransferProgressListener);
+            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
+        }
+
+
         if (currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE) {
             builder.addFormDataPart("target_file", currentTransferModel.target_path);
         } else {
@@ -227,41 +276,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel.transferred_size = 0;
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
-
-        //
-//        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
-//
-//        //
-//        if (currentTransferModel.hasExtraMotionPhoto()) {
-//            //upload heic motion photo
-//            File heicFile = new File(currentTransferModel.motion_photo_path);
-//            String fn = FileTools.getFileNameNoExtension(currentTransferModel.file_name);
-//            fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
-//            builder.addFormDataPart("file", fn + ".heic", fileRequestBody);
-//
-//        } else
-
-        if (currentTransferModel.full_path.startsWith("content://")) {
-            //uri: content://
-            Uri fileUri = Uri.parse(currentTransferModel.full_path);
-            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), fileUri);
-            if (!isHasPermission) {
-                throw SeafException.PERMISSION_EXCEPTION;
-            }
-
-            uriRequestBody = new ProgressUriRequestBody(getContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
-            builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
-
-        } else {
-            //file
-            File originalFile = new File(currentTransferModel.full_path);
-            if (!originalFile.exists()) {
-                throw SeafException.NOT_FOUND_EXCEPTION;
-            }
-
-            fileRequestBody = new ProgressRequestBody(originalFile, _fileTransferProgressListener);
-            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
-        }
 
         //read create time/file size
         long createdTime = -1;
@@ -317,10 +331,109 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
 
 //            //
-//            if (currentTransferModel.hasExtraMotionPhoto()) {
-//                com.blankj.utilcode.util.FileUtils.delete(currentTransferModel.motion_photo_path);
-//            }
+            if (currentTransferModel.hasExtraMotionPhoto()) {
+                com.blankj.utilcode.util.FileUtils.delete(currentTransferModel.motion_photo_path);
+            }
         }
+    }
+
+    /**
+     * jpeg to heic
+     */
+    @Nullable
+    private String convertJpegToHeicIfMotionPhoto() {
+        try {
+            boolean isJpeg = Utils.isJpeg(currentTransferModel.file_name);
+            if (!isJpeg) {
+                return null;
+            }
+
+            MotionPhotoDescriptor descriptor = null;
+            if (currentTransferModel.full_path.startsWith("content://")) {
+                descriptor = MotionPhotoDetector.parseJpegXmpWithUri(SeadroidApplication.getAppContext(), Uri.parse(currentTransferModel.full_path), true);
+
+                if (descriptor.isMotionPhoto()) {
+                    currentTransferModel.motion_photo_path = descriptor.tempJpegPath;
+                }
+            } else {
+                descriptor = MotionPhotoDetector.parseJpegXmpWithFile(currentTransferModel.full_path);
+                if (descriptor.isMotionPhoto()) {
+                    // Prepare the path(full_path,not tempJpegPath) to the convert to HEIC
+                    currentTransferModel.motion_photo_path = currentTransferModel.full_path;
+                }
+            }
+
+            SafeLogs.e(TAG, descriptor.toString());
+
+            if (!descriptor.isMotionPhoto()) {
+                return null;
+            }
+
+
+            File tempFile = DataManager.createTempFile("tmp-hmp-", ".heic");
+
+            // it is an error data
+            if (descriptor.items.size() == 1) {
+                return null;
+            }
+
+            // Semantic: Primary/GainMap/MotionPhoto
+            int primaryIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.PRIMARY);
+            int gainMapIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.GAIN_MAP);
+            int videoIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.MOTION_PHOTO);
+
+            if (primaryIndex == -1) {
+                // no primary image, return null, upload original file
+                return null;
+            }
+
+            // The fixed length is 6
+            // 0,1: the primary offset and length
+            // 2,3: the hdr offset and length, [0,0] if null.
+            // 4,5: the video offset and length, must not be null.
+            long[] primaryHdrVideoDataArray = new long[6];
+            primaryHdrVideoDataArray[0] = descriptor.items.get(primaryIndex).offset;
+            primaryHdrVideoDataArray[1] = descriptor.items.get(primaryIndex).length;
+
+            if (gainMapIndex != -1) {
+                primaryHdrVideoDataArray[2] = descriptor.items.get(gainMapIndex).offset;
+                primaryHdrVideoDataArray[3] = descriptor.items.get(gainMapIndex).length;
+            } else {
+                // miss primary image.
+                // this is a common picture structure: [primary image, motion photo]
+                primaryHdrVideoDataArray[2] = 0;
+                primaryHdrVideoDataArray[3] = 0;
+            }
+
+            if (videoIndex != -1) {
+                primaryHdrVideoDataArray[4] = descriptor.items.get(videoIndex).offset;
+                primaryHdrVideoDataArray[5] = descriptor.items.get(videoIndex).length;
+            } else {
+                // not support this picture structure: [primary image, hdr gainMap]
+                return null;
+            }
+
+            String outHeicPath = HeicNative.nativeConvertJpegMotionPhotoToHeic(currentTransferModel.motion_photo_path, primaryHdrVideoDataArray, tempFile.getAbsolutePath());
+            if (TextUtils.isEmpty(outHeicPath)) {
+                SafeLogs.e(TAG, "convertJpegToHeicIfMotionPhoto()", "convertJpegToHeicIfMotionPhoto failed");
+                return null;
+            }
+            return outHeicPath;
+        } catch (Exception e) {
+            SafeLogs.e(e);
+        }
+        return null;
+    }
+
+    public static int getSpecialSemanticPosition(List<MotionPhotoDescriptor.MotionPhotoItem> items, String semantic) {
+        for (int i = 0; i < items.size(); i++) {
+            String s = items.get(i).semantic;
+            if (TextUtils.equals(semantic, s)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private void onRes(Response response) throws SeafException, IOException {

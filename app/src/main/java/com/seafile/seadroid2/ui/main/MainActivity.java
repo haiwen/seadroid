@@ -14,8 +14,10 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
@@ -352,6 +354,10 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    private static final long DOUBLE_TAP_TIMEOUT = 300;
+    private int lastReselectItemId = View.NO_ID;
+    private long lastReselectTime = 0L;
+
     private void initBottomNavigation() {
         binding.navBottomView.setItemHorizontalTranslationEnabled(true);
         binding.navBottomView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -361,6 +367,40 @@ public class MainActivity extends BaseActivity {
                 return true;
             }
         });
+        binding.navBottomView.setOnItemReselectedListener(item -> {
+            long now = SystemClock.elapsedRealtime();
+
+            if (item.getItemId() == lastReselectItemId && now - lastReselectTime <= DOUBLE_TAP_TIMEOUT) {
+
+                onBottomNavItemDoubleTap(item);
+                lastReselectItemId = View.NO_ID;
+                lastReselectTime = 0L;
+                return;
+            }
+
+            lastReselectItemId = item.getItemId();
+            lastReselectTime = now;
+
+            // do nothing here
+            onBottomNavItemSingleReselect(item);
+        });
+    }
+
+    private void onBottomNavItemDoubleTap(MenuItem item) {
+        SLogs.d(TAG, "onBottomNavItemDoubleTap:" + item.getTitle());
+
+        if (item.getItemId() != R.id.tabs_library){
+            return;
+        }
+
+        RepoQuickFragment repoQuickFragment = getReposFragment();
+        if (repoQuickFragment != null) {
+            repoQuickFragment.backToRepoList();
+        }
+    }
+
+    private void onBottomNavItemSingleReselect(MenuItem item) {
+        SLogs.d(TAG, "onBottomNavItemSingleReselect:" + item.getTitle());
     }
 
     private void onBottomNavigationSelected(MenuItem menuItem) {

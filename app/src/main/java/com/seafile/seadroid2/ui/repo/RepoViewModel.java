@@ -778,17 +778,11 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     /// download
-    public void preDownload(Context context, Account account, List<String> ids) {
+    public void preDownload(Context context, Account account, List<DirentModel> direntModels) {
         getSecondRefreshLiveData().setValue(true);
         Single<SeafException> single = Single.create(new SingleOnSubscribe<SeafException>() {
             @Override
             public void subscribe(SingleEmitter<SeafException> emitter) throws Exception {
-                if (CollectionUtils.isEmpty(ids)) {
-                    emitter.onSuccess(SeafException.SUCCESS);
-                    return;
-                }
-
-                List<DirentModel> direntModels = AppDatabase.getInstance().direntDao().getListByIdsSync(ids);
                 if (CollectionUtils.isEmpty(direntModels)) {
                     emitter.onSuccess(SeafException.SUCCESS);
                     return;

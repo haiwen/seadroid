@@ -261,8 +261,6 @@
     <color name="material_grey_50">#FAFAFA</color>
     <color name="material_grey_88">#F8F8F8</color>
     <color name="material_grey_100">#F5F5F5</color>
-    <color name="material_grey_100_00">#00F5F5F5</color>
-    <color name="material_grey_100_translucent">#88F5F5F5</color>
     <color name="material_grey_103">#F3F3F3</color>
     <color name="material_grey_109">#F9F9F9</color>
     <color name="material_grey_200">#EEEEEE</color>

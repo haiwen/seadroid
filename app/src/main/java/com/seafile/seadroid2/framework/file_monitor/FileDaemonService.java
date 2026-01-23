@@ -44,6 +44,13 @@ public class FileDaemonService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         SLogs.e(TAG, "onStartCommand()", "file daemon service started");
 
+        startNotify();
+
+        startPeriodicScanTask();
+        return START_STICKY;
+    }
+
+    private void startNotify() {
         // Android 14 requires specifying a type, assuming you define dataSync in the manifest
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
@@ -54,11 +61,7 @@ public class FileDaemonService extends Service {
         } else {
             startForeground(NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY, buildNotification());
         }
-
-        startPeriodicScanTask();
-        return START_STICKY;
     }
-
 
     private Notification buildNotification() {
 
@@ -121,6 +124,18 @@ public class FileDaemonService extends Service {
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
             BackupThreadExecutor.getInstance().runFolderBackupFuture(true);
+        }
+    }
+
+    @Override
+    public void onTimeout(int startId, int fgsType) {
+        super.onTimeout(startId, fgsType);
+
+        if (BackupThreadExecutor.getInstance().isFolderBackupRunning()) {
+            startNotify();
+        } else {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+            stopSelf(startId);
         }
     }
 

@@ -193,7 +193,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull DirentViewHolder viewHolder, int i, @Nullable BaseModel baseModel) {
-                onBindSearch(viewHolder, (SearchModel) baseModel, i);
+                onBindSearch(viewHolder, (SearchModel) baseModel, i, Collections.emptyList());
+            }
+
+            @Override
+            public void onBind(@NonNull DirentViewHolder holder, int i, @Nullable BaseModel item, @NonNull List<?> payloads) {
+                onBindSearch(holder, (SearchModel) item, i, payloads);
             }
         }).addItemType(AbsLayoutItemType.NOT_SUPPORTED, new OnMultiItem<BaseModel, UnsupportedViewHolder>() {
             @NonNull
@@ -572,7 +577,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private void updateItemMultiSelectView(ImageView imageView, DirentModel model) {
+    private void updateItemMultiSelectView(ImageView imageView, BaseModel model) {
         if (onActionMode) {
             imageView.setVisibility(View.VISIBLE);
 //            holder.binding.getRoot().setChecked(model.is_checked);
@@ -589,8 +594,19 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
     }
 
-    private void onBindSearch(DirentViewHolder holder, SearchModel model, int position) {
+    private void onBindSearch(DirentViewHolder holder, SearchModel model, int position, @NonNull List<?> payloads) {
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
+
+        if (!CollectionUtils.isEmpty(payloads)) {
+            Bundle bundle = (Bundle) payloads.get(0);
+            if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
+                //
+                boolean isChecked = bundle.getBoolean(KEY_PAY_LOAD_IS_CHECK);
+                updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
+            }
+
+            return;
+        }
 
         //set background color for item
         if (model.item_position == ItemPositionEnum.START) {
@@ -642,6 +658,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
 
         holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
+
+        //action mode
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
+
     }
 
     private final int largeSize = 512;

@@ -36,7 +36,12 @@ import okhttp3.RequestBody;
 
 public class ImagePreviewViewModel extends BaseViewModel {
     private final MutableLiveData<Boolean> _starredLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Integer> _tapLiveData = new MutableLiveData<>();
+
     private final MutableLiveData<Pair<RepoModel, List<DirentModel>>> _repoAndListLiveData = new MutableLiveData<>();
+    public MutableLiveData<Integer> getTapLiveData() {
+        return _tapLiveData;
+    }
 
     private final MutableLiveData<DetailLayoutShowModel> _scrolling = new MutableLiveData<>();
 

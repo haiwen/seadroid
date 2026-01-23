@@ -77,7 +77,7 @@ public class EditorViewModel extends BaseViewModel {
         Single<String> single = Single.create(new SingleOnSubscribe<String>() {
             @Override
             public void subscribe(SingleEmitter<String> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
 
@@ -175,7 +175,7 @@ public class EditorViewModel extends BaseViewModel {
         return Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                if (emitter.isDisposed()){
+                if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
                 FileIOUtils.writeFileFromString(path, content, false);

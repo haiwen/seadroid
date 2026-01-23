@@ -40,7 +40,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
         FileCacheStatusEntity.class,
         StarredModel.class,
         PermissionEntity.class,
-}, version = 8, exportSchema = false)
+}, version = 9, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "seafile_room.db";
     private static volatile AppDatabase _instance;
@@ -58,6 +58,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_5_6)
                             .addMigrations(MIGRATION_6_7)
                             .addMigrations(MIGRATION_7_8)
+                            .addMigrations(MIGRATION_8_9)
                             .build();
                 }
             }
@@ -303,6 +304,16 @@ public abstract class AppDatabase extends RoomDatabase {
             // Because the format of the data saved in the enc_key_cache table has changed,
             // need to delete all the saved data
             database.execSQL("DELETE FROM enc_key_cache WHERE 1=1;");
+        }
+    };
+
+    static final Migration MIGRATION_8_9 = new Migration(8, 9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE file_backup_status ADD COLUMN original_name TEXT;");
+            database.execSQL("ALTER TABLE file_backup_status ADD COLUMN motion_photo TEXT;");
+
+            database.execSQL("ALTER TABLE file_cache_status ADD COLUMN motion_photo TEXT;");
         }
     };
 
