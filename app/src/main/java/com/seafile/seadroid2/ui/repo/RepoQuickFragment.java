@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -75,8 +76,6 @@ import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -226,6 +225,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), _onBackPressedCallback);
+
         onCreateMenuHost();
 
         initRv();
@@ -236,8 +238,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         resetRvPadding();
 
+        //
+        enableBackDispatcher(canGoBack());
+
         loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
+
+    private void enableBackDispatcher(boolean enableBack) {
+        _onBackPressedCallback.setEnabled(enableBack);
+    }
+
+    private final OnBackPressedCallback _onBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            backTo();
+        }
+    };
 
     @Override
     public void onOtherResume() {
@@ -788,6 +804,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void onChanged(NavContext navContext) {
                 resetRvPadding();
+
+                enableBackDispatcher(canGoBack());
             }
         });
     }
@@ -1296,32 +1314,37 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
 
+    private boolean canGoBack() {
+        return GlobalNavContext.getCurrentNavContext().inRepo();
+    }
+
     /**
      * true: can continue to back
      */
     public boolean backTo() {
-        if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-            if (adapter == null) {
-                return false;
-            }
-
-            if (adapter.isOnActionMode()) {
-                adapter.setOnActionMode(false);
-            } else {
-                binding.swipeRefreshLayout.setRefreshing(false);
-
-                getViewModel().clearAll();
-
-                removeScrolledPosition();
-
-                GlobalNavContext.pop();
-
-                loadData(RefreshStatusEnum.ONLY_LOCAL, true);
-            }
-
-            return true;
+        if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
+            return false;
         }
-        return false;
+
+        if (adapter == null) {
+            return false;
+        }
+
+        if (adapter.isOnActionMode()) {
+            adapter.setOnActionMode(false);
+        } else {
+            binding.swipeRefreshLayout.setRefreshing(false);
+
+            getViewModel().clearAll();
+
+            removeScrolledPosition();
+
+            GlobalNavContext.pop();
+
+            loadData(RefreshStatusEnum.ONLY_LOCAL, true);
+        }
+
+        return true;
     }
 
     /**
@@ -2558,13 +2581,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
-        Pair<String,Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(),uri);
+        Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(), uri);
 
         String fileName = jpegPair.first;
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
         String heicPath = null;
-        if (jpegPair.second){
+        if (jpegPair.second) {
             String baseName = FilenameUtils.getBaseName(fileName);
             //convert extend format jpeg to heic
             heicPath = Utils.pathJoin(parent_dir, baseName) + ".heic";

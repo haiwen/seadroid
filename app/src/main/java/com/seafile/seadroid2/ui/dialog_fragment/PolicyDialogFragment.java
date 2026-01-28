@@ -6,7 +6,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -72,7 +71,7 @@ public class PolicyDialogFragment extends DialogFragment {
 
             @Override
             public void onClick(View widget) {
-                SeaWebViewActivity.openUrlDirectly(requireContext(), Constants.URL_PRIVACY);
+                SeaWebViewActivity.openUrl(requireContext(), Constants.URL_PRIVACY,false);
             }
 
             @Override

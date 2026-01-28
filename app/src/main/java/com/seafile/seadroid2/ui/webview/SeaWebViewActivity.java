@@ -5,15 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
@@ -32,10 +30,13 @@ public class SeaWebViewActivity extends BaseActivity {
     private SeaWebView mWebView;
 
     private String targetUrl;
+    private boolean withToken;
 
-    public static void openUrlDirectly(Context context, String url) {
+    public static void openUrl(Context context, String url, boolean withToken) {
         Intent intent = new Intent(context, SeaWebViewActivity.class);
         intent.putExtra("targetUrl", url);
+        intent.putExtra("withToken", true);
+
         ActivityUtils.startActivity(intent);
     }
 
@@ -43,6 +44,7 @@ public class SeaWebViewActivity extends BaseActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("targetUrl", targetUrl);
+        outState.putBoolean("withToken", withToken);
     }
 
     @Override
@@ -57,9 +59,13 @@ public class SeaWebViewActivity extends BaseActivity {
 
         if (savedInstanceState != null) {
             targetUrl = savedInstanceState.getString("targetUrl");
+            withToken = savedInstanceState.getBoolean("withToken");
         } else {
             Intent intent = getIntent();
             targetUrl = intent.getStringExtra("targetUrl");
+            if (intent.hasExtra("withToken")) {
+                withToken = intent.getBooleanExtra("withToken", false);
+            }
             if (TextUtils.isEmpty(targetUrl)) {
                 throw new IllegalArgumentException("targetUrl is empty");
             }
@@ -69,7 +75,11 @@ public class SeaWebViewActivity extends BaseActivity {
 
 
         //let's go
-        mWebView.loadDirectly(targetUrl);
+        if (withToken) {
+            mWebView.load(targetUrl);
+        } else {
+            mWebView.loadDirectly(targetUrl);
+        }
     }
 
 
@@ -103,21 +113,6 @@ public class SeaWebViewActivity extends BaseActivity {
                     finish();
                 }
             }
-        });
-    }
-
-
-    private void applyEdgeToEdge() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(
-                    systemBars.left,
-                    systemBars.top,
-                    systemBars.right,
-                    0
-            );
-
-            return insets;
         });
     }
 

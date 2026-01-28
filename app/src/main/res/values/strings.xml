@@ -44,6 +44,9 @@
     <string name="shared">Shared</string>
     <string name="libraries">Libraries</string>
     <string name="my_libraries">My Own Libraries</string>
+    <string name="my_wiki">My wiki</string>
+    <string name="my_wiki_of_shared">Shared</string>
+    <string name="my_wiki_of_old">Old</string>
     <string name="cached">Cached</string>
     <string name="activities">Activities</string>
     <string name="pick_upload_type">Upload</string>
@@ -239,6 +242,8 @@
     <string name="tabs_library">Libraries</string>
     <string name="tabs_activity">Activities</string>
     <string name="tabs_starred">Starred</string>
+    <string name="tabs_wiki">Wiki</string>
+    <string name="published">Published</string>
     <string name="starred_repos">Starred libraries</string>
     <string name="starred_files">Starred files</string>
     <string name="starred_folder">Starred folder</string>
@@ -784,4 +789,7 @@
     <string name="saved">Saved</string>
 
     <string name="live">LIVE</string>
+
+    <!-- Tips -->
+    <string name="tip_press_again_to_exit">Press again to exit</string>
 </resources>

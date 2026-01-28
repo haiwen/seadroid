@@ -50,6 +50,7 @@ import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
@@ -199,20 +200,18 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private long lastBackTs;
     private void initOnBackPressedDispatcher() {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (binding.pager.getCurrentItem() != INDEX_LIBRARY_TAB) {
+                if (System.currentTimeMillis() < lastBackTs + 1000 ) {
                     finish();
                     return;
                 }
 
-                RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
-                boolean canBack = fragment.backTo();
-                if (!canBack) {
-                    finish();
-                }
+                lastBackTs = System.currentTimeMillis();
+                Toasts.showShort(R.string.tip_press_again_to_exit);
             }
         });
     }
@@ -389,7 +388,7 @@ public class MainActivity extends BaseActivity {
     private void onBottomNavItemDoubleTap(MenuItem item) {
         SLogs.d(TAG, "onBottomNavItemDoubleTap:" + item.getTitle());
 
-        if (item.getItemId() != R.id.tabs_library){
+        if (item.getItemId() != R.id.tabs_library) {
             return;
         }
 
@@ -409,17 +408,19 @@ public class MainActivity extends BaseActivity {
             binding.pager.setCurrentItem(0);
         } else if (menuItem.getItemId() == R.id.tabs_starred) {
             binding.pager.setCurrentItem(1);
-        } else {
+        } else if (menuItem.getItemId() == R.id.tabs_wiki) {
+            binding.pager.setCurrentItem(2);
+        }else {
             MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
             if (null == activityMenuItem) {
                 if (menuItem.getItemId() == R.id.tabs_settings) {
-                    binding.pager.setCurrentItem(2);
+                    binding.pager.setCurrentItem(3);
                 }
             } else {
                 if (menuItem.getItemId() == R.id.tabs_activity) {
-                    binding.pager.setCurrentItem(2);
-                } else if (menuItem.getItemId() == R.id.tabs_settings) {
                     binding.pager.setCurrentItem(3);
+                } else if (menuItem.getItemId() == R.id.tabs_settings) {
+                    binding.pager.setCurrentItem(4);
                 }
             }
         }
@@ -459,20 +460,25 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        if (2 == position) {
+            binding.navBottomView.setSelectedItemId(R.id.tabs_wiki);
+            return;
+        }
+
         MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
         if (null == activityMenuItem) {
             //means the server is not pro edition
-            if (2 == position) {
+            if (3 == position) {
                 binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
             }
         } else {
 
-            if (2 == position) {
+            if (3 == position) {
                 binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
                 return;
             }
 
-            if (3 == position) {
+            if (4 == position) {
                 binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
             }
         }
@@ -612,14 +618,20 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        if (binding.pager.getCurrentItem() == 2) {
+            setActionbarTitle(getString(R.string.tabs_wiki));
+            enableUpButton(false);
+            return;
+        }
+
         MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
         if (null == activityMenuItem) {
-            if (binding.pager.getCurrentItem() == 2) {
+            if (binding.pager.getCurrentItem() == 3) {
                 setActionbarTitle(getString(R.string.settings));
                 enableUpButton(false);
             }
         } else {
-            if (binding.pager.getCurrentItem() == 2) {
+            if (binding.pager.getCurrentItem() == 3) {
                 setActionbarTitle(getString(R.string.tabs_activity));
                 enableUpButton(false);
             } else {
