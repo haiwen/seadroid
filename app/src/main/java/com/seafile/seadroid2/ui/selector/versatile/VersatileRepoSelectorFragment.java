@@ -6,7 +6,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextClock;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,7 +18,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.databinding.FragmentRemoteLibraryFragmentBinding;
 import com.seafile.seadroid2.databinding.FragmentVersatileSelectorBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
@@ -28,21 +26,15 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
-import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
-import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
+import com.seafile.seadroid2.ui.repo.repo_list.RepoQuickAdapter;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorViewModel;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import io.reactivex.Completable;
 
 public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewModel> {
     private FragmentVersatileSelectorBinding binding;

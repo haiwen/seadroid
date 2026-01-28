@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.repo;
+package com.seafile.seadroid2.ui.repo.repo_list;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -29,6 +29,7 @@ import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.model.repo.RepoMetaDataModel;
 import com.seafile.seadroid2.framework.model.search.SearchFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchFileWrapperModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
@@ -42,6 +43,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
+import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.ui.search.SearchService;
 import com.seafile.seadroid2.ui.star.StarredService;
 
@@ -253,6 +255,17 @@ public class RepoViewModel extends BaseViewModel {
             }
         });
     }
+
+
+    /**
+     *
+     *
+     */
+    public void getRepoMetadata(String repoId, Consumer<RepoMetaDataModel> consumer) {
+        Single<RepoMetaDataModel> s = HttpIO.getCurrentInstance().execute(RepoService.class).getRepoMetadata(repoId);
+        addSingleDisposable(s, consumer);
+    }
+
 
     public void loadData(NavContext context, RefreshStatusEnum refreshStatus, boolean isBlank) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();

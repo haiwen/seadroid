@@ -37,7 +37,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragm
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
-import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
+import com.seafile.seadroid2.ui.repo.repo_list.RepoQuickAdapter;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;

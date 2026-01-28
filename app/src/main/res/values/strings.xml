@@ -770,7 +770,7 @@
     <string name="font_style_heading4">Heading 4</string>
     <string name="font_style_heading5">Heading 5</string>
     <string name="font_style_heading6">Heading 6</string>
-    
+
     <!-- sdoc system event -->
     <string name="sdoc_system_event_failed_to_execute_operation_on_server">Failed to execute operation on server, the current operation has been withdrawn</string>
     <string name="sdoc_system_event_failed_to_sync_with_server_operations">Synchronization with the server failed, please refresh the page</string>
@@ -784,4 +784,7 @@
     <string name="saved">Saved</string>
 
     <string name="live">LIVE</string>
+    <string name="file">File</string>
+    <string name="view">View</string>
+    <string name="tag">Tag</string>
 </resources>

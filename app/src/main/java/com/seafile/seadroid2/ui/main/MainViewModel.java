@@ -31,7 +31,7 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.file.FileService;
-import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.repo.RepoContainerFragment;
 import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
@@ -43,12 +43,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 public class MainViewModel extends BaseViewModel {
     private final String TAG = "MainViewModel";
@@ -67,7 +63,7 @@ public class MainViewModel extends BaseViewModel {
     }
 
     private final List<Fragment> fragments = CollectionUtils.newUnmodifiableListNotNull(
-            RepoQuickFragment.newInstance(),
+            RepoContainerFragment.newInstance(),
             StarredQuickFragment.newInstance(),
             AllActivitiesFragment.newInstance(),
             TabSettings2Fragment.newInstance()

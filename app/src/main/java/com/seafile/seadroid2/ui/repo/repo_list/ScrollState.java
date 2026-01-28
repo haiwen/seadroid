@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.repo;
+package com.seafile.seadroid2.ui.repo.repo_list;
 
 public class ScrollState {
     public int index;

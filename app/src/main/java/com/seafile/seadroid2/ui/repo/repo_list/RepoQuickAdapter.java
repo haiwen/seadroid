@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.repo;
+package com.seafile.seadroid2.ui.repo.repo_list;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

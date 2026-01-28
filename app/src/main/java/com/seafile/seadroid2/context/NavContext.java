@@ -29,6 +29,10 @@ public class NavContext {
         return navStack;
     }
 
+    public boolean inRoot() {
+        return navStack.empty();
+    }
+
     /**
      * repoId = xxx, path = /
      */
@@ -143,9 +147,9 @@ public class NavContext {
         navStack.push(repoModel);
 
         Stack<DirentModel> stack = new Stack<>();
-        if (TextUtils.equals("/",full_path)){
+        if (TextUtils.equals("/", full_path)) {
 
-        }else{
+        } else {
             String[] slash = full_path.split("/");
 
             StringBuilder stringBuilder = new StringBuilder();

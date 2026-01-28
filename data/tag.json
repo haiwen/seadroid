@@ -1,0 +1,47 @@
+{
+    "metadata": [
+        {
+            "key": "_id",
+            "name": "_id",
+            "type": "text",
+            "data": null
+        },
+        {
+            "key": "_tag_parent_links",
+            "name": "_tag_parent_links",
+            "type": "link",
+            "data": {
+                "display_column_key": "_id",
+                "is_linked_back": false,
+                "link_id": "0003",
+                "other_table_id": "ziCd",
+                "table_id": "ziCd"
+            }
+        }
+    ],
+    "results": [
+        {
+            "_creator": "chaohui.wang@seafile.com",
+            "_ctime": "2025-10-23T11:56:33+08:00",
+            "_id": "RkRWRCRXR6SEBom_-XdN6g",
+            "_last_modifier": "chaohui.wang@seafile.com",
+            "_mtime": "2025-10-23T11:56:33+08:00",
+            "_tag_color": "#FFD4FF",
+            "_tag_file_links": [
+                {
+                    "row_id": "DvxjYw1zTAisAzy01tsUEg",
+                    "display_value": "DvxjYw1zTAisAzy01tsUEg"
+                },
+                {
+                    "row_id": "-N8GIXrZQDSHCOGZDCx2mQ",
+                    "display_value": "-N8GIXrZQDSHCOGZDCx2mQ"
+                },
+                {
+                    "row_id": "jfb8e6OCSdWM1pnjTUpGow",
+                    "display_value": "jfb8e6OCSdWM1pnjTUpGow"
+                }
+            ],
+            "_tag_name": "\u68071"
+        }
+    ]
+}

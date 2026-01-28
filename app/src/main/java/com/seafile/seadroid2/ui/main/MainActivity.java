@@ -55,7 +55,8 @@ import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
-import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.repo.RepoContainerFragment;
+import com.seafile.seadroid2.ui.repo.repo_list.RepoQuickFragment;
 
 import java.util.List;
 import java.util.Optional;
@@ -70,8 +71,8 @@ public class MainActivity extends BaseActivity {
 
     private Account curAccount;
 
-    private RepoQuickFragment getReposFragment() {
-        return (RepoQuickFragment) mainViewModel.getFragments().get(0);
+    private RepoContainerFragment getRepoContainerFragment() {
+        return (RepoContainerFragment) mainViewModel.getFragments().get(0);
     }
 
     @Override
@@ -200,21 +201,21 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initOnBackPressedDispatcher() {
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (binding.pager.getCurrentItem() != INDEX_LIBRARY_TAB) {
-                    finish();
-                    return;
-                }
-
-                RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
-                boolean canBack = fragment.backTo();
-                if (!canBack) {
-                    finish();
-                }
-            }
-        });
+//        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+//            @Override
+//            public void handleOnBackPressed() {
+//                if (binding.pager.getCurrentItem() != INDEX_LIBRARY_TAB) {
+//                    finish();
+//                    return;
+//                }
+//
+//                RepoContainerFragment fragment = (RepoContainerFragment) mainViewModel.getFragments().get(0);
+//                boolean canBack = fragment.backTo();
+//                if (!canBack) {
+//                    finish();
+//                }
+//            }
+//        });
     }
 
     @Override
@@ -343,10 +344,10 @@ public class MainActivity extends BaseActivity {
         binding.pager.postDelayed(new Runnable() {
             @Override
             public void run() {
-                RepoQuickFragment quickFragment = getReposFragment();
-                if (quickFragment != null && quickFragment.isAdded() && !quickFragment.isDetached()) {
-                    quickFragment.switchPath(repoId, path, isDir);
-                }
+                RepoContainerFragment quickFragment = getRepoContainerFragment();
+//                if (quickFragment != null && quickFragment.isAdded() && !quickFragment.isDetached()) {
+//                    quickFragment.switchccPath(repoId, path, isDir);
+//                }
 
                 refreshActionbar();
             }
@@ -393,10 +394,10 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        RepoQuickFragment repoQuickFragment = getReposFragment();
-        if (repoQuickFragment != null) {
-            repoQuickFragment.backToRepoList();
-        }
+//        RepoQuickFragment repoQuickFragment = getReposFragment();
+//        if (repoQuickFragment != null) {
+//            repoQuickFragment.backToRepoList();
+//        }
     }
 
     private void onBottomNavItemSingleReselect(MenuItem item) {

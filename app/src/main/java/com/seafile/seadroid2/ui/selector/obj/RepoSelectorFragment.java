@@ -23,7 +23,7 @@ import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
-import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
+import com.seafile.seadroid2.ui.repo.repo_list.RepoQuickAdapter;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;

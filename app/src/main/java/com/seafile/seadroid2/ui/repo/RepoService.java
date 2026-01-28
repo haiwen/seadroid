@@ -5,7 +5,10 @@ import com.seafile.seadroid2.framework.model.permission.PermissionListWrapperMod
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.RepoInfoModel;
+import com.seafile.seadroid2.framework.model.repo.RepoMetaDataModel;
 import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.tags.TagWrapperModel;
+import com.seafile.seadroid2.framework.model.repo.views.RepoViewWrapperModel;
 
 import java.util.List;
 
@@ -40,4 +43,13 @@ public interface RepoService {
 
     @GET("api/v2.1/repos/{repo_id}/custom-share-permissions/")
     Single<PermissionListWrapperModel> getCustomSharePermissions(@Path("repo_id") String repoId);
+
+    @GET("api/v2.1/repos/{repo_id}/metadata/views/")
+    Single<RepoViewWrapperModel> getRepoViews(@Path("repo_id") String repoId);
+
+    @GET("api/v2.1/repos/{repo_id}/metadata/tags/")
+    Single<TagWrapperModel> getRepoTags(@Path("repo_id") String repoId);
+
+    @GET("api/v2.1/repos/{repo_id}/metadata/")
+    Single<RepoMetaDataModel> getRepoMetadata(@Path("repo_id") String repoId);
 }

@@ -8,10 +8,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
-import android.widget.Space;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.blankj.utilcode.util.CollectionUtils;

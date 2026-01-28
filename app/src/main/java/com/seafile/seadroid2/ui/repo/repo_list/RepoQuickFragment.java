@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.repo;
+package com.seafile.seadroid2.ui.repo.repo_list;
 
 import android.Manifest;
 import android.app.Activity;
@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.Cancellable;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -44,6 +46,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.github.panpf.recycler.sticky.StickyItemDecoration;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.collect.Maps;
@@ -74,9 +77,8 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.model.repo.RepoMetaDataModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -195,6 +197,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         closeActionMode();
     }
 
+    private boolean onBackPressedIntercept = true;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -207,6 +211,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 onBottomSheetItemClick(item);
             }
         });
+
+        onBackPressedIntercept = canGoBack();
+
         registerResultLauncher();
     }
 
@@ -219,12 +226,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         });
 
+
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // back pressed callback
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(onBackPressedIntercept) {
+            @Override
+            public void handleOnBackPressed() {
+                onBackPressedIntercept = backTo();
+            }
+        });
 
         onCreateMenuHost();
 
@@ -1193,6 +1209,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 nextDecryptCallback.isBlank = true;
                 getViewModel().decryptRepo(repoModel);
             } else {
+
+                getViewModel().getRepoMetadata(repoModel.repo_id, new Consumer<RepoMetaDataModel>() {
+                    @Override
+                    public void accept(RepoMetaDataModel repoMetaDataModel) throws Exception {
+
+                    }
+                });
+
                 binding.stickyContainer.setVisibility(View.GONE);
                 GlobalNavContext.push(repoModel);
                 loadData(getRefreshStatus(), true);
@@ -1296,32 +1320,37 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
 
+    public boolean canGoBack() {
+        return GlobalNavContext.getCurrentNavContext().inRepo();
+    }
+
     /**
      * true: can continue to back
      */
     public boolean backTo() {
-        if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-            if (adapter == null) {
-                return false;
-            }
-
-            if (adapter.isOnActionMode()) {
-                adapter.setOnActionMode(false);
-            } else {
-                binding.swipeRefreshLayout.setRefreshing(false);
-
-                getViewModel().clearAll();
-
-                removeScrolledPosition();
-
-                GlobalNavContext.pop();
-
-                loadData(RefreshStatusEnum.ONLY_LOCAL, true);
-            }
-
-            return true;
+        if (GlobalNavContext.getCurrentNavContext().inRoot()) {
+            return false;
         }
-        return false;
+
+        if (adapter == null) {
+            return false;
+        }
+
+        if (adapter.isOnActionMode()) {
+            adapter.setOnActionMode(false);
+        } else {
+            binding.swipeRefreshLayout.setRefreshing(false);
+
+            getViewModel().clearAll();
+
+            removeScrolledPosition();
+
+            GlobalNavContext.pop();
+
+            loadData(RefreshStatusEnum.ONLY_LOCAL, true);
+        }
+
+        return true;
     }
 
     /**
@@ -2558,13 +2587,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
-        Pair<String,Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(),uri);
+        Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(), uri);
 
         String fileName = jpegPair.first;
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
         String heicPath = null;
-        if (jpegPair.second){
+        if (jpegPair.second) {
             String baseName = FilenameUtils.getBaseName(fileName);
             //convert extend format jpeg to heic
             heicPath = Utils.pathJoin(parent_dir, baseName) + ".heic";
