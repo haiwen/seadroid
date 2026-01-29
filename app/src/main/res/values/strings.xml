@@ -12,9 +12,13 @@
     <string name="delete_repo">Are you sure you want to delete this library?</string>
     <string name="delete_file">Are you sure you want to delete this file or folder?</string>
     <string name="delete_records">Are you sure you want to delete records?</string>
+    <string name="delete_wiki_tip">Are you sure you want to delete this wiki?</string>
+    <string name="unpublish_wiki_tip">Are you sure you want to unpublish?</string>
+
     <string name="delete_records_and_file">Are you sure you want to delete records and locally downloaded file?</string>
     <string name="delete_successful">Successfully deleted</string>
     <string name="delete_repo_title">Delete library</string>
+    <string name="delete_wiki_title">Delete Wiki</string>
     <string name="delete_file_f">Delete file</string>
     <string name="delete_local_file_sametime">Delete local files at the same time</string>
     <string name="recover_library">Recover library</string>
@@ -44,7 +48,7 @@
     <string name="shared">Shared</string>
     <string name="libraries">Libraries</string>
     <string name="my_libraries">My Own Libraries</string>
-    <string name="my_wiki">My wiki</string>
+    <string name="my_wiki">My Wikis</string>
     <string name="my_wiki_of_shared">Shared</string>
     <string name="my_wiki_of_old">Old</string>
     <string name="cached">Cached</string>
@@ -226,6 +230,7 @@
     <string name="rename_repo">Rename library</string>
     <string name="rename_file">Rename file</string>
     <string name="rename_dir">Rename folder</string>
+    <string name="rename_wiki">Rename</string>
     <string name="rename_successful">Renamed successfully.</string>
     <string-array name="nav_array">
         <item>Files</item>
@@ -243,7 +248,11 @@
     <string name="tabs_activity">Activities</string>
     <string name="tabs_starred">Starred</string>
     <string name="tabs_wiki">Wiki</string>
+    <string name="publish">Publish</string>
+    <string name="unpublish">Unpublish</string>
     <string name="published">Published</string>
+    <string name="publish_wiki">Publish Wiki</string>
+    <string name="publish_wiki_custom_url">Customize URL</string>
     <string name="starred_repos">Starred libraries</string>
     <string name="starred_files">Starred files</string>
     <string name="starred_folder">Starred folder</string>
@@ -775,7 +784,7 @@
     <string name="font_style_heading4">Heading 4</string>
     <string name="font_style_heading5">Heading 5</string>
     <string name="font_style_heading6">Heading 6</string>
-    
+
     <!-- sdoc system event -->
     <string name="sdoc_system_event_failed_to_execute_operation_on_server">Failed to execute operation on server, the current operation has been withdrawn</string>
     <string name="sdoc_system_event_failed_to_sync_with_server_operations">Synchronization with the server failed, please refresh the page</string>
@@ -792,4 +801,5 @@
 
     <!-- Tips -->
     <string name="tip_press_again_to_exit">Press again to exit</string>
+    <string name="tip_publish_wiki_desc">The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.</string>
 </resources>

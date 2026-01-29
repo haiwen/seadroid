@@ -672,7 +672,7 @@ public class MainActivity extends BaseActivity {
 //                ToastUtils.showLong("LANDSCAPE");
 //            } else {
 //                ToastUtils.showLong("PORTRAIT");
-//            }
+
             lastOrientation = newConfig.orientation;
         }
 

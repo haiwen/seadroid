@@ -9,19 +9,16 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.WikiType;
-import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.databinding.ItemWikiBinding;
 import com.seafile.seadroid2.databinding.ItemWikiGroupItemBinding;
 import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.model.GroupItemModel;
+import com.seafile.seadroid2.framework.model.wiki.WikiGroupModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiInfoModel;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
-import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 import com.seafile.seadroid2.ui.viewholder.WikiGroupItemViewHolder;
 
 import java.util.List;
@@ -50,13 +47,13 @@ public class WikiAdapter extends BaseMultiAdapter<BaseModel> {
 
             @Override
             public void onBind(@NonNull WikiGroupItemViewHolder holder, int i, @Nullable BaseModel item) {
-                onBindGroup(holder, (GroupItemModel) item, i);
+                onBindGroup(holder, item, i);
             }
 
         }).onItemViewType(new OnItemViewTypeListener<BaseModel>() {
             @Override
             public int onItemViewType(int i, @NonNull List<? extends BaseModel> list) {
-                if (list.get(i) instanceof GroupItemModel) {
+                if (list.get(i) instanceof WikiGroupModel) {
                     return AbsLayoutItemType.GROUP_ITEM;
                 } else {
                     return AbsLayoutItemType.WIKI;
@@ -72,9 +69,9 @@ public class WikiAdapter extends BaseMultiAdapter<BaseModel> {
         // old user data
         if (TextUtils.equals(m.type, WikiType.TYPE_OLD)) {
             holder.binding.itemUserContainer.setVisibility(View.VISIBLE);
-            holder.binding.itemName.setText(m.owner_nickname);
+            holder.binding.itemUserName.setText(m.owner_nickname);
         } else {
-            holder.binding.itemName.setText(null);
+            holder.binding.itemUserName.setText(null);
             holder.binding.itemUserContainer.setVisibility(View.INVISIBLE);
         }
 
@@ -83,6 +80,14 @@ public class WikiAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemPublishState.setVisibility(View.VISIBLE);
         } else {
             holder.binding.itemPublishState.setVisibility(View.GONE);
+        }
+
+
+        // more state
+        if (TextUtils.equals(m.type, WikiType.TYPE_GROUP)) {
+            holder.binding.itemWikiMore.setVisibility(View.GONE);
+        } else {
+            holder.binding.itemWikiMore.setVisibility(View.VISIBLE);
         }
 
 
@@ -96,7 +101,8 @@ public class WikiAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     protected void onBindGroup(WikiGroupItemViewHolder holder, BaseModel model, int position) {
-        GroupItemModel model1 = (GroupItemModel) model;
-        holder.binding.itemGroupTitle.setText(model1.title);
+        WikiGroupModel m = (WikiGroupModel) model;
+        holder.binding.itemWikiGroupTitle.setText(m.getTitle());
+        holder.binding.itemWikiGroupIcon.setImageResource(m.getIcon());
     }
 }

@@ -8,25 +8,26 @@
     android:foreground="?selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingHorizontal="8dp">
+    android:paddingHorizontal="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="2dp">
 
     <ImageView
-        android:id="@+id/item_group_icon"
+        android:id="@+id/item_wiki_group_icon"
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:src="@drawable/icon_wikis"
         app:tint="@color/material_grey_666" />
 
     <TextView
-        android:id="@+id/item_group_title"
+        android:id="@+id/item_wiki_group_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:gravity="center_vertical"
-        android:paddingVertical="8dp"
         android:text="@string/app_name"
         android:textColor="@color/item_title_color"
-        android:textSize="@dimen/lv_title_txt_size" />
+        android:textSize="14sp" />
 
 
 </LinearLayout>

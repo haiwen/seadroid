@@ -5,24 +5,24 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
-import com.seafile.seadroid2.config.RepoType;
 import com.seafile.seadroid2.config.WikiType;
-import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.wiki.GroupWikiModel;
 import com.seafile.seadroid2.framework.model.wiki.OldWikiInfoModel;
 import com.seafile.seadroid2.framework.model.wiki.Wiki1Model;
 import com.seafile.seadroid2.framework.model.wiki.Wiki2Model;
+import com.seafile.seadroid2.framework.model.wiki.WikiGroupModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiInfoModel;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.TreeMap;
 
 import io.reactivex.Single;
@@ -117,14 +117,14 @@ public class WikiViewModel extends BaseViewModel {
                 // mine list
                 List<WikiInfoModel> mineList = map.get(mineKey);
                 if (CollectionUtils.isNotEmpty(mineList)) {
-                    list.add(new GroupItemModel(R.string.my_wiki));
+                    list.add(new WikiGroupModel(R.string.my_wiki, R.drawable.icon_my_libraries));
                     list.addAll(mineList);
                 }
 
                 // shared list
                 List<WikiInfoModel> sharedList = map.get(sharedKey);
                 if (CollectionUtils.isNotEmpty(sharedList)) {
-                    list.add(new GroupItemModel(R.string.my_wiki_of_shared));
+                    list.add(new WikiGroupModel(R.string.my_wiki_of_shared, R.drawable.icon_shared_with_me));
                     list.addAll(sharedList);
                 }
 
@@ -146,9 +146,9 @@ public class WikiViewModel extends BaseViewModel {
                     if (CollectionUtils.isNotEmpty(groupList)) {
                         String[] ss = key.split("-");
                         if (ss.length == 2) {
-                            list.add(new GroupItemModel(ss[1]));
+                            list.add(new WikiGroupModel(ss[1], R.drawable.icon_shared_with_all));
                         } else {
-                            list.add(new GroupItemModel(key));
+                            list.add(new WikiGroupModel(key, R.drawable.icon_shared_with_all));
                         }
                         list.addAll(groupList);
                     }
@@ -157,7 +157,7 @@ public class WikiViewModel extends BaseViewModel {
                 // mine list
                 List<WikiInfoModel> oldList = map.get(oldKey);
                 if (CollectionUtils.isNotEmpty(oldList)) {
-                    list.add(new GroupItemModel(R.string.my_wiki_of_old));
+                    list.add(new WikiGroupModel(R.string.my_wiki_of_old, R.drawable.icon_shared_with_all));
                     list.addAll(oldList);
                 }
 
@@ -189,20 +189,71 @@ public class WikiViewModel extends BaseViewModel {
         map.put(groupName, list);
     }
 
-    private static TreeMap<String, List<WikiInfoModel>> groupWikis(List<WikiInfoModel> wikis) {
-        TreeMap<String, List<WikiInfoModel>> map = new TreeMap<String, List<WikiInfoModel>>();
-        for (WikiInfoModel wiki : wikis) {
-            if (TextUtils.equals(wiki.type, RepoType.TYPE_GROUP)) {
-                if (wiki.group_name == null) {
-                    wiki.group_name = "";
-                }
-                List<WikiInfoModel> l = map.computeIfAbsent(wiki.group_name, k -> Lists.newArrayList());
-                l.add(wiki);
-            } else {
-                List<WikiInfoModel> l = map.computeIfAbsent(wiki.type, k -> Lists.newArrayList());
-                l.add(wiki);
+    public void publishWiki(String wikiId, String publishUrl) {
+        getRefreshLiveData().setValue(true);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("publish_url", publishUrl);
+
+        Single<WikiInfoModel> single = HttpIO.getCurrentInstance().execute(WikiService.class).publishWiki(wikiId, map);
+        addSingleDisposable(single, new Consumer<WikiInfoModel>() {
+            @Override
+            public void accept(WikiInfoModel wikiInfoModel) throws Exception {
+                getRefreshLiveData().setValue(false);
+                getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
             }
-        }
-        return map;
+        });
+
     }
+
+
+    public void cancelPublishWiki(String wikiId) {
+        getRefreshLiveData().setValue(true);
+
+        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(WikiService.class).cancelPublishWiki(wikiId);
+        addSingleDisposable(single, new Consumer<ResultModel>() {
+            @Override
+            public void accept(ResultModel resultModel) throws Exception {
+                getRefreshLiveData().setValue(false);
+                if (resultModel.success) {
+                    getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
+                }
+            }
+        });
+
+    }
+
+    public void renameWiki(String wikiId, String wiki_name) {
+        getRefreshLiveData().setValue(true);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("wiki_name", wiki_name);
+
+        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(WikiService.class).renameWiki(wikiId, map);
+        addSingleDisposable(single, new Consumer<ResultModel>() {
+            @Override
+            public void accept(ResultModel resultModel) throws Exception {
+                getRefreshLiveData().setValue(false);
+                if (resultModel.success) {
+                    getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
+                }
+            }
+        });
+
+    }
+
+    public void deleteWiki(String wikiId) {
+        getRefreshLiveData().setValue(true);
+
+        Single<String> single = HttpIO.getCurrentInstance().execute(WikiService.class).deleteWiki(wikiId);
+        addSingleDisposable(single, new Consumer<String>() {
+            @Override
+            public void accept(String result) throws Exception {
+                getRefreshLiveData().setValue(false);
+                getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
+            }
+        });
+    }
+
+
 }
