@@ -102,7 +102,11 @@ public class WikiAdapter extends BaseMultiAdapter<BaseModel> {
 
     protected void onBindGroup(WikiGroupItemViewHolder holder, BaseModel model, int position) {
         WikiGroupModel m = (WikiGroupModel) model;
+
+        // title
         holder.binding.itemWikiGroupTitle.setText(m.getTitle());
+
+        // icon
         holder.binding.itemWikiGroupIcon.setImageResource(m.getIcon());
     }
 }

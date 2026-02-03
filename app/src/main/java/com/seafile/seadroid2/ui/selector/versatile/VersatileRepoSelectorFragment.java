@@ -23,6 +23,7 @@ import com.seafile.seadroid2.databinding.FragmentRemoteLibraryFragmentBinding;
 import com.seafile.seadroid2.databinding.FragmentVersatileSelectorBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -52,7 +53,7 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
     private RepoModel startRepoModel;
 
     // temp context
-    private final NavContext localNavContext = new NavContext(false);
+    private final NavContext localNavContext = new NavContext();
     private Account mAccount;
 
     public static VersatileRepoSelectorFragment newInstance() {

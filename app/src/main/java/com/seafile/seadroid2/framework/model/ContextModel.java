@@ -1,10 +1,17 @@
 package com.seafile.seadroid2.framework.model;
 
 public class ContextModel {
-    public String repo_id;
-    public String repo_name;   //repo_name
+    //account
+    public String email;
+    public String server;
+    public String name;
 
-    public String type;   //repo/dirent
+
+    //repo
+    public String repo_id;
+    public String repo_name;
+
+    public String type;   // account/repo/dirent
 
     /**
      * parent_dir + name

@@ -23,6 +23,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
@@ -38,21 +39,17 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileViewModel> {
@@ -105,7 +102,20 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         Bundle bundle = new Bundle();
         bundle.putBoolean("isFilterUnavailable", false);
         bundle.putBoolean("isAddStarredGroup", true);
-        Intent intent = ObjSelectorActivity.getIntent(this, ObjSelectType.ACCOUNT, ObjSelectType.DIR, bundle);
+
+
+        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
+        if (CollectionUtils.isEmpty(accounts)) {
+            Toasts.show(R.string.err_token_expired);
+            return;
+        }
+
+        ObjSelectType t = ObjSelectType.ACCOUNT;
+        if (accounts.size() == 1) {
+            t = ObjSelectType.REPO;
+        }
+
+        Intent intent = ObjSelectorActivity.getIntent(this, t, ObjSelectType.DIR, bundle);
         objSelectorLauncher.launch(intent);
     }
 
@@ -314,10 +324,10 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
     /**
      * Security-critical check:
-     * 0、如果uri 是空，返回 false
-     * 1、不接收非 content 协议的文件
-     * 2、不接收 '/data/data/'目录和'/data/user/'目录里的文件
-     * 3、不接收文件路径包含包名路径
+     * 0、If the uri is empty, returns false
+     * 1、Do not receive: Files that are not in a content agreement
+     * 2、Do not receive：Files in the '/data/data/' directory and the '/data/user/' directory
+     * 3、Do not receive：The path that contains the package name in the file path
      */
     private Single<Boolean> isSafeSharedUri(Uri uri) {
         return Single.create(new SingleOnSubscribe<Boolean>() {

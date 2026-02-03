@@ -37,5 +37,8 @@ public class DataStoreKeys {
 
     public static final String KEY_SERVER_CERT_INFO = "key_server_cert_info";
 
-    public static final String KEY_NAV_CONTEXT_STACK = "key_nav_context_stack";
+    public static final String KEY_GLOBAL_NAV_CONTEXT_STACK = "key_nav_context_stack";
+    public static final String KEY_NAV_CONTEXT_STACK_OF_SHARE_TO_SEAFILE = "key_nav_context_stack_of_share_to_seafile";
+    public static final String KEY_ACCOUNT_OF_SHARE_TO_SEAFILE = "key_account_of_share_to_seafile";
+    public static final String KEY_NAV_CONTEXT_STACK_OF_OBJ = "key_nav_context_stack_of_obj";
 }

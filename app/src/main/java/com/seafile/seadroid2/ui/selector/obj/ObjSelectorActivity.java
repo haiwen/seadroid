@@ -26,6 +26,7 @@ import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
@@ -55,20 +56,15 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
     //    private boolean canChooseAccount;
     private boolean isOnlyChooseRepo;
     private boolean isOnlyChooseAccount;
+    private boolean enableCacheNavContext = true;
 
     private ActivitySelectorObjBinding binding;
     private MenuItem createFolderMenuItem;
 
-    private final NavContext mNavContext = new NavContext(false);
+    private final NavContext mNavContext = new NavContext(DataStoreKeys.KEY_NAV_CONTEXT_STACK_OF_SHARE_TO_SEAFILE);
 
     private RepoQuickAdapter adapter;
     private Account mAccount;
-
-    public static Intent getCurrentAccountIntent(Context context, ObjSelectType initType, ObjSelectType selectType) {
-        Intent intent = getIntent(context, initType, selectType, null);
-        intent.putExtra(ObjKey.ACCOUNT, SupportAccountManager.getInstance().getCurrentAccount());
-        return intent;
-    }
 
     public static Intent getCurrentAccountIntent(Context context, ObjSelectType initType, ObjSelectType selectType, Bundle extras) {
         Intent intent = getIntent(context, initType, selectType, extras);

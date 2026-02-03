@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.account;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -27,11 +26,11 @@ import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.sso.SingleSignOnActivity;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import java.util.Locale;
 
@@ -270,9 +269,11 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         }
 
         // clear context stack
-        ContextStackPreferenceHelper.clear();
+        ContextStackPreferenceHelper.clear(DataStoreKeys.KEY_GLOBAL_NAV_CONTEXT_STACK);
+
         // save current account
         SupportAccountManager.getInstance().saveCurrentAccount(newAccountName);
+
         // reset http instance
         HttpIO.resetLoggedInInstance();
         // reset settings

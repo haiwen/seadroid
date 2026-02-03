@@ -36,6 +36,7 @@ public class WikiViewModel extends BaseViewModel {
         return wikis;
     }
 
+
     public void loadWikis() {
         getRefreshLiveData().setValue(true);
 
@@ -64,9 +65,9 @@ public class WikiViewModel extends BaseViewModel {
                     }
                 }
 
-                String mineKey = "-1-Mine";
-                String sharedKey = "-2-Shared";
-                String oldKey = "-3-OldWiki";
+                String mineKey = "-1-" + WikiType.TYPE_MINE;
+                String sharedKey = "-2-" + WikiType.TYPE_SHARED;
+                String oldKey = "-3-" + WikiType.TYPE_OLD;
 
                 // mine shared
                 if (CollectionUtils.isNotEmpty(wiki2Model.wikis)) {
@@ -92,7 +93,7 @@ public class WikiViewModel extends BaseViewModel {
                     for (OldWikiInfoModel m : wiki1Model.data) {
                         WikiInfoModel infoModel = new WikiInfoModel();
                         infoModel.group_id = -3;// old wiki
-                        infoModel.group_name = "OldWiki";
+                        infoModel.group_name = "Old";
                         infoModel.id = m.id + "";
                         infoModel.is_published = true;
                         infoModel.name = m.name;
@@ -110,7 +111,6 @@ public class WikiViewModel extends BaseViewModel {
                         checkAndInsert(map, key, infoModel);
                     }
                 }
-
 
                 List<BaseModel> list = CollectionUtils.newArrayList();
 
