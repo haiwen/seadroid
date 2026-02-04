@@ -57,6 +57,7 @@ import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.wiki.WikiFragment;
 
 import java.util.List;
 import java.util.Optional;
@@ -201,11 +202,12 @@ public class MainActivity extends BaseActivity {
     }
 
     private long lastBackTs;
+
     private void initOnBackPressedDispatcher() {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (System.currentTimeMillis() < lastBackTs + 1000 ) {
+                if (System.currentTimeMillis() < lastBackTs + 1000) {
                     finish();
                     return;
                 }
@@ -410,7 +412,7 @@ public class MainActivity extends BaseActivity {
             binding.pager.setCurrentItem(1);
         } else if (menuItem.getItemId() == R.id.tabs_wiki) {
             binding.pager.setCurrentItem(2);
-        }else {
+        } else {
             MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
             if (null == activityMenuItem) {
                 if (menuItem.getItemId() == R.id.tabs_settings) {
@@ -552,18 +554,46 @@ public class MainActivity extends BaseActivity {
     // check server info
     private void requestServerInfo(boolean loadFromNet) {
         Optional<ServerInfo> optional = checkServerInfo();
-        if (optional.isEmpty() || !optional.get().isProEdition()) {
+        if (optional.isEmpty()) {
             binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
+            binding.navBottomView.getMenu().removeItem(R.id.tabs_wiki);
 
-            // hide Activity tab
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
             if (adapter != null) {
-                int index = adapter.removeByClass(AllActivitiesFragment.class);
-                if (index != -1) {
-                    adapter.notifyItemRemoved(index);
+                int activityIndex = adapter.removeByClass(AllActivitiesFragment.class);
+                if (activityIndex != -1) {
+                    adapter.notifyItemRemoved(activityIndex);
+                }
+
+                int wikiIndex = adapter.removeByClass(WikiFragment.class);
+                if (wikiIndex != -1) {
+                    adapter.notifyItemRemoved(wikiIndex);
                 }
             }
+            return;
         }
+
+        // remove activity tab
+        if (!optional.get().isProEdition()) {
+            binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
+
+            ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
+            if (adapter != null) {
+                adapter.removeByClass(AllActivitiesFragment.class);
+            }
+        }
+
+        // todo wiki
+        // remove wiki fragment
+        if (optional.get().isEnableWiki()) {
+            binding.navBottomView.getMenu().removeItem(R.id.tabs_wiki);
+
+            ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
+            if (adapter != null) {
+                adapter.removeByClass(WikiFragment.class);
+            }
+        }
+
 
         if (loadFromNet) {
             //invalidate local account cache

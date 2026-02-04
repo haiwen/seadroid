@@ -775,7 +775,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
                 thumbnailAdapter.removeAt(currentPosition + 1);
 
                 pagerAdapter.removeFragment(currentPosition);
-                pagerAdapter.notifyItemRemoved(currentPosition);
             }
         });
         dialogFragment.show(getSupportFragmentManager(), DeleteFileDialogFragment.class.getSimpleName());

@@ -1968,7 +1968,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                             return;
                         }
 
-                        int motionPhotoType = HeicNative.nativeCheckMotionPhotoType(destinationFile.getAbsolutePath());
+                        int motionPhotoType = HeicNative.CheckMotionPhotoType(destinationFile.getAbsolutePath());
                         if (motionPhotoType == 0) {//JPEG MP
                             emitter.onSuccess(destinationFile);
                             return;
@@ -1984,7 +1984,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                             Path path = Files.createTempFile("tmp-jmp-", ".tmp");
                             File tmpFile = path.toFile();
 
-                            String outPath = HeicNative.nativeConvertHeicMotionPhotoToJpeg(destinationFile.getAbsolutePath(), Utils.getVendorNormalized(), tmpFile.getAbsolutePath());
+                            String outPath = HeicNative.ConvertHeic2Jpeg(destinationFile.getAbsolutePath(), Utils.getVendorNormalized(), tmpFile.getAbsolutePath());
                             if (TextUtils.isEmpty(outPath)) {
                                 FileUtils.delete(tmpFile);
                                 emitter.onSuccess(destinationFile);
