@@ -2202,18 +2202,21 @@ static long CalcPrimaryJpegLength(const std::vector<uint8_t> &jpegBytes) {
     const size_t size = jpegBytes.size();
 
     while (offset < size) {
+        // Skip non-FF bytes (filler or corruption)
         if (jpegBytes[offset] != 0xFF) {
             offset++;
             continue;
         }
 
-        while (offset < size && jpegBytes[offset] == 0xFF) {
+        // Found FF, skip subsequent padding FFs (keep the marker's FF)
+        while (offset + 1 < size && jpegBytes[offset + 1] == 0xFF) {
             offset++;
         }
-        if (offset >= size) break;
+        if (offset + 1 >= size) break;
 
-        uint8_t marker = jpegBytes[offset];
-        offset++;
+        // Read marker
+        uint8_t marker = jpegBytes[offset + 1];
+        offset += 2;
 
         if ((marker >= 0xD0 && marker <= 0xD7) || marker == 0xD8 || marker == 0xD9 || marker == 0x01) {
             if (marker == 0xD9) {
@@ -2223,7 +2226,7 @@ static long CalcPrimaryJpegLength(const std::vector<uint8_t> &jpegBytes) {
         }
 
         if (marker == 0xDA) {
-            if (offset + 2 > size) return -1;
+            if (offset + 2 > size - 2) return -1;
             uint16_t len = (static_cast<uint16_t>(jpegBytes[offset]) << 8) |
                            static_cast<uint16_t>(jpegBytes[offset + 1]);
             if (len < 2) return -1;
@@ -2246,7 +2249,8 @@ static long CalcPrimaryJpegLength(const std::vector<uint8_t> &jpegBytes) {
             break;
         }
 
-        if (offset + 2 > size) return -1;
+        // For all other markers, treat as having a length field and skip safely.
+        if (offset + 2 > size - 2) return -1;
         uint16_t len = (static_cast<uint16_t>(jpegBytes[offset]) << 8) |
                        static_cast<uint16_t>(jpegBytes[offset + 1]);
         if (len < 2) return -1;
@@ -2329,32 +2333,6 @@ static std::vector<uint8_t> SliceBytes(const std::vector<uint8_t> &data, long st
     return out;
 }
 
-static std::vector<uint8_t> ExtractPrimaryJpegFromMotionPhotoBytes(const std::vector<uint8_t> &data,
-                                                                   long start, long len, long padding) {
-    if (start < 0 || len < 4) return {};
-    if (static_cast<size_t>(start + len) > data.size()) return {};
-    if (data[static_cast<size_t>(start)] != 0xFF || data[static_cast<size_t>(start + 1)] != 0xD8) {
-        return {};
-    }
-    long actualLen = CalcJpegLengthInSlice(data, start, len);
-    if (actualLen <= 0 || actualLen > len) {
-        return {};
-    }
-    if (actualLen != len) {
-        if (padding < 0 || len - actualLen != padding) {
-            LOGE_MP("[Convert] Primary JPEG padding mismatch: sliceLen=%ld actualLen=%ld padding=%ld",
-                    len, actualLen, padding);
-            return {};
-        }
-        LOGD_MP("[Convert] Primary JPEG trimmed from %ld to %ld bytes (padding=%ld)",
-                len, actualLen, padding);
-    } else if (padding != 0) {
-        LOGE_MP("[Convert] Primary JPEG padding must match XMP (padding=%ld but no trimming)", padding);
-        return {};
-    }
-    return SliceBytes(data, start, actualLen);
-}
-
 static std::vector<uint8_t> ExtractGainMapJpegFromMotionPhotoBytes(const std::vector<uint8_t> &data,
                                                                    long start, long len, long padding) {
     if (start < 0 || len < 4) return {};
@@ -2364,29 +2342,6 @@ static std::vector<uint8_t> ExtractGainMapJpegFromMotionPhotoBytes(const std::ve
     }
     if (padding < 0) return {};
     return SliceBytes(data, start, len);
-}
-
-static std::vector<uint8_t> ExtractMp4FromMotionPhotoBytes(const std::vector<uint8_t> &data,
-                                                           long start, long len, long padding) {
-    if (start < 0 || len < 12) return {};
-    if (static_cast<size_t>(start + len) > data.size()) return {};
-    if (!IsLikelyMp4Slice(data, start, len)) return {};
-    long actualLen = len;
-    if (padding > 0) {
-        if (padding > len) return {};
-        actualLen = len - padding;
-    } else if (padding < 0) {
-        return {};
-    }
-    if (actualLen <= 12) return {};
-    if (actualLen != len) {
-        LOGD_MP("[Convert] MP4 trimmed from %ld to %ld bytes (padding=%ld)",
-                len, actualLen, padding);
-    } else if (padding != 0) {
-        LOGE_MP("[Convert] MP4 padding must match XMP (padding=%ld but no trimming)", padding);
-        return {};
-    }
-    return SliceBytes(data, start, actualLen);
 }
 
 static std::vector<uint8_t> EncodeHeifHandleToJpeg(heif_image_handle *handle, int quality) {
@@ -2488,7 +2443,7 @@ static std::vector<uint8_t> ExtractHeicHdrData(const char *filePath) {
             LOGD_MP("[ExtractHeicHdr] Metadata[%d]: id=%u, type='%s', contentType='%s'",
                     i, id, type ? type : "(null)", contentType ? contentType : "(null)");
 
-            if (!type || strcmp(type, "mime") != 0) continue;
+            if (!type || strcasecmp(type, "mime") != 0) continue;
 
             bool isGainMapType = false;
             if (contentType) {
@@ -2523,10 +2478,8 @@ static std::vector<uint8_t> ExtractHeicHdrData(const char *filePath) {
                 continue;
             }
 
-            if (!IsLikelyJpegBytes(buf)) {
-                LOGW_MP("[ExtractHeicHdr] GainMap JPEG missing EOI, accepting by SOI only");
-            }
-
+            // Return complete data without EOI trimming
+            // Caller will handle EOI-based padding calculation based on XMP length
             out = std::move(buf);
             LOGD_MP("[ExtractHeicHdr] Found HDR gainmap metadata, size=%zu", out.size());
             break;
@@ -2566,14 +2519,27 @@ static std::vector<uint8_t> ExtractPrimaryJpegFromHeic(const char *filePath, int
     return out;
 }
 
-
 static size_t FindJpegAppInsertPos(const std::vector<uint8_t> &jpeg) {
     if (jpeg.size() < 4) return 0;
     if (jpeg[0] != 0xFF || jpeg[1] != 0xD8) return 0;
 
     size_t pos = 2;
+    size_t skipCount = 0;
+    const size_t MAX_SKIP = 10; // Skip at most 10 non-FF bytes
+
     while (pos + 4 <= jpeg.size()) {
-        if (jpeg[pos] != 0xFF) break;
+        // Skip non-FF bytes (up to MAX_SKIP)
+        if (jpeg[pos] != 0xFF) {
+            skipCount++;
+            if (skipCount > MAX_SKIP) {
+                LOGW_MP("[FindJpegAppInsertPos] Too many non-FF bytes, stopping at %zu", pos);
+                break;
+            }
+            pos++;
+            continue;
+        }
+        skipCount = 0; // Reset counter
+
         uint8_t marker = jpeg[pos + 1];
         if (marker == 0xDA || marker == 0xD9) break;
         if (marker >= 0xE0 && marker <= 0xEF) {
@@ -2588,6 +2554,106 @@ static size_t FindJpegAppInsertPos(const std::vector<uint8_t> &jpeg) {
         break;
     }
     return pos;
+}
+
+/**
+ * Remove EXIF and XMP APP1 segments from JPEG data
+ * Returns cleaned JPEG data
+ */
+static std::vector<uint8_t> RemoveJpegAppSegments(const std::vector<uint8_t> &jpeg) {
+    if (jpeg.size() < 4 || jpeg[0] != 0xFF || jpeg[1] != 0xD8) {
+        return jpeg;
+    }
+
+    std::vector<uint8_t> result;
+    result.reserve(jpeg.size());
+
+    // Copy SOI
+    result.push_back(jpeg[0]);
+    result.push_back(jpeg[1]);
+
+    size_t pos = 2;
+    size_t skipCount = 0;
+    const size_t MAX_SKIP = 10; // Skip at most 10 non-FF bytes
+
+    while (pos + 4 <= jpeg.size()) {
+        // Skip non-FF bytes (up to MAX_SKIP) to handle minor corruption
+        if (jpeg[pos] != 0xFF) {
+            skipCount++;
+            if (skipCount > MAX_SKIP) {
+                LOGW_MP("[RemoveAppSegments] Too many non-FF bytes at %zu, copying rest", pos);
+                // Copy remaining data and exit
+                if (pos < jpeg.size()) {
+                    result.insert(result.end(), jpeg.begin() + pos, jpeg.end());
+                }
+                break;
+            }
+            pos++;
+            continue;
+        }
+        skipCount = 0; // Reset counter
+
+        uint8_t marker = jpeg[pos + 1];
+        if (marker == 0xDA || marker == 0xD9) break;
+
+        if (marker >= 0xE0 && marker <= 0xEF) {
+            uint16_t len = (static_cast<uint16_t>(jpeg[pos + 2]) << 8) |
+                           static_cast<uint16_t>(jpeg[pos + 3]);
+            if (len < 2 || pos + 2 + len > jpeg.size()) break;
+
+            size_t segmentDataStart = pos + 4;
+            size_t segmentDataLen = len - 2;
+
+            // Check if this is EXIF or XMP segment
+            bool isExifOrXmp = false;
+
+            if (marker == 0xE1) { // APP1
+                // Check for EXIF
+                if (segmentDataLen >= 6 &&
+                    jpeg[segmentDataStart] == 'E' &&
+                    jpeg[segmentDataStart + 1] == 'x' &&
+                    jpeg[segmentDataStart + 2] == 'i' &&
+                    jpeg[segmentDataStart + 3] == 'f' &&
+                    jpeg[segmentDataStart + 4] == 0x00 &&
+                    jpeg[segmentDataStart + 5] == 0x00) {
+                    LOGD_MP("[RemoveAppSegments] Skipping EXIF segment at %zu", pos);
+                    isExifOrXmp = true;
+                }
+                // Check for XMP
+                else {
+                    const char *XMP_MARKER = "http://ns.adobe.com/xap/1.0/";
+                    size_t markerLen = strlen(XMP_MARKER);
+                    if (segmentDataLen > markerLen + 1 &&
+                        memcmp(jpeg.data() + segmentDataStart, XMP_MARKER, markerLen) == 0) {
+                        LOGD_MP("[RemoveAppSegments] Skipping XMP segment at %zu", pos);
+                        isExifOrXmp = true;
+                    }
+                }
+            }
+
+            if (isExifOrXmp) {
+                // Skip this segment
+                pos += 2 + len;
+                continue;
+            }
+
+            // Copy other segments
+            result.insert(result.end(), jpeg.begin() + pos, jpeg.begin() + pos + 2 + len);
+            pos += 2 + len;
+            continue;
+        }
+
+        break;
+    }
+
+    // Copy remaining data (important for SOS and image scan data)
+    if (pos < jpeg.size()) {
+        result.insert(result.end(), jpeg.begin() + pos, jpeg.end());
+    }
+
+    LOGD_MP("[RemoveAppSegments] Original size: %zu, Cleaned size: %zu",
+            jpeg.size(), result.size());
+    return result;
 }
 
 static bool AppendApp1Segment(std::vector<uint8_t> &out, const uint8_t *payload, size_t payloadLen) {
@@ -2620,13 +2686,20 @@ static std::vector<uint8_t> BuildJpegMotionPhotoBytes(
     }
 
     size_t insertPos = FindJpegAppInsertPos(primaryJpeg);
-    if (insertPos == 0 || insertPos > primaryJpeg.size()) return out;
+    if (insertPos < 2 || insertPos > primaryJpeg.size()) {
+        LOGE_MP("[BuildJpegMotionPhotoBytes] Invalid insertPos: %zu (expected >= 2)", insertPos);
+        return out;
+    }
 
-    size_t reserveSize = primaryJpeg.size() + mp4.size() + exifTiff.size() + xmpXml.size() +
+    // Remove existing EXIF/XMP segments to avoid duplication
+    std::vector<uint8_t> cleanedJpeg = RemoveJpegAppSegments(primaryJpeg);
+
+    size_t reserveSize = cleanedJpeg.size() + mp4.size() + exifTiff.size() + xmpXml.size() +
                          hdrData.size() + primaryPadding + hdrPadding + videoPadding + 256;
     out.reserve(reserveSize);
 
-    out.insert(out.end(), primaryJpeg.begin(), primaryJpeg.begin() + static_cast<long>(insertPos));
+    // Copy entire cleaned JPEG (not just up to insertPos)
+    out.insert(out.end(), cleanedJpeg.begin(), cleanedJpeg.end());
 
     if (!exifTiff.empty()) {
         const uint8_t exifHeader[] = {'E', 'x', 'i', 'f', 0x00, 0x00};
@@ -2659,7 +2732,7 @@ static std::vector<uint8_t> BuildJpegMotionPhotoBytes(
     }
 
     // primary image
-    out.insert(out.end(), primaryJpeg.begin() + static_cast<long>(insertPos), primaryJpeg.end());
+    out.insert(out.end(), cleanedJpeg.begin() + static_cast<long>(insertPos), cleanedJpeg.end());
     if (primaryPadding > 0) {
         out.insert(out.end(), primaryPadding, 0x00);
     }
@@ -2704,7 +2777,15 @@ static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
     <rdf:Description rdf:about=""
         xmlns:GCamera="http://ns.google.com/photos/1.0/camera/"
         xmlns:Container="http://ns.google.com/photos/1.0/container/"
-        xmlns:Item="http://ns.google.com/photos/1.0/container/item/"
+        xmlns:Item="http://ns.google.com/photos/1.0/container/item/")";
+
+    if (hdrDataSize > 0) {
+        xmp += R"(
+        xmlns:hdrgm="http://ns.adobe.com/hdr-gain-map/1.0/"
+        hdrgm:Version="1.0")";
+    }
+
+    xmp += R"(
         GCamera:MicroVideo="1"
         GCamera:MicroVideoVersion="1"
         GCamera:MicroVideoOffset=")" + std::to_string(mp4VideoLength) + R"("
@@ -2757,13 +2838,9 @@ static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
     return xmp;
 }
 
-/**
- * Different Motion photo XMP characters are obtained according to the manufacturer
- * */
-static std::string GetSupportedVendorsMotionPhotoXMPCharacters(const std::string &vendor, std::int32_t videoLength) {
-    std::string xmp = "GCamera:MotionPhoto=\"1\"\n"
-                      "GCamera:MotionPhotoVersion=\"1\"\n"
-                      "GCamera:MotionPhotoPresentationTimestampUs=\"0\"\n";
+
+static std::string GetSupportedVendorsMotionPhotoNamespace(const std::string &vendor) {
+    std::string xmp;
     if (vendor.empty()) {
         return xmp;
     }
@@ -2772,20 +2849,54 @@ static std::string GetSupportedVendorsMotionPhotoXMPCharacters(const std::string
     LOGD_MP("[GetSupportedVendorsMotionPhotoXMPCharacters] vendor=%s", v.c_str());
     std::transform(v.begin(), v.end(), v.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     if (v == "oppo" || v == "oplus" || v == "realme") {
-        xmp += "OpCamera:MotionPhotoPresentationTimestampUs=\"0\"\n"
+        xmp += "        xmlns:OpCamera=\"http://ns.oplus.com/photos/1.0/camera/\"\n";
+        return xmp;
+    }
+
+//    if (v == "vivo" || v == "huawei" || v == "xiaomi") {
+//
+//    }
+
+    return xmp;
+}
+/**
+ * Different Motion photo XMP characters are obtained according to the manufacturer
+ * @param vendor Device vendor (e.g., "oppo", "xiaomi")
+ * @param videoLength Video data length in bytes
+ * @param presentationTimestampUs Presentation timestamp in microseconds (0 if unknown)
+ * @param primaryPresentationTimestampUs Primary presentation timestamp in microseconds (for oppo/realme)
+ * */
+static std::string GetSupportedVendorsMotionPhotoXMPCharacters(const std::string &vendor, std::int32_t videoLength,
+                                                                long presentationTimestampUs,
+                                                                long primaryPresentationTimestampUs) {
+    std::string xmp = "GCamera:MotionPhoto=\"1\"\n"
+                      "GCamera:MotionPhotoVersion=\"1\"\n"
+                      "GCamera:MotionPhotoPresentationTimestampUs=\"" + std::to_string(presentationTimestampUs) + "\"\n";
+    if (vendor.empty()) {
+        return xmp;
+    }
+
+    std::string v = vendor;
+    LOGD_MP("[GetSupportedVendorsMotionPhotoXMPCharacters] vendor=%s", v.c_str());
+    std::transform(v.begin(), v.end(), v.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    if (v == "oppo" || v == "oplus" || v == "realme") {
+        xmp += "OpCamera:MotionPhotoPresentationTimestampUs=\"" + std::to_string(presentationTimestampUs) + "\"\n"
                "OpCamera:MotionPhotoOwner=\"oplus\"\n"
                "OpCamera:OLivePhotoVersion=\"2\"\n"
+               "OpCamera:MotionPhotoPrimaryPresentationTimestampUs=\"" + std::to_string(primaryPresentationTimestampUs) + "\"\n"
                "OpCamera:VideoLength=\"" + std::to_string(videoLength) + "\"\n";
         return xmp;
     }
+
     if (v == "vivo" || v == "huawei") {
         return "";
     }
+
     if (v == "xiaomi") {
         xmp += "GCamera:MicroVideo=\"1\"\n"
                "GCamera:MicroVideoVersion=\"1\"\n"
                "GCamera:MicroVideoOffset=\"" + std::to_string(videoLength) + "\"\n"
-                                                                             "GCamera:MicroVideoPresentationTimestampUs=\"0\"\n";
+               "GCamera:MicroVideoPresentationTimestampUs=\"" + std::to_string(presentationTimestampUs) + "\"\n";
         return xmp;
     }
     return xmp;
@@ -2793,16 +2904,36 @@ static std::string GetSupportedVendorsMotionPhotoXMPCharacters(const std::string
 
 static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, size_t hdrDataSize,
                                               std::string vendor, size_t primaryPadding,
-                                              size_t hdrPadding, size_t videoPadding) {
-    std::string nameXmp = GetSupportedVendorsMotionPhotoXMPCharacters(vendor, static_cast<std::int32_t>(mp4VideoLength));
+                                              size_t hdrPadding, size_t videoPadding,
+                                              long presentationTimestampUs = 0,
+                                              long primaryPresentationTimestampUs = 0) {
+    std::string nameXmp = GetSupportedVendorsMotionPhotoXMPCharacters(vendor, static_cast<std::int32_t>(mp4VideoLength),
+                                                                      presentationTimestampUs,
+                                                                      primaryPresentationTimestampUs);
     std::string xmp;
     xmp += "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.1.0-jc003\">\n";
     xmp += "  <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n";
     xmp += "    <rdf:Description rdf:about=\"\"\n";
+
+
+    if (hdrDataSize > 0) {
+        xmp += "        xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\"\n";
+    }
+
     xmp += "        xmlns:GCamera=\"http://ns.google.com/photos/1.0/camera/\"\n";
+
+    std::string nameSpace = GetSupportedVendorsMotionPhotoNamespace(vendor);
+    if (!nameSpace.empty()){
+        xmp += nameSpace;
+    }
+
     xmp += "        xmlns:Container=\"http://ns.google.com/photos/1.0/container/\"\n";
     xmp += "        xmlns:Item=\"http://ns.google.com/photos/1.0/container/item/\"\n";
-    xmp += "        xmlns:OpCamera=\"http://ns.oplus.com/photos/1.0/camera/\"\n";
+
+    if (hdrDataSize > 0) {
+        xmp += "        hdrgm:Version=\"1.0\"\n";
+    }
+
     if (!nameXmp.empty()) {
         size_t start = 0;
         while (true) {
@@ -2815,6 +2946,7 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
             start = end + 1;
         }
     }
+
     xmp += "        >\n";
     xmp += "      <Container:Directory>\n";
     xmp += "        <rdf:Seq>\n";
@@ -2841,7 +2973,7 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
     xmp += "                Item:Mime=\"video/mp4\"\n";
     xmp += "                Item:Semantic=\"MotionPhoto\"\n";
     xmp += "                Item:Length=\"" + std::to_string(mp4VideoLength) + "\"\n";
-    xmp += "                Item:Padding=\"" + std::to_string(videoPadding) + "\" />\n";
+    xmp += "                Item:Padding=\"0\" />\n";  // Video is last, no padding
     xmp += "          </rdf:li>\n";
     xmp += "        </rdf:Seq>\n";
     xmp += "      </Container:Directory>\n";
@@ -2945,9 +3077,10 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertJpeg2Heic(JNIEnv *env, jclass c
     long hdrLen = 0;
     long videoStart = -1;
     long videoLen = 0;
-    long primaryPadding = 0;
+    long primaryPadding = 0;mmmmmmmmmmmmmmmmmmmmmmmmmm1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
     long hdrPadding = 0;
     long videoPadding = 0;
+    long presentationTimestampUs = xmpInfo.presentationTimestampUs;
 
     if (xmpInfo.version == 1) {
         if (xmpInfo.videoLength <= 0) {
@@ -3062,7 +3195,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertJpeg2Heic(JNIEnv *env, jclass c
     jbyteArray hdrArray = nullptr;
     if (!hdrJpeg.empty()) {
         hdrArray = env->NewByteArray(static_cast<jsize>(hdrJpeg.size()));
-        if (!hdrArray) {
+        if (!hdrArray) {e
             LOGE_MP("[Convert] Failed to allocate HDR byte array");
             env->DeleteLocalRef(jpegArray);
             env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
@@ -3071,7 +3204,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertJpeg2Heic(JNIEnv *env, jclass c
         env->SetByteArrayRegion(hdrArray, 0, static_cast<jsize>(hdrJpeg.size()),
                                 reinterpret_cast<const jbyte *>(hdrJpeg.data()));
     }
-
+ nnn
     // mp4
     jbyteArray mp4Array = env->NewByteArray(static_cast<jsize>(mp4Bytes.size()));
     if (!mp4Array) {
@@ -3206,6 +3339,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertHeic2Jpeg(
 
     // extract HDR data
     std::vector<uint8_t> hdrData = ExtractHeicHdrData(inPath);
+    size_t hdrPadding = 0;  // No padding when converting from HEIC
     if (!hdrData.empty()) {
         if (!HasJpegSoi(hdrData)) {
             LOGE_MP("[ConvertHeic2Jpeg] HDR gainmap data missing JPEG SOI");
@@ -3213,7 +3347,9 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertHeic2Jpeg(
             env->ReleaseStringUTFChars(inputFilePath, inPath);
             return env->NewStringUTF("error: invalid HDR gainmap data");
         }
-        LOGD_MP("[ConvertHeic2Jpeg] Extracted HDR data: %zu bytes", hdrData.size());
+        // Use HDR data as-is from HEIC meta box (complete JPEG with SOI and EOI)
+        // No trimming needed, padding is 0
+        LOGD_MP("[ConvertHeic2Jpeg] Extracted HDR data: %zu bytes (no padding)", hdrData.size());
     } else {
         LOGD_MP("[ConvertHeic2Jpeg] No HDR data extracted from HEIC");
     }
@@ -3230,6 +3366,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertHeic2Jpeg(
         env->ReleaseStringUTFChars(inputFilePath, inPath);
         return env->NewStringUTF("error: MP4 video data is empty");
     }
+
     if (!IsLikelyMp4Slice(mp4Data, 0, static_cast<long>(mp4Data.size()))) {
         LOGE_MP("[ConvertHeic2Jpeg] MP4 video data is not valid (missing ftyp)");
         env->ReleaseStringUTFChars(outputFilePath, outPath);
@@ -3237,11 +3374,26 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertHeic2Jpeg(
         return env->NewStringUTF("error: invalid MP4 video data");
     }
 
+    // Parse original HEIC XMP to extract timestamp values
+    long presentationTimestampUs = 0;
+    long primaryPresentationTimestampUs = 0;
+    MotionPhotoXmpInfo originalXmpInfo = ParseHeicMotionPhotoXmpWithLibheif(inPath);
+    if (originalXmpInfo.isMotionPhoto) {
+        presentationTimestampUs = originalXmpInfo.presentationTimestampUs;
+        // For oppo/realme, use the same timestamp for primary presentation
+        primaryPresentationTimestampUs = originalXmpInfo.presentationTimestampUs;
+        LOGD_MP("[ConvertHeic2Jpeg] Extracted timestamps from original XMP: presentationTimestampUs=%ld, primaryPresentationTimestampUs=%ld",
+                presentationTimestampUs, primaryPresentationTimestampUs);
+    } else {
+        LOGD_MP("[ConvertHeic2Jpeg] No Motion Photo XMP found in original HEIC, using default timestamps (0)");
+    }
+
     // gen xml
-    std::string xmpXml = GenerateJpegMotionPhotoXMP(mp4Data.size(), hdrData.size(), vendorStr, 0, 0, 0);
+    std::string xmpXml = GenerateJpegMotionPhotoXMP(mp4Data.size(), hdrData.size(), vendorStr, 0, hdrPadding, 0,
+                                                      presentationTimestampUs, primaryPresentationTimestampUs);
 
     // build jpeg motion photo
-    std::vector<uint8_t> outBytes = BuildJpegMotionPhotoBytes(primaryJpeg, xmpXml, exifTiff, hdrData, mp4Data, 0, 0, 0);
+    std::vector<uint8_t> outBytes = BuildJpegMotionPhotoBytes(primaryJpeg, xmpXml, exifTiff, hdrData, mp4Data, 0, hdrPadding, 0);
 
     if (outBytes.empty()) {
         LOGE_MP("[ConvertHeic2Jpeg] Failed to build JPEG Motion Photo bytes");
