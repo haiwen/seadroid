@@ -124,7 +124,7 @@ public final class MotionPhotoDetector {
 
     public static MotionPhotoDescriptor extractHeicXmp(File p) {
         try {
-            String xml = HeicNative.ExtractHeicMotionPhotoXMP(p.getAbsolutePath());
+            String xml = HeicNative.ExtractHeicXMP(p.getAbsolutePath());
             MotionPhotoDescriptor descriptor = parse(xml, false);
             return descriptor;
         } catch (Exception e) {

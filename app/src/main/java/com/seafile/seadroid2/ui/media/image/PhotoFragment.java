@@ -817,9 +817,9 @@ public class PhotoFragment extends BaseFragment {
 
         byte[] videoBytes = null;
         if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-            videoBytes = HeicNative.ExtractHeicMotionPhotoVideo(imageFile.getAbsolutePath());
+            videoBytes = HeicNative.ExtractHeicVideo(imageFile.getAbsolutePath());
         } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-            videoBytes = HeicNative.ExtractJpegMotionPhotoVideo(imageFile.getAbsolutePath());
+            videoBytes = HeicNative.ExtractJpegVideo(imageFile.getAbsolutePath());
         }
 
         if (videoBytes == null || videoBytes.length == 0) {

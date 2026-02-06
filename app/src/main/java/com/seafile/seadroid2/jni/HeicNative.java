@@ -59,7 +59,7 @@ public class HeicNative {
      * @param outputPath   输出文件路径
      * @return 结果字符串 (success:... 或 error:...)
      */
-    public static native String GenHeicMotionPhoto(byte[] primaryImage, byte[] hdrDatas, byte[] exifDatas, byte[] mp4Video, String outputPath);
+    public static native String GenHeicMotionPhoto(byte[] primaryImage, byte[] hdrDatas, byte[] exifDatas,byte[] xmpBytes, byte[] mp4Video,long presentationTimestampUs, String outputPath);
 
     /**
      * 从 HEIC Motion Photo 文件中提取 MP4 视频数据
@@ -68,9 +68,9 @@ public class HeicNative {
      * @param inputFilePath HEIC Motion Photo 文件路径
      * @return MP4 视频数据的字节数组，失败返回 null
      */
-    public static native byte[] ExtractHeicMotionPhotoVideo(String inputFilePath);
+    public static native byte[] ExtractHeicVideo(String inputFilePath);
 
-    public static native String ExtractHeicMotionPhotoXMP(String inputFilePath);
+    public static native String ExtractHeicXMP(String inputFilePath);
 
     /**
      * 从 JPEG Motion Photo 文件中提取 MP4 视频数据
@@ -81,7 +81,7 @@ public class HeicNative {
      * @param inputFilePath JPEG Motion Photo 文件路径
      * @return MP4 视频数据的字节数组，失败返回 null
      */
-    public static native byte[] ExtractJpegMotionPhotoVideo(String inputFilePath);
+    public static native byte[] ExtractJpegVideo(String inputFilePath);
 
     /**
      * 检查图片是否为 Motion Photo，并返回类型
@@ -120,9 +120,9 @@ public class HeicNative {
         int type = CheckMotionPhotoType(inputFilePath);
         switch (type) {
             case MOTION_PHOTO_TYPE_JPEG:
-                return ExtractJpegMotionPhotoVideo(inputFilePath);
+                return ExtractJpegVideo(inputFilePath);
             case MOTION_PHOTO_TYPE_HEIC:
-                return ExtractHeicMotionPhotoVideo(inputFilePath);
+                return ExtractHeicVideo(inputFilePath);
             default:
                 return null;
         }
