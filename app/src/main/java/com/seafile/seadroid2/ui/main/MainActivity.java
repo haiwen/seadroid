@@ -57,6 +57,8 @@ import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
+import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.ui.wiki.WikiFragment;
 
 import java.util.List;
@@ -69,7 +71,7 @@ public class MainActivity extends BaseActivity {
     private ActivityMainBinding binding;
     private FileSyncService syncService;
     private MainViewModel mainViewModel;
-
+    private ViewPager2Adapter pagerAdapter;
     private Account curAccount;
 
     private RepoQuickFragment getReposFragment() {
@@ -355,6 +357,22 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    private ViewPager2Adapter getPagerAdapter() {
+        if (pagerAdapter == null) {
+            pagerAdapter = new ViewPager2Adapter(this);
+        }
+        return pagerAdapter;
+    }
+
+    private void initViewPager() {
+        List<Fragment> fragments = mainViewModel.getFragments();
+        getPagerAdapter().addFragments(fragments);
+
+        binding.pager.setOffscreenPageLimit(fragments.size());
+        binding.pager.setAdapter(getPagerAdapter());
+        binding.pager.setUserInputEnabled(false);
+    }
+
     private static final long DOUBLE_TAP_TIMEOUT = 300;
     private int lastReselectItemId = View.NO_ID;
     private long lastReselectTime = 0L;
@@ -406,84 +424,27 @@ public class MainActivity extends BaseActivity {
 
     private void onBottomNavigationSelected(MenuItem menuItem) {
         //tab
+        int pagerIndex = -1;
         if (menuItem.getItemId() == R.id.tabs_library) {
-            binding.pager.setCurrentItem(0);
+            pagerIndex = getPagerAdapter().indexByClass(RepoQuickFragment.class);
         } else if (menuItem.getItemId() == R.id.tabs_starred) {
-            binding.pager.setCurrentItem(1);
+            pagerIndex = getPagerAdapter().indexByClass(StarredQuickFragment.class);
         } else if (menuItem.getItemId() == R.id.tabs_wiki) {
-            binding.pager.setCurrentItem(2);
-        } else {
-            MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
-            if (null == activityMenuItem) {
-                if (menuItem.getItemId() == R.id.tabs_settings) {
-                    binding.pager.setCurrentItem(3);
-                }
-            } else {
-                if (menuItem.getItemId() == R.id.tabs_activity) {
-                    binding.pager.setCurrentItem(3);
-                } else if (menuItem.getItemId() == R.id.tabs_settings) {
-                    binding.pager.setCurrentItem(4);
-                }
-            }
+            pagerIndex = getPagerAdapter().indexByClass(WikiFragment.class);
+        } else if (menuItem.getItemId() == R.id.tabs_activity) {
+            pagerIndex = getPagerAdapter().indexByClass(AllActivitiesFragment.class);
+        } else if (menuItem.getItemId() == R.id.tabs_settings) {
+            pagerIndex = getPagerAdapter().indexByClass(TabSettings2Fragment.class);
         }
+
+        if (pagerIndex == -1) {
+            return;
+        }
+
+        binding.pager.setCurrentItem(pagerIndex);
 
         //
         refreshActionbar();
-    }
-
-    private void initViewPager() {
-        List<Fragment> fragments = mainViewModel.getFragments();
-        ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
-        viewPager2Adapter.addFragments(fragments);
-        binding.pager.setOffscreenPageLimit(fragments.size());
-        binding.pager.setAdapter(viewPager2Adapter);
-        binding.pager.setUserInputEnabled(false);
-        binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-
-                onViewPageSelected(position);
-            }
-        });
-    }
-
-    private void onViewPageSelected(int position) {
-
-        invalidateMenu();
-
-        if (0 == position) {
-            binding.navBottomView.setSelectedItemId(R.id.tabs_library);
-            return;
-        }
-
-        if (1 == position) {
-            binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
-            return;
-        }
-
-        if (2 == position) {
-            binding.navBottomView.setSelectedItemId(R.id.tabs_wiki);
-            return;
-        }
-
-        MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
-        if (null == activityMenuItem) {
-            //means the server is not pro edition
-            if (3 == position) {
-                binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
-            }
-        } else {
-
-            if (3 == position) {
-                binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
-                return;
-            }
-
-            if (4 == position) {
-                binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
-            }
-        }
     }
 
     private void initViewModel() {
@@ -554,21 +515,18 @@ public class MainActivity extends BaseActivity {
     // check server info
     private void requestServerInfo(boolean loadFromNet) {
         Optional<ServerInfo> optional = checkServerInfo();
-        if (optional.isEmpty()) {
+        if (optional.isEmpty()) { // if load failed, remove special fragments
             binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
             binding.navBottomView.getMenu().removeItem(R.id.tabs_wiki);
 
-            ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
-            if (adapter != null) {
-                int activityIndex = adapter.removeByClass(AllActivitiesFragment.class);
-                if (activityIndex != -1) {
-                    adapter.notifyItemRemoved(activityIndex);
-                }
+            int activityIndex = getPagerAdapter().removeByClass(AllActivitiesFragment.class);
+            if (activityIndex != -1) {
+                getPagerAdapter().notifyItemRemoved(activityIndex);
+            }
 
-                int wikiIndex = adapter.removeByClass(WikiFragment.class);
-                if (wikiIndex != -1) {
-                    adapter.notifyItemRemoved(wikiIndex);
-                }
+            int wikiIndex = getPagerAdapter().removeByClass(WikiFragment.class);
+            if (wikiIndex != -1) {
+                getPagerAdapter().notifyItemRemoved(wikiIndex);
             }
             return;
         }
@@ -583,9 +541,8 @@ public class MainActivity extends BaseActivity {
             }
         }
 
-        // todo wiki
-        // remove wiki fragment
-        if (optional.get().isEnableWiki()) {
+        // remove wiki fragment if disable wiki
+        if (!optional.get().isEnableWiki()) {
             binding.navBottomView.getMenu().removeItem(R.id.tabs_wiki);
 
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();

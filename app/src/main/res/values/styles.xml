@@ -136,13 +136,11 @@
 
     <!-- App.Button.OutlinedButton -->
     <style name="App.Widget.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="textAllCaps">false</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/bar_title_color</item>
-        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleLarge</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleSmall</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.OutlinedButton</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/bar_title_color</item>
     </style>
 
     <style name="ThemeOverlay.App.Button.OutlinedButton" parent="ThemeOverlay.Material3.Button">
@@ -152,11 +150,11 @@
 
     <!-- App.Button -->
     <style name="App.Widget.Button" parent="Widget.Material3.Button">
-        <item name="android:gravity">center</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleLarge</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleSmall</item>
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
 

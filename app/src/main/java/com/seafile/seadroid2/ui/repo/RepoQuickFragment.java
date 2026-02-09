@@ -474,8 +474,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
             } else if (menuItem.getItemId() == R.id.create_repo) {
                 showNewRepoDialog();
-            } else if (menuItem.getItemId() == R.id.add) {
-                showAddFileDialog();
+            } else if (menuItem.getItemId() == R.id.create_file) {
+                showNewFileDialog();
+            } else if (menuItem.getItemId() == R.id.create_folder) {
+                showNewDirDialog();
+            } else if (menuItem.getItemId() == R.id.upload_file) {
+                pickFile();
+            } else if (menuItem.getItemId() == R.id.take_photo) {
+                takePhoto();
             } else if (menuItem.getItemId() == R.id.select) {
                 startOrUpdateContextualActionBar();
             } else if (menuItem.getItemId() == android.R.id.home) {
@@ -495,14 +501,20 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         setMenuVisibleStateById("search", menu.findItem(R.id.menu_action_search).isVisible());
         setMenuVisibleStateById("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
         setMenuVisibleStateById("createRepo", menu.findItem(R.id.create_repo).isVisible());
-        setMenuVisibleStateById("add", menu.findItem(R.id.add).isVisible());
+        setMenuVisibleStateById("create_file", menu.findItem(R.id.create_file).isVisible());
+        setMenuVisibleStateById("create_folder", menu.findItem(R.id.create_folder).isVisible());
+        setMenuVisibleStateById("upload_file", menu.findItem(R.id.upload_file).isVisible());
+        setMenuVisibleStateById("take_photo", menu.findItem(R.id.take_photo).isVisible());
         setMenuVisibleStateById("select", menu.findItem(R.id.select).isVisible());
 
         // hide item
         visibleMenuById(menu, R.id.menu_action_search, false);
         visibleMenuById(menu, R.id.menu_action_sort, false);
         visibleMenuById(menu, R.id.create_repo, false);
-        visibleMenuById(menu, R.id.add, false);
+        visibleMenuById(menu, R.id.create_file, false);
+        visibleMenuById(menu, R.id.create_folder, false);
+        visibleMenuById(menu, R.id.upload_file, false);
+        visibleMenuById(menu, R.id.take_photo, false);
         visibleMenuById(menu, R.id.select, false);
 
         adapter.notifySearchDataChanged(true, null);
@@ -520,7 +532,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 visibleMenuById(menu, R.id.menu_action_search, "search");
                 visibleMenuById(menu, R.id.menu_action_sort, "sortGroup");
                 visibleMenuById(menu, R.id.create_repo, "createRepo");
-                visibleMenuById(menu, R.id.add, "add");
+                visibleMenuById(menu, R.id.create_file, "create_file");
+                visibleMenuById(menu, R.id.create_folder, "create_folder");
+                visibleMenuById(menu, R.id.upload_file, "upload_file");
+                visibleMenuById(menu, R.id.take_photo, "take_photo");
                 visibleMenuById(menu, R.id.select, "select");
             }
         });
@@ -2351,27 +2366,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
         bottomSheetNewRepoDialogFragment.show(getChildFragmentManager(), BottomSheetNewRepoDialogFragment.class.getSimpleName());
-    }
-
-    /**
-     * add new file/files
-     */
-    private void showAddFileDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-        builder.setTitle(getString(R.string.add_file));
-        builder.setItems(R.array.add_file_options_array, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) // create file
-                    showNewFileDialog();
-                else if (which == 1) // create folder
-                    showNewDirDialog();
-                else if (which == 2) // upload file
-                    pickFile();
-                else if (which == 3) // take a photo
-                    takePhoto();
-            }
-        }).show();
     }
 
     private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {

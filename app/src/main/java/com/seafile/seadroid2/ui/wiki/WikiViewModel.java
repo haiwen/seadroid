@@ -11,7 +11,6 @@ import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.config.WikiType;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.wiki.GroupWikiModel;
 import com.seafile.seadroid2.framework.model.wiki.OldWikiInfoModel;
@@ -19,6 +18,7 @@ import com.seafile.seadroid2.framework.model.wiki.Wiki1Model;
 import com.seafile.seadroid2.framework.model.wiki.Wiki2Model;
 import com.seafile.seadroid2.framework.model.wiki.WikiGroupModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiInfoModel;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -81,9 +81,7 @@ public class WikiViewModel extends BaseViewModel {
                             wiki.group_name = "Shared";
                             wiki.group_id = -2;
                             wiki.group_owner = "shared";
-
-                            String key = wiki.group_id + "-" + wiki.group_name;
-                            checkAndInsert(map, key, wiki);
+                            checkAndInsert(map, sharedKey, wiki);
                         }
                     }
                 }
@@ -107,8 +105,7 @@ public class WikiViewModel extends BaseViewModel {
                         infoModel.owner_avatar_url = m.owner_avatar_url;
                         infoModel.public_url = m.link;
 
-                        String key = infoModel.group_id + "-" + infoModel.group_name;
-                        checkAndInsert(map, key, infoModel);
+                        checkAndInsert(map, oldKey, infoModel);
                     }
                 }
 
@@ -202,7 +199,7 @@ public class WikiViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
                 getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
             }
-        });
+        }, throwableConsumer);
 
     }
 
@@ -219,7 +216,7 @@ public class WikiViewModel extends BaseViewModel {
                     getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
                 }
             }
-        });
+        }, throwableConsumer);
 
     }
 
@@ -238,7 +235,7 @@ public class WikiViewModel extends BaseViewModel {
                     getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
                 }
             }
-        });
+        }, throwableConsumer);
 
     }
 
@@ -252,8 +249,17 @@ public class WikiViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
                 getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
             }
-        });
+        }, throwableConsumer);
     }
+
+    final Consumer<Throwable> throwableConsumer = new Consumer<Throwable>() {
+        @Override
+        public void accept(Throwable throwable) throws Exception {
+            getRefreshLiveData().setValue(false);
+            SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+            getSeafExceptionLiveData().setValue(seafException);
+        }
+    };
 
 
 }

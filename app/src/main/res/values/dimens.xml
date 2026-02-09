@@ -44,7 +44,7 @@
     <dimen name="pop_icon_height">24dp</dimen>
     <dimen name="pop_icon_padding">4dp</dimen>
     <dimen name="pop_icon_margin_horizontal">4dp</dimen>
-    <dimen name="pop_title_text_size">14sp</dimen>
+    <dimen name="pop_title_text_size">16sp</dimen>
     <dimen name="pop_item_padding_vertical">12dp</dimen>
     <!-- SDoc -->
     <dimen name="editor_bar_height">40dp</dimen>

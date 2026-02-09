@@ -25,10 +25,6 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
         super(fa);
     }
 
-    public ViewPager2Adapter(FragmentManager fm, @NonNull Lifecycle lifecycle) {
-        super(fm, lifecycle);
-    }
-
     public void addFragments(List<Fragment> fts) {
         this.fragments.clear();
         this.fragmentIds.clear();

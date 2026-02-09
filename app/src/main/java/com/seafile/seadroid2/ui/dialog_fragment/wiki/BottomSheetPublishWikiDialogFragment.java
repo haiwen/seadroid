@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.dialog_fragment.wiki;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -91,11 +92,11 @@ public class BottomSheetPublishWikiDialogFragment extends RequestBottomSheetDial
         super.initView(containerView);
 
         EditText editText = getEditText();
-        editText.setHint(R.string.publish_wiki_custom_url);
-
-        if (TextUtils.isEmpty(urlPrefix)) {
-            editText.setText(urlPrefix);
-            editText.setSelection(urlPrefix.length());
+        String customUrlText = getString(R.string.publish_wiki_custom_url);
+        if (!TextUtils.isEmpty(urlPrefix)) {
+            editText.setHint(Utils.pathJoin(urlPrefix, customUrlText));
+        } else {
+            editText.setHint(customUrlText);
         }
 
         TextView textView = getDialogView().findViewById(R.id.edit_desc);
@@ -135,10 +136,13 @@ public class BottomSheetPublishWikiDialogFragment extends RequestBottomSheetDial
     EditText editText;
 
     public EditText getEditText() {
-        if (editText != null) {
-            return editText;
+        if (editText == null) {
+            editText = getDialogView().findViewById(R.id.edit_name);
+            editText.setInputType(EditorInfo.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
+            editText.setMaxLines(1);
+            editText.setEllipsize(TextUtils.TruncateAt.START);
         }
-        editText = getDialogView().findViewById(R.id.edit_name);
+
         return editText;
     }
 

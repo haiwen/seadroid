@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.WikiType;
 import com.seafile.seadroid2.databinding.ItemWikiBinding;
@@ -20,6 +21,8 @@ import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.WikiGroupItemViewHolder;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -82,12 +85,11 @@ public class WikiAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemPublishState.setVisibility(View.GONE);
         }
 
-
         // more state
-        if (TextUtils.equals(m.type, WikiType.TYPE_GROUP)) {
-            holder.binding.itemWikiMore.setVisibility(View.GONE);
-        } else {
+        if (StringUtils.equalsIgnoreCase(m.type, WikiType.TYPE_MINE)) {
             holder.binding.itemWikiMore.setVisibility(View.VISIBLE);
+        } else {
+            holder.binding.itemWikiMore.setVisibility(View.GONE);
         }
 
 
