@@ -2956,7 +2956,7 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
         xmp += "          </rdf:li>\n";
     }
 
-    // tail
+    // video item
     xmp += "          <rdf:li rdf:parseType=\"Resource\">\n";
     xmp += "            <Container:Item\n";
     xmp += "                Item:Mime=\"video/mp4\"\n";
@@ -2965,9 +2965,7 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
     xmp += "                />\n";  // Video is last, no padding
     xmp += "          </rdf:li>\n";
 
-
-
-
+    // tail
     xmp += "        </rdf:Seq>\n";
     xmp += "      </Container:Directory>\n";
     xmp += "    </rdf:Description>\n";

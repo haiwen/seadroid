@@ -10,6 +10,10 @@
         <item name="android:windowEnterAnimation">@null</item>
         <item name="android:windowExitAnimation">@anim/shrink_fade_out_center</item>
     </style>
+    <style name="Animation.PopupSlideFromTop" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_top</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_top</item>
+    </style>
     <style name="Preference.SimpleMenuPreference" parent="Preference.Material">
         <item name="android:layout">@layout/preference_simplemenu</item>
         <item name="android:popupMenuStyle">@style/Widget.Preference.SimpleMenuPreference.PopupMenu</item>

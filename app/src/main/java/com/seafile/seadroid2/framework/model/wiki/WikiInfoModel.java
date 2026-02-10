@@ -16,6 +16,7 @@ public class WikiInfoModel extends BaseModel {
     public String permission;//wiki1、wiki2
     public String public_url;//wiki1、wiki2
     public String public_url_suffix;
+    public String slug;
     public String repo_id;
     public String type;
     public String updated_at;

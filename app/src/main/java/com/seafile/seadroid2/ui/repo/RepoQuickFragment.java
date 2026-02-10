@@ -449,19 +449,25 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
             if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                 menu.findItem(R.id.create_repo).setVisible(false);
-
+                menu.findItem(R.id.create_file).setVisible(true);
+                menu.findItem(R.id.create_folder).setVisible(true);
+                menu.findItem(R.id.upload_file).setVisible(true);
+                menu.findItem(R.id.take_photo).setVisible(true);
                 checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) {
-                        MenuItem addMenu = menu.findItem(R.id.add);
-                        if (addMenu != null) {
-                            addMenu.setEnabled(aBoolean);
-                        }
+                        menu.findItem(R.id.create_file).setEnabled(aBoolean);
+                        menu.findItem(R.id.create_folder).setEnabled(aBoolean);
+                        menu.findItem(R.id.upload_file).setEnabled(aBoolean);
+                        menu.findItem(R.id.take_photo).setEnabled(aBoolean);
                     }
                 });
             } else {
                 menu.findItem(R.id.create_repo).setVisible(true);
-                menu.findItem(R.id.add).setVisible(false);
+                menu.findItem(R.id.create_file).setVisible(false);
+                menu.findItem(R.id.create_folder).setVisible(false);
+                menu.findItem(R.id.upload_file).setVisible(false);
+                menu.findItem(R.id.take_photo).setVisible(false);
             }
         }
 

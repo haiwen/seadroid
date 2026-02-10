@@ -100,6 +100,7 @@ public class WikiViewModel extends BaseViewModel {
                         infoModel.permission = m.permission;
                         infoModel.repo_id = m.repo_id;
                         infoModel.type = WikiType.TYPE_OLD;
+                        infoModel.slug = m.slug;
                         infoModel.updated_at = m.updated_at;
                         infoModel.created_at = m.created_at;
                         infoModel.owner_avatar_url = m.owner_avatar_url;

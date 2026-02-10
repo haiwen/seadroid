@@ -16,6 +16,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.config.WikiType;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiGroupModel;
@@ -30,6 +31,8 @@ import com.seafile.seadroid2.ui.dialog_fragment.wiki.BottomSheetRenameWikiDialog
 import com.seafile.seadroid2.ui.dialog_fragment.wiki.DeleteWikiDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.wiki.UnpublishWikiDialogFragment;
 import com.seafile.seadroid2.ui.webview.SeaWebViewActivity;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -78,7 +81,12 @@ public class WikiFragment extends BaseFragmentWithVM<WikiViewModel> {
 
                 BaseModel model = adapter.getItems().get(i);
                 WikiInfoModel wikiInfoModel = (WikiInfoModel) model;
-                String url = Utils.pathJoin(account.getServer(), "wikis", wikiInfoModel.id);
+                String url;
+                if (StringUtils.equalsIgnoreCase(wikiInfoModel.type, WikiType.TYPE_OLD)) {
+                    url = Utils.pathJoin(account.getServer(), "published", wikiInfoModel.slug);
+                }else {
+                    url = Utils.pathJoin(account.getServer(), "wikis", wikiInfoModel.id);
+                }
 
                 SeaWebViewActivity.openUrl(requireContext(), url, true);
             }
