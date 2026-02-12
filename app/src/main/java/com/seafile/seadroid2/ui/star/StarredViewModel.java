@@ -198,10 +198,8 @@ public class StarredViewModel extends BaseViewModel {
 
     }
 
-    public void loadData() {
+    public void loadData(Account account) {
         getRefreshLiveData().setValue(true);
-
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
 
         Single<List<StarredModel>> listSingle = Objs.getStarredSingleFromServer(account);
         addSingleDisposable(listSingle, new Consumer<List<StarredModel>>() {

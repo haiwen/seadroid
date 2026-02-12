@@ -106,6 +106,7 @@ import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
+import com.seafile.seadroid2.ui.share.VersatileShareToSeafileActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.view.TipsViews;
 import com.seafile.seadroid2.view.ViewSortPopupWindow;
@@ -2102,7 +2103,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             fileName = ds.get(0).name;
         }
 
-        Intent intent = VersatileSelectorActivity.getCurrentAccountIntent(requireContext(), repoID, dirPath, fileName, op == OpType.COPY);
+        Intent intent = VersatileShareToSeafileActivity.getSpecialAccountIntent(requireContext(),getCurrentAccount().getSignature(),repoID, dirPath, fileName, 0);
+//        Intent intent = VersatileSelectorActivity.getCurrentAccountIntent(requireContext(), repoID, dirPath, fileName, op == OpType.COPY);
         copyMoveLauncher.launch(intent);
     }
 

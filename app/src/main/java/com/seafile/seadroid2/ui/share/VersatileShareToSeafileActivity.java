@@ -1,8 +1,7 @@
-package com.seafile.seadroid2.ui.selector.versatile;
+package com.seafile.seadroid2.ui.share;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -15,46 +14,49 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
-import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.databinding.ActivityVersatileSelectorBinding;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.databinding.ActivityVersatileShareToSeafileBinding;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
+import com.seafile.seadroid2.ui.selector.versatile.VersatileRepoSelectorFragment;
+import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
+import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 
-import java.lang.reflect.Type;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class VersatileSelectorActivity extends BaseActivity {
-    private ActivityVersatileSelectorBinding binding;
+public class VersatileShareToSeafileActivity extends BaseActivity {
+    private ActivityVersatileShareToSeafileBinding binding;
     private final List<Fragment> fragments = new ArrayList<>();
+
 
     private String startRepoId;
     private String startPath;
     private String fileName;
-    private boolean isCopy;
+    private int actionType;
+    private String accountSignature;
     private Account mAccount;
 
-    public static Intent getCurrentAccountIntent(Context context, String startRepoId, String startPath, String fileName, boolean isCopy) {
-        Intent intent = new Intent(context, VersatileSelectorActivity.class);
+    public static Intent getSpecialAccountIntent(Context context, String accountSignature, String startRepoId, String startPath, String fileName, int actionType) {
+        Intent intent = new Intent(context, VersatileShareToSeafileActivity.class);
+        intent.putExtra("accountSignature", accountSignature);
         intent.putExtra("startRepoId", startRepoId);
         intent.putExtra("startPath", startPath);
-        intent.putExtra("isCopy", isCopy);
+        intent.putExtra("actionType", actionType);
         intent.putExtra("fileName", fileName);
         return intent;
     }
@@ -81,7 +83,7 @@ public class VersatileSelectorActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityVersatileSelectorBinding.inflate(getLayoutInflater());
+        binding = ActivityVersatileShareToSeafileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         applyEdgeToEdge(binding.getRoot());
@@ -102,9 +104,17 @@ public class VersatileSelectorActivity extends BaseActivity {
         startRepoId = intent.getStringExtra("startRepoId");
         startPath = intent.getStringExtra("startPath");
         fileName = intent.getStringExtra("fileName");
-        isCopy = intent.getBooleanExtra("isCopy", false);
+        actionType = intent.getIntExtra("actionType", 0);
 
-        mAccount = SupportAccountManager.getInstance().getCurrentAccount();
+        accountSignature = intent.getStringExtra("accountSignature");
+        if (StringUtils.isEmpty(accountSignature)) {
+            throw new IllegalArgumentException("accountSignature is null");
+        }
+
+        mAccount = SupportAccountManager.getInstance().getSpecialAccount(accountSignature);
+        if (mAccount == null) {
+            throw new IllegalArgumentException("account is null");
+        }
 
     }
 
@@ -163,9 +173,15 @@ public class VersatileSelectorActivity extends BaseActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-            String action = isCopy ?
-                    getResources().getString(R.string.file_action_copy) :
-                    getResources().getString(R.string.file_action_move);
+            String action = null;
+            if (actionType == 0) {
+                action = getString(R.string.file_action_copy);
+            } else if (actionType == 1) {
+                action = getString(R.string.file_action_move);
+            } else if (actionType == 2) {
+                action = getString(R.string.file_share);
+            }
+
 
             String title = TextUtils.isEmpty(fileName) ? action : action + " " + fileName;
             getSupportActionBar().setTitle(title);
@@ -216,9 +232,9 @@ public class VersatileSelectorActivity extends BaseActivity {
 
     private void initViewPager() {
         fragments.clear();
-        fragments.add(VersatileRepoSelectorFragment.newInstance(startRepoId, startPath));
-        fragments.add(VersatileRepoSelectorFragment.newInstance());
-        fragments.add(RecentlyUsedFragment.newInstance());
+        fragments.add(VersatileRepoSelectorFragment.newInstance(accountSignature, startRepoId, startPath));
+        fragments.add(VersatileRepoSelectorFragment.newInstance(accountSignature, null, null));
+        fragments.add(StarredQuickFragment.newInstance(accountSignature, true));
 
         ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
         viewPager2Adapter.addFragments(fragments);
@@ -226,7 +242,7 @@ public class VersatileSelectorActivity extends BaseActivity {
         binding.pager.setOffscreenPageLimit(1);
         binding.pager.setUserInputEnabled(false);
 
-        String[] tabs = getResources().getStringArray(R.array.versatile_selector_fragment_titles);
+        String[] tabs = getResources().getStringArray(R.array.versatile_share_to_seafile_fragment_titles);
 
         new TabLayoutMediator(binding.tabLayout, binding.pager, false, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
@@ -236,61 +252,12 @@ public class VersatileSelectorActivity extends BaseActivity {
         }).attach();
     }
 
-
-    private boolean isExistsInUsedList(RecentlyUsedModel r) {
-        List<RecentlyUsedModel> list = getRecentUsedList();
-        if (CollectionUtils.isEmpty(list)) {
-            return false;
-        }
-
-        boolean isExists = false;
-        for (RecentlyUsedModel recentlyUsedModel : list) {
-            if (recentlyUsedModel.equals(r)) {
-                isExists = true;
-                break;
-            }
-        }
-        return isExists;
-    }
-
-    private void updateAvailableUsedModel() {
-        int index = binding.pager.getCurrentItem();
-        if (index == 2) {
-            return;
-        }
-
-        VersatileRepoSelectorFragment vrsf = (VersatileRepoSelectorFragment) fragments.get(index);
-        RecentlyUsedModel r = vrsf.genRecentUsedModel();
-        if (r == null) {
-            return;
-        }
-
-        boolean isExists = isExistsInUsedList(r);
-        if (isExists) {
-            return;
-        }
-
-        List<RecentlyUsedModel> list = getRecentUsedList();
-        list.add(r);
-
-        String s = GsonUtils.toJson(list);
-
-        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
-        if (sp == null) {
-            return;
-        }
-
-        sp.edit().putString(SettingsManager.SELECTOR_RECENTLY_USED, s).apply();
-    }
-
     private void onCancelClicked() {
         setResult(RESULT_CANCELED);
         finish();
     }
 
     private void onOkClicked() {
-        updateAvailableUsedModel();
-
         Intent intent = new Intent();
 
         Bundle bundle = getIntent().getExtras();
@@ -322,47 +289,23 @@ public class VersatileSelectorActivity extends BaseActivity {
             intent.putExtra(ObjKey.DIR, dir);
 
         } else if (index == 2) {
-            RecentlyUsedFragment ruf = (RecentlyUsedFragment) fragments.get(2);
-            RecentlyUsedModel model = ruf.getBackupInfo();
-            if (model == null) {
+            StarredQuickFragment starredQuickFragment = (StarredQuickFragment) fragments.get(2);
+            StarredModel starredModel = starredQuickFragment.getSingleSelectedModel();
+            if (starredModel == null) {
                 return;
             }
 
-            String repoName = model.repoName;
-            String repoID = model.repoId;
-            String dir = model.path;
+            String repoName = starredModel.repo_name;
+            String repoID = starredModel.repo_id;
+            String dir = starredModel.path;
 
             intent.putExtra(ObjKey.ACCOUNT, mAccount);
             intent.putExtra(ObjKey.REPO_NAME, repoName);
             intent.putExtra(ObjKey.REPO_ID, repoID);
             intent.putExtra(ObjKey.DIR, dir);
-
         }
 
         setResult(RESULT_OK, intent);
         finish();
-    }
-
-    public static List<RecentlyUsedModel> getRecentUsedList() {
-        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
-        if (sp == null) {
-            return new ArrayList<>();
-        }
-
-        String d = sp.getString(SettingsManager.SELECTOR_RECENTLY_USED, "");
-        if (d.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        Type listType = new TypeToken<List<RecentlyUsedModel>>() {
-        }.getType();
-
-        List<RecentlyUsedModel> list = GsonUtils.fromJson(d, listType);
-
-        if (CollectionUtils.isEmpty(list)) {
-            return new ArrayList<>();
-        }
-        return list;
-
     }
 }

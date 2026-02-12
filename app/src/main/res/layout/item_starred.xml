@@ -49,21 +49,34 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/expandable_toggle_button"
-        android:layout_width="@dimen/lv_icon_width"
-        android:layout_height="@dimen/lv_icon_width"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:contentDescription="@string/file_action_more"
-        android:foreground="@drawable/ripple_icon_little"
-        android:padding="8dp"
-        android:src="@drawable/baseline_more_vert_24"
-        android:visibility="visible"
+    <FrameLayout
+        android:id="@+id/action_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/light_grey" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/expandable_toggle_button"
+            android:layout_width="@dimen/lv_icon_width"
+            android:layout_height="@dimen/lv_icon_width"
+            android:contentDescription="@string/file_action_more"
+            android:foreground="@drawable/ripple_icon_little"
+            android:padding="8dp"
+            android:src="@drawable/baseline_more_vert_24"
+            android:visibility="visible"
+            app:tint="@color/light_grey" />
+
+        <ImageView
+            android:id="@+id/item_checkbox"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            android:src="@drawable/ic_checkbox_checked" />
+    </FrameLayout>
+
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
