@@ -78,6 +78,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.LockedActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/App.Theme.Splash" />
+
         <activity
             android:name=".ui.account.AccountsActivity"
             android:launchMode="singleTop" />

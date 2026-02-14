@@ -33,21 +33,17 @@ public class TextSwitchPreference extends BackgroundSwitchPreference {
         return R.layout.layout_pref_title_switch;
     }
 
-    private MaterialSwitch materialSwitch;
-
     @Override
     public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
-        materialSwitch = (MaterialSwitch) holder.findViewById(android.R.id.switch_widget);
-        materialSwitch.setClickable(false);
-    }
+        MaterialSwitch switchView = (MaterialSwitch) holder.findViewById(android.R.id.switch_widget);
 
-    public void setChecked(boolean checked) {
-        super.setChecked(checked);
+        // Ensure the switch view can't steal onclick events.
+        // If it does, it'll visually change but won't call any corresponding logic.
+        switchView.setClickable(false);
 
-        if (materialSwitch != null) {
-            materialSwitch.setChecked(checked);
-        }
+        // Propagate state to the view.
+        switchView.setChecked(isChecked());
     }
 }

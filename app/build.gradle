@@ -214,6 +214,7 @@ android {
         implementation "androidx.media3:media3-ui:$media3_version"
         implementation "androidx.media3:media3-datasource-okhttp:$media3_version"
 
+        implementation "androidx.biometric:biometric:1.4.0-alpha05"
         implementation 'androidx.core:core-ktx:1.16.0'
         implementation 'androidx.core:core-splashscreen:1.0.1'
         implementation "androidx.appcompat:appcompat:1.7.1"

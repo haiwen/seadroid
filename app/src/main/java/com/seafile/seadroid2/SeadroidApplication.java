@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.BoolRes;
 import androidx.annotation.IntegerRes;
 import androidx.annotation.StringRes;
+import androidx.biometric.BiometricManager;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
@@ -19,6 +20,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.provider.DocumentCache;
+import com.seafile.seadroid2.ui.LockedActivity;
 import com.seafile.seadroid2.ui.camera_upload.AlbumBackupAdapterBridge;
 
 import io.reactivex.exceptions.UndeliverableException;
@@ -28,12 +30,15 @@ import io.reactivex.plugins.RxJavaPlugins;
 
 public class SeadroidApplication extends Application {
     private static Context context = null;
+    private static boolean isLocked = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         context = this;
+
+        lockIfNeeded();
 
         //init xlog in com.seafile.seadroid2.provider.SeafileProvider#onCreate()
 //        SLogs.init();
@@ -110,5 +115,29 @@ public class SeadroidApplication extends Application {
 
     private static SeadroidApplication getApplication() {
         return (SeadroidApplication) getAppContext();
+    }
+
+    public static boolean isLocked() {
+        return isLocked;
+    }
+
+    public static boolean canLock() {
+        // This allows the lock to be removed by, e.g., removing all biometrics/passwords,
+        // but that's already a privileged action anyway.
+        // In the future, it may be worthwhile looking into clearing auth data if passwords/biometrics
+        // change, but this is a good balance of security vs convenience.
+        return BiometricManager.from(context).canAuthenticate(LockedActivity.BIOMETRIC_REQS)
+                == BiometricManager.BIOMETRIC_SUCCESS;
+    }
+
+    public static void lockIfNeeded() {
+        // Only lock if we're allowed to and the device supports it.
+        if (Settings.BIOMETRIC_LOCK_SWITCH.queryValue() && canLock()) {
+            isLocked = true;
+        }
+    }
+
+    public static void unlock() {
+        isLocked = false;
     }
 }

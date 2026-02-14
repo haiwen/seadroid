@@ -265,6 +265,18 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        // This part of the view sometimes gets focused, causing
+        // the UI to look really bad.
+        View child = binding.pager.getChildAt(0);
+        if (child != null) {
+            child.setDefaultFocusHighlightEnabled(false);
+        }
+    }
+
+    @Override
     public void onRestart() {
         super.onRestart();
         SLogs.d(TAG, "onRestart");

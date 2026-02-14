@@ -336,6 +336,10 @@
     <string name="gesture_lock">Gesture Lock</string>
     <string name="gesture_lock_on">Gesture lock on</string>
     <string name="gesture_lock_off">Gesture lock off</string>
+    <string name="biometric_lock">Biometric lock</string>
+    <string name="biometric_lock_on">Use biometrics to unlock the app</string>
+    <string name="biometric_lock_off">The application is not protected by biometrics</string>
+    <string name="biometric_prompt_title">Biometric Login</string>
     <string name="lockscreen_access_pattern_hint">Please draw Gesture Lock Pattern</string>
     <string name="lockscreen_access_pattern_start">Start to draw</string>
     <string name="lockscreen_access_pattern_cleared">Pattern cleared</string>
