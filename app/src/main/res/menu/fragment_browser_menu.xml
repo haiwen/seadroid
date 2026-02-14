@@ -21,8 +21,26 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/add"
-        android:title="@string/add_file"
+        android:id="@+id/create_file"
+        android:title="@string/create_new_file"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/create_folder"
+        android:title="@string/create_new_dir"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/upload_file"
+        android:title="@string/upload_file"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/take_photo"
+        android:title="@string/take_photo"
         android:visible="true"
         app:showAsAction="never" />
 

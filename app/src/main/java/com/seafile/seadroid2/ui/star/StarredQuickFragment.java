@@ -33,10 +33,13 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
+import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
@@ -58,6 +61,7 @@ import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.functions.Consumer;
 import kotlin.Pair;
@@ -66,9 +70,18 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     private MainViewModel mainViewModel;
     private LayoutFrameSwipeRvBinding binding;
     private StarredAdapter adapter;
+    private boolean isSelectMode = false;
+    private Account account;
 
     public static StarredQuickFragment newInstance() {
+        return newInstance(null, false);
+    }
+
+    public static StarredQuickFragment newInstance(String accountSignature, boolean isSelectMode) {
         Bundle args = new Bundle();
+        args.putBoolean("isSelectMode", isSelectMode);
+        args.putString("accountSignature", accountSignature);
+
         StarredQuickFragment fragment = new StarredQuickFragment();
         fragment.setArguments(args);
         return fragment;
@@ -77,6 +90,21 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            if (args.containsKey("isSelectMode")) {
+                isSelectMode = args.getBoolean("isSelectMode");
+            }
+            if (args.containsKey("accountSignature")) {
+                String s = args.getString("accountSignature");
+                account = SupportAccountManager.getInstance().getSpecialAccount(s);
+            }
+        }
+
+        if (account == null) {
+            account = SupportAccountManager.getInstance().getCurrentAccount();
+        }
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         registerResultLauncher();
@@ -116,6 +144,8 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
     private void initAdapter() {
         adapter = new StarredAdapter();
+        adapter.setSelectMode(isSelectMode);
+
         TextView tipView = TipsViews.getTipTextView(requireContext());
         tipView.setText(R.string.no_starred_file);
         tipView.setOnClickListener(v -> reload());
@@ -124,8 +154,18 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
 
-            StarredModel starredModel = adapter.getItems().get(i);
-            navTo(starredModel);
+            if (isSelectMode) {
+                int selectedItemPosition = adapter.getSingleSelectedItemPosition();
+                if (selectedItemPosition == i) {
+                    toggleAdapterItemSelectedState(i);
+                } else {
+                    resetAdapterItemSelectedState();
+                    toggleAdapterItemSelectedState(i);
+                }
+            } else {
+                StarredModel starredModel = adapter.getItems().get(i);
+                navTo(starredModel);
+            }
 
         });
 
@@ -149,6 +189,32 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         adapter.setStateViewEnable(true);
     }
 
+    private void resetAdapterItemSelectedState() {
+        for (StarredModel item : adapter.getItems()) {
+            item.is_checked = false;
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void toggleAdapterItemSelectedState(int i) {
+        StarredModel model = adapter.getItems().get(i);
+        model.is_checked = !model.is_checked;
+        adapter.set(i, model);
+    }
+
+    @Nullable
+    public StarredModel getSingleSelectedModel() {
+        int selectedItemPosition = adapter.getSingleSelectedItemPosition();
+        if (selectedItemPosition == -1) {
+            return null;
+        }
+
+        if (selectedItemPosition >= adapter.getItems().size()) {
+            return null;
+        }
+
+        return adapter.getItems().get(selectedItemPosition);
+    }
 
     private void initViewModel() {
         getViewModel().getRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
@@ -210,7 +276,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
     private void reload() {
         adapter.setStateViewEnable(false);
-        getViewModel().loadData();
+        getViewModel().loadData(account);
     }
 
     private void showBottomSheet(StarredModel model) {
@@ -296,7 +362,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     @OptIn(markerClass = UnstableApi.class)
     private void open(StarredModel model) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account == null){
+        if (account == null) {
             return;
         }
         ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);

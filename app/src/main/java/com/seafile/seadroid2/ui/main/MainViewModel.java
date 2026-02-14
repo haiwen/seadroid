@@ -35,6 +35,7 @@ import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
 import com.seafile.seadroid2.ui.repo.RepoService;
 import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
+import com.seafile.seadroid2.ui.wiki.WikiFragment;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -69,6 +70,7 @@ public class MainViewModel extends BaseViewModel {
     private final List<Fragment> fragments = CollectionUtils.newUnmodifiableListNotNull(
             RepoQuickFragment.newInstance(),
             StarredQuickFragment.newInstance(),
+            WikiFragment.newInstance(),
             AllActivitiesFragment.newInstance(),
             TabSettings2Fragment.newInstance()
     );

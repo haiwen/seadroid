@@ -275,8 +275,11 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
         holder.binding.transferFileSize.setText(Utils.readableFileSize(entity.file_size));
     }
 
-
     public int calc(long cur, long total) {
-        return (int) ((float) cur / (float) total * 100);
+        float p = (float) cur / (float) total * 100;
+        if (p > 100) {
+            p = 100f;
+        }
+        return (int) p;
     }
 }

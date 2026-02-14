@@ -160,6 +160,7 @@
         <activity android:name=".ui.selector.folder_selector.FolderSelectorActivity" />
         <activity android:name=".ui.selector.versatile.VersatileSelectorActivity" />
         <activity android:name=".ui.office_doc.OfficeDocumentWebActivity" />
+        <activity android:name=".ui.share.VersatileShareToSeafileActivity" />
 
         <provider
             android:name=".provider.SeafileProvider"

@@ -10,20 +10,25 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Stack;
 
 public class NavContext {
     private final Stack<BaseModel> navStack = new Stack<>();
-    private final boolean isSaveIntoSp;
+    private String spKey;
 
     public NavContext() {
-        this.isSaveIntoSp = true;
+
     }
 
-    public NavContext(boolean isSaveIntoSp) {
-        this.isSaveIntoSp = isSaveIntoSp;
+    public NavContext(String spKey) {
+        this.spKey = spKey;
     }
 
+    private boolean canSaveIntoSp() {
+        return StringUtils.isNotEmpty(spKey);
+    }
 
     public Stack<BaseModel> getNavStack() {
         return navStack;
@@ -69,17 +74,15 @@ public class NavContext {
             //push
             navStack.push(model);
 
-            if (isSaveIntoSp) {
-                saveToSp();
-            }
+            // save to sp if enable
+            saveToSpIfEnable();
 
         } else if (model instanceof DirentModel) {
             //stack
             navStack.push(model);
 
-            if (isSaveIntoSp) {
-                saveToSp();
-            }
+            // save to sp if enable
+            saveToSpIfEnable();
 
         } else {
             throw new IllegalArgumentException("model must be RepoMode or DirentsModel.");
@@ -91,12 +94,11 @@ public class NavContext {
             throw new IllegalArgumentException("context is null");
         }
 
-        if (!isSaveIntoSp) {
+        if (!canSaveIntoSp()) {
             throw new IllegalStateException("isSaveIntoSp is false");
         }
 
-        boolean b = isPathEquals(fromContext);
-        if (b) {
+        if (isPathEquals(fromContext)) {
             return;
         }
 
@@ -107,8 +109,12 @@ public class NavContext {
         }
     }
 
-    private void saveToSp() {
-        ContextStackPreferenceHelper.save(this);
+    private void saveToSpIfEnable() {
+        if (!canSaveIntoSp()) {
+            return;
+        }
+
+        ContextStackPreferenceHelper.save(this, spKey);
     }
 
     public void pop() {
@@ -119,9 +125,8 @@ public class NavContext {
         //stack
         navStack.pop();
 
-        if (isSaveIntoSp) {
-            saveToSp();
-        }
+        // save to sp if enable
+        saveToSpIfEnable();
     }
 
     public void popAll() {
@@ -132,9 +137,8 @@ public class NavContext {
         //stack
         navStack.clear();
 
-        if (isSaveIntoSp) {
-            saveToSp();
-        }
+        // save to sp if enable
+        saveToSpIfEnable();
     }
 
     public void switchToPath(RepoModel repoModel, String full_path) {
@@ -143,9 +147,9 @@ public class NavContext {
         navStack.push(repoModel);
 
         Stack<DirentModel> stack = new Stack<>();
-        if (TextUtils.equals("/",full_path)){
+        if (TextUtils.equals("/", full_path)) {
 
-        }else{
+        } else {
             String[] slash = full_path.split("/");
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -173,9 +177,8 @@ public class NavContext {
         }
 
 
-        if (isSaveIntoSp) {
-            saveToSp();
-        }
+        // save to sp if enable
+        saveToSpIfEnable();
     }
 
     /**

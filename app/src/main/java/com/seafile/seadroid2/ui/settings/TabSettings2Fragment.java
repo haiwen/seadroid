@@ -460,7 +460,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 policyPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(@NonNull Preference preference) {
-                        SeaWebViewActivity.openUrlDirectly(requireContext(), Constants.URL_PRIVACY);
+                        SeaWebViewActivity.openUrl(requireContext(), Constants.URL_PRIVACY, false);
                         return true;
                     }
                 });
@@ -1139,13 +1139,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
     }
 
-    private void updateBackgroundBackupService(boolean isTurnOnOrTurnOff){
+    private void updateBackgroundBackupService(boolean isTurnOnOrTurnOff) {
         if (isTurnOnOrTurnOff) {
             BusHelper.getCommonObserver().post(BusAction.START_FOREGROUND_FILE_MONITOR);
         } else {
             BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
         }
     }
+
     private void runMainThreadDelay(Runnable runnable) {
         if (viewHandler != null) {
             viewHandler.postDelayed(runnable, 500);

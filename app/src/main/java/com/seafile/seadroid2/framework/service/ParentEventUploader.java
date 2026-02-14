@@ -379,41 +379,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
             // Semantic: Primary/GainMap/MotionPhoto
             int primaryIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.PRIMARY);
-            int gainMapIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.GAIN_MAP);
             int videoIndex = getSpecialSemanticPosition(descriptor.items, Constants.MotionPhoto.MOTION_PHOTO);
 
-            if (primaryIndex == -1) {
-                // no primary image, return null, upload original file
+            if (primaryIndex == -1 || videoIndex == -1) {
                 return null;
             }
 
-            // The fixed length is 6
-            // 0,1: the primary offset and length
-            // 2,3: the hdr offset and length, [0,0] if null.
-            // 4,5: the video offset and length, must not be null.
-            long[] primaryHdrVideoDataArray = new long[6];
-            primaryHdrVideoDataArray[0] = descriptor.items.get(primaryIndex).offset;
-            primaryHdrVideoDataArray[1] = descriptor.items.get(primaryIndex).length;
-
-            if (gainMapIndex != -1) {
-                primaryHdrVideoDataArray[2] = descriptor.items.get(gainMapIndex).offset;
-                primaryHdrVideoDataArray[3] = descriptor.items.get(gainMapIndex).length;
-            } else {
-                // miss primary image.
-                // this is a common picture structure: [primary image, motion photo]
-                primaryHdrVideoDataArray[2] = 0;
-                primaryHdrVideoDataArray[3] = 0;
-            }
-
-            if (videoIndex != -1) {
-                primaryHdrVideoDataArray[4] = descriptor.items.get(videoIndex).offset;
-                primaryHdrVideoDataArray[5] = descriptor.items.get(videoIndex).length;
-            } else {
-                // not support this picture structure: [primary image, hdr gainMap]
-                return null;
-            }
-
-            String outHeicPath = HeicNative.nativeConvertJpegMotionPhotoToHeic(currentTransferModel.motion_photo_path, primaryHdrVideoDataArray, tempFile.getAbsolutePath());
+            String outHeicPath = HeicNative.ConvertJpeg2Heic(currentTransferModel.motion_photo_path, tempFile.getAbsolutePath());
             if (TextUtils.isEmpty(outHeicPath)) {
                 SafeLogs.e(TAG, "convertJpegToHeicIfMotionPhoto()", "convertJpegToHeicIfMotionPhoto failed");
                 return null;

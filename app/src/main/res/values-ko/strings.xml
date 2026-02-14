@@ -216,6 +216,7 @@
     <item>사진 백업</item>
   </string-array>
   <string name="navigate_to_directory">디렉터리 탐색</string>
+  <string name="go_up">위로 이동</string>
   <string name="no_starred_file">별표 표시한 파일이 없습니다</string>
   <string name="added_to_upload_tasks">업로드를 시작했습니다</string>
   <string name="added_photo_to_upload_tasks">사진 업로드를 시작했습니다</string>
@@ -516,6 +517,10 @@
     <item quantity="other">파일 %1$d개 다운로드 중(%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">다운로드를 끝냈습니다</string>
+  <string name="notification_background_file_monitor_channel">Seafile 백그라운드 파일 감시 서비스</string>
+  <string name="notification_background_file_monitor_desc">Seafile 백그라운드 파일 감시 영속 알림 서비스에서 사용함</string>
+  <string name="notification_background_file_monitor_title">Seafile 파일 감시 서비스</string>
+  <string name="notification_background_file_monitor_content">Seafile이 백그라운드에서 파일 변경을 감시하고 자동으로 업로드합니다.</string>
   <!--Gallery-->
   <string name="gallery_load_photos_error">사진 불러오기 오류</string>
   <string name="gallery_encrypted_repo_not_supported">암호화 라이브러리를 지원하지 않습니다</string>
@@ -626,6 +631,8 @@
   <string name="UncaughtExceptionHandler_err">프로그램 실행을 멈추었습니다</string>
   <string name="settings_file_backup_info_title">백업 파일</string>
   <!--backup config-->
+  <string name="backup_settings_title">백업 설정</string>
+  <string name="backup_settings_background_backup_title">백그라운드 백업을 켭니다</string>
   <!--action-->
   <string name="pause">일시 정지</string>
   <string name="paused">일시 정지함</string>
@@ -653,6 +660,8 @@
   <string name="follow_system">시스템 설정 따름</string>
   <string name="empty">비어 있음</string>
   <string name="empty_data">빈 데이터</string>
+  <string name="turn_on">켜기</string>
+  <string name="turn_off">끄기</string>
   <!--share link-->
   <string name="link_permission_set_permission">권한 설정</string>
   <string name="link_permission_preview_and_download">미리 보기 및 다운로드</string>
@@ -684,6 +693,7 @@
   <string name="_tags">태그</string>
   <string name="_location">위치</string>
   <string name="_owner">소유자</string>
+  <string name="_rate">전송율</string>
   <string name="mark_resolve">해결 항목으로 표시</string>
   <string name="delete_confirm">이 항목을 정말로 삭제할까요?</string>
   <string name="image_capture_time">캡쳐 시각</string>
@@ -704,5 +714,25 @@
   <string name="export_log_file_not_exists">로그 파일이 존재하지 않습니다</string>
   <string name="file_transfer_stopped">파일 전송이 중지되었습니다</string>
   <!--font-style-->
+  <string name="font_style_paragraph">문단</string>
+  <string name="font_style_title">제목</string>
+  <string name="font_style_subtitle">하위제목</string>
+  <string name="font_style_heading1">머릿글 1</string>
+  <string name="font_style_heading2">머릿글 2</string>
+  <string name="font_style_heading3">머릿글 3</string>
+  <string name="font_style_heading4">머릿글 4</string>
+  <string name="font_style_heading5">머릿글 5</string>
+  <string name="font_style_heading6">머릿글 6</string>
   <!--sdoc system event-->
+  <string name="sdoc_system_event_failed_to_execute_operation_on_server">서버 동작 실행에 실패했습니다. 현재 동작을 취소했습니다</string>
+  <string name="sdoc_system_event_failed_to_sync_with_server_operations">서버 동기화에 실패했습니다. 페이지를 새로 고쳐주세요</string>
+  <string name="sdoc_system_event_internal_server_exec_operations_error">서버에서 예외가 발생했습니다. 페이지를 새로 고친 후 다시 시도해주세요</string>
+  <string name="sdoc_system_event_token_expired_please_refresh_the_page">토큰 유효기간이 지났습니다. 페이지를 새로 고쳐주세요.</string>
+  <string name="sdoc_system_event_pending_operations_exceed_limit">다중 처리 사항을 서버와 동기화하지 못했습니다. 네트워크 연결을 확인하세요.</string>
+  <string name="sdoc_system_event_server_is_not_connected_operation_will_be_sent_to_server_later">서버에 연결하지 않았습니다. 나중에 서버에 동작 요청을 보냅니다.</string>
+  <string name="reconnecting">재연결중…</string>
+  <string name="reconnected">재연결 완료</string>
+  <string name="saving">저장중</string>
+  <string name="saved">저장완료</string>
+  <string name="live">LIVE</string>
 </resources>

@@ -24,7 +24,7 @@ public class ViewSortPopupWindow extends PopupWindow {
     public ViewSortPopupWindow(Context context, NavContext navContext) {
         super(context);
 
-        w = SizeUtils.dp2px(128);
+        w = SizeUtils.dp2px(160);
 
         View popView = LayoutInflater.from(context).inflate(R.layout.layout_fragment_pop_menu, null);
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(w, ViewGroup.LayoutParams.WRAP_CONTENT);

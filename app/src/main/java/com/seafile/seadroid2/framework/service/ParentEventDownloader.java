@@ -243,12 +243,12 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             return null;
         }
 
-        try {
-            dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            SafeLogs.e(TAG, e.getMessage());
-            throw SeafException.NETWORK_EXCEPTION;
-        }
+//        try {
+//            dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
+//        } catch (UnsupportedEncodingException e) {
+//            SafeLogs.e(TAG, e.getMessage());
+//            throw SeafException.NETWORK_EXCEPTION;
+//        }
 
         // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
         if (dlink.startsWith("http") && fileId != null) {

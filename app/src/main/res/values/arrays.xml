@@ -32,4 +32,10 @@
         <item>@string/other_libraries</item>
         <item>@string/recently_used</item>
     </string-array>
+
+    <string-array name="versatile_share_to_seafile_fragment_titles">
+        <item>@string/current_library</item>
+        <item>@string/other_libraries</item>
+        <item>@string/starred_files</item>
+    </string-array>
 </resources>

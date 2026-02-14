@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -75,8 +76,6 @@ import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
@@ -226,6 +225,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), _onBackPressedCallback);
+
         onCreateMenuHost();
 
         initRv();
@@ -236,8 +238,22 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         resetRvPadding();
 
+        //
+        enableBackDispatcher(canGoBack());
+
         loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
+
+    private void enableBackDispatcher(boolean enableBack) {
+        _onBackPressedCallback.setEnabled(enableBack);
+    }
+
+    private final OnBackPressedCallback _onBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            backTo();
+        }
+    };
 
     @Override
     public void onOtherResume() {
@@ -433,19 +449,25 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
             if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                 menu.findItem(R.id.create_repo).setVisible(false);
-
+                menu.findItem(R.id.create_file).setVisible(true);
+                menu.findItem(R.id.create_folder).setVisible(true);
+                menu.findItem(R.id.upload_file).setVisible(true);
+                menu.findItem(R.id.take_photo).setVisible(true);
                 checkCurrentPathHasWritePermission(new java.util.function.Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) {
-                        MenuItem addMenu = menu.findItem(R.id.add);
-                        if (addMenu != null) {
-                            addMenu.setEnabled(aBoolean);
-                        }
+                        menu.findItem(R.id.create_file).setEnabled(aBoolean);
+                        menu.findItem(R.id.create_folder).setEnabled(aBoolean);
+                        menu.findItem(R.id.upload_file).setEnabled(aBoolean);
+                        menu.findItem(R.id.take_photo).setEnabled(aBoolean);
                     }
                 });
             } else {
                 menu.findItem(R.id.create_repo).setVisible(true);
-                menu.findItem(R.id.add).setVisible(false);
+                menu.findItem(R.id.create_file).setVisible(false);
+                menu.findItem(R.id.create_folder).setVisible(false);
+                menu.findItem(R.id.upload_file).setVisible(false);
+                menu.findItem(R.id.take_photo).setVisible(false);
             }
         }
 
@@ -458,8 +480,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
             } else if (menuItem.getItemId() == R.id.create_repo) {
                 showNewRepoDialog();
-            } else if (menuItem.getItemId() == R.id.add) {
-                showAddFileDialog();
+            } else if (menuItem.getItemId() == R.id.create_file) {
+                showNewFileDialog();
+            } else if (menuItem.getItemId() == R.id.create_folder) {
+                showNewDirDialog();
+            } else if (menuItem.getItemId() == R.id.upload_file) {
+                pickFile();
+            } else if (menuItem.getItemId() == R.id.take_photo) {
+                takePhoto();
             } else if (menuItem.getItemId() == R.id.select) {
                 startOrUpdateContextualActionBar();
             } else if (menuItem.getItemId() == android.R.id.home) {
@@ -479,14 +507,20 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         setMenuVisibleStateById("search", menu.findItem(R.id.menu_action_search).isVisible());
         setMenuVisibleStateById("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
         setMenuVisibleStateById("createRepo", menu.findItem(R.id.create_repo).isVisible());
-        setMenuVisibleStateById("add", menu.findItem(R.id.add).isVisible());
+        setMenuVisibleStateById("create_file", menu.findItem(R.id.create_file).isVisible());
+        setMenuVisibleStateById("create_folder", menu.findItem(R.id.create_folder).isVisible());
+        setMenuVisibleStateById("upload_file", menu.findItem(R.id.upload_file).isVisible());
+        setMenuVisibleStateById("take_photo", menu.findItem(R.id.take_photo).isVisible());
         setMenuVisibleStateById("select", menu.findItem(R.id.select).isVisible());
 
         // hide item
         visibleMenuById(menu, R.id.menu_action_search, false);
         visibleMenuById(menu, R.id.menu_action_sort, false);
         visibleMenuById(menu, R.id.create_repo, false);
-        visibleMenuById(menu, R.id.add, false);
+        visibleMenuById(menu, R.id.create_file, false);
+        visibleMenuById(menu, R.id.create_folder, false);
+        visibleMenuById(menu, R.id.upload_file, false);
+        visibleMenuById(menu, R.id.take_photo, false);
         visibleMenuById(menu, R.id.select, false);
 
         adapter.notifySearchDataChanged(true, null);
@@ -504,7 +538,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 visibleMenuById(menu, R.id.menu_action_search, "search");
                 visibleMenuById(menu, R.id.menu_action_sort, "sortGroup");
                 visibleMenuById(menu, R.id.create_repo, "createRepo");
-                visibleMenuById(menu, R.id.add, "add");
+                visibleMenuById(menu, R.id.create_file, "create_file");
+                visibleMenuById(menu, R.id.create_folder, "create_folder");
+                visibleMenuById(menu, R.id.upload_file, "upload_file");
+                visibleMenuById(menu, R.id.take_photo, "take_photo");
                 visibleMenuById(menu, R.id.select, "select");
             }
         });
@@ -788,6 +825,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void onChanged(NavContext navContext) {
                 resetRvPadding();
+
+                enableBackDispatcher(canGoBack());
             }
         });
     }
@@ -1296,32 +1335,37 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         loadData(RefreshStatusEnum.LOCAL_THEN_REMOTE, true);
     }
 
+    private boolean canGoBack() {
+        return GlobalNavContext.getCurrentNavContext().inRepo();
+    }
+
     /**
      * true: can continue to back
      */
     public boolean backTo() {
-        if (GlobalNavContext.getCurrentNavContext().inRepo()) {
-            if (adapter == null) {
-                return false;
-            }
-
-            if (adapter.isOnActionMode()) {
-                adapter.setOnActionMode(false);
-            } else {
-                binding.swipeRefreshLayout.setRefreshing(false);
-
-                getViewModel().clearAll();
-
-                removeScrolledPosition();
-
-                GlobalNavContext.pop();
-
-                loadData(RefreshStatusEnum.ONLY_LOCAL, true);
-            }
-
-            return true;
+        if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
+            return false;
         }
-        return false;
+
+        if (adapter == null) {
+            return false;
+        }
+
+        if (adapter.isOnActionMode()) {
+            adapter.setOnActionMode(false);
+        } else {
+            binding.swipeRefreshLayout.setRefreshing(false);
+
+            getViewModel().clearAll();
+
+            removeScrolledPosition();
+
+            GlobalNavContext.pop();
+
+            loadData(RefreshStatusEnum.ONLY_LOCAL, true);
+        }
+
+        return true;
     }
 
     /**
@@ -1945,7 +1989,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                             return;
                         }
 
-                        int motionPhotoType = HeicNative.nativeCheckMotionPhotoType(destinationFile.getAbsolutePath());
+                        int motionPhotoType = HeicNative.CheckMotionPhotoType(destinationFile.getAbsolutePath());
                         if (motionPhotoType == 0) {//JPEG MP
                             emitter.onSuccess(destinationFile);
                             return;
@@ -1961,7 +2005,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                             Path path = Files.createTempFile("tmp-jmp-", ".tmp");
                             File tmpFile = path.toFile();
 
-                            String outPath = HeicNative.nativeConvertHeicMotionPhotoToJpeg(destinationFile.getAbsolutePath(), Utils.getVendorNormalized(), tmpFile.getAbsolutePath());
+                            String outPath = HeicNative.ConvertHeic2Jpeg(destinationFile.getAbsolutePath(), Utils.getVendorNormalized(), tmpFile.getAbsolutePath());
                             if (TextUtils.isEmpty(outPath)) {
                                 FileUtils.delete(tmpFile);
                                 emitter.onSuccess(destinationFile);
@@ -2330,27 +2374,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         bottomSheetNewRepoDialogFragment.show(getChildFragmentManager(), BottomSheetNewRepoDialogFragment.class.getSimpleName());
     }
 
-    /**
-     * add new file/files
-     */
-    private void showAddFileDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
-        builder.setTitle(getString(R.string.add_file));
-        builder.setItems(R.array.add_file_options_array, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) // create file
-                    showNewFileDialog();
-                else if (which == 1) // create folder
-                    showNewDirDialog();
-                else if (which == 2) // upload file
-                    pickFile();
-                else if (which == 3) // take a photo
-                    takePhoto();
-            }
-        }).show();
-    }
-
     private void checkCurrentPathHasWritePermission(java.util.function.Consumer<Boolean> consumer) {
         BaseModel baseModel = GlobalNavContext.getCurrentNavContext().getTopModel();
         if (null == baseModel) {
@@ -2558,13 +2581,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
 
-        Pair<String,Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(),uri);
+        Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(), uri);
 
         String fileName = jpegPair.first;
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
         String heicPath = null;
-        if (jpegPair.second){
+        if (jpegPair.second) {
             String baseName = FilenameUtils.getBaseName(fileName);
             //convert extend format jpeg to heic
             heicPath = Utils.pathJoin(parent_dir, baseName) + ".heic";

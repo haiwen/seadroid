@@ -43,6 +43,9 @@ public class SupportAccountManager {
         return getCurrentAccount() != null;
     }
 
+    /**
+     * A list of all logged-in users, including logged-out users
+     * */
     @NonNull
     public List<Account> getAccountList() {
         List<Account> list = new ArrayList<>();
@@ -75,6 +78,9 @@ public class SupportAccountManager {
         return null;
     }
 
+    /**
+     * A list of all users who are not logged out
+     * */
     @NonNull
     public List<Account> getSignedInAccountList() {
         List<Account> list = new ArrayList<>();

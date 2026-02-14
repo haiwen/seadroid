@@ -50,12 +50,16 @@ import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.repo.RepoQuickFragment;
+import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
+import com.seafile.seadroid2.ui.star.StarredQuickFragment;
+import com.seafile.seadroid2.ui.wiki.WikiFragment;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +71,7 @@ public class MainActivity extends BaseActivity {
     private ActivityMainBinding binding;
     private FileSyncService syncService;
     private MainViewModel mainViewModel;
-
+    private ViewPager2Adapter pagerAdapter;
     private Account curAccount;
 
     private RepoQuickFragment getReposFragment() {
@@ -199,20 +203,19 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private long lastBackTs;
+
     private void initOnBackPressedDispatcher() {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (binding.pager.getCurrentItem() != INDEX_LIBRARY_TAB) {
+                if (System.currentTimeMillis() < lastBackTs + 1000) {
                     finish();
                     return;
                 }
 
-                RepoQuickFragment fragment = (RepoQuickFragment) mainViewModel.getFragments().get(0);
-                boolean canBack = fragment.backTo();
-                if (!canBack) {
-                    finish();
-                }
+                lastBackTs = System.currentTimeMillis();
+                Toasts.showShort(R.string.tip_press_again_to_exit);
             }
         });
     }
@@ -338,8 +341,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void navToPath(String repoId, String path, boolean isDir) {
-        binding.pager.setCurrentItem(0);
-
         binding.pager.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -348,10 +349,28 @@ public class MainActivity extends BaseActivity {
                     quickFragment.switchPath(repoId, path, isDir);
                 }
 
+                binding.navBottomView.setSelectedItemId(R.id.tabs_library);
+
                 refreshActionbar();
             }
         }, 400);
 
+    }
+
+    private ViewPager2Adapter getPagerAdapter() {
+        if (pagerAdapter == null) {
+            pagerAdapter = new ViewPager2Adapter(this);
+        }
+        return pagerAdapter;
+    }
+
+    private void initViewPager() {
+        List<Fragment> fragments = mainViewModel.getFragments();
+        getPagerAdapter().addFragments(fragments);
+
+        binding.pager.setOffscreenPageLimit(fragments.size());
+        binding.pager.setAdapter(getPagerAdapter());
+        binding.pager.setUserInputEnabled(false);
     }
 
     private static final long DOUBLE_TAP_TIMEOUT = 300;
@@ -389,7 +408,7 @@ public class MainActivity extends BaseActivity {
     private void onBottomNavItemDoubleTap(MenuItem item) {
         SLogs.d(TAG, "onBottomNavItemDoubleTap:" + item.getTitle());
 
-        if (item.getItemId() != R.id.tabs_library){
+        if (item.getItemId() != R.id.tabs_library) {
             return;
         }
 
@@ -405,77 +424,27 @@ public class MainActivity extends BaseActivity {
 
     private void onBottomNavigationSelected(MenuItem menuItem) {
         //tab
+        int pagerIndex = -1;
         if (menuItem.getItemId() == R.id.tabs_library) {
-            binding.pager.setCurrentItem(0);
+            pagerIndex = getPagerAdapter().indexByClass(RepoQuickFragment.class);
         } else if (menuItem.getItemId() == R.id.tabs_starred) {
-            binding.pager.setCurrentItem(1);
-        } else {
-            MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
-            if (null == activityMenuItem) {
-                if (menuItem.getItemId() == R.id.tabs_settings) {
-                    binding.pager.setCurrentItem(2);
-                }
-            } else {
-                if (menuItem.getItemId() == R.id.tabs_activity) {
-                    binding.pager.setCurrentItem(2);
-                } else if (menuItem.getItemId() == R.id.tabs_settings) {
-                    binding.pager.setCurrentItem(3);
-                }
-            }
+            pagerIndex = getPagerAdapter().indexByClass(StarredQuickFragment.class);
+        } else if (menuItem.getItemId() == R.id.tabs_wiki) {
+            pagerIndex = getPagerAdapter().indexByClass(WikiFragment.class);
+        } else if (menuItem.getItemId() == R.id.tabs_activity) {
+            pagerIndex = getPagerAdapter().indexByClass(AllActivitiesFragment.class);
+        } else if (menuItem.getItemId() == R.id.tabs_settings) {
+            pagerIndex = getPagerAdapter().indexByClass(TabSettings2Fragment.class);
         }
+
+        if (pagerIndex == -1) {
+            return;
+        }
+
+        binding.pager.setCurrentItem(pagerIndex);
 
         //
         refreshActionbar();
-    }
-
-    private void initViewPager() {
-        List<Fragment> fragments = mainViewModel.getFragments();
-        ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
-        viewPager2Adapter.addFragments(fragments);
-        binding.pager.setOffscreenPageLimit(fragments.size());
-        binding.pager.setAdapter(viewPager2Adapter);
-        binding.pager.setUserInputEnabled(false);
-        binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-
-                onViewPageSelected(position);
-            }
-        });
-    }
-
-    private void onViewPageSelected(int position) {
-
-        invalidateMenu();
-
-        if (0 == position) {
-            binding.navBottomView.setSelectedItemId(R.id.tabs_library);
-            return;
-        }
-
-        if (1 == position) {
-            binding.navBottomView.setSelectedItemId(R.id.tabs_starred);
-            return;
-        }
-
-        MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
-        if (null == activityMenuItem) {
-            //means the server is not pro edition
-            if (2 == position) {
-                binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
-            }
-        } else {
-
-            if (2 == position) {
-                binding.navBottomView.setSelectedItemId(R.id.tabs_activity);
-                return;
-            }
-
-            if (3 == position) {
-                binding.navBottomView.setSelectedItemId(R.id.tabs_settings);
-            }
-        }
     }
 
     private void initViewModel() {
@@ -546,18 +515,42 @@ public class MainActivity extends BaseActivity {
     // check server info
     private void requestServerInfo(boolean loadFromNet) {
         Optional<ServerInfo> optional = checkServerInfo();
-        if (optional.isEmpty() || !optional.get().isProEdition()) {
+        if (optional.isEmpty()) { // if load failed, remove special fragments
+            binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
+            binding.navBottomView.getMenu().removeItem(R.id.tabs_wiki);
+
+            int activityIndex = getPagerAdapter().removeByClass(AllActivitiesFragment.class);
+            if (activityIndex != -1) {
+                getPagerAdapter().notifyItemRemoved(activityIndex);
+            }
+
+            int wikiIndex = getPagerAdapter().removeByClass(WikiFragment.class);
+            if (wikiIndex != -1) {
+                getPagerAdapter().notifyItemRemoved(wikiIndex);
+            }
+            return;
+        }
+
+        // remove activity tab
+        if (!optional.get().isProEdition()) {
             binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
 
-            // hide Activity tab
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
             if (adapter != null) {
-                int index = adapter.removeByClass(AllActivitiesFragment.class);
-                if (index != -1) {
-                    adapter.notifyItemRemoved(index);
-                }
+                adapter.removeByClass(AllActivitiesFragment.class);
             }
         }
+
+        // remove wiki fragment if disable wiki
+        if (!optional.get().isEnableWiki()) {
+            binding.navBottomView.getMenu().removeItem(R.id.tabs_wiki);
+
+            ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
+            if (adapter != null) {
+                adapter.removeByClass(WikiFragment.class);
+            }
+        }
+
 
         if (loadFromNet) {
             //invalidate local account cache
@@ -612,14 +605,20 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        if (binding.pager.getCurrentItem() == 2) {
+            setActionbarTitle(getString(R.string.tabs_wiki));
+            enableUpButton(false);
+            return;
+        }
+
         MenuItem activityMenuItem = binding.navBottomView.getMenu().findItem(R.id.tabs_activity);
         if (null == activityMenuItem) {
-            if (binding.pager.getCurrentItem() == 2) {
+            if (binding.pager.getCurrentItem() == 3) {
                 setActionbarTitle(getString(R.string.settings));
                 enableUpButton(false);
             }
         } else {
-            if (binding.pager.getCurrentItem() == 2) {
+            if (binding.pager.getCurrentItem() == 3) {
                 setActionbarTitle(getString(R.string.tabs_activity));
                 enableUpButton(false);
             } else {
@@ -660,7 +659,7 @@ public class MainActivity extends BaseActivity {
 //                ToastUtils.showLong("LANDSCAPE");
 //            } else {
 //                ToastUtils.showLong("PORTRAIT");
-//            }
+
             lastOrientation = newConfig.orientation;
         }
 

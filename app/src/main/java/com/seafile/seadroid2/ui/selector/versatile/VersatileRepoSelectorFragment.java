@@ -23,6 +23,7 @@ import com.seafile.seadroid2.databinding.FragmentRemoteLibraryFragmentBinding;
 import com.seafile.seadroid2.databinding.FragmentVersatileSelectorBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -33,6 +34,8 @@ import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorViewModel;
 import com.seafile.seadroid2.view.TipsViews;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -49,10 +52,11 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
     private RepoQuickAdapter adapter;
     private String startRepoId;
     private String startPath;
+    private String accountSignature;
     private RepoModel startRepoModel;
 
     // temp context
-    private final NavContext localNavContext = new NavContext(false);
+    private final NavContext localNavContext = new NavContext();
     private Account mAccount;
 
     public static VersatileRepoSelectorFragment newInstance() {
@@ -60,12 +64,17 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
     }
 
     public static VersatileRepoSelectorFragment newInstance(String startRepoId, String startPath) {
+        return newInstance(null, startRepoId, startPath);
+    }
+
+    public static VersatileRepoSelectorFragment newInstance(String accountSignature, String startRepoId, String startPath) {
         VersatileRepoSelectorFragment fragment = new VersatileRepoSelectorFragment();
         if (TextUtils.isEmpty(startRepoId)) {
             return fragment;
         }
 
         Bundle bundle = new Bundle();
+        bundle.putString("accountSignature", accountSignature);
         bundle.putString("startRepoId", startRepoId);
         bundle.putString("startPath", startPath);
         fragment.setArguments(bundle);
@@ -76,13 +85,17 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAccount = SupportAccountManager.getInstance().getCurrentAccount();
-
         if (getArguments() != null) {
+            accountSignature = getArguments().getString("accountSignature", "");
             startRepoId = getArguments().getString("startRepoId", "");
             startPath = getArguments().getString("startPath", "");
         }
 
+        if (StringUtils.isEmpty(accountSignature)) {
+            mAccount = SupportAccountManager.getInstance().getCurrentAccount();
+        } else {
+            mAccount = SupportAccountManager.getInstance().getSpecialAccount(accountSignature);
+        }
     }
 
 

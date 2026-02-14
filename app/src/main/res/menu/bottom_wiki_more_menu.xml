@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_rename"
+        android:icon="@drawable/icon_libraries"
+        android:title="@string/rename_wiki" />
+
+    <item
+        android:id="@+id/action_publish"
+        android:icon="@drawable/icon_favorites"
+        android:title="@string/publish" />
+    <item
+        android:id="@+id/action_unpublish"
+        android:icon="@drawable/icon_favorites"
+        android:title="@string/unpublish" />
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@drawable/icon_wikis"
+        android:title="@string/delete" />
+
+</menu>

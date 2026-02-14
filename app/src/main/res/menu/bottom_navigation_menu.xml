@@ -11,6 +11,10 @@
         android:title="@string/tabs_starred" />
 
     <item
+        android:id="@+id/tabs_wiki"
+        android:icon="@drawable/icon_wikis"
+        android:title="@string/tabs_wiki" />
+    <item
         android:id="@+id/tabs_activity"
         android:icon="@drawable/icon_activities"
         android:title="@string/tabs_activity" />

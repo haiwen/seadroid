@@ -812,14 +812,14 @@ public class PhotoFragment extends BaseFragment {
 
     private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
         if (motionPhotoType == -1) {
-            motionPhotoType = HeicNative.nativeCheckMotionPhotoType(imageFile.getAbsolutePath());
+            motionPhotoType = HeicNative.CheckMotionPhotoType(imageFile.getAbsolutePath());
         }
 
         byte[] videoBytes = null;
         if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-            videoBytes = HeicNative.nativeExtractHeicMotionPhotoVideo(imageFile.getAbsolutePath());
+            videoBytes = HeicNative.ExtractHeicVideo(imageFile.getAbsolutePath());
         } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-            videoBytes = HeicNative.nativeExtractJpegMotionPhotoVideo(imageFile.getAbsolutePath());
+            videoBytes = HeicNative.ExtractJpegVideo(imageFile.getAbsolutePath());
         }
 
         if (videoBytes == null || videoBytes.length == 0) {

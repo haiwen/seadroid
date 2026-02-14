@@ -22,6 +22,7 @@
     <dimen name="app_widget_top_margin_small">4dp</dimen>
     <dimen name="app_widget_top_margin_middle">8dp</dimen>
     <dimen name="app_widget_top_margin_large">16dp</dimen>
+    <dimen name="list_item_icon_height">38dp</dimen>
 
     <!-- Title -->
     <dimen name="tv_title_txt_size">28sp</dimen> <!-- TextView -->
@@ -43,7 +44,7 @@
     <dimen name="pop_icon_height">24dp</dimen>
     <dimen name="pop_icon_padding">4dp</dimen>
     <dimen name="pop_icon_margin_horizontal">4dp</dimen>
-    <dimen name="pop_title_text_size">14sp</dimen>
+    <dimen name="pop_title_text_size">16sp</dimen>
     <dimen name="pop_item_padding_vertical">12dp</dimen>
     <!-- SDoc -->
     <dimen name="editor_bar_height">40dp</dimen>

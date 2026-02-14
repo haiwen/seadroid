@@ -219,6 +219,7 @@
     <item>Резервное копирование фото</item>
   </string-array>
   <string name="navigate_to_directory">Перейти в каталог</string>
+  <string name="go_up">Подняться</string>
   <string name="no_starred_file">Пока нет помеченных файлов</string>
   <string name="added_to_upload_tasks">Загрузка началась</string>
   <string name="added_photo_to_upload_tasks">Загрузка фото началась</string>
@@ -760,4 +761,5 @@
   <string name="reconnected">Переподключено</string>
   <string name="saving">Сохранение</string>
   <string name="saved">Сохранено</string>
+  <string name="live">ЖИВОЙ</string>
 </resources>

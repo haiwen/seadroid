@@ -12,7 +12,6 @@ import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
@@ -27,7 +26,6 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityVersatileSelectorBinding;
-import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;

@@ -7,6 +7,7 @@ import com.blankj.utilcode.util.NotificationUtils;
 import com.seafile.seadroid2.bus.BusAction;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
@@ -26,7 +27,7 @@ public class AccountUtils {
         BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
 
         // clear
-        ContextStackPreferenceHelper.clear();
+        ContextStackPreferenceHelper.clear(DataStoreKeys.KEY_GLOBAL_NAV_CONTEXT_STACK);
 
         //
         CertsManager.instance().deleteCertForAccount(account);
@@ -82,7 +83,7 @@ public class AccountUtils {
         BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
         // clear
-        ContextStackPreferenceHelper.clear();
+        ContextStackPreferenceHelper.clear(DataStoreKeys.KEY_GLOBAL_NAV_CONTEXT_STACK);
 
         //
         Settings.initUserSettings();

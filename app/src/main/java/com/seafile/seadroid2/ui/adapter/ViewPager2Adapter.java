@@ -25,10 +25,6 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
         super(fa);
     }
 
-    public ViewPager2Adapter(FragmentManager fm, @NonNull Lifecycle lifecycle) {
-        super(fm, lifecycle);
-    }
-
     public void addFragments(List<Fragment> fts) {
         this.fragments.clear();
         this.fragmentIds.clear();
@@ -51,14 +47,10 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
     public void removeFragment(int position) {
         fragments.remove(position);
         fragmentIds.remove(position);
-    }
 
-    public int removeByInstance(Fragment target) {
-        int index = fragments.indexOf(target); // 直接通过对象引用匹配
-        if (index != -1) {
-            removeFragment(index);
+        if (position != -1) {
+            notifyItemRemoved(position);
         }
-        return index;
     }
 
     /**

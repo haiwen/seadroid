@@ -99,7 +99,7 @@ public final class MotionPhotoDetector {
             //     * - {@link #MOTION_PHOTO_TYPE_JPEG} (0): JPEG 格式的动态照片
             //     * - {@link #MOTION_PHOTO_TYPE_HEIC} (1): HEIC 格式的动态照片
             //     * - {@link #MOTION_PHOTO_TYPE_NONE} (2): 非动态照片
-            int t = HeicNative.nativeCheckMotionPhotoType(p.getAbsolutePath());
+            int t = HeicNative.CheckMotionPhotoType(p.getAbsolutePath());
             if (t == 0) {
                 d.mpType = MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_JPEG;
                 return d;
@@ -124,7 +124,7 @@ public final class MotionPhotoDetector {
 
     public static MotionPhotoDescriptor extractHeicXmp(File p) {
         try {
-            String xml = HeicNative.nativeExtractHeicMotionPhotoXMP(p.getAbsolutePath());
+            String xml = HeicNative.ExtractHeicXMP(p.getAbsolutePath());
             MotionPhotoDescriptor descriptor = parse(xml, false);
             return descriptor;
         } catch (Exception e) {

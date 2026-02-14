@@ -8,6 +8,7 @@
 #include "algorithm"
 #include "cctype"
 #include <setjmp.h>
+#include <type_traits>
 
 // libjpeg for JPEG decoding
 extern "C" {
@@ -29,6 +30,51 @@ extern "C" {
 #define LOGI_MP(...) __android_log_print(ANDROID_LOG_INFO, TAG_MP, __VA_ARGS__)
 #define LOGE_MP(...) __android_log_print(ANDROID_LOG_ERROR, TAG_MP, __VA_ARGS__)
 #define LOGW_MP(...) __android_log_print(ANDROID_LOG_WARN, TAG_MP, __VA_ARGS__)
+
+/**
+ * Motion Photo XMP metadata parsing result
+ */
+struct MotionPhotoXmpInfo {
+    bool isMotionPhoto = false; // Whether it is a Motion Photo
+    int version = 0;            // MotionPhotoVersion
+    long videoLength = 0;       // Video data length (Item:Length for MotionPhoto)
+    long videoPadding = 0;      // Padding bytes before video (Item:Padding)
+    long presentationTimestampUs = -1; // Position in video of the primary image frame
+    long primaryPadding = 0;    // Primary image padding bytes
+    long gainMapLength = 0;     // GainMap length (Item:Length)
+    long gainMapPadding = 0;    // GainMap padding (Item:Padding)
+    std::string videoMime;      // Video MIME type
+    std::string xmpContent;     // Raw XMP content (for debugging)
+    long videoOffset = -1;      // Video data offset (GCamera:MicroVideoOffset)
+    std::string gainMapMime;    // GainMap MIME type
+    struct Item {
+        std::string semantic;
+        std::string mime;
+        long length = 0;
+        long padding = 0;
+    };
+    std::vector<Item> items;    // Container:Directory items in order
+};
+
+static MotionPhotoXmpInfo ParseMotionPhotoXmpContent(const std::string &xmpContent);
+
+static bool HasJpegSoi(const std::vector<uint8_t> &data);
+
+static long SafeStol(const std::string &str, long defaultValue = 0) {
+    try {
+        return std::stol(str);
+    } catch (...) {
+        return defaultValue;
+    }
+}
+
+static int SafeStoi(const std::string &str, int defaultValue = 0) {
+    try {
+        return std::stoi(str);
+    } catch (...) {
+        return defaultValue;
+    }
+}
 
 /**
  * Encode RGBA pixel data into a single HEVC still image (with alpha)
@@ -210,8 +256,7 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
 extern "C" JNIEXPORT jboolean
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeGenStillHeicSeq(
-        JNIEnv *env, jclass clazz, jbyteArray jpegBytes, jstring outputPath) {
+Java_com_seafile_seadroid2_jni_HeicNative_GenStillHeicSeq(JNIEnv *env, jclass clazz, jbyteArray jpegBytes, jstring outputPath) {
     const char *outPath = env->GetStringUTFChars(outputPath, nullptr);
     if (!outPath) {
         return JNI_FALSE;
@@ -259,8 +304,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenStillHeicSeq(
 extern "C" JNIEXPORT jstring
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeGetLibVersion(JNIEnv *env,
-                                                              jclass clazz) {
+Java_com_seafile_seadroid2_jni_HeicNative_GetLibVersion(JNIEnv *env, jclass clazz) {
     const char *version = heif_get_version();
     return env->NewStringUTF(version);
 }
@@ -273,7 +317,7 @@ struct MemoryWriter {
 };
 
 static heif_error memory_writer_write(heif_context *ctx, const void *data, size_t size, void *userdata) {
-    MemoryWriter *writer = static_cast<MemoryWriter *>(userdata);
+    auto *writer = static_cast<MemoryWriter *>(userdata);
     const uint8_t *bytes = static_cast<const uint8_t *>(data);
     size_t oldSize = writer->data.size();
     writer->data.insert(writer->data.end(), bytes, bytes + size);
@@ -282,8 +326,6 @@ static heif_error memory_writer_write(heif_context *ctx, const void *data, size_
     heif_error err = {heif_error_Ok, heif_suberror_Unspecified, nullptr};
     return err;
 }
-
-static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength);
 
 /**
  * Write mpvd box (Motion Photo Video Data)
@@ -504,80 +546,15 @@ struct my_error_mgr {
 };
 
 static void my_error_exit(j_common_ptr cinfo) {
-    my_error_mgr *myerr = (my_error_mgr *) cinfo->err;
+    auto *myErr = (my_error_mgr *) cinfo->err;
     (*cinfo->err->output_message)(cinfo);
-    longjmp(myerr->setjmp_buffer, 1);
+    longjmp(myErr->setjmp_buffer, 1);
 }
 
-static heif_image *DecodeJpegToHeifImage(const std::vector<uint8_t> &data) {
-    if (data.empty()) return nullptr;
-
-    struct jpeg_decompress_struct cinfo;
-    struct my_error_mgr jerr;
-
-    cinfo.err = jpeg_std_error(&jerr.pub);
-    jerr.pub.error_exit = my_error_exit;
-
-    if (setjmp(jerr.setjmp_buffer)) {
-        jpeg_destroy_decompress(&cinfo);
-        return nullptr;
-    }
-
-    jpeg_create_decompress(&cinfo);
-    jpeg_mem_src(&cinfo, data.data(), static_cast<unsigned long>(data.size()));
-
-    if (jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK) {
-        jpeg_destroy_decompress(&cinfo);
-        return nullptr;
-    }
-
-    cinfo.out_color_space = JCS_RGB;
-    jpeg_start_decompress(&cinfo);
-
-    int width = cinfo.output_width;
-    int height = cinfo.output_height;
-    int channels = cinfo.output_components;
-
-    if (channels != 3) {
-        LOGE_MP("DecodeJpegToHeifImage: Only RGB JPEG is supported (components=%d)", channels);
-        jpeg_finish_decompress(&cinfo);
-        jpeg_destroy_decompress(&cinfo);
-        return nullptr;
-    }
-
-    heif_image *image = nullptr;
-    heif_error err = heif_image_create(width, height, heif_colorspace_RGB, heif_chroma_interleaved_RGB, &image);
-    if (err.code != heif_error_Ok) {
-        LOGE_MP("DecodeJpegToHeifImage: Failed to create heif_image");
-        jpeg_finish_decompress(&cinfo);
-        jpeg_destroy_decompress(&cinfo);
-        return nullptr;
-    }
-
-    err = heif_image_add_plane(image, heif_channel_interleaved, width, height, 8);
-    if (err.code != heif_error_Ok) {
-        LOGE_MP("DecodeJpegToHeifImage: Failed to add plane");
-        heif_image_release(image);
-        jpeg_finish_decompress(&cinfo);
-        jpeg_destroy_decompress(&cinfo);
-        return nullptr;
-    }
-
-    int stride;
-    uint8_t *p = heif_image_get_plane(image, heif_channel_interleaved, &stride);
-
-    while (cinfo.output_scanline < cinfo.output_height) {
-        uint8_t *row_pointer = p + cinfo.output_scanline * stride;
-        jpeg_read_scanlines(&cinfo, &row_pointer, 1);
-    }
-
-    jpeg_finish_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-    return image;
-}
+static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrDataSize, size_t presentationTimestampUs);
 
 /**
- * Generate Google Motion Photo format HEIC motion photo
+ * Generate Google HEIC motion photo
  *
  * Requirements:
  * Generate HEIC motion photo using Google Motion Photo format
@@ -596,27 +573,29 @@ static heif_image *DecodeJpegToHeifImage(const std::vector<uint8_t> &data) {
  *   - mdat box: image contents
  *   - mpvd box: (MotionPhotoVideoData)
  *      - Store mp4 video raw byte stream.
- *      - Location:  the "mpvd" box must come after all the HEIC image file's boxes.
+ *      - Location: the "mpvd" box must come after all the HEIC image file's boxes.
  *
  *  Technical requirements:
  *  1、libheif provides XMP_metadata operation APIs, you can use them
  *  2、primaryImageBytes, mp4VideoBytes are raw byte array data
  *  3、Prefer using libheif's built-in APIs.
  *  4、HDR data
- *   - If HDR is available, use auxiliary image + auxC + iref to implement GainMap binding. libheif has already implemented this capability.
+ *   - If HDR is available, use metadata item to implement GainMap binding. libheif has already implemented this capability.
  *  5、EXIF data
  *   - If EXIF data is available, you can use heif_context_add_exif_metadata interface to bind it.
  */
-extern "C" JNIEXPORT jstring
-
-JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
-        JNIEnv *env, jclass clazz, jbyteArray primaryImageBytes,
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_seafile_seadroid2_jni_HeicNative_GenHeicMotionPhoto(
+        JNIEnv *env, jclass clazz,
+        jbyteArray primaryImageBytes,
         jbyteArray hdrBytes,
         jbyteArray exifBytes,
-        jbyteArray mp4VideoBytes, jstring outputPath) {
+        jbyteArray xmpBytes,
+        jbyteArray mp4VideoBytes,
+        jlong presentationTimestampUs,
+        jstring outputPath) {
     LOGI_MP("============================================================");
-    LOGI_MP("nativeGenHeicMotionPhoto: START");
+    LOGI_MP("GenHeicMotionPhoto: START");
     LOGI_MP("libheif version: %s", heif_get_version());
     LOGI_MP("============================================================");
 
@@ -651,26 +630,27 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
         env->ReleaseStringUTFChars(outputPath, outPath);
         return env->NewStringUTF("error: primary image data is empty");
     }
-//    // Extract HDR data
-//    std::vector <uint8_t> hdrData;
-//    if (hdrBytes) {
-//        jsize len = env->GetArrayLength(hdrBytes);
-//        LOGD_MP("[JNI] hdrBytes: array length = %d", len);
-//        if (len > 0) {
-//            hdrData.resize(len);
-//            jbyte *p = env->GetByteArrayElements(hdrBytes, nullptr);
-//            if (p) {
-//                hdrData.resize(len);
-//                memcpy(hdrData.data(), p, len);
-//                env->ReleaseByteArrayElements(hdrBytes, p, JNI_ABORT);
-//                LOGD_MP("[JNI] hdrBytes: copied %d bytes to vector", len);
-//            } else {
-//                LOGW_MP("[JNI] hdrBytes: GetByteArrayElements returned NULL");
-//            }
-//        }
-//    } else {
-//        LOGD_MP("[JNI] hdrBytes: NULL");
-//    }
+
+    // HDR data
+    std::vector<uint8_t> hdrData;
+    if (hdrBytes) {
+        jsize len = env->GetArrayLength(hdrBytes);
+        LOGD_MP("[JNI] hdrBytes: array length = %d", len);
+        if (len > 0) {
+            hdrData.resize(len);
+            jbyte *p = env->GetByteArrayElements(hdrBytes, nullptr);
+            if (p) {
+                hdrData.resize(len);
+                memcpy(hdrData.data(), p, len);
+                env->ReleaseByteArrayElements(hdrBytes, p, JNI_ABORT);
+                LOGD_MP("[JNI] hdrBytes: copied %d bytes to vector", len);
+            } else {
+                LOGW_MP("[JNI] hdrBytes: GetByteArrayElements returned NULL");
+            }
+        }
+    } else {
+        LOGD_MP("[JNI] hdrBytes: NULL");
+    }
 
     // Copy EXIF data
     std::vector<uint8_t> exifData;
@@ -690,6 +670,26 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
         }
     } else {
         LOGD_MP("[JNI] exifBytes: NULL");
+    }
+
+    // Copy XMP data (original XMP from JPEG, may contain camera settings, GPS, etc.)
+    std::vector<uint8_t> xmpData;
+    if (xmpBytes) {
+        jsize len = env->GetArrayLength(xmpBytes);
+        LOGD_MP("[JNI] xmpBytes: array length = %d", len);
+        if (len > 0) {
+            xmpData.resize(len);
+            jbyte *p = env->GetByteArrayElements(xmpBytes, nullptr);
+            if (p) {
+                memcpy(xmpData.data(), p, len);
+                env->ReleaseByteArrayElements(xmpBytes, p, JNI_ABORT);
+                LOGD_MP("[JNI] xmpBytes: copied %d bytes to vector", len);
+            } else {
+                LOGW_MP("[JNI] xmpBytes: GetByteArrayElements returned NULL");
+            }
+        }
+    } else {
+        LOGD_MP("[JNI] xmpBytes: NULL");
     }
 
     // Copy MP4 video data
@@ -721,6 +721,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
     LOGI_MP("------------------------------------------------------------");
     LOGI_MP("Input Summary:");
     LOGI_MP("  JPEG: %zu bytes (%.2f KB)", jpegData.size(), jpegData.size() / 1024.0);
+    LOGI_MP("  HDR:  %zu bytes (%.2f KB)", hdrData.size(), hdrData.size() / 1024.0);
     LOGI_MP("  MP4:  %zu bytes (%.2f KB)", mp4Data.size(), mp4Data.size() / 1024.0);
     LOGI_MP("------------------------------------------------------------");
 
@@ -744,14 +745,69 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
         env->ReleaseStringUTFChars(outputPath, outPath);
         return env->NewStringUTF("error: failed to encode primary image");
     }
-    LOGI_MP("[Step 2/5] Primary image encoded successfully, handle=%p", primaryHandle);
+    LOGI_MP("[Step 2/6] Primary image encoded successfully, handle=%p", primaryHandle);
 
-    std::string xmpData = GenerateHeicMotionPhotoXMP(mp4Data.size());
-    heif_context_add_XMP_metadata(ctx, primaryHandle, xmpData.data(), static_cast<int>(xmpData.size()));
-    if (!exifData.empty()) {
-        heif_context_add_exif_metadata(ctx, primaryHandle, exifData.data(), static_cast<int>(exifData.size()));
+    if (!hdrData.empty()) {
+        if (!HasJpegSoi(hdrData)) {
+            LOGW_MP("[Step 3/6] HDR GainMap data missing JPEG SOI, skipping");
+        } else {
+            heif_error hdrMetaErr = heif_context_add_generic_metadata(
+                    ctx,
+                    primaryHandle,
+                    hdrData.data(),
+                    static_cast<int>(hdrData.size()),
+                    "mime",
+                    "image/jpeg+gainmap"
+            );
+            if (hdrMetaErr.code != heif_error_Ok) {
+                LOGW_MP("[Step 3/6] 添加 HDR GainMap 元数据失败: %s", hdrMetaErr.message);
+            } else {
+                LOGI_MP("[Step 3/6] HDR GainMap 元数据已写入 (%zu bytes)", hdrData.size());
+            }
+        }
     }
+
+    // Handle XMP metadata: directly use the provided xmpBytes
+    // IMPORTANT: xmpData should already be generated by GenerateHeicMotionPhotoXMP
+    // Do NOT modify or merge, use as-is
+    std::string finalXmp;
+    if (!xmpData.empty()) {
+        // Use the provided XMP directly (should already be in HEIC format)
+        finalXmp = std::string(xmpData.begin(), xmpData.end());
+        LOGI_MP("[GenHeicMotionPhoto] Using provided XMP: %zu bytes", finalXmp.size());
+    } else {
+        // No XMP provided - generate new Motion Photo XMP for HEIC
+        finalXmp = GenerateHeicMotionPhotoXMP(mp4Data.size(), hdrData.size(), presentationTimestampUs);
+        LOGI_MP("[GenHeicMotionPhoto] No XMP provided, generated new Motion Photo XMP: %zu bytes",
+                finalXmp.size());
+    }
+
+    // Write XMP metadata using libheif
+    heif_error xmpErr = heif_context_add_XMP_metadata(ctx, primaryHandle,
+                                                      finalXmp.data(),
+                                                      static_cast<int>(finalXmp.size()));
+    if (xmpErr.code != heif_error_Ok) {
+        LOGW_MP("[GenHeicMotionPhoto] Failed to write XMP metadata: %s", xmpErr.message);
+    } else {
+        LOGI_MP("[GenHeicMotionPhoto] XMP metadata written successfully: %zu bytes", finalXmp.size());
+    }
+
+    // Write EXIF metadata using libheif
+    // IMPORTANT: exifData should be pure TIFF data (no "Exif\0\0" header)
+    // Do NOT modify, write as-is
+    if (!exifData.empty()) {
+        heif_error exifErr = heif_context_add_exif_metadata(ctx, primaryHandle, exifData.data(), static_cast<int>(exifData.size()));
+        if (exifErr.code != heif_error_Ok) {
+            LOGW_MP("[GenHeicMotionPhoto] Failed to write EXIF metadata: %s", exifErr.message);
+        } else {
+            LOGI_MP("[GenHeicMotionPhoto] EXIF metadata written successfully: %zu bytes", exifData.size());
+        }
+    } else {
+        LOGD_MP("[GenHeicMotionPhoto] No EXIF data provided");
+    }
+
     heif_image_handle_release(primaryHandle);
+
     MemoryWriter memWriter2;
     heif_writer writer2;
     writer2.writer_api_version = 1;
@@ -793,36 +849,6 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
     return env->NewStringUTF(result);
 }
 
-/**
- * Motion Photo XMP metadata parsing result
- */
-struct MotionPhotoXmpInfo {
-    bool isMotionPhoto = false; // Whether it is a Motion Photo
-    int version = 0;            // MotionPhotoVersion
-    long videoLength = 0;       // Video data length (Item:Length for MotionPhoto)
-    long videoPadding = 0;      // Padding bytes before video (Item:Padding)
-    long presentationTimestampUs = -1; // Position in video of the primary image frame
-    long primaryPadding = 0;    // Primary image padding bytes
-    std::string videoMime;      // Video MIME type
-    std::string xmpContent;     // Raw XMP content (for debugging)
-    long videoOffset = -1;      // Video data offset (GCamera:MicroVideoOffset)
-};
-
-static long SafeStol(const std::string &str, long defaultValue = 0) {
-    try {
-        return std::stol(str);
-    } catch (...) {
-        return defaultValue;
-    }
-}
-
-static int SafeStoi(const std::string &str, int defaultValue = 0) {
-    try {
-        return std::stoi(str);
-    } catch (...) {
-        return defaultValue;
-    }
-}
 
 /**
  * Extract the value of a specified tag from a string
@@ -857,18 +883,56 @@ static std::string ExtractXmpValue(const std::string &xmp, const std::string &ta
     return "";
 }
 
+static std::vector<MotionPhotoXmpInfo::Item> ParseContainerItems(const std::string &xmpContent) {
+    std::vector<MotionPhotoXmpInfo::Item> items;
+    size_t pos = 0;
+    while (true) {
+        pos = xmpContent.find("<Container:Item", pos);
+        if (pos == std::string::npos) break;
+        size_t end = xmpContent.find("/>", pos);
+        if (end == std::string::npos) {
+            end = xmpContent.find(">", pos);
+            if (end == std::string::npos) break;
+        }
+        std::string tag = xmpContent.substr(pos, end - pos);
+        auto getAttr = [&](const std::string &s, const std::string &key) -> std::string {
+            std::string pattern = key + "=\"";
+            size_t kpos = s.find(pattern);
+            if (kpos == std::string::npos) return "";
+            size_t vstart = kpos + pattern.size();
+            size_t vend = s.find("\"", vstart);
+            if (vend == std::string::npos) return "";
+            return s.substr(vstart, vend - vstart);
+        };
+        MotionPhotoXmpInfo::Item item;
+        item.semantic = getAttr(tag, "Item:Semantic");
+        item.mime = getAttr(tag, "Item:Mime");
+        std::string lengthStr = getAttr(tag, "Item:Length");
+        if (!lengthStr.empty()) {
+            item.length = SafeStol(lengthStr);
+        }
+        std::string paddingStr = getAttr(tag, "Item:Padding");
+        if (!paddingStr.empty()) {
+            item.padding = SafeStol(paddingStr);
+        }
+        items.push_back(item);
+        pos = end + 2;
+    }
+    return items;
+}
+
 extern "C" JNIEXPORT jstring
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoXMP(JNIEnv *env, jclass clazz, jstring inputFilePath);
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicXMP(JNIEnv *env, jclass clazz, jstring inputFilePath);
 
 
-static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath);
+static std::string ExtractHeicXmpWithLibheif2(const char *filePath);
 
 extern "C" JNIEXPORT jstring
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoXMP(JNIEnv *env, jclass clazz, jstring inputFilePath) {
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicXMP(JNIEnv *env, jclass clazz, jstring inputFilePath) {
     if (inputFilePath == nullptr) {
         return nullptr;
     }
@@ -877,16 +941,17 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoXMP(JNIEnv
         return nullptr;
     }
 
-    std::string xmp = ParseHeicMotionPhotoXmpWithLibheif2(path);
+    std::string xmp = ExtractHeicXmpWithLibheif2(path);
 
     env->ReleaseStringUTFChars(inputFilePath, path);
 
     return env->NewStringUTF(xmp.c_str());
 }
 
-static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpContent) {
+static MotionPhotoXmpInfo ParseMotionPhotoXmpContent(const std::string &xmpContent) {
     MotionPhotoXmpInfo info;
     info.xmpContent = xmpContent;
+    info.items = ParseContainerItems(info.xmpContent);
 
     // 1. Parse GCamera:MotionPhoto (v2)
     std::string motionPhoto = ExtractXmpValue(info.xmpContent, "GCamera:MotionPhoto");
@@ -903,53 +968,46 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
         LOGD_MP("[ParseXMP] GCamera:MotionPhotoPresentationTimestampUs = %ld", info.presentationTimestampUs);
     }
 
-    // 查找 MotionPhoto Item 的 Length
-    {
-        size_t pos = 0;
-        while (true) {
-            pos = info.xmpContent.find("<Container:Item", pos);
-            if (pos == std::string::npos) break;
-            size_t end = info.xmpContent.find("/>", pos);
-            if (end == std::string::npos) {
-                end = info.xmpContent.find(">", pos);
-                if (end == std::string::npos) break;
+    // Parse Container items (Primary/GainMap/MotionPhoto)
+    for (const auto &item: info.items) {
+        if (item.semantic == "MotionPhoto") {
+            if (item.length > 0) {
+                info.videoLength = item.length;
+                LOGD_MP("[ParseXMP] MotionPhoto Item:Length = %ld", info.videoLength);
             }
-            std::string tag = info.xmpContent.substr(pos, end - pos);
-            auto getAttr = [&](const std::string &s, const std::string &key) -> std::string {
-                std::string pattern = key + "=\"";
-                size_t kpos = s.find(pattern);
-                if (kpos == std::string::npos) return "";
-                size_t vstart = kpos + pattern.size();
-                size_t vend = s.find("\"", vstart);
-                if (vend == std::string::npos) return "";
-                return s.substr(vstart, vend - vstart);
-            };
-            std::string semantic = getAttr(tag, "Item:Semantic");
-            if (semantic == "MotionPhoto") {
-                std::string lengthStr = getAttr(tag, "Item:Length");
-                if (!lengthStr.empty()) {
-                    info.videoLength = SafeStol(lengthStr);
-                    LOGD_MP("[ParseXMP] MotionPhoto Item:Length = %ld", info.videoLength);
-                }
-                std::string paddingStr = getAttr(tag, "Item:Padding");
-                if (!paddingStr.empty()) {
-                    info.videoPadding = SafeStol(paddingStr);
-                    LOGD_MP("[ParseXMP] MotionPhoto Item:Padding = %ld", info.videoPadding);
-                }
-                info.videoMime = getAttr(tag, "Item:Mime");
-                if (!info.videoMime.empty()) {
-                    LOGD_MP("[ParseXMP] MotionPhoto Item:Mime = %s", info.videoMime.c_str());
-                }
-                break;
+            if (item.padding > 0) {
+                info.videoPadding = item.padding;
+                LOGD_MP("[ParseXMP] MotionPhoto Item:Padding = %ld", info.videoPadding);
             }
-            pos = end + 2;
+            if (!item.mime.empty()) {
+                info.videoMime = item.mime;
+                LOGD_MP("[ParseXMP] MotionPhoto Item:Mime = %s", info.videoMime.c_str());
+            }
+        } else if (item.semantic == "GainMap") {
+            if (item.length > 0) {
+                info.gainMapLength = item.length;
+                LOGD_MP("[ParseXMP] GainMap Item:Length = %ld", info.gainMapLength);
+            }
+            if (item.padding > 0) {
+                info.gainMapPadding = item.padding;
+                LOGD_MP("[ParseXMP] GainMap Item:Padding = %ld", info.gainMapPadding);
+            }
+            if (!item.mime.empty()) {
+                info.gainMapMime = item.mime;
+                LOGD_MP("[ParseXMP] GainMap Item:Mime = %s", info.gainMapMime.c_str());
+            }
+        } else if (item.semantic == "Primary") {
+            if (item.padding > 0) {
+                info.primaryPadding = item.padding;
+                LOGD_MP("[ParseXMP] Primary Item:Padding = %ld", info.primaryPadding);
+            }
         }
-        if (info.videoLength == 0) {
-            std::string vendorLen = ExtractXmpValue(info.xmpContent, "OpCamera:VideoLength");
-            if (!vendorLen.empty()) {
-                info.videoLength = SafeStol(vendorLen);
-                LOGD_MP("[ParseXMP] Vendor VideoLength = %ld", info.videoLength);
-            }
+    }
+    if (info.videoLength == 0) {
+        std::string vendorLen = ExtractXmpValue(info.xmpContent, "OpCamera:VideoLength");
+        if (!vendorLen.empty()) {
+            info.videoLength = SafeStol(vendorLen);
+            LOGD_MP("[ParseXMP] Vendor VideoLength = %ld", info.videoLength);
         }
     }
 
@@ -975,43 +1033,8 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
         return info;
     }
 
-    // Find Primary Item's Padding
-    {
-        size_t pos = 0;
-        while (true) {
-            pos = info.xmpContent.find("<Container:Item", pos);
-            if (pos == std::string::npos) break;
-            size_t end = info.xmpContent.find("/>", pos);
-            if (end == std::string::npos) {
-                end = info.xmpContent.find(">", pos);
-                if (end == std::string::npos) break;
-            }
-            std::string tag = info.xmpContent.substr(pos, end - pos);
-            auto getAttr = [&](const std::string &s, const std::string &key) -> std::string {
-                std::string pattern = key + "=\"";
-                size_t kpos = s.find(pattern);
-                if (kpos == std::string::npos) return "";
-                size_t vstart = kpos + pattern.size();
-                size_t vend = s.find("\"", vstart);
-                if (vend == std::string::npos) return "";
-                return s.substr(vstart, vend - vstart);
-            };
-            std::string semantic = getAttr(tag, "Item:Semantic");
-            if (semantic == "Primary") {
-                std::string primaryPaddingStr = getAttr(tag, "Item:Padding");
-                if (!primaryPaddingStr.empty()) {
-                    info.primaryPadding = SafeStol(primaryPaddingStr);
-                    LOGD_MP("[ParseXMP] Primary Item:Padding = %ld", info.primaryPadding);
-                }
-                break;
-            }
-            pos = end + 2;
-        }
-    }
-
     return info;
 }
-
 
 /**
  * Use libheif to read XMP metadata from HEIC file and parse Motion Photo information
@@ -1041,20 +1064,24 @@ static MotionPhotoXmpInfo parseMotionPhotoXmpContent(const std::string &xmpConte
  * @param filePath HEIC file path
  * @return Motion Photo XMP information
  */
-static MotionPhotoXmpInfo ParseHeicMotionPhotoXmpWithLibheif(const char *filePath) {
+static MotionPhotoXmpInfo ExtractHeicXmpWithLibheif(const char *filePath) {
     LOGD_MP("[ParseHeicXMP] Parsing XMP from HEIC using libheif: %s", filePath);
     // Parse XMP content
-    std::string xmpXml = ParseHeicMotionPhotoXmpWithLibheif2(filePath);
-    MotionPhotoXmpInfo info = parseMotionPhotoXmpContent(xmpXml);
+    std::string xmpXml = ExtractHeicXmpWithLibheif2(filePath);
+    MotionPhotoXmpInfo info = ParseMotionPhotoXmpContent(xmpXml);
     if (!info.isMotionPhoto) {
         LOGD_MP("[ParseHeicXMP] No Motion Photo XMP metadata found");
     }
+
+    // Save the original complete XMP content
+    info.xmpContent = xmpXml;
+    LOGD_MP("[ParseHeicXMP] Original XMP size: %zu bytes", xmpXml.size());
 
     return info;
 }
 
 
-static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
+static std::string ExtractHeicXmpWithLibheif2(const char *filePath) {
     LOGD_MP("[ParseHeicXMP] Parsing XMP from HEIC using libheif: %s", filePath);
 
     // Create HEIF context and read file
@@ -1125,7 +1152,7 @@ static std::string ParseHeicMotionPhotoXmpWithLibheif2(const char *filePath) {
 
                         if (hasMotionPhoto || hasMicroVideo) {
                             LOGI_MP("[ParseHeicXMP] Found XMP with Motion Photo fields (hasMotionPhoto=%d, hasMicroVideo=%d)",
-                                   hasMotionPhoto, hasMicroVideo);
+                                    hasMotionPhoto, hasMicroVideo);
                             motionPhotoXmp = currentXmp;
                             break; // Found the correct XMP, stop searching
                         } else {
@@ -1235,7 +1262,7 @@ static MotionPhotoXmpInfo ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fi
                             xmpLen);
 
                     // Parse XMP content
-                    info = parseMotionPhotoXmpContent(info.xmpContent);
+                    info = ParseMotionPhotoXmpContent(info.xmpContent);
                     return info;
                 }
             }
@@ -1277,6 +1304,10 @@ static MotionPhotoXmpInfo ParseJpegMotionPhotoXmp(const std::vector<uint8_t> &fi
 
 /**
  * Extract EXIF data from JPEG image.
+ * Returns pure TIFF data (without "Exif\0\0" header).
+ * Handles multiple EXIF formats:
+ *   - Standard: "Exif\0\0" + TIFF data
+ *   - With offset: "Exif\0\0" + 4-byte offset + TIFF data
  * */
 static std::vector<uint8_t> ExtractJpegExif(const char *path) {
     std::vector<uint8_t> exifData;
@@ -1292,6 +1323,8 @@ static std::vector<uint8_t> ExtractJpegExif(const char *path) {
         fclose(file);
         return exifData;
     }
+
+    bool foundExif = false;
 
     while (true) {
         int byte = fgetc(file);
@@ -1325,8 +1358,34 @@ static std::vector<uint8_t> ExtractJpegExif(const char *path) {
                     buffer[0] == 'E' && buffer[1] == 'x' && buffer[2] == 'i' &&
                     buffer[3] == 'f' && buffer[4] == 0x00 && buffer[5] == 0x00) {
 
-                    exifData.assign(buffer.begin() + 6, buffer.end());
-                    LOGD_MP("[ExtractExif] Found Exif data: %zu bytes", exifData.size());
+                    // Found EXIF, extract TIFF data
+                    size_t tiffStart = 6; // Skip "Exif\0\0"
+
+                    // Check for 4-byte offset header (big-endian)
+                    if (payloadLen >= 10) {
+                        // Check if next 4 bytes are a valid offset to TIFF header
+                        uint32_t offset = (static_cast<uint32_t>(buffer[6]) << 24) |
+                                         (static_cast<uint32_t>(buffer[7]) << 16) |
+                                         (static_cast<uint32_t>(buffer[8]) << 8) |
+                                         static_cast<uint32_t>(buffer[9]);
+
+                        // Check if offset points to a valid TIFF header
+                        if (offset > 0 && offset + 2 <= payloadLen &&
+                            ((buffer[offset] == 'I' && buffer[offset + 1] == 'I') ||
+                             (buffer[offset] == 'M' && buffer[offset + 1] == 'M'))) {
+                            // Has offset header, skip it
+                            tiffStart = offset;
+                            LOGD_MP("[ExtractExif] EXIF with offset header: %u bytes, TIFF starts at offset %u",
+                                    payloadLen, offset);
+                        }
+                    }
+
+                    // Extract TIFF data
+                    exifData.assign(buffer.begin() + tiffStart, buffer.end());
+                    foundExif = true;
+                    LOGD_MP("[ExtractExif] Found EXIF: format=%s, total=%zu bytes, TIFF=%zu bytes",
+                            (tiffStart == 6) ? "standard" : "with_offset",
+                            payloadLen, exifData.size());
                     fclose(file);
                     return exifData;
                 }
@@ -1336,10 +1395,13 @@ static std::vector<uint8_t> ExtractJpegExif(const char *path) {
         }
     }
 
+    if (!foundExif) {
+        LOGD_MP("[ExtractExif] No EXIF data found in JPEG");
+    }
+
     fclose(file);
     return exifData;
 }
-
 
 /**
  * Extract video data from Google HEIC Motion Photo
@@ -1349,24 +1411,23 @@ static std::vector<uint8_t> ExtractJpegExif(const char *path) {
 extern "C" JNIEXPORT jbyteArray
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByMpvdCC(
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideoByMpvdCC(
         JNIEnv *env, jclass clazz, jstring inputFilePath);
 
 extern "C" JNIEXPORT jbyteArray
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP(
-        JNIEnv *env, jclass clazz, jstring inputFilePath);
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideoByXMP(JNIEnv *env, jclass clazz, jstring inputFilePath);
 
 extern "C" JNIEXPORT jbyteArray
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideo(
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideo(
         JNIEnv *env, jclass clazz, jstring inputFilePath) {
     LOGI_MP("============================================================");
     LOGI_MP("nativeExtractGoogleHeicMotionPhotoVideo: START");
     LOGI_MP("============================================================");
-    jbyteArray byMpvd = Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByMpvdCC(
+    jbyteArray byMpvd = Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideoByMpvdCC(
             env, clazz, inputFilePath);
     bool isOk = false;
     if (byMpvd) {
@@ -1384,7 +1445,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideo(
         env->DeleteLocalRef(byMpvd);
     }
 
-    return Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP(
+    return Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideoByXMP(
             env, clazz, inputFilePath);
 }
 
@@ -1415,7 +1476,7 @@ static bool ReadFileFully(const char *filePath, std::vector<uint8_t> &outData, l
 extern "C" JNIEXPORT jbyteArray
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByMpvdCC(
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideoByMpvdCC(
         JNIEnv *env, jclass clazz, jstring inputFilePath) {
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
     if (!filePath) {
@@ -1502,7 +1563,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByMpv
 extern "C" JNIEXPORT jbyteArray
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP(
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideoByXMP(
         JNIEnv *env, jclass clazz, jstring inputFilePath) {
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
     if (!filePath) {
@@ -1524,14 +1585,14 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
- 
-    MotionPhotoXmpInfo xmpInfo = ParseHeicMotionPhotoXmpWithLibheif(filePath);
+
+    MotionPhotoXmpInfo xmpInfo = ExtractHeicXmpWithLibheif(filePath);
     if (!xmpInfo.isMotionPhoto) {
         LOGD_MP("[ExtractHEIC][XMP] Not a Motion Photo");
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
- 
+
     long mp4Len = xmpInfo.videoLength;
     long mp4StartPos = -1;
     if (mp4Len > 0) {
@@ -1540,12 +1601,12 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP
         mp4StartPos = xmpInfo.videoOffset;
         mp4Len = static_cast<long>(fileSize - mp4StartPos);
     }
- 
+
     if (mp4StartPos < 0 || mp4Len <= 0 || mp4StartPos + mp4Len > fileSize) {
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
- 
+
     jbyteArray result = env->NewByteArray(static_cast<jsize>(mp4Len));
     if (!result) {
         env->ReleaseStringUTFChars(inputFilePath, filePath);
@@ -1553,7 +1614,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP
     }
     env->SetByteArrayRegion(result, 0, static_cast<jsize>(mp4Len),
                             reinterpret_cast<const jbyte *>(fileData.data() + mp4StartPos));
- 
+
     env->ReleaseStringUTFChars(inputFilePath, filePath);
     return result;
 }
@@ -1585,11 +1646,8 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideoByXMP
  * @param inputFilePath JPEG Motion Photo 文件路径
  * @return MP4 video data byte array, returns null on failure
  */
-extern "C" JNIEXPORT jbyteArray
-
-JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
-        JNIEnv *env, jclass clazz, jstring inputFilePath) {
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractJpegVideo(JNIEnv *env, jclass clazz, jstring inputFilePath) {
     LOGI_MP("============================================================");
     LOGI_MP("nativeExtractGoogleJpegMotionPhotoVideo: START");
     LOGI_MP("============================================================");
@@ -1839,11 +1897,8 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractJpegMotionPhotoVideo(
 #define MOTION_PHOTO_TYPE_HEIC 1
 #define MOTION_PHOTO_TYPE_NONE 2
 
-extern "C" JNIEXPORT jint
-
-JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
-        JNIEnv *env, jclass clazz, jstring inputFilePath) {
+extern "C" JNIEXPORT jint JNICALL
+Java_com_seafile_seadroid2_jni_HeicNative_CheckMotionPhotoType(JNIEnv *env, jclass clazz, jstring inputFilePath) {
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
     if (!filePath) {
         LOGE_MP("[CheckType] Failed to get input file path");
@@ -1940,7 +1995,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeCheckMotionPhotoType(
         file = nullptr;
 
         // Method 1: Use libheif to check XMP metadata
-        MotionPhotoXmpInfo xmpInfo = ParseHeicMotionPhotoXmpWithLibheif(filePath);
+        MotionPhotoXmpInfo xmpInfo = ExtractHeicXmpWithLibheif(filePath);
         LOGD_MP("[CheckType] HEIC XMP check: isMotionPhoto=%d",
                 xmpInfo.isMotionPhoto);
 
@@ -2022,142 +2077,246 @@ static std::vector<uint8_t> JByteArrayToVector(JNIEnv *env, jbyteArray arr) {
     return out;
 }
 
-static std::vector<uint8_t> ExtractHeicExifTiff(const char *filePath) {
-    std::vector<uint8_t> out;
-    if (!filePath) return out;
+/**
+ * Read complete EXIF and XMP metadata from HEIC file using libheif
+ * This is the preferred method as it preserves all metadata without manual parsing
+ *
+ * @param filePath Path to HEIC file
+ * @param outExif Output vector for EXIF TIFF data
+ * @param outXmp Output string for XMP XML data
+ * @return true if at least one metadata type was successfully read
+ */
+static bool ReadHeicMetadataWithLibheif(
+        const char *filePath,
+        std::vector<uint8_t> &outExif,
+        std::string &outXmp) {
+
+    outExif.clear();
+    outXmp.clear();
+
+    if (!filePath) return false;
 
     heif_context *ctx = heif_context_alloc();
-    if (!ctx) return out;
+    if (!ctx) {
+        LOGE_MP("[ReadMetadata] Failed to allocate HEIF context");
+        return false;
+    }
 
     heif_error err = heif_context_read_from_file(ctx, filePath, nullptr);
     if (err.code != heif_error_Ok) {
-        LOGE_MP("[ExtractHeicExif] Failed to read HEIC file: %s", err.message);
+        LOGE_MP("[ReadMetadata] Failed to read HEIC file: %s", err.message);
         heif_context_free(ctx);
-        return out;
+        return false;
     }
 
     heif_image_handle *handle = nullptr;
     err = heif_context_get_primary_image_handle(ctx, &handle);
     if (err.code != heif_error_Ok || !handle) {
-        LOGE_MP("[ExtractHeicExif] Failed to get primary image handle: %s", err.message);
+        LOGE_MP("[ReadMetadata] Failed to get primary image handle: %s", err.message);
         heif_context_free(ctx);
-        return out;
+        return false;
     }
 
-    // Get all metadata blocks and filter manually to be more robust
+    bool hasMetadata = false;
     int numMetadata = heif_image_handle_get_number_of_metadata_blocks(handle, nullptr);
-    LOGD_MP("[ExtractHeicExif] Found %d metadata blocks", numMetadata);
+    LOGD_MP("[ReadMetadata] Found %d metadata blocks", numMetadata);
 
     if (numMetadata > 0) {
         std::vector<heif_item_id> metadataIds(numMetadata);
-        heif_image_handle_get_list_of_metadata_block_IDs(handle, nullptr, metadataIds.data(),
-                                                         numMetadata);
+        heif_image_handle_get_list_of_metadata_block_IDs(handle, nullptr, metadataIds.data(), numMetadata);
+
         for (int i = 0; i < numMetadata; i++) {
             heif_item_id id = metadataIds[i];
             const char *type = heif_image_handle_get_metadata_type(handle, id);
             const char *contentType = heif_image_handle_get_metadata_content_type(handle, id);
 
-            LOGD_MP("[ExtractHeicExif] Metadata[%d]: id=%u, type='%s', contentType='%s'",
+            LOGD_MP("[ReadMetadata] Metadata[%d]: id=%u, type='%s', contentType='%s'",
                     i, id, type ? type : "(null)", contentType ? contentType : "(null)");
 
-            // Check if it is Exif (case-insensitive check for robustness)
-            // Standard type is "Exif", but some might use "exif"
-            if (!type || strcasecmp(type, "Exif") != 0) continue;
-
             size_t metadataSize = heif_image_handle_get_metadata_size(handle, id);
-            if (metadataSize == 0) {
-                LOGD_MP("[ExtractHeicExif] Skipping empty Exif block");
-                continue;
-            }
+            if (metadataSize == 0) continue;
 
             std::vector<uint8_t> buf(metadataSize);
             err = heif_image_handle_get_metadata(handle, id, buf.data());
             if (err.code != heif_error_Ok) {
-                LOGE_MP("[ExtractHeicExif] Failed to read Exif metadata: %s", err.message);
+                LOGE_MP("[ReadMetadata] Failed to read metadata block %u: %s", id, err.message);
                 continue;
             }
 
-            // 1. Direct TIFF header (II/MM)
-            if (buf.size() >= 2 &&
-                ((buf[0] == 'I' && buf[1] == 'I') || (buf[0] == 'M' && buf[1] == 'M'))) {
-                out = std::move(buf);
-                LOGD_MP("[ExtractHeicExif] Found Exif data (direct TIFF header), size=%zu", out.size());
-                break;
-            }
+            // Check if EXIF
+            if (type && strcasecmp(type, "Exif") == 0) {
+                // Process EXIF data (may have offset header)
+                std::vector<uint8_t> exifTiff;
+                if (buf.size() >= 2 &&
+                    ((buf[0] == 'I' && buf[1] == 'I') || (buf[0] == 'M' && buf[1] == 'M'))) {
+                    // Direct TIFF header
+                    exifTiff = buf;
+                } else if (buf.size() >= 6 &&
+                           ((buf[4] == 'I' && buf[5] == 'I') || (buf[4] == 'M' && buf[5] == 'M'))) {
+                    // Skip 4 bytes
+                    exifTiff.assign(buf.begin() + 4, buf.end());
+                } else if (buf.size() >= 8) {
+                    // Check for offset in first 4 bytes (Big Endian)
+                    uint32_t offset = (static_cast<uint32_t>(buf[0]) << 24) |
+                                      (static_cast<uint32_t>(buf[1]) << 16) |
+                                      (static_cast<uint32_t>(buf[2]) << 8) |
+                                      static_cast<uint32_t>(buf[3]);
+                    if (offset + 2 <= buf.size() &&
+                        ((buf[offset] == 'I' && buf[offset + 1] == 'I') ||
+                         (buf[offset] == 'M' && buf[offset + 1] == 'M'))) {
+                        exifTiff.assign(buf.begin() + offset, buf.end());
+                    }
+                }
 
-            // 2. Skipped 4 bytes (e.g. offset size or unknown header)
-            if (buf.size() >= 6 &&
-                ((buf[4] == 'I' && buf[5] == 'I') || (buf[4] == 'M' && buf[5] == 'M'))) {
-                out.assign(buf.begin() + 4, buf.end());
-                LOGD_MP("[ExtractHeicExif] Found Exif data (skipped 4 bytes), size=%zu", out.size());
-                break;
-            }
-
-            // 3. Offset specified in first 4 bytes (Big Endian)
-            if (buf.size() >= 8) {
-                uint32_t offset = (static_cast<uint32_t>(buf[0]) << 24) |
-                                  (static_cast<uint32_t>(buf[1]) << 16) |
-                                  (static_cast<uint32_t>(buf[2]) << 8) |
-                                  static_cast<uint32_t>(buf[3]);
-                if (offset + 2 <= buf.size() &&
-                    ((buf[offset] == 'I' && buf[offset + 1] == 'I') ||
-                     (buf[offset] == 'M' && buf[offset + 1] == 'M'))) {
-                    out.assign(buf.begin() + static_cast<long>(offset), buf.end());
-                    LOGD_MP("[ExtractHeicExif] Found Exif data (offset %u), size=%zu", offset, out.size());
-                    break;
+                if (!exifTiff.empty()) {
+                    outExif = std::move(exifTiff);
+                    hasMetadata = true;
+                    LOGI_MP("[ReadMetadata] Read EXIF metadata: %zu bytes", outExif.size());
                 }
             }
 
-            LOGD_MP("[ExtractHeicExif] Exif block found but no valid TIFF header detected");
+            // Check if XMP (content type is "application/rdf+xml")
+            bool isXmp = (contentType && strcmp(contentType, "application/rdf+xml") == 0) ||
+                         (type && strcmp(type, "mime") == 0 && contentType &&
+                          strstr(contentType, "xmp") != nullptr);
+
+            if (isXmp) {
+                outXmp = std::string(reinterpret_cast<const char *>(buf.data()), buf.size());
+                hasMetadata = true;
+                LOGI_MP("[ReadMetadata] Read XMP metadata: %zu bytes", outXmp.size());
+            }
         }
-    } else {
-        LOGD_MP("[ExtractHeicExif] No metadata blocks found");
     }
 
     heif_image_handle_release(handle);
     heif_context_free(ctx);
+
+    if (!hasMetadata) {
+        LOGW_MP("[ReadMetadata] No EXIF or XMP metadata found");
+    }
+
+    return hasMetadata;
+}
+
+static bool HasJpegSoi(const std::vector<uint8_t> &data) {
+    return data.size() >= 2 && data[0] == 0xFF && data[1] == 0xD8;
+}
+
+static bool IsLikelyMp4Slice(const std::vector<uint8_t> &data, long start, long len) {
+    if (start < 0 || len < 12) return false;
+    if (static_cast<size_t>(start + len) > data.size()) return false;
+    size_t ftypPos = static_cast<size_t>(start + 4);
+    return data[ftypPos] == 'f' && data[ftypPos + 1] == 't' &&
+           data[ftypPos + 2] == 'y' && data[ftypPos + 3] == 'p';
+}
+
+static long CalcPrimaryJpegLength(const std::vector<uint8_t> &jpegBytes) {
+    if (jpegBytes.size() < 4) {
+        return -1;
+    }
+    if (jpegBytes[0] != 0xFF || jpegBytes[1] != 0xD8) {
+        return -1;
+    }
+
+    size_t offset = 2;
+    const size_t size = jpegBytes.size();
+
+    while (offset < size) {
+        // Skip non-FF bytes (filler or corruption)
+        if (jpegBytes[offset] != 0xFF) {
+            offset++;
+            continue;
+        }
+
+        // Found FF, skip subsequent padding FFs (keep the marker's FF)
+        while (offset + 1 < size && jpegBytes[offset + 1] == 0xFF) {
+            offset++;
+        }
+        if (offset + 1 >= size) break;
+
+        // Read marker
+        uint8_t marker = jpegBytes[offset + 1];
+        offset += 2;
+
+        if ((marker >= 0xD0 && marker <= 0xD7) || marker == 0xD8 || marker == 0xD9 || marker == 0x01) {
+            if (marker == 0xD9) {
+                return static_cast<long>(offset);
+            }
+            continue;
+        }
+
+        if (marker == 0xDA) {
+            if (offset + 2 > size - 2) return -1;
+            uint16_t len = (static_cast<uint16_t>(jpegBytes[offset]) << 8) |
+                           static_cast<uint16_t>(jpegBytes[offset + 1]);
+            if (len < 2) return -1;
+            offset += len;
+
+            while (offset + 1 < size) {
+                uint8_t b = jpegBytes[offset];
+                if (b == 0xFF) {
+                    uint8_t next = jpegBytes[offset + 1];
+                    if (next == 0x00) {
+                        offset += 2;
+                        continue;
+                    }
+                    if (next == 0xD9) {
+                        return static_cast<long>(offset + 2);
+                    }
+                }
+                offset++;
+            }
+            break;
+        }
+
+        // For all other markers, treat as having a length field and skip safely.
+        if (offset + 2 > size - 2) return -1;
+        uint16_t len = (static_cast<uint16_t>(jpegBytes[offset]) << 8) |
+                       static_cast<uint16_t>(jpegBytes[offset + 1]);
+        if (len < 2) return -1;
+        offset += len;
+    }
+
+    return -1;
+}
+
+static std::vector<uint8_t> SliceBytes(const std::vector<uint8_t> &data, long start, long len) {
+    std::vector<uint8_t> out;
+    if (start < 0 || len <= 0) return out;
+    if (static_cast<size_t>(start + len) > data.size()) return out;
+    out.insert(out.end(), data.begin() + start, data.begin() + start + len);
     return out;
 }
 
-static std::vector<uint8_t> ExtractPrimaryJpegFromHeic(const char *filePath, int quality) {
+static std::vector<uint8_t> ExtractGainMapJpegFromMotionPhotoBytes(const std::vector<uint8_t> &data,
+                                                                   long start, long len, long padding) {
+    if (start < 0 || len < 4) return {};
+    if (static_cast<size_t>(start + len) > data.size()) return {};
+    if (data[static_cast<size_t>(start)] != 0xFF || data[static_cast<size_t>(start + 1)] != 0xD8) {
+        return {};
+    }
+    if (padding < 0) return {};
+    return SliceBytes(data, start, len);
+}
+
+static std::vector<uint8_t> EncodeHeifHandleToJpeg(heif_image_handle *handle, int quality) {
     std::vector<uint8_t> out;
-    if (!filePath) return out;
-
-    heif_context *ctx = heif_context_alloc();
-    if (!ctx) return out;
-
-    heif_error err = heif_context_read_from_file(ctx, filePath, nullptr);
-    if (err.code != heif_error_Ok) {
-        heif_context_free(ctx);
-        return out;
-    }
-
-    heif_image_handle *handle = nullptr;
-    err = heif_context_get_primary_image_handle(ctx, &handle);
-    if (err.code != heif_error_Ok || !handle) {
-        heif_context_free(ctx);
-        return out;
-    }
+    if (!handle) return out;
 
     heif_image *image = nullptr;
-    err = heif_decode_image(handle, &image, heif_colorspace_RGB, heif_chroma_interleaved_RGB,
-                            nullptr);
+    heif_error err = heif_decode_image(handle, &image, heif_colorspace_RGB,
+                                       heif_chroma_interleaved_RGB, nullptr);
     if (err.code != heif_error_Ok || !image) {
-        heif_image_handle_release(handle);
-        heif_context_free(ctx);
         return out;
     }
 
     int stride = 0;
-    const uint8_t *plane =
-            heif_image_get_plane_readonly(image, heif_channel_interleaved, &stride);
+    const uint8_t *plane = heif_image_get_plane_readonly(image, heif_channel_interleaved, &stride);
     int width = heif_image_get_width(image, heif_channel_interleaved);
     int height = heif_image_get_height(image, heif_channel_interleaved);
 
     if (!plane || width <= 0 || height <= 0 || stride <= 0) {
         heif_image_release(image);
-        heif_image_handle_release(handle);
-        heif_context_free(ctx);
         return out;
     }
 
@@ -2199,19 +2358,143 @@ static std::vector<uint8_t> ExtractPrimaryJpegFromHeic(const char *filePath, int
     }
 
     heif_image_release(image);
+    return out;
+}
+
+static std::vector<uint8_t> ExtractHeicHdrData(const char *filePath) {
+    std::vector<uint8_t> out;
+    if (!filePath) return out;
+
+    heif_context *ctx = heif_context_alloc();
+    if (!ctx) return out;
+
+    heif_error err = heif_context_read_from_file(ctx, filePath, nullptr);
+    if (err.code != heif_error_Ok) {
+        LOGE_MP("[ExtractHeicHdr] Failed to read HEIC file: %s", err.message);
+        heif_context_free(ctx);
+        return out;
+    }
+
+    heif_image_handle *handle = nullptr;
+    err = heif_context_get_primary_image_handle(ctx, &handle);
+    if (err.code != heif_error_Ok || !handle) {
+        LOGE_MP("[ExtractHeicHdr] Failed to get primary image handle: %s", err.message);
+        heif_context_free(ctx);
+        return out;
+    }
+
+    int numMetadata = heif_image_handle_get_number_of_metadata_blocks(handle, nullptr);
+    LOGD_MP("[ExtractHeicHdr] Found %d metadata blocks", numMetadata);
+
+    if (numMetadata > 0) {
+        std::vector<heif_item_id> metadataIds(numMetadata);
+        heif_image_handle_get_list_of_metadata_block_IDs(handle, nullptr, metadataIds.data(), numMetadata);
+
+        for (int i = 0; i < numMetadata; i++) {
+            heif_item_id id = metadataIds[i];
+            const char *type = heif_image_handle_get_metadata_type(handle, id);
+            const char *contentType = heif_image_handle_get_metadata_content_type(handle, id);
+
+            LOGD_MP("[ExtractHeicHdr] Metadata[%d]: id=%u, type='%s', contentType='%s'",
+                    i, id, type ? type : "(null)", contentType ? contentType : "(null)");
+
+            if (!type || strcasecmp(type, "mime") != 0) continue;
+
+            bool isGainMapType = false;
+            if (contentType) {
+                std::string ct(contentType);
+                std::transform(ct.begin(), ct.end(), ct.begin(),
+                               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                if (ct.find("jpeg+gainmap") != std::string::npos || ct.find("gainmap") != std::string::npos) {
+                    isGainMapType = true;
+                }
+            }
+
+            size_t metadataSize = heif_image_handle_get_metadata_size(handle, id);
+            if (metadataSize == 0) {
+                LOGD_MP("[ExtractHeicHdr] Skipping empty mime block");
+                continue;
+            }
+
+            std::vector<uint8_t> buf(metadataSize);
+            err = heif_image_handle_get_metadata(handle, id, buf.data());
+            if (err.code != heif_error_Ok) {
+                LOGE_MP("[ExtractHeicHdr] Failed to read mime metadata: %s", err.message);
+                continue;
+            }
+
+            if (!HasJpegSoi(buf)) {
+                LOGD_MP("[ExtractHeicHdr] Skipping non-JPEG mime metadata");
+                continue;
+            }
+
+            if (!isGainMapType) {
+                LOGD_MP("[ExtractHeicHdr] Skipping JPEG mime metadata without gainmap content-type");
+                continue;
+            }
+
+            // Return complete data without EOI trimming
+            // Caller will handle EOI-based padding calculation based on XMP length
+            out = std::move(buf);
+            LOGD_MP("[ExtractHeicHdr] Found HDR gainmap metadata, size=%zu", out.size());
+            break;
+        }
+    } else {
+        LOGD_MP("[ExtractHeicHdr] No metadata blocks found");
+    }
+
     heif_image_handle_release(handle);
     heif_context_free(ctx);
     return out;
 }
 
+static std::vector<uint8_t> ExtractPrimaryJpegFromHeic(const char *filePath, int quality) {
+    std::vector<uint8_t> out;
+    if (!filePath) return out;
+
+    heif_context *ctx = heif_context_alloc();
+    if (!ctx) return out;
+
+    heif_error err = heif_context_read_from_file(ctx, filePath, nullptr);
+    if (err.code != heif_error_Ok) {
+        heif_context_free(ctx);
+        return out;
+    }
+
+    heif_image_handle *handle = nullptr;
+    err = heif_context_get_primary_image_handle(ctx, &handle);
+    if (err.code != heif_error_Ok || !handle) {
+        heif_context_free(ctx);
+        return out;
+    }
+
+    out = EncodeHeifHandleToJpeg(handle, quality);
+    heif_image_handle_release(handle);
+    heif_context_free(ctx);
+    return out;
+}
 
 static size_t FindJpegAppInsertPos(const std::vector<uint8_t> &jpeg) {
     if (jpeg.size() < 4) return 0;
     if (jpeg[0] != 0xFF || jpeg[1] != 0xD8) return 0;
 
     size_t pos = 2;
+    size_t skipCount = 0;
+    const size_t MAX_SKIP = 10; // Skip at most 10 non-FF bytes
+
     while (pos + 4 <= jpeg.size()) {
-        if (jpeg[pos] != 0xFF) break;
+        // Skip non-FF bytes (up to MAX_SKIP)
+        if (jpeg[pos] != 0xFF) {
+            skipCount++;
+            if (skipCount > MAX_SKIP) {
+                LOGW_MP("[FindJpegAppInsertPos] Too many non-FF bytes, stopping at %zu", pos);
+                break;
+            }
+            pos++;
+            continue;
+        }
+        skipCount = 0; // Reset counter
+
         uint8_t marker = jpeg[pos + 1];
         if (marker == 0xDA || marker == 0xD9) break;
         if (marker >= 0xE0 && marker <= 0xEF) {
@@ -2226,6 +2509,106 @@ static size_t FindJpegAppInsertPos(const std::vector<uint8_t> &jpeg) {
         break;
     }
     return pos;
+}
+
+/**
+ * Remove EXIF and XMP APP1 segments from JPEG data
+ * Returns cleaned JPEG data
+ */
+static std::vector<uint8_t> RemoveJpegAppSegments(const std::vector<uint8_t> &jpeg) {
+    if (jpeg.size() < 4 || jpeg[0] != 0xFF || jpeg[1] != 0xD8) {
+        return jpeg;
+    }
+
+    std::vector<uint8_t> result;
+    result.reserve(jpeg.size());
+
+    // Copy SOI
+    result.push_back(jpeg[0]);
+    result.push_back(jpeg[1]);
+
+    size_t pos = 2;
+    size_t skipCount = 0;
+    const size_t MAX_SKIP = 10; // Skip at most 10 non-FF bytes
+
+    while (pos + 4 <= jpeg.size()) {
+        // Skip non-FF bytes (up to MAX_SKIP) to handle minor corruption
+        if (jpeg[pos] != 0xFF) {
+            skipCount++;
+            if (skipCount > MAX_SKIP) {
+                LOGW_MP("[RemoveAppSegments] Too many non-FF bytes at %zu, copying rest", pos);
+                // Copy remaining data and exit
+                if (pos < jpeg.size()) {
+                    result.insert(result.end(), jpeg.begin() + pos, jpeg.end());
+                }
+                break;
+            }
+            pos++;
+            continue;
+        }
+        skipCount = 0; // Reset counter
+
+        uint8_t marker = jpeg[pos + 1];
+        if (marker == 0xDA || marker == 0xD9) break;
+
+        if (marker >= 0xE0 && marker <= 0xEF) {
+            uint16_t len = (static_cast<uint16_t>(jpeg[pos + 2]) << 8) |
+                           static_cast<uint16_t>(jpeg[pos + 3]);
+            if (len < 2 || pos + 2 + len > jpeg.size()) break;
+
+            size_t segmentDataStart = pos + 4;
+            size_t segmentDataLen = len - 2;
+
+            // Check if this is EXIF or XMP segment
+            bool isExifOrXmp = false;
+
+            if (marker == 0xE1) { // APP1
+                // Check for EXIF
+                if (segmentDataLen >= 6 &&
+                    jpeg[segmentDataStart] == 'E' &&
+                    jpeg[segmentDataStart + 1] == 'x' &&
+                    jpeg[segmentDataStart + 2] == 'i' &&
+                    jpeg[segmentDataStart + 3] == 'f' &&
+                    jpeg[segmentDataStart + 4] == 0x00 &&
+                    jpeg[segmentDataStart + 5] == 0x00) {
+                    LOGD_MP("[RemoveAppSegments] Skipping EXIF segment at %zu", pos);
+                    isExifOrXmp = true;
+                }
+                    // Check for XMP
+                else {
+                    const char *XMP_MARKER = "http://ns.adobe.com/xap/1.0/";
+                    size_t markerLen = strlen(XMP_MARKER);
+                    if (segmentDataLen > markerLen + 1 &&
+                        memcmp(jpeg.data() + segmentDataStart, XMP_MARKER, markerLen) == 0) {
+                        LOGD_MP("[RemoveAppSegments] Skipping XMP segment at %zu", pos);
+                        isExifOrXmp = true;
+                    }
+                }
+            }
+
+            if (isExifOrXmp) {
+                // Skip this segment
+                pos += 2 + len;
+                continue;
+            }
+
+            // Copy other segments
+            result.insert(result.end(), jpeg.begin() + pos, jpeg.begin() + pos + 2 + len);
+            pos += 2 + len;
+            continue;
+        }
+
+        break;
+    }
+
+    // Copy remaining data (important for SOS and image scan data)
+    if (pos < jpeg.size()) {
+        result.insert(result.end(), jpeg.begin() + pos, jpeg.end());
+    }
+
+    LOGD_MP("[RemoveAppSegments] Original size: %zu, Cleaned size: %zu",
+            jpeg.size(), result.size());
+    return result;
 }
 
 static bool AppendApp1Segment(std::vector<uint8_t> &out, const uint8_t *payload, size_t payloadLen) {
@@ -2244,7 +2627,11 @@ static std::vector<uint8_t> BuildJpegMotionPhotoBytes(
         const std::vector<uint8_t> &primaryJpeg,
         const std::string &xmpXml,
         const std::vector<uint8_t> &exifTiff,
-        const std::vector<uint8_t> &mp4) {
+        const std::vector<uint8_t> &hdrData,
+        const std::vector<uint8_t> &mp4,
+        size_t primaryPadding,
+        size_t hdrPadding,
+        size_t videoPadding) {
     std::vector<uint8_t> out;
     if (primaryJpeg.size() < 4 || primaryJpeg[0] != 0xFF || primaryJpeg[1] != 0xD8) {
         return out;
@@ -2254,26 +2641,54 @@ static std::vector<uint8_t> BuildJpegMotionPhotoBytes(
     }
 
     size_t insertPos = FindJpegAppInsertPos(primaryJpeg);
-    if (insertPos == 0 || insertPos > primaryJpeg.size()) return out;
+    if (insertPos < 2 || insertPos > primaryJpeg.size()) {
+        LOGE_MP("[BuildJpegMotionPhotoBytes] Invalid insertPos: %zu (expected >= 2)", insertPos);
+        return out;
+    }
 
-    size_t reserveSize =
-            primaryJpeg.size() + mp4.size() + exifTiff.size() + xmpXml.size() + 256;
+    // Remove existing EXIF/XMP segments to avoid duplication
+    std::vector<uint8_t> cleanedJpeg = RemoveJpegAppSegments(primaryJpeg);
+
+    size_t reserveSize = cleanedJpeg.size() + mp4.size() + exifTiff.size() + xmpXml.size() +
+                         hdrData.size() + primaryPadding + hdrPadding + videoPadding + 256;
     out.reserve(reserveSize);
 
-    out.insert(out.end(), primaryJpeg.begin(), primaryJpeg.begin() + static_cast<long>(insertPos));
+    // Copy JPEG data up to insertPos (SOI and other APP markers)
+    out.insert(out.end(), cleanedJpeg.begin(), cleanedJpeg.begin() + static_cast<long>(insertPos));
 
+    // Add EXIF APP1 segment
+    // IMPORTANT: exifTiff may or may not have "Exif\0\0" header, check first
     if (!exifTiff.empty()) {
-        const uint8_t exifHeader[] = {'E', 'x', 'i', 'f', 0x00, 0x00};
-        std::vector<uint8_t> exifPayload;
-        exifPayload.reserve(sizeof(exifHeader) + exifTiff.size());
-        exifPayload.insert(exifPayload.end(), exifHeader, exifHeader + sizeof(exifHeader));
-        exifPayload.insert(exifPayload.end(), exifTiff.begin(), exifTiff.end());
-        if (!AppendApp1Segment(out, exifPayload.data(), exifPayload.size())) {
-            out.clear();
-            return out;
+        // Check if exifTiff already has "Exif\0\0" header
+        bool hasExifHeader = (exifTiff.size() >= 6 &&
+                             exifTiff[0] == 'E' && exifTiff[1] == 'x' &&
+                             exifTiff[2] == 'i' && exifTiff[3] == 'f' &&
+                             exifTiff[4] == 0x00 && exifTiff[5] == 0x00);
+
+        if (hasExifHeader) {
+            // Already has header, use as-is
+            if (!AppendApp1Segment(out, exifTiff.data(), exifTiff.size())) {
+                out.clear();
+                return out;
+            }
+            LOGD_MP("[BuildJpegMotionPhotoBytes] EXIF has header, using as-is: %zu bytes", exifTiff.size());
+        } else {
+            // Pure TIFF data, add "Exif\0\0" header
+            const uint8_t exifHeader[] = {'E', 'x', 'i', 'f', 0x00, 0x00};
+            std::vector<uint8_t> exifPayload;
+            exifPayload.reserve(sizeof(exifHeader) + exifTiff.size());
+            exifPayload.insert(exifPayload.end(), exifHeader, exifHeader + sizeof(exifHeader));
+            exifPayload.insert(exifPayload.end(), exifTiff.begin(), exifTiff.end());
+            if (!AppendApp1Segment(out, exifPayload.data(), exifPayload.size())) {
+                out.clear();
+                return out;
+            }
+            LOGD_MP("[BuildJpegMotionPhotoBytes] EXIF is pure TIFF, added header: %zu bytes", exifPayload.size());
         }
     }
 
+    // Add XMP APP1 segment
+    // IMPORTANT: xmpXml is the XML content only, no marker/header
     if (!xmpXml.empty()) {
         const char *xmpMarker = "http://ns.adobe.com/xap/1.0/";
         size_t markerLen = strlen(xmpMarker);
@@ -2290,10 +2705,30 @@ static std::vector<uint8_t> BuildJpegMotionPhotoBytes(
             out.clear();
             return out;
         }
+        LOGD_MP("[BuildJpegMotionPhotoBytes] XMP added: %zu bytes", xmpPayload.size());
     }
 
-    out.insert(out.end(), primaryJpeg.begin() + static_cast<long>(insertPos), primaryJpeg.end());
+    // Copy remaining JPEG data (from insertPos to end)
+    out.insert(out.end(), cleanedJpeg.begin() + static_cast<long>(insertPos), cleanedJpeg.end());
+    if (primaryPadding > 0) {
+        out.insert(out.end(), primaryPadding, 0x00);
+    }
+
+    //hdr
+    if (!hdrData.empty()) {
+        out.insert(out.end(), hdrData.begin(), hdrData.end());
+        if (hdrPadding > 0) {
+            out.insert(out.end(), hdrPadding, 0x00);
+        }
+    } else if (hdrPadding > 0) {
+        out.insert(out.end(), hdrPadding, 0x00);
+    }
+
+    //mp4
     out.insert(out.end(), mp4.begin(), mp4.end());
+    if (videoPadding > 0) {
+        out.insert(out.end(), videoPadding, 0x00);
+    }
     return out;
 }
 
@@ -2307,26 +2742,33 @@ static bool WriteBytesToFile(const char *path, const std::vector<uint8_t> &bytes
     return written == bytes.size();
 }
 
-
 /**
  * Generate Google Heic Motion Photo format XMP metadata
  */
-static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength) {
-    LOGD_MP("[GenerateXMP] START - mp4VideoLength=%zu", mp4VideoLength);
+static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrDataSize, size_t presentationTimestampUs) {
+    LOGD_MP("[GenerateXMP] START - mp4VideoLength=%zu, hdrDataSize=%zu", mp4VideoLength, hdrDataSize);
 
     std::string xmp = R"(<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.1.0-jc003">
   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <rdf:Description rdf:about=""
         xmlns:GCamera="http://ns.google.com/photos/1.0/camera/"
         xmlns:Container="http://ns.google.com/photos/1.0/container/"
-        xmlns:Item="http://ns.google.com/photos/1.0/container/item/"
+        xmlns:Item="http://ns.google.com/photos/1.0/container/item/")";
+
+    if (hdrDataSize > 0) {
+        xmp += R"(
+        xmlns:hdrgm="http://ns.adobe.com/hdr-gain-map/1.0/"
+        hdrgm:Version="1.0")";
+    }
+
+    xmp += R"(
         GCamera:MicroVideo="1"
         GCamera:MicroVideoVersion="1"
         GCamera:MicroVideoOffset=")" + std::to_string(mp4VideoLength) + R"("
-        GCamera:MicroVideoPresentationTimestampUs="0"
+        GCamera:MicroVideoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"(""
         GCamera:MotionPhoto="1"
         GCamera:MotionPhotoVersion="1"
-        GCamera:MotionPhotoPresentationTimestampUs="0">
+        GCamera:MotionPhotoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"("">
       <Container:Directory>
         <rdf:Seq>
           <rdf:li rdf:parseType="Resource">
@@ -2335,34 +2777,48 @@ static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength) {
               Item:Semantic="Primary"
               Item:Length="0"
               Item:Padding="0"/>
-          </rdf:li>
+          </rdf:li>)";
+
+    // hdr item
+    if (hdrDataSize > 0) {
+        xmp += R"(
           <rdf:li rdf:parseType="Resource">
             <Container:Item
-              Item:Mime="video/mp4"
-              Item:Semantic="MotionPhoto"
-              Item:Padding="8"
-              Item:Length=")" + std::to_string(mp4VideoLength) + R"("/>
-          </rdf:li>
-        </rdf:Seq>
-      </Container:Directory>
-    </rdf:Description>
-  </rdf:RDF>
-</x:xmpmeta>)";
+              Item:Mime="image/jpeg"
+              Item:Semantic="GainMap"
+              Item:Length=")" + std::to_string(hdrDataSize) + R"("
+              Item:Padding="0"/>
+          </rdf:li>)";
+    }
+
+    // motion photo item
+    xmp += R"(
+              <rdf:li rdf:parseType="Resource">
+                <Container:Item
+                  Item:Mime="video/mp4"
+                  Item:Semantic="MotionPhoto"
+                  Item:Padding="8"
+                  Item:Length=")" + std::to_string(mp4VideoLength) + R"("/>
+              </rdf:li>
+            </rdf:Seq>
+          </Container:Directory>
+        </rdf:Description>
+      </rdf:RDF>
+    </x:xmpmeta>)";
 
     LOGD_MP("[GenerateXMP] XMP size=%zu bytes", xmp.size());
-    LOGD_MP("[GenerateXMP] XMP fields: MotionPhoto=1, Version=1, TimestampUs=0");
+    LOGD_MP("[GenerateXMP] XMP fields: MotionPhoto=1, Version=1, TimestampUs=%zu", presentationTimestampUs);
     LOGD_MP("[GenerateXMP] Primary: Mime=image/heic, Semantic=Primary, Padding=8");
+    if (hdrDataSize > 0) {
+        LOGD_MP("[GenerateXMP] GainMap: Mime=image/jpeg, Semantic=GainMap, Length=%zu", hdrDataSize);
+    }
     LOGD_MP("[GenerateXMP] Video: Mime=video/mp4, Semantic=MotionPhoto, Length=%zu", mp4VideoLength);
     return xmp;
 }
 
-/**
- * Different Motion photo XMP characters are obtained according to the manufacturer
- * */
-static std::string GetSupportedVendorsMotionPhotoXMPCharacters(const std::string &vendor, std::int32_t videoLength) {
-    std::string xmp = "GCamera:MotionPhoto=\"1\"\n"
-                      "GCamera:MotionPhotoVersion=\"1\"\n"
-                      "GCamera:MotionPhotoPresentationTimestampUs=\"0\"\n";
+
+static std::string GetSupportedVendorsMotionPhotoNamespace(const std::string &vendor) {
+    std::string xmp;
     if (vendor.empty()) {
         return xmp;
     }
@@ -2371,35 +2827,99 @@ static std::string GetSupportedVendorsMotionPhotoXMPCharacters(const std::string
     LOGD_MP("[GetSupportedVendorsMotionPhotoXMPCharacters] vendor=%s", v.c_str());
     std::transform(v.begin(), v.end(), v.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     if (v == "oppo" || v == "oplus" || v == "realme") {
-        xmp += "OpCamera:MotionPhotoPresentationTimestampUs=\"0\"\n"
-               "OpCamera:MotionPhotoOwner=\"oplus\"\n"
-               "OpCamera:OLivePhotoVersion=\"2\"\n"
-               "OpCamera:VideoLength=\"" + std::to_string(videoLength) + "\"\n";
+        xmp += "        xmlns:OpCamera=\"http://ns.oplus.com/photos/1.0/camera/\"\n";
         return xmp;
     }
+
+//    if (v == "vivo" || v == "huawei" || v == "xiaomi") {
+//
+//    }
+
+    return xmp;
+}
+
+/**
+ * Different Motion photo XMP characters are obtained according to the manufacturer
+ * @param vendor Device vendor (e.g., "oppo", "xiaomi")
+ * @param videoLength Video data length in bytes
+ * @param presentationTimestampUs Presentation timestamp in microseconds (0 if unknown)
+ * @param primaryPresentationTimestampUs Primary presentation timestamp in microseconds (for oppo/realme)
+ * */
+static std::string GetSupportedVendorsMotionPhotoXMPCharacters(
+        const std::string &vendor, std::int32_t videoLength,long presentationTimestampUs) {
+
+    std::string xmp;
+    xmp += "GCamera:MotionPhoto=\"1\"\n";
+    xmp += "GCamera:MotionPhotoVersion=\"1\"\n";
+    xmp += "GCamera:MotionPhotoPresentationTimestampUs=\"" + std::to_string(presentationTimestampUs) + "\"\n";
+
+    if (vendor.empty()) {
+        return xmp;
+    }
+
+    std::string v = vendor;
+    LOGD_MP("[GetSupportedVendorsMotionPhotoXMPCharacters] vendor=%s", v.c_str());
+    std::transform(v.begin(), v.end(), v.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    if (v == "oppo" || v == "oplus" || v == "realme") {
+//        xmp += "OpCamera:MotionPhotoPresentationTimestampUs=\"" + std::to_string(presentationTimestampUs) + "\"\n";
+        xmp += "OpCamera:MotionPhotoOwner=\"oplus\"\n";
+        xmp += "OpCamera:OLivePhotoVersion=\"2\"\n";
+        xmp += "OpCamera:MotionPhotoPrimaryPresentationTimestampUs=\"" + std::to_string(presentationTimestampUs) + "\"\n";
+//        xmp += "OpCamera:VideoLength=\"" + std::to_string(videoLength) + "\"\n";
+        return xmp;
+    }
+
     if (v == "vivo" || v == "huawei") {
         return "";
     }
+
     if (v == "xiaomi") {
-        xmp += "GCamera:MicroVideo=\"1\"\n"
-               "GCamera:MicroVideoVersion=\"1\"\n"
-               "GCamera:MicroVideoOffset=\"" + std::to_string(videoLength) + "\"\n"
-                                                                             "GCamera:MicroVideoPresentationTimestampUs=\"0\"\n";
+        xmp += "GCamera:MicroVideo=\"1\"\n";
+        xmp += "GCamera:MicroVideoVersion=\"1\"\n";
+        xmp += "GCamera:MicroVideoOffset=\"" + std::to_string(videoLength) + "\"\n";
+        xmp += "GCamera:MicroVideoPresentationTimestampUs=\"" + std::to_string(presentationTimestampUs) + "\"\n";
         return xmp;
     }
     return xmp;
 }
 
-static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, std::string vendor) {
-    std::string nameXmp = GetSupportedVendorsMotionPhotoXMPCharacters(vendor, static_cast<std::int32_t>(mp4VideoLength));
+static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, size_t hdrDataSize,
+                                              std::string vendor,
+                                              long presentationTimestampUs = 0) {
+
+    // standard XMP
     std::string xmp;
     xmp += "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.1.0-jc003\">\n";
     xmp += "  <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n";
     xmp += "    <rdf:Description rdf:about=\"\"\n";
+
+
+    // hdr namespace
+    if (hdrDataSize > 0) {
+        xmp += "        xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/1.0/\"\n";
+    }
+
+    // google namespace
     xmp += "        xmlns:GCamera=\"http://ns.google.com/photos/1.0/camera/\"\n";
+
+    //
+    std::string nameSpace = GetSupportedVendorsMotionPhotoNamespace(vendor);
+    if (!nameSpace.empty()) {
+        xmp += nameSpace;
+    }
+
     xmp += "        xmlns:Container=\"http://ns.google.com/photos/1.0/container/\"\n";
     xmp += "        xmlns:Item=\"http://ns.google.com/photos/1.0/container/item/\"\n";
-    xmp += "        xmlns:OpCamera=\"http://ns.oplus.com/photos/1.0/camera/\"\n";
+
+    if (hdrDataSize > 0) {
+        xmp += "        hdrgm:Version=\"1.0\"\n";
+    }
+
+    // vendor XMP characters
+    std::string nameXmp = GetSupportedVendorsMotionPhotoXMPCharacters(
+            vendor, static_cast<std::int32_t>(mp4VideoLength),
+            presentationTimestampUs);
+
     if (!nameXmp.empty()) {
         size_t start = 0;
         while (true) {
@@ -2412,6 +2932,8 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, std::string
             start = end + 1;
         }
     }
+
+    // Container Item
     xmp += "        >\n";
     xmp += "      <Container:Directory>\n";
     xmp += "        <rdf:Seq>\n";
@@ -2420,15 +2942,30 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, std::string
     xmp += "                Item:Mime=\"image/jpeg\"\n";
     xmp += "                Item:Semantic=\"Primary\"\n";
     xmp += "                Item:Length=\"0\"\n";
-    xmp += "                Item:Padding=\"0\" />\n";
+    xmp += "                Item:Padding=\"0\"/>\n";
     xmp += "          </rdf:li>\n";
+
+    // hdr item
+    if (hdrDataSize > 0) {
+        xmp += "          <rdf:li rdf:parseType=\"Resource\">\n";
+        xmp += "            <Container:Item\n";
+        xmp += "                Item:Mime=\"image/jpeg\"\n";
+        xmp += "                Item:Semantic=\"GainMap\"\n";
+        xmp += "                Item:Length=\"" + std::to_string(hdrDataSize) + "\"\n";
+        xmp += "                Item:Padding=\"0\" />\n";
+        xmp += "          </rdf:li>\n";
+    }
+
+    // video item
     xmp += "          <rdf:li rdf:parseType=\"Resource\">\n";
     xmp += "            <Container:Item\n";
     xmp += "                Item:Mime=\"video/mp4\"\n";
     xmp += "                Item:Semantic=\"MotionPhoto\"\n";
     xmp += "                Item:Length=\"" + std::to_string(mp4VideoLength) + "\"\n";
-    xmp += "                Item:Padding=\"0\" />\n";
+    xmp += "                />\n";  // Video is last, no padding
     xmp += "          </rdf:li>\n";
+
+    // tail
     xmp += "        </rdf:Seq>\n";
     xmp += "      </Container:Directory>\n";
     xmp += "    </rdf:Description>\n";
@@ -2448,22 +2985,18 @@ static std::string GenerateJpegMotionPhotoXMP(size_t mp4VideoLength, std::string
  * 2. Generate HEIC file via nativeGenGoogleMotionPhotoWithHeic() method
  * 3. Write generated file to outPath. And return outPath.
  *
- * @param primaryHdrVideoSizeArray long array
- * - Length is 6, namely:
- *   - 0: Image offset
- *   - 1: Image length
- *   - 2: HDR offset
- *   - 3: HDR length
- *   - 4: Video offset
- *   - 5: Video length
- * */
+ * XMP-based extraction:
+ * 1. Validate JPEG container and compute primary image length
+ * 2. Parse XMP container items (Primary/GainMap/MotionPhoto)
+ * 3. Extract Primary JPEG, optional GainMap JPEG, and MP4 video
+ */
 extern "C" JNIEXPORT jstring
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNIEnv *env, jclass clazz,
-                                                                             jstring inputJpegFilePath,
-                                                                             jlongArray primaryHdrVideoSizeArray,
-                                                                             jstring outPath) {
+Java_com_seafile_seadroid2_jni_HeicNative_ConvertJpeg2Heic(
+        JNIEnv *env, jclass clazz,
+        jstring inputJpegFilePath,
+        jstring outPath) {
     LOGI_MP("============================================================");
     LOGI_MP("nativeConvertJpegMotionPhotoToHeic: START");
     LOGI_MP("============================================================");
@@ -2516,97 +3049,156 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
     }
     LOGD_MP("[Convert] Valid JPEG header detected (FF D8 FF)");
 
-    // Parse primaryHdrVideoSizeArray parameter to get offsets of each part
-    // Fixed length of 6: [Image Offset, Image Length, HDR Offset, HDR Length, Video Offset, Video Length]
+    long primaryLen = CalcPrimaryJpegLength(fileData);
+    if (primaryLen <= 0 || primaryLen > fileSize) {
+        LOGE_MP("[Convert] Invalid primary JPEG length: %ld (fileSize=%ld)", primaryLen, fileSize);
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: invalid primary JPEG length");
+    }
+
+    MotionPhotoXmpInfo xmpInfo = ParseJpegMotionPhotoXmp(fileData);
+    if (!xmpInfo.isMotionPhoto) {
+        LOGE_MP("[Convert] No Motion Photo XMP metadata found");
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: no motion photo metadata");
+    }
+
     long jpegStart = 0;
-    long jpegLen = 0;
-    long hdrStart = 0;
+    long jpegLen = primaryLen;
+    long hdrStart = -1;
     long hdrLen = 0;
-    long videoStart = 0;
+    long videoStart = -1;
     long videoLen = 0;
+    long primaryPadding = 0;
+    long hdrPadding = 0;
+    long videoPadding = 0;
+    long presentationTimestampUs = xmpInfo.presentationTimestampUs;
 
-    if (primaryHdrVideoSizeArray == nullptr) {
-        LOGE_MP("[Convert] primaryHdrVideoSizeArray parameter is null");
-        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
-        return env->NewStringUTF("error: primaryHdrVideoSizeArray is null");
-    }
-
-    jsize arrayLen = env->GetArrayLength(primaryHdrVideoSizeArray);
-    if (arrayLen != 6) {
-        LOGE_MP("[Convert] Invalid primaryHdrVideoSizeArray length: %d (expected 6)", arrayLen);
-        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
-        return env->NewStringUTF("error: invalid primaryHdrVideoSizeArray length");
-    }
-
-    jlong *offsets = env->GetLongArrayElements(primaryHdrVideoSizeArray, nullptr);
-    if (offsets == nullptr) {
-        LOGE_MP("[Convert] Failed to get primaryHdrVideoSizeArray array elements");
-        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
-        return env->NewStringUTF("error: failed to get offsets");
-    }
-
-    jpegStart = static_cast<long>(offsets[0]);
-    jpegLen = static_cast<long>(offsets[1]);
-    hdrStart = static_cast<long>(offsets[2]);
-    hdrLen = static_cast<long>(offsets[3]);
-    videoStart = static_cast<long>(offsets[4]);
-    videoLen = static_cast<long>(offsets[5]);
-
-    LOGD_MP("[Convert] Offsets: Jpeg[offset=%ld, len=%ld], HDR[offset=%ld, len=%ld], Video[offset=%ld, len=%ld]",
-            jpegStart, jpegLen, hdrStart, hdrLen, videoStart, videoLen);
-
-    env->ReleaseLongArrayElements(primaryHdrVideoSizeArray, offsets, JNI_ABORT);
-
-    // Validate offset and length validity
-    bool hasHdr = (hdrStart != 0 || hdrLen != 0);
-
-    if (jpegStart < 0 || jpegLen <= 0 || jpegStart + jpegLen > fileSize) {
-        LOGE_MP("[Convert] Invalid JPEG data range: offset=%ld, len=%ld, fileSize=%ld", jpegStart, jpegLen, fileSize);
-        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
-        return env->NewStringUTF("error: invalid JPEG data range");
-    }
-
-    if (hasHdr) {
-        if (hdrStart < 0 || hdrLen <= 0 || hdrStart + hdrLen > fileSize) {
-            LOGE_MP("[Convert] Invalid HDR data range: offset=%ld, len=%ld, fileSize=%ld", hdrStart, hdrLen, fileSize);
+    if (xmpInfo.version == 1) {
+        if (xmpInfo.videoLength <= 0) {
+            LOGE_MP("[Convert] Missing MicroVideoOffset for v1 Motion Photo");
             env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
-            return env->NewStringUTF("error: invalid HDR data range");
+            return env->NewStringUTF("error: missing video length");
+        }
+        videoLen = xmpInfo.videoLength;
+        videoStart = fileSize - videoLen;
+        if (videoStart < primaryLen) {
+            LOGE_MP("[Convert] Video overlaps primary JPEG: videoStart=%ld primaryLen=%ld",
+                    videoStart, primaryLen);
+            env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+            return env->NewStringUTF("error: video overlaps primary JPEG");
+        }
+    } else {
+        if (xmpInfo.items.empty()) {
+            LOGE_MP("[Convert] Empty Container:Directory items in XMP");
+            env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+            return env->NewStringUTF("error: empty container items");
+        }
+        long cursor = 0;
+        for (const auto &item: xmpInfo.items) {
+            long len = item.length;
+            if (item.semantic == "Primary" && len <= 0) {
+                len = primaryLen;
+            }
+            if (len <= 0) {
+                LOGE_MP("[Convert] Invalid item length for semantic=%s", item.semantic.c_str());
+                env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+                return env->NewStringUTF("error: invalid item length");
+            }
+            if (item.semantic == "Primary") {
+                primaryPadding = item.padding;
+                jpegStart = cursor;
+                jpegLen = len;
+            } else if (item.semantic == "GainMap") {
+                hdrPadding = item.padding;
+                hdrStart = cursor;
+                hdrLen = len;
+            } else if (item.semantic == "MotionPhoto") {
+                videoPadding = item.padding;
+                videoStart = cursor;
+                videoLen = len;
+            }
+            if (item.padding > 0) {
+                cursor += len + item.padding;
+            } else {
+                cursor += len;
+            }
+        }
+    }
+
+    if (jpegStart != 0) {
+        LOGE_MP("[Convert] Invalid JPEG start offset: %ld (expected 0)", jpegStart);
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: invalid JPEG start offset");
+    }
+
+    if (videoStart < 0 || videoLen <= 0) {
+        LOGE_MP("[Convert] Invalid video offset/length: offset=%ld len=%ld", videoStart, videoLen);
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: invalid video offset/length");
+    }
+
+    if (videoStart + videoLen != fileSize) {
+        LOGE_MP("[Convert] Video must be at end of file: videoEnd=%ld fileSize=%ld",
+                videoStart + videoLen, fileSize);
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: video is not at end of file");
+    }
+
+    if (jpegStart < 0 || jpegLen < 4 || static_cast<size_t>(jpegStart + jpegLen) > fileData.size() ||
+        fileData[static_cast<size_t>(jpegStart)] != 0xFF ||
+        fileData[static_cast<size_t>(jpegStart + 1)] != 0xD8) {
+        LOGE_MP("[Convert] Primary JPEG missing SOI");
+        env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+        return env->NewStringUTF("error: invalid primary JPEG slice");
+    }
+    std::vector<uint8_t> primaryJpeg = SliceBytes(fileData, jpegStart, jpegLen);
+
+    std::vector<uint8_t> hdrJpeg;
+    if (hdrStart >= 0 && hdrLen > 0) {
+        hdrJpeg = ExtractGainMapJpegFromMotionPhotoBytes(fileData, hdrStart, hdrLen, hdrPadding);
+        if (hdrJpeg.empty()) {
+            LOGE_MP("[Convert] HDR GainMap slice not valid JPEG");
+            env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+            return env->NewStringUTF("error: invalid HDR gainmap JPEG slice");
         }
     } else {
         hdrLen = 0;
     }
 
-    if (videoStart < 0 || videoLen <= 0 || videoStart + videoLen > fileSize) {
-        LOGE_MP("[Convert] Invalid Video data range: offset=%ld, len=%ld, fileSize=%ld", videoStart, videoLen, fileSize);
+    if (!IsLikelyMp4Slice(fileData, videoStart, videoLen)) {
+        LOGE_MP("[Convert] MP4 slice not valid (missing ftyp)");
         env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
-        return env->NewStringUTF("error: invalid Video data range");
+        return env->NewStringUTF("error: invalid MP4 slice");
     }
+    std::vector<uint8_t> mp4Bytes = SliceBytes(fileData, videoStart, videoLen);
 
     // Construct Java byte arrays
-    jbyteArray jpegArray = env->NewByteArray(static_cast<jsize>(jpegLen));
+    jbyteArray jpegArray = env->NewByteArray(static_cast<jsize>(primaryJpeg.size()));
     if (!jpegArray) {
         LOGE_MP("[Convert] Failed to allocate JPEG byte array");
         env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
         return env->NewStringUTF("error: failed to allocate JPEG array");
     }
-    env->SetByteArrayRegion(jpegArray, 0, static_cast<jsize>(jpegLen),
-                            reinterpret_cast<const jbyte *>(fileData.data() + jpegStart));
+    env->SetByteArrayRegion(jpegArray, 0, static_cast<jsize>(primaryJpeg.size()),
+                            reinterpret_cast<const jbyte *>(primaryJpeg.data()));
 
-    // not use yet.
+    // hdr
     jbyteArray hdrArray = nullptr;
-    if (hdrLen > 0) {
-        hdrArray = env->NewByteArray(static_cast<jsize>(hdrLen));
+    if (!hdrJpeg.empty()) {
+        hdrArray = env->NewByteArray(static_cast<jsize>(hdrJpeg.size()));
         if (!hdrArray) {
             LOGE_MP("[Convert] Failed to allocate HDR byte array");
             env->DeleteLocalRef(jpegArray);
             env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
             return env->NewStringUTF("error: failed to allocate HDR array");
         }
-        env->SetByteArrayRegion(hdrArray, 0, static_cast<jsize>(hdrLen),
-                                reinterpret_cast<const jbyte *>(fileData.data() + hdrStart));
+        env->SetByteArrayRegion(hdrArray, 0, static_cast<jsize>(hdrJpeg.size()),
+                                reinterpret_cast<const jbyte *>(hdrJpeg.data()));
     }
 
-    jbyteArray mp4Array = env->NewByteArray(static_cast<jsize>(videoLen));
+    // mp4
+    jbyteArray mp4Array = env->NewByteArray(static_cast<jsize>(mp4Bytes.size()));
     if (!mp4Array) {
         LOGE_MP("[Convert] Failed to allocate MP4 byte array");
         env->DeleteLocalRef(jpegArray);
@@ -2615,10 +3207,11 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
         return env->NewStringUTF("error: failed to allocate MP4 array");
     }
     env->SetByteArrayRegion(
-            mp4Array, 0, static_cast<jsize>(videoLen),
-            reinterpret_cast<const jbyte *>(fileData.data() + videoStart));
+            mp4Array, 0, static_cast<jsize>(mp4Bytes.size()),
+            reinterpret_cast<const jbyte *>(mp4Bytes.data()));
 
-    // Extract Exif data
+    // exif data - Extract RAW EXIF from JPEG (TIFF format only, no "Exif\0\0" header)
+    // IMPORTANT: EXIF data must NOT be modified, read as-is and write as-is
     jbyteArray exifs = nullptr;
     std::vector<uint8_t> exifDataVec = ExtractJpegExif(filePath);
     if (!exifDataVec.empty()) {
@@ -2626,17 +3219,36 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
         if (exifs) {
             env->SetByteArrayRegion(exifs, 0, static_cast<jsize>(exifDataVec.size()),
                                     reinterpret_cast<const jbyte *>(exifDataVec.data()));
-            LOGD_MP("[Convert] Extracted Exif data: %zu bytes", exifDataVec.size());
+            LOGD_MP("[Convert] Extracted EXIF (TIFF format): %zu bytes", exifDataVec.size());
         }
     } else {
-        LOGD_MP("[Convert] No Exif data found in JPEG");
+        LOGD_MP("[Convert] No EXIF data found in JPEG");
+    }
+
+    // Generate NEW HEIC XMP using GenerateHeicMotionPhotoXMP
+    // IMPORTANT: XMP is NOT copied from JPEG, but regenerated for HEIC format
+    jbyteArray xmps = nullptr;
+    std::string heicXmp = GenerateHeicMotionPhotoXMP(mp4Bytes.size(), hdrJpeg.size(), presentationTimestampUs);
+    if (!heicXmp.empty()) {
+        size_t xmpLen = heicXmp.size();
+        xmps = env->NewByteArray(static_cast<jsize>(xmpLen));
+        if (xmps) {
+            env->SetByteArrayRegion(xmps, 0, static_cast<jsize>(xmpLen),
+                                    reinterpret_cast<const jbyte *>(heicXmp.data()));
+            LOGD_MP("[Convert] Generated HEIC XMP: %zu bytes", xmpLen);
+        }
+    } else {
+        LOGW_MP("[Convert] Failed to generate HEIC XMP");
     }
 
     // Call method to generate HEIC Motion Photo
-    LOGI_MP("[Convert] Generating HEIC Motion Photo with nativeGenHeicMotionPhoto()");
-    jstring genResult = Java_com_seafile_seadroid2_jni_HeicNative_nativeGenHeicMotionPhoto(
-            env, clazz, jpegArray, hdrArray, exifs, mp4Array, outPath);
+    LOGI_MP("[Convert] Generating HEIC Motion Photo with GenHeicMotionPhoto()");
+    LOGD_MP("[Convert] Input: JPEG=%zu bytes, HDR=%zu bytes, EXIF=%zu bytes, XMP=%zu bytes, MP4=%zu bytes",
+            primaryJpeg.size(), hdrJpeg.size(), exifDataVec.size(), heicXmp.size(), mp4Bytes.size());
+    jstring genResult = Java_com_seafile_seadroid2_jni_HeicNative_GenHeicMotionPhoto(
+            env, clazz, jpegArray, hdrArray, exifs, xmps, mp4Array, presentationTimestampUs, outPath);
 
+    if (xmps) env->DeleteLocalRef(xmps);
     if (exifs) env->DeleteLocalRef(exifs);
 
     // Release local references of large arrays
@@ -2673,23 +3285,12 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertJpegMotionPhotoToHeic(JNI
 
 
 /**
- * Requirements:
  * Convert HEIC Motion Photo to JPEG Motion Photo.
- *
- * Logic:
- * 1、Extract data from HEIC file
- *   1.1、Extract Primary main image data from JPEG Motion Photo
- *   1.2、Extract video data via nativeExtractGoogleHeicMotionPhotoVideo() method
- *   1.3、Extract HEIC XMP data
- *   1.4、Extract HEIC EXIF data
- * 2、Add a local method to generate JPEG Motion Photo file, write data from step 1 into JPEG file.
- * 3、Use outputFilePath for generated JPEG file location. And finally return outputFilePath.
- *
  * */
 extern "C" JNIEXPORT jstring
 
 JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertHeicMotionPhotoToJpeg(
+Java_com_seafile_seadroid2_jni_HeicNative_ConvertHeic2Jpeg(
         JNIEnv *env, jclass clazz, jstring inputFilePath, jstring vendor, jstring outputFilePath) {
     LOGI_MP("============================================================");
     LOGI_MP("nativeConvertHeicMotionPhotoToJpeg: START");
@@ -2708,8 +3309,95 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertHeicMotionPhotoToJpeg(
         return nullptr;
     }
 
-    // video
-    jbyteArray mp4Arr = Java_com_seafile_seadroid2_jni_HeicNative_nativeExtractHeicMotionPhotoVideo(
+    // extract primary image
+    std::vector<uint8_t> primaryJpeg = ExtractPrimaryJpegFromHeic(inPath, 95);
+    if (primaryJpeg.empty()) {
+        LOGE_MP("[ConvertHeic2Jpeg] Failed to extract primary JPEG from HEIC");
+        env->ReleaseStringUTFChars(outputFilePath, outPath);
+        env->ReleaseStringUTFChars(inputFilePath, inPath);
+        return env->NewStringUTF("error: failed to extract primary image");
+    }
+    if (!HasJpegSoi(primaryJpeg)) {
+        LOGE_MP("[ConvertHeic2Jpeg] Primary JPEG missing SOI");
+        env->ReleaseStringUTFChars(outputFilePath, outPath);
+        env->ReleaseStringUTFChars(inputFilePath, inPath);
+        return env->NewStringUTF("error: invalid primary JPEG data");
+    }
+
+    // Read EXIF and XMP metadata using unified method
+    // IMPORTANT: EXIF is read as-is, XMP is used only for timestamp extraction
+    std::vector<uint8_t> exifRaw;  // RAW EXIF from HEIC (may be TIFF or with header)
+    std::string heicXmp;          // XMP from HEIC (for timestamp extraction)
+    bool hasMetadata = ReadHeicMetadataWithLibheif(inPath, exifRaw, heicXmp);
+
+    if (hasMetadata) {
+        if (!exifRaw.empty()) {
+            LOGI_MP("[ConvertHeic2Jpeg] Read EXIF from HEIC: %zu bytes", exifRaw.size());
+        }
+        if (!heicXmp.empty()) {
+            LOGI_MP("[ConvertHeic2Jpeg] Read XMP from HEIC: %zu bytes", heicXmp.size());
+        }
+    } else {
+        LOGW_MP("[ConvertHeic2Jpeg] No metadata read from HEIC");
+    }
+
+    // Process EXIF data for JPEG APP1 format
+    // Check if it already has "Exif\0\0" header
+    std::vector<uint8_t> exifTiff;
+    if (!exifRaw.empty()) {
+        if (exifRaw.size() >= 6 &&
+            exifRaw[0] == 'E' && exifRaw[1] == 'x' && exifRaw[2] == 'i' &&
+            exifRaw[3] == 'f' && exifRaw[4] == 0x00 && exifRaw[5] == 0x00) {
+            // Already has Exif header, use as-is
+            exifTiff = exifRaw;
+            LOGD_MP("[ConvertHeic2Jpeg] EXIF already has header: %zu bytes", exifTiff.size());
+        } else {
+            // Pure TIFF data, add "Exif\0\0" header for JPEG APP1
+            exifTiff.reserve(6 + exifRaw.size());
+            exifTiff.push_back('E');
+            exifTiff.push_back('x');
+            exifTiff.push_back('i');
+            exifTiff.push_back('f');
+            exifTiff.push_back(0x00);
+            exifTiff.push_back(0x00);
+            exifTiff.insert(exifTiff.end(), exifRaw.begin(), exifRaw.end());
+            LOGD_MP("[ConvertHeic2Jpeg] EXIF is pure TIFF, added header: %zu bytes", exifTiff.size());
+        }
+    } else {
+        LOGW_MP("[ConvertHeic2Jpeg] No EXIF metadata found in HEIC");
+    }
+
+    // Extract timestamp from HEIC XMP for generating new JPEG XMP
+    long presentationTimestampUs = 0;
+    if (!heicXmp.empty()) {
+        MotionPhotoXmpInfo xmpInfo = ParseMotionPhotoXmpContent(heicXmp);
+        presentationTimestampUs = xmpInfo.presentationTimestampUs;
+        LOGD_MP("[ConvertHeic2Jpeg] Extracted timestamp from HEIC XMP: %ld", presentationTimestampUs);
+    }
+
+    const char *vendorChars = env->GetStringUTFChars(vendor, nullptr);
+    std::string vendorStr = vendorChars ? std::string(vendorChars) : std::string();
+    if (vendorChars) {
+        env->ReleaseStringUTFChars(vendor, vendorChars);
+    }
+
+    // extract HDR data
+    std::vector<uint8_t> hdrData = ExtractHeicHdrData(inPath);
+    size_t hdrPadding = 0;  // No padding when converting from HEIC
+    if (!hdrData.empty()) {
+        if (!HasJpegSoi(hdrData)) {
+            LOGE_MP("[ConvertHeic2Jpeg] HDR gainmap data missing JPEG SOI");
+            env->ReleaseStringUTFChars(outputFilePath, outPath);
+            env->ReleaseStringUTFChars(inputFilePath, inPath);
+            return env->NewStringUTF("error: invalid HDR gainmap data");
+        }
+        LOGD_MP("[ConvertHeic2Jpeg] Extracted HDR data: %zu bytes", hdrData.size());
+    } else {
+        LOGD_MP("[ConvertHeic2Jpeg] No HDR data extracted from HEIC");
+    }
+
+    // extract video data
+    jbyteArray mp4Arr = Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideo(
             env, clazz, inputFilePath);
     std::vector<uint8_t> mp4Data = JByteArrayToVector(env, mp4Arr);
     if (mp4Arr) env->DeleteLocalRef(mp4Arr);
@@ -2721,35 +3409,20 @@ Java_com_seafile_seadroid2_jni_HeicNative_nativeConvertHeicMotionPhotoToJpeg(
         return env->NewStringUTF("error: MP4 video data is empty");
     }
 
-    MotionPhotoXmpInfo xmpInfo = ParseHeicMotionPhotoXmpWithLibheif(inPath);
-    if (!xmpInfo.xmpContent.empty()) {
-        LOGD_MP("[ConvertHeic2Jpeg] Extracted XMP: %zu bytes", xmpInfo.xmpContent.size());
-    } else {
-        LOGD_MP("[ConvertHeic2Jpeg] No XMP extracted from HEIC");
-    }
-
-    std::vector<uint8_t> exifTiff = ExtractHeicExifTiff(inPath);
-    if (!exifTiff.empty()) {
-        LOGD_MP("[ConvertHeic2Jpeg] Extracted Exif(TIFF): %zu bytes", exifTiff.size());
-    } else {
-        LOGD_MP("[ConvertHeic2Jpeg] No Exif extracted from HEIC");
-    }
-
-    std::vector<uint8_t> primaryJpeg = ExtractPrimaryJpegFromHeic(inPath, 95);
-    if (primaryJpeg.empty()) {
-        LOGE_MP("[ConvertHeic2Jpeg] Failed to extract primary JPEG from HEIC");
+    if (!IsLikelyMp4Slice(mp4Data, 0, static_cast<long>(mp4Data.size()))) {
+        LOGE_MP("[ConvertHeic2Jpeg] MP4 video data is not valid (missing ftyp)");
         env->ReleaseStringUTFChars(outputFilePath, outPath);
         env->ReleaseStringUTFChars(inputFilePath, inPath);
-        return env->NewStringUTF("error: failed to extract primary image");
+        return env->NewStringUTF("error: invalid MP4 video data");
     }
 
-    const char *vendorChars = env->GetStringUTFChars(vendor, nullptr);
-    std::string vendorStr = vendorChars ? std::string(vendorChars) : std::string();
-    if (vendorChars) {
-        env->ReleaseStringUTFChars(vendor, vendorChars);
-    }
-    std::string xmpXml = GenerateJpegMotionPhotoXMP(mp4Data.size(), vendorStr);
-    std::vector<uint8_t> outBytes = BuildJpegMotionPhotoBytes(primaryJpeg, xmpXml, exifTiff, mp4Data);
+    // Generate NEW JPEG XMP using GenerateJpegMotionPhotoXMP
+    std::string finalXmp = GenerateJpegMotionPhotoXMP(mp4Data.size(), hdrData.size(), vendorStr, presentationTimestampUs);
+    LOGI_MP("[ConvertHeic2Jpeg] Generated JPEG Motion Photo XMP: %zu bytes", finalXmp.size());
+
+    // build jpeg motion photo with EXIF (raw) and new XMP
+    std::vector<uint8_t> outBytes = BuildJpegMotionPhotoBytes(primaryJpeg, finalXmp, exifTiff, hdrData, mp4Data, 0, hdrPadding, 0);
+
     if (outBytes.empty()) {
         LOGE_MP("[ConvertHeic2Jpeg] Failed to build JPEG Motion Photo bytes");
         env->ReleaseStringUTFChars(outputFilePath, outPath);

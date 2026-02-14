@@ -22,4 +22,7 @@ public class AbsLayoutItemType {
     public static final int LOCAL_LIST = 100;
     public static final int DB_LIST = 101;
 
+    public static final int WIKI = 200;
+
+
 }

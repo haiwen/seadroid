@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.model;
 
 import androidx.annotation.StringRes;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 
@@ -37,14 +38,22 @@ public class GroupItemModel extends BaseModel {
 
     public GroupItemModel(@StringRes int nameRes, List<RepoModel> repoList) {
         this.name = nameRes;
-        repo_list.addAll(repoList);
+        if (CollectionUtils.isNotEmpty(repoList)) {
+            repo_list.addAll(repoList);
+        }
         checkable = false;
         title = SeadroidApplication.getAppString(nameRes);
     }
 
     public GroupItemModel(String title, List<RepoModel> repoList) {
         this.title = title;
-        repo_list.addAll(repoList);
+        if (CollectionUtils.isNotEmpty(repoList)) {
+            repo_list.addAll(repoList);
+        }
+        checkable = false;
+    }
+    public GroupItemModel(String title) {
+        this.title = title;
         checkable = false;
     }
 
