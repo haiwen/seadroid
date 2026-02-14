@@ -348,7 +348,7 @@ public class MainActivity extends BaseActivity {
                 if (quickFragment != null && quickFragment.isAdded() && !quickFragment.isDetached()) {
                     quickFragment.switchPath(repoId, path, isDir);
                 }
-                
+
                 binding.navBottomView.setSelectedItemId(R.id.tabs_library);
 
                 refreshActionbar();
