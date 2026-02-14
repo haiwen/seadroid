@@ -341,8 +341,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void navToPath(String repoId, String path, boolean isDir) {
-        binding.pager.setCurrentItem(0);
-
         binding.pager.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -350,6 +348,8 @@ public class MainActivity extends BaseActivity {
                 if (quickFragment != null && quickFragment.isAdded() && !quickFragment.isDetached()) {
                     quickFragment.switchPath(repoId, path, isDir);
                 }
+                
+                binding.navBottomView.setSelectedItemId(R.id.tabs_library);
 
                 refreshActionbar();
             }
