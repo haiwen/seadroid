@@ -31,9 +31,9 @@
             android:id="@+id/remove"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"
             android:padding="2dp"
-            android:src="@drawable/clear_text"
+            android:src="@drawable/baseline_close_24"
             android:visibility="gone"
             app:tint="@color/white" />
     </LinearLayout>

@@ -145,6 +145,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     private void initAdapter() {
         adapter = new StarredAdapter();
         adapter.setSelectMode(isSelectMode);
+        adapter.setServerUrl(account.getServer());
 
         TextView tipView = TipsViews.getTipTextView(requireContext());
         tipView.setText(R.string.no_starred_file);

@@ -281,6 +281,7 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
 
     private void initRv() {
         adapter = new RepoQuickAdapter();
+        adapter.setServerUrl(mAccount.getServer());
         adapter.setSelectType(selectType);
         adapter.setFileViewType(FileViewType.LIST);
 

@@ -6,6 +6,7 @@ import static com.seafile.seadroid2.config.Constants.DP.DP_4;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -28,6 +29,7 @@ import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.databinding.DialogFileProfileBinding;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
+import com.seafile.seadroid2.ui.sdoc.SDocEditorActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,11 +82,25 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
 
 //        profileBinding.title.setVisibility(View.VISIBLE);
 //        profileBinding.title.setText(configModel.getDetail().getName());
-
         setData(profileBinding.detailsContainer);
     }
 
     private void setData(LinearLayout parent) {
+        if (configModel == null) {
+            return;
+        }
+
+        if (configModel.isMetadataEnabled()) {
+            profileBinding.edit.setVisibility(View.VISIBLE);
+            profileBinding.edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = SDocEditorActivity.getIntent(requireContext(), configModel);
+                    startActivity(intent);
+                }
+            });
+        }
+
         List<MetadataModel> metadataList = new ArrayList<>(configModel.getRecordMetaDataList());
         for (MetadataModel metadata : metadataList) {
             if ("_file_modifier".equals(metadata.key)) {

@@ -626,6 +626,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void initAdapter() {
         adapter = new RepoQuickAdapter();
+        adapter.setServerUrl(getCurrentAccount().getServer());
 
         lastViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
         adapter.setFileViewType(lastViewType);

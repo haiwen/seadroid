@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="webview" type="id" />
+    <item name="text_view_id" type="id" />
 
     <item name="star" type="id"/>
     <item name="unstar" type="id"/>

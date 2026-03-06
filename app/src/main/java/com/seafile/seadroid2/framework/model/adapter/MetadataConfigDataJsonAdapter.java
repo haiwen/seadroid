@@ -34,6 +34,19 @@ public class MetadataConfigDataJsonAdapter implements JsonDeserializer<List<Meta
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("format", src.format);
             jsonObject.addProperty("geo_format", src.geo_format);
+            jsonObject.addProperty("rate_style_color", src.rate_style_color);
+            jsonObject.addProperty("rate_max_number", src.rate_max_number);
+            jsonObject.addProperty("enable_precision", src.enable_precision);
+            jsonObject.addProperty("precision", src.precision);
+            jsonObject.addProperty("currency_symbol", src.currency_symbol);
+            jsonObject.addProperty("currency_symbol_position", src.currency_symbol_position);
+
+
+            jsonObject.addProperty("display_column_key", src.display_column_key);
+            jsonObject.addProperty("link_id", src.link_id);
+            jsonObject.addProperty("other_table_id", src.other_table_id);
+            jsonObject.addProperty("table_id", src.table_id);
+
 
             if (!CollectionUtils.isEmpty(src.options)) {
                 JsonArray optionsJsonArray = new JsonArray();

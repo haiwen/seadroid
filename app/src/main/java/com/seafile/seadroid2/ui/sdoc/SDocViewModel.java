@@ -122,7 +122,7 @@ public class SDocViewModel extends BaseViewModel {
 
                 FileProfileConfigModel configModel = new FileProfileConfigModel();
                 configModel.setMetadataConfigModel(metadataConfigModel);
-                configModel.setDetail(fileDetailModel);
+                configModel.setFileDetail(fileDetailModel);
                 return configModel;
             }
         }).flatMap(new io.reactivex.functions.Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
@@ -130,7 +130,7 @@ public class SDocViewModel extends BaseViewModel {
             public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel configModel) throws Exception {
                 List<Single<?>> singles = new ArrayList<>();
 
-                if (configModel.getMetaEnabled()) {
+                if (configModel.isMetadataEnabled()) {
 
                     String parent_dir;
                     String name;
@@ -158,7 +158,7 @@ public class SDocViewModel extends BaseViewModel {
                     singles.add(recordSingle);
                 }
 
-                if (configModel.getTagsEnabled()) {
+                if (configModel.isTagsEnabled()) {
                     Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getTags(repoId);
                     singles.add(tagSingle);
                 }
@@ -171,7 +171,7 @@ public class SDocViewModel extends BaseViewModel {
                 return Single.zip(singles, new io.reactivex.functions.Function<Object[], FileProfileConfigModel>() {
                     @Override
                     public FileProfileConfigModel apply(Object[] results) throws Exception {
-                        if (configModel.getMetaEnabled()) {
+                        if (configModel.isMetadataEnabled()) {
                             UserWrapperModel u = (UserWrapperModel) results[0];
                             configModel.setRelatedUserWrapperModel(u);
 
@@ -185,10 +185,10 @@ public class SDocViewModel extends BaseViewModel {
                             configModel.initDefaultIfMetaNotEnable();
                         }
 
-                        if (configModel.getMetaEnabled() && configModel.getTagsEnabled()) {
+                        if (configModel.isMetadataEnabled() && configModel.isTagsEnabled()) {
                             FileTagWrapperModel t = (FileTagWrapperModel) results[2];
                             configModel.setTagWrapperModel(t);
-                        } else if (configModel.getTagsEnabled()) {
+                        } else if (configModel.isTagsEnabled()) {
                             FileTagWrapperModel t = (FileTagWrapperModel) results[0];
                             configModel.setTagWrapperModel(t);
                         }

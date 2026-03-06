@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Icons;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
 
@@ -356,8 +357,22 @@ public class DirentModel extends BaseModel implements Parcelable {
 
     public static final Creator<DirentModel> CREATOR = new Creator<DirentModel>() {
         @Override
-        public DirentModel createFromParcel(Parcel source) {
-            return new DirentModel(source);
+        public DirentModel createFromParcel(Parcel in) {
+            try {
+                return new DirentModel(in);
+            } catch (Exception e) {
+                SLogs.e("DirentModel", "Failed to unparcel", e);
+
+                // 返回一个基本的对象，避免崩溃
+                DirentModel model = new DirentModel();
+                // 尝试读取 uid（最重要的字段）
+                try {
+                    model.uid = in.readString();
+                } catch (Exception ignored) {
+                    model.uid = "";
+                }
+                return model;
+            }
         }
 
         @Override

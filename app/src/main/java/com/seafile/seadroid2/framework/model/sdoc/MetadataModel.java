@@ -3,6 +3,7 @@ package com.seafile.seadroid2.framework.model.sdoc;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.seafile.seadroid2.framework.model.adapter.MetadataConfigDataJsonAdapter;
@@ -16,10 +17,17 @@ public class MetadataModel implements Parcelable {
 
     @SerializedName("data")
     @JsonAdapter(MetadataConfigDataJsonAdapter.class)
-    public List<MetadataConfigDataModel> configData;
+    public List<MetadataConfigDataModel> config;
 
     //note this
     public Object value;
+
+    public MetadataConfigDataModel getConfigData() {
+        if (CollectionUtils.isEmpty(config)){
+            return null;
+        }
+        return config.get(0);
+    }
 
     @Override
     public int describeContents() {
@@ -31,7 +39,7 @@ public class MetadataModel implements Parcelable {
         dest.writeString(this.key);
         dest.writeString(this.name);
         dest.writeString(this.type);
-        dest.writeTypedList(this.configData);
+        dest.writeTypedList(this.config);
         dest.writeValue(this.value);
     }
 
@@ -42,7 +50,7 @@ public class MetadataModel implements Parcelable {
         this.key = in.readString();
         this.name = in.readString();
         this.type = in.readString();
-        this.configData = in.createTypedArrayList(MetadataConfigDataModel.CREATOR);
+        this.config = in.createTypedArrayList(MetadataConfigDataModel.CREATOR);
         this.value = in.readParcelable(Object.class.getClassLoader());
     }
 

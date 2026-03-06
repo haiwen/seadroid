@@ -789,7 +789,7 @@
     <string name="export_log_file_not_exists">No log file is available for export.</string>
 
     <string name="file_transfer_stopped">The file transfer was stopped</string>
-
+    <string name="last_path">Last path</string>
     <!-- font-style -->
     <string name="font_style_paragraph">Paragraph</string>
     <string name="font_style_title">Title</string>
@@ -817,5 +817,10 @@
 
     <!-- Tips -->
     <string name="tip_press_again_to_exit">Press again to exit</string>
+    <string name="tip_link_not_support">This link address is not supported</string>
     <string name="tip_publish_wiki_desc">The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.</string>
+
+    <!-- Profile -->
+    <string name="profile_editor_select_address">Edit location</string>
+
 </resources>

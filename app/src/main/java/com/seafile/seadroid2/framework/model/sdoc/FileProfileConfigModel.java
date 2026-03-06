@@ -13,6 +13,7 @@ import com.seafile.seadroid2.ui.media.image.PhotoFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -22,33 +23,209 @@ public class FileProfileConfigModel implements Parcelable {
     private MetadataConfigModel metadataConfig;
 
     private List<UserModel> relatedUserList = new ArrayList<>();
-    private List<MetadataModel> recordMetaData = new ArrayList<>();
-    private List<Map<String, Object>> recordResults = new ArrayList<>();
+    private List<MetadataModel> recordMetaDataList = new ArrayList<>();// network data
+    private final HashMap<String, MetadataModel> recordMetaDataMap = new HashMap<>();
+    private List<Map<String, Object>> recordResultList = new ArrayList<>(); // network data
+    private final HashMap<String, Object> recordResultMap = new HashMap<>();
+
     private Map<String, SDocTagModel> tagsMap = new HashMap<>();
+
+    private LinkedHashMap<String, MetadataModel> linkedHashMap = new LinkedHashMap<>();
+
+
+    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_owner", "_description", "_collaborators", "_reviewer", "_status", "_location", "_tags", "_rate");
+
+    public void build() {
+        if (metadataConfig == null) {
+            throw new RuntimeException("please first call setMetadataConfigModel()");
+        }
+
+        if (!isMetadataEnabled() || CollectionUtils.isEmpty(recordResultList)) {
+            initDefaultIfMetaNotEnable();
+            return;
+        }
+
+        List<MetadataModel> metadataList = new ArrayList<>(getRecordMetaDataList());
+        for (MetadataModel metadata : metadataList) {
+            if ("_file_modifier".equals(metadata.key)) {
+                metadata.type = "collaborator";
+                metadata.value = CollectionUtils.newArrayList(getResultValueByKey(metadata.name));
+            } else {
+                metadata.value = getResultValueByKey(metadata.name);
+            }
+        }
+
+        swapSizePosition(metadataList);
+
+        for (MetadataModel metadataModel : metadataList) {
+            if (metadataModel.name.startsWith("_")) {
+                if (_supportedField.contains(metadataModel.name)) {
+                    linkedHashMap.put(metadataModel.name, metadataModel);
+                }
+            } else {
+                linkedHashMap.put(metadataModel.name, metadataModel);
+            }
+        }
+    }
+
+    private Object getResultValueByKey(String key) {
+        if (recordMetaDataMap.isEmpty()) {
+            throw new RuntimeException("please first build recordMetaDataMap");
+        }
+        MetadataModel metadataModel = recordMetaDataMap.get(key);
+        if (metadataModel == null) {
+            return null;
+        }
+
+        Object obj = recordResultMap.get(metadataModel.name);
+        return obj;
+//        if (TextUtils.equals(ColumnType.COLLABORATOR, metadataModel.type)) {
+//            List<UserModel> list = CollectionUtils.newArrayList();
+//
+//            if (obj instanceof ArrayList) {
+//                ArrayList<String> arrayList = (ArrayList<String>) obj;
+//                for (String userEmail : arrayList) {
+//                    Optional<UserModel> op = getRelatedUserList().stream().filter(f -> f.getEmail().equals(userEmail)).findFirst();
+//                    op.ifPresent(list::add);
+//                }
+//            }
+//            return list;
+//        } else if (TextUtils.equals(ColumnType.SINGLE_SELECT, metadataModel.type)) {
+//            List<OptionsTagModel> list = CollectionUtils.newArrayList();
+//
+//            if (CollectionUtils.isEmpty(metadataModel.configData)) {
+//                return list;
+//            }
+//
+//            MetadataConfigDataModel configDataModel = metadataModel.configData.get(0);
+//            if (configDataModel.options == null || CollectionUtils.isEmpty(configDataModel.options)) {
+//                return list;
+//            }
+//
+//            if (obj instanceof String value && !TextUtils.isEmpty(obj.toString())) {
+//                Optional<OptionsTagModel> option = configDataModel.options
+//                        .stream()
+//                        .filter(f -> f.name.equals(value))
+//                        .findFirst();
+//                option.ifPresent(list::add);
+//            }
+//
+//            return list;
+//        } else if (TextUtils.equals(ColumnType.MULTIPLE_SELECT, metadataModel.type)) {
+//            List<OptionsTagModel> list = CollectionUtils.newArrayList();
+//
+//            if (CollectionUtils.isEmpty(metadataModel.configData)) {
+//                return list;
+//            }
+//
+//            MetadataConfigDataModel configDataModel = metadataModel.configData.get(0);
+//            if (configDataModel.options == null || CollectionUtils.isEmpty(configDataModel.options)) {
+//                return list;
+//            }
+//
+//            if (obj instanceof ArrayList) {
+//                ArrayList<String> arrayList = (ArrayList<String>) obj;
+//                for (String objKey : arrayList) {
+//                    Optional<OptionsTagModel> option = configDataModel.options
+//                            .stream()
+//                            .filter(f -> f.name.equals(objKey))
+//                            .findFirst();
+//                    option.ifPresent(list::add);
+//                }
+//            }
+//
+//            return list;
+//        } else if (TextUtils.equals(ColumnType.URL, metadataModel.type) && TextUtils.equals("_tags", metadataModel.key)) {
+//            List<OptionsTagModel> list = CollectionUtils.newArrayList();
+//
+//            if (CollectionUtils.isEmpty(metadataModel.configData)) {
+//                return list;
+//            }
+//
+//            MetadataConfigDataModel configDataModel = metadataModel.configData.get(0);
+//            if (configDataModel.options == null || CollectionUtils.isEmpty(configDataModel.options)) {
+//                return list;
+//            }
+//
+//            if (obj instanceof ArrayList) {
+//                ArrayList<String> arrayList = (ArrayList<String>) obj;
+//                for (String objKey : arrayList) {
+//                    Optional<OptionsTagModel> option = configDataModel.options
+//                            .stream()
+//                            .filter(f -> f.name.equals(objKey))
+//                            .findFirst();
+//                    option.ifPresent(list::add);
+//                }
+//            }
+//
+//            return list;
+//        } else if (TextUtils.equals(ColumnType.GEOLOCATION, metadataModel.type)) {
+//            String content = "";
+//
+//            if (obj instanceof LinkedTreeMap) {
+//                LinkedTreeMap<String, Object> treeMap = (LinkedTreeMap<String, Object>) obj;
+//                String geo_format = metadataModel.getConfigData().geo_format;
+//
+//                if (TextUtils.equals("lng_lat", geo_format)) {
+//                    String lat = treeMap.get("lat").toString();
+//                    String lng = treeMap.get("lng").toString();
+//                    String formatLat = Utils.convertLatitude(lat);
+//                    String formatLng = Utils.convertLongitude(lng);
+//                    content = formatLat + ", " + formatLng;
+//                } else if (TextUtils.equals("geolocation", geo_format)) {
+//                    String province = treeMap.get("province").toString();
+//                    String city = treeMap.get("city").toString();
+//                    String dis = treeMap.get("district").toString();
+//                    String detail = treeMap.get("detail").toString();
+//                    content = province + city + dis + detail;
+//                } else if (TextUtils.equals("country_region", geo_format)) {
+//                    content = treeMap.get("country_region").toString();
+//                } else if (TextUtils.equals("province", geo_format)) {
+//                    content = treeMap.get("province").toString();
+//                } else if (TextUtils.equals("province_city", geo_format)) {
+//                    String province = treeMap.get("province").toString();
+//                    String city = treeMap.get("city").toString();
+//                    content = province + city;
+//                } else if (TextUtils.equals("province_city_district", geo_format)) {
+//                    String province = treeMap.get("province").toString();
+//                    String city = treeMap.get("city").toString();
+//                    String dis = treeMap.get("district").toString();
+//                    content = province + city + dis;
+//                }
+//
+//                content = content.trim();
+//            }
+//            return content;
+//        }
+//
+//
+//        return obj;
+    }
+
 
     public void setMetadataConfigModel(MetadataConfigModel metadataConfigModel) {
         this.metadataConfig = metadataConfigModel;
     }
 
-    public boolean getMetaEnabled() {
+    public boolean isMetadataEnabled() {
         if (metadataConfig == null) {
             throw new RuntimeException("please first call setMetadataConfigModel()");
         }
         return metadataConfig.enabled;
     }
 
-    public boolean getTagsEnabled() {
+    public boolean isTagsEnabled() {
         if (metadataConfig == null) {
             throw new RuntimeException("please first call setMetadataConfigModel()");
         }
         return metadataConfig.tags_enabled;
     }
 
-    public void setDetail(FileDetailModel detail) {
+    public void setFileDetail(FileDetailModel detail) {
         this.detail = detail;
     }
 
-    public FileDetailModel getDetail() {
+    public FileDetailModel getFileDetail() {
         return detail;
     }
 
@@ -80,9 +257,9 @@ public class FileProfileConfigModel implements Parcelable {
         recordWrapperModel.metadata.add(mTimeMetadataModel);
 
         Map<String, Object> m = new HashMap<>();
-        m.put("_size", getDetail().getSize());
-        m.put("_file_modifier", getDetail().getLastModifierEmail());
-        m.put("_file_mtime", getDetail().getLastModified());
+        m.put("_size", getFileDetail().getSize());
+        m.put("_file_modifier", getFileDetail().getLastModifierEmail());
+        m.put("_file_mtime", getFileDetail().getLastModified());
         recordWrapperModel.results.add(m);
 
         addRecordWrapperModel(recordWrapperModel);
@@ -91,10 +268,10 @@ public class FileProfileConfigModel implements Parcelable {
         UserWrapperModel wrapperModel = new UserWrapperModel();
         wrapperModel.user_list = new ArrayList<>();
         UserModel r = new UserModel();
-        r.setName(getDetail().getLastModifierName());
-        r.setAvatarUrl(getDetail().getLastModifierAvatar());
-        r.setEmail(getDetail().getLastModifierEmail());
-        r.setContactEmail(getDetail().getLastModifierContactEmail());
+        r.setName(getFileDetail().getLastModifierName());
+        r.setAvatarUrl(getFileDetail().getLastModifierAvatar());
+        r.setEmail(getFileDetail().getLastModifierEmail());
+        r.setContactEmail(getFileDetail().getLastModifierContactEmail());
         wrapperModel.user_list.add(r);
         setRelatedUserList(wrapperModel);
 
@@ -116,10 +293,18 @@ public class FileProfileConfigModel implements Parcelable {
     }
 
     public void addRecordWrapperModel(FileRecordWrapperModel recordWrapperModel) {
-        this.recordResults.addAll(recordWrapperModel.results);
+        this.recordResultList.addAll(recordWrapperModel.results);
+        if (CollectionUtils.isNotEmpty(recordWrapperModel.results)) {
+            recordResultMap.putAll(recordWrapperModel.results.get(0));
+        }
 
         List<MetadataModel> metadata = swapSizePosition(recordWrapperModel.metadata);
-        this.recordMetaData.addAll(metadata);
+        this.recordMetaDataList.addAll(metadata);
+
+        recordMetaDataMap.clear();
+        for (MetadataModel metadataModel : this.recordMetaDataList) {
+            recordMetaDataMap.put(metadataModel.key, metadataModel);
+        }
     }
 
     private List<MetadataModel> swapSizePosition(List<MetadataModel> metadata) {
@@ -167,19 +352,19 @@ public class FileProfileConfigModel implements Parcelable {
     }
 
     public List<Map<String, Object>> getRecordResultList() {
-        return recordResults;
+        return recordResultList;
     }
 
     public List<MetadataModel> getRecordMetaDataList() {
         if (CollectionUtils.isEmpty(getRecordResultList())) {
             throw new RuntimeException("please first call build()");
         }
-        return recordMetaData;
+        return recordMetaDataList;
     }
 
     public void setRecordMetaDataList(List<MetadataModel> list) {
-        this.recordMetaData.clear();
-        this.recordMetaData.addAll(list);
+        this.recordMetaDataList.clear();
+        this.recordMetaDataList.addAll(list);
     }
 
     public Map<String, SDocTagModel> getTagMap() {
@@ -196,8 +381,8 @@ public class FileProfileConfigModel implements Parcelable {
         dest.writeParcelable(this.detail, flags);
         dest.writeParcelable(this.metadataConfig, flags);
         dest.writeTypedList(this.relatedUserList);
-        dest.writeTypedList(this.recordMetaData);
-        dest.writeList(this.recordResults);
+        dest.writeTypedList(this.recordMetaDataList);
+        dest.writeList(this.recordResultList);
         dest.writeInt(this.tagsMap.size());
         for (Map.Entry<String, SDocTagModel> entry : this.tagsMap.entrySet()) {
             dest.writeString(entry.getKey());
@@ -212,9 +397,9 @@ public class FileProfileConfigModel implements Parcelable {
         this.detail = in.readParcelable(FileDetailModel.class.getClassLoader());
         this.metadataConfig = in.readParcelable(MetadataConfigModel.class.getClassLoader());
         this.relatedUserList = in.createTypedArrayList(UserModel.CREATOR);
-        this.recordMetaData = in.createTypedArrayList(MetadataModel.CREATOR);
-        this.recordResults = new ArrayList<Map<String, Object>>();
-        in.readList(this.recordResults, Map.class.getClassLoader());
+        this.recordMetaDataList = in.createTypedArrayList(MetadataModel.CREATOR);
+        this.recordResultList = new ArrayList<Map<String, Object>>();
+        in.readList(this.recordResultList, Map.class.getClassLoader());
         int tagsMapSize = in.readInt();
         this.tagsMap = new HashMap<String, SDocTagModel>(tagsMapSize);
         for (int i = 0; i < tagsMapSize; i++) {
