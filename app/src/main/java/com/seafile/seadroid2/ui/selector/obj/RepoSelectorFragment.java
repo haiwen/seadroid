@@ -92,6 +92,7 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
 
     private void initRv() {
         adapter = new RepoQuickAdapter();
+        adapter.setServerUrl(mAccount.getServer());
         adapter.setSelectType(ObjSelectType.REPO);
         adapter.setFileViewType(FileViewType.LIST);
 

@@ -69,7 +69,11 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private boolean repoEncrypted = false;
     private FileViewType fileViewType = FileViewType.LIST;
     private ObjSelectType selectType = ObjSelectType.NOT_SELECTABLE;
+    private String serverUrl;
 
+    public void setServerUrl(String url) {
+        this.serverUrl = url;
+    }
     public void setSelectType(ObjSelectType selectType) {
         this.selectType = selectType;
     }
@@ -686,24 +690,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                 .into(imageView);
     }
 
-    private String server_url;
-    private final boolean isLogin = SupportAccountManager.getInstance().isLogin();
-
-    private String getServerUrl() {
-        if (!TextUtils.isEmpty(server_url)) {
-            return server_url;
-        }
-
-        if (!isLogin) {
-            return null;
-        }
-
-        server_url = HttpIO.getCurrentInstance().getServerUrl();
-        return server_url;
-    }
 
     private String convertThumbnailUrl(DirentModel direntModel, int size) {
-        String serverUrl = getServerUrl();
         if (TextUtils.isEmpty(serverUrl)) {
             return null;
         }

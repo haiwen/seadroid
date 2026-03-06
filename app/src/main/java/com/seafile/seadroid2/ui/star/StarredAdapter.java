@@ -13,24 +13,25 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
-import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.signature.ObjectKey;
-import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemStarredBinding;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.util.Icons;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder> {
-    private final String SERVER = HttpIO.getCurrentInstance().getServerUrl();
+    private String serverUrl;
+
+    public void setServerUrl(String url) {
+        this.serverUrl = url;
+    }
+
     private boolean isSelectMode = false;
 
     public void setSelectMode(boolean selectMode) {
@@ -126,8 +127,15 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
         if (model.deleted || TextUtils.isEmpty(model.encoded_thumbnail_src) || !Utils.isViewableImage(model.obj_name) || model.repo_encrypted || model.is_dir) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
-//            String url = Utils.pathJoin(SERVER, model.encoded_thumbnail_src);
             String url = convertThumbnailUrl(model.repo_id, model.path);
+            if (TextUtils.isEmpty(url)) {
+                GlideApp.with(getContext())
+                        .load(model.getIcon())
+                        .apply(GlideLoadConfig.getCacheableThumbnailOptions())
+                        .into(holder.binding.itemIcon);
+                return;
+            }
+
             String thumbKey = EncryptUtils.encryptMD5ToString(url);
 
             GlideApp.with(getContext())
@@ -149,7 +157,10 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
     }
 
     private String convertThumbnailUrl(String repoId, String filePath) {
-        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", SERVER, repoId, filePath, 128);
+        if (TextUtils.isEmpty(serverUrl) || TextUtils.isEmpty(repoId) || TextUtils.isEmpty(filePath)) {
+            return null;
+        }
+        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", serverUrl, repoId, filePath, 128);
     }
 
     public void notifyDataChanged(List<StarredModel> list) {

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
@@ -29,6 +30,7 @@ import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.ObjSelectType;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -36,7 +38,9 @@ import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
+import com.seafile.seadroid2.ui.selector.AccountSelectorActivity;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 
 import java.io.IOException;
@@ -51,6 +55,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import kotlin.Triple;
 
 public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileViewModel> {
     public static final String TAG = "ShareToSeafileActivity";
@@ -61,6 +66,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
     private Account account;
     private Disposable disposable;
     private ActivityResultLauncher<Intent> objSelectorLauncher;
+    private ActivityResultLauncher<Intent> accountSelectorLauncher;
 
     @Override
     public void onDestroy() {
@@ -95,41 +101,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         binding.progressBar.setIndeterminate(true);
 
         checkReceiveParams();
-    }
-
-    private void launchObjSelector() {
-        //launch obj selector activity
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("isFilterUnavailable", false);
-        bundle.putBoolean("isAddStarredGroup", true);
-
-
-        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
-        if (CollectionUtils.isEmpty(accounts)) {
-            Toasts.show(R.string.err_token_expired);
-            return;
-        }
-
-        ObjSelectType t = ObjSelectType.ACCOUNT;
-        if (accounts.size() == 1) {
-            t = ObjSelectType.REPO;
-        }
-
-        Intent intent = ObjSelectorActivity.getIntent(this, t, ObjSelectType.DIR, bundle);
-        objSelectorLauncher.launch(intent);
-    }
-
-
-    private void initViewModel() {
-        getViewModel().getActionLiveData().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                SLogs.d(TAG, "can start file upload worker? " + aBoolean);
-                binding.progressBar.setIndeterminate(false);
-
-                BackupThreadExecutor.getInstance().runShareToSeafileUploadTask();
-            }
-        });
     }
 
     private void checkReceiveParams() {
@@ -178,7 +149,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
                         if (aBoolean) {
-                            launchObjSelector();
+                            checkAndLaunch();
                         } else {
                             Toasts.show(R.string.not_supported);
                             finish();
@@ -188,7 +159,68 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
     }
 
+    private void checkAndLaunch() {
+        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
+        if (CollectionUtils.isEmpty(accounts)) {
+            Toasts.show(R.string.no_account);
+            return;
+        }
+
+        if (accounts.size() == 1) {
+            account = accounts.get(0);
+            launchObjSelector();
+        } else {
+            Intent intent = AccountSelectorActivity.getIntent(this);
+            accountSelectorLauncher.launch(intent);
+        }
+    }
+
+
+    private void initViewModel() {
+        getViewModel().getActionLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                SLogs.d(TAG, "can start file upload worker? " + aBoolean);
+                binding.progressBar.setIndeterminate(false);
+
+                BackupThreadExecutor.getInstance().runShareToSeafileUploadTask();
+            }
+        });
+    }
+
+
+    private void launchObjSelector() {
+        String lastPathStr = Settings.getSpecialUserSharedPreferences(account).getString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, "");
+        Pair<String, String> pair = parseLastPathStr(lastPathStr);
+
+        Intent pathSelector = VersatileShareToSeafileActivity.getSpecialAccountIntent(ShareToSeafileActivity.this, account.getSignature(), pair.first, pair.second, null, 2);
+        objSelectorLauncher.launch(pathSelector);
+    }
+
     private void registerResultLauncher() {
+        accountSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    finish();
+                    return;
+                }
+
+                Intent intent = o.getData();
+                if (intent == null) {
+                    finish();
+                    return;
+                }
+
+                account = intent.getParcelableExtra(ObjKey.ACCOUNT);
+                if (account == null) {
+                    finish();
+                    return;
+                }
+
+                launchObjSelector();
+            }
+        });
 
         objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
 
@@ -211,10 +243,31 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                 dstDir = intent.getStringExtra(ObjKey.DIR);
 
                 SLogs.d(TAG, "account: " + account.getSignature(), "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
+
+                //save
+                String lastPathStr = account.getSignature() + "<->" + dstRepoId + "<->" + dstDir;
+                Settings.getSpecialUserSharedPreferences(account)
+                        .edit().putString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, lastPathStr)
+                        .apply();
+
                 notifyFileOverwriting();
             }
         });
 
+    }
+
+    private Pair<String, String> parseLastPathStr(String str) {
+        Pair<String, String> pair;
+        if (!str.contains("<->")) {
+            return new Pair<>("", "");
+        }
+
+        String[] s = str.split("<->");
+        if (s.length != 3) {
+            return new Pair<>("", "");
+        }
+
+        return new Pair<>(s[1], s[2]);
     }
 
     private void initWorkerBusObserver() {

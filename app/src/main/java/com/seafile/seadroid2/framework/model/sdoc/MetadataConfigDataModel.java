@@ -24,6 +24,12 @@ public class MetadataConfigDataModel implements Parcelable {
     @SerializedName("color")
     public String rate_style_color;
 
+    //
+    public String display_column_key;
+    public String link_id;
+    public String other_table_id;
+    public String table_id;
+
 //    @SerializedName("type")
 //    public String rate_style_type;
 
@@ -42,6 +48,10 @@ public class MetadataConfigDataModel implements Parcelable {
         dest.writeTypedList(this.options);
         dest.writeInt(this.rate_max_number);
         dest.writeString(this.rate_style_color);
+        dest.writeString(this.display_column_key);
+        dest.writeString(this.link_id);
+        dest.writeString(this.other_table_id);
+        dest.writeString(this.table_id);
     }
 
     protected MetadataConfigDataModel(Parcel in) {
@@ -50,6 +60,10 @@ public class MetadataConfigDataModel implements Parcelable {
         this.options = in.createTypedArrayList(OptionsTagModel.CREATOR);
         this.rate_max_number = in.readInt();
         this.rate_style_color = in.readString();
+        this.display_column_key = in.readString();
+        this.link_id = in.readString();
+        this.other_table_id = in.readString();
+        this.table_id = in.readString();
     }
 
     public static final Creator<MetadataConfigDataModel> CREATOR = new Creator<MetadataConfigDataModel>() {

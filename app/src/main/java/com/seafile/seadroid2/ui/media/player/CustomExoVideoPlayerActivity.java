@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -35,6 +36,7 @@ import com.seafile.seadroid2.databinding.ActivityExoPlayerBinding;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.UnsafeOkHttpClient;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.view.ExoPlayerView;
 
@@ -107,11 +109,19 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             hasFullScreen = savedInstanceState.getBoolean(KEY_FULL_SCREEN);
             startPosition = savedInstanceState.getLong(KEY_POSITION);
             startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
+
+            if (savedInstanceState.containsKey("playSpeed")) {
+                float speed = savedInstanceState.getFloat("playSpeed");
+                if (exoPlayer != null && speed != 0) {
+                    exoPlayer.setPlaybackSpeed(speed);
+                }
+            }
         } else {
 
             fileName = intent.getStringExtra("fileName");
             repoId = intent.getStringExtra("repoId");
             filePath = intent.getStringExtra("filePath");
+            binding.videoSpeed.setText("1 X");
 
 
             clearStartPosition();
@@ -153,6 +163,13 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
                 binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 hasFullScreen = true;
+            }
+        });
+
+        binding.videoSpeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeVideoSpeed();
             }
         });
 
@@ -235,6 +252,11 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         outState.putString("fileName", fileName);
         outState.putString("repoId", repoId);
         outState.putString("filePath", filePath);
+
+        if (exoPlayer != null) {
+            float s = exoPlayer.getPlaybackParameters().speed;
+            outState.putFloat("playSpeed", s);
+        }
     }
 
     private void setPlayIcon(boolean isPlay) {
@@ -244,6 +266,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     @OptIn(markerClass = UnstableApi.class)
     private void prepareForPlay(String url) {
         exoPlayer = new ExoPlayer.Builder(this).build();
+
         exoPlayerView.setPlaybackStateChanged(playbackState -> {
             switch (playbackState) {
                 case Player.STATE_BUFFERING: //loading
@@ -283,6 +306,43 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         }
         exoPlayer.setMediaSource(getMediaSource(url), !haveStartPosition);
         exoPlayer.prepare();
+    }
+
+    /**
+     * Must be higher than 0. 1 is normal speed, 2 is twice as fast, 0.5 is half normal speed.
+     *
+     */
+    private void changeVideoSpeed() {
+        float speed = exoPlayer.getPlaybackParameters().speed;
+        float s = getSpecialVideoSpeed(speed);
+        if (exoPlayer != null) {
+            countdown = 12;
+            exoPlayer.setPlaybackSpeed(s);
+            binding.videoSpeed.setText(s + " X");
+        }
+    }
+
+    /**
+     * 0.5x => 1x => 1.5x => 2x => 0.5x
+     */
+    private float getSpecialVideoSpeed(float speed) {
+        if (speed == 2f) {
+            return 0.5f;
+        }
+
+        if (speed == 1.5f) {
+            return 2f;
+        }
+
+        if (speed == 1f) {
+            return 1.5f;
+        }
+
+        if (speed == 0.5f) {
+            return 1f;
+        }
+
+        return speed;
     }
 
     private int countdown = 12;

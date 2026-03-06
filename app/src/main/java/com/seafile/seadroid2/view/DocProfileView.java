@@ -59,7 +59,7 @@ public class DocProfileView extends LinearLayout {
             throw new IllegalArgumentException("configModel is null");
         }
 
-        if (configModel.getDetail() == null) {
+        if (configModel.getFileDetail() == null) {
             throw new IllegalArgumentException("detail is null");
         }
 

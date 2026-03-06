@@ -30,6 +30,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorViewModel;
@@ -69,10 +70,6 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
 
     public static VersatileRepoSelectorFragment newInstance(String accountSignature, String startRepoId, String startPath) {
         VersatileRepoSelectorFragment fragment = new VersatileRepoSelectorFragment();
-        if (TextUtils.isEmpty(startRepoId)) {
-            return fragment;
-        }
-
         Bundle bundle = new Bundle();
         bundle.putString("accountSignature", accountSignature);
         bundle.putString("startRepoId", startRepoId);
@@ -91,10 +88,14 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
             startPath = getArguments().getString("startPath", "");
         }
 
+
         if (StringUtils.isEmpty(accountSignature)) {
-            mAccount = SupportAccountManager.getInstance().getCurrentAccount();
-        } else {
-            mAccount = SupportAccountManager.getInstance().getSpecialAccount(accountSignature);
+            throw new IllegalArgumentException("accountSignature is null");
+        }
+
+        mAccount = SupportAccountManager.getInstance().getSpecialAccount(accountSignature);
+        if (mAccount == null) {
+            throw new IllegalArgumentException("account is null");
         }
     }
 
@@ -183,6 +184,7 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
 
     private void initRv() {
         adapter = new RepoQuickAdapter();
+        adapter.setServerUrl(mAccount.getServer());
         adapter.setSelectType(ObjSelectType.DIR);
         adapter.setFileViewType(FileViewType.LIST);
 

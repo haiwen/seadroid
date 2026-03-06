@@ -93,7 +93,7 @@ public class PhotoViewModel extends BaseViewModel {
             public FileProfileConfigModel apply(MetadataConfigModel metadataConfigModel, FileDetailModel fileDetailModel) {
                 FileProfileConfigModel configModel = new FileProfileConfigModel();
                 configModel.setMetadataConfigModel(metadataConfigModel);
-                configModel.setDetail(fileDetailModel);
+                configModel.setFileDetail(fileDetailModel);
                 return configModel;
             }
         }).flatMap(new Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
@@ -101,7 +101,7 @@ public class PhotoViewModel extends BaseViewModel {
             public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel configModel) throws Exception {
                 List<Single<?>> singles = new ArrayList<>();
 
-                if (configModel.getMetaEnabled()) {
+                if (configModel.isMetadataEnabled()) {
 
                     String parent_dir;
                     String name;
@@ -139,7 +139,7 @@ public class PhotoViewModel extends BaseViewModel {
                     singles.add(recordSingle);
                 }
 
-                if (configModel.getTagsEnabled()) {
+                if (configModel.isTagsEnabled()) {
                     SLogs.d(PhotoFragment.TAG, "tag enabled", "path = " + path);
                     //tag
                     Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance()
@@ -158,7 +158,7 @@ public class PhotoViewModel extends BaseViewModel {
                     @Override
                     public FileProfileConfigModel apply(Object[] results) throws Exception {
 
-                        if (configModel.getMetaEnabled()) {
+                        if (configModel.isMetadataEnabled()) {
                             UserWrapperModel u = (UserWrapperModel) results[0];
                             configModel.setRelatedUserWrapperModel(u);
 
@@ -172,10 +172,10 @@ public class PhotoViewModel extends BaseViewModel {
                             configModel.initDefaultIfMetaNotEnable();
                         }
 
-                        if (configModel.getMetaEnabled() && configModel.getTagsEnabled()) {
+                        if (configModel.isMetadataEnabled() && configModel.isTagsEnabled()) {
                             FileTagWrapperModel t = (FileTagWrapperModel) results[2];
                             configModel.setTagWrapperModel(t);
-                        } else if (configModel.getTagsEnabled()) {
+                        } else if (configModel.isTagsEnabled()) {
                             FileTagWrapperModel t = (FileTagWrapperModel) results[0];
                             configModel.setTagWrapperModel(t);
                         }
