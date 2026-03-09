@@ -206,16 +206,16 @@ public class MainActivity extends BaseActivity {
     private long lastBackTs;
 
     private void initOnBackPressedDispatcher() {
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(false) {
             @Override
             public void handleOnBackPressed() {
-                if (System.currentTimeMillis() < lastBackTs + 1000) {
-                    finish();
-                    return;
-                }
-
-                lastBackTs = System.currentTimeMillis();
-                Toasts.showShort(R.string.tip_press_again_to_exit);
+//                if (System.currentTimeMillis() < lastBackTs + 1000) {
+//                    finish();
+//                    return;
+//                }
+//
+//                lastBackTs = System.currentTimeMillis();
+//                Toasts.showShort(R.string.tip_press_again_to_exit);
             }
         });
     }

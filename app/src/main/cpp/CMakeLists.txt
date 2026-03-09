@@ -18,6 +18,14 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 # Define library path for convenience
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libheif/lib/${ANDROID_ABI}")
+
+# Skip unsupported ABI (x86). This project only provides prebuilt libraries for
+# arm64-v8a, armeabi-v7a and x86_64.
+if(ANDROID_ABI STREQUAL "x86")
+    message(STATUS "Skipping build for unsupported ABI: ${ANDROID_ABI}")
+    return()
+endif()
+
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libheif/include")
 
 # Check if library directory exists for current ABI
@@ -51,7 +59,25 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
         -fPIC
 )
 
-# Release build optimizations
+# 总是启用 16KB 对齐
+if(ANDROID_ABI STREQUAL "arm64-v8a")
+    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
+            -Wl,-z,max-page-size=16384
+            -Wl,-z,separate-code
+    )
+elseif(ANDROID_ABI STREQUAL "x86_64")
+    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
+            -Wl,-z,max-page-size=16384
+            -Wl,-z,separate-code
+    )
+elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
+    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
+            -Wl,-z,max-page-size=16384
+            -Wl,-z,separate-code
+    )
+endif()
+
+# Release 构建的额外优化
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
             -O3
