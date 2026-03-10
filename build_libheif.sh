@@ -751,24 +751,26 @@ show_statistics() {
 
 cleanup() {
     echo ""
-    log_info "Delete temporary build directories? (Source code will be kept) [y/N]"
-    read -r response
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        log_info "Cleaning up temporary build files..."
-        # Only delete build directories, keep source code
-        if [ -d "$SRC_DIR" ]; then
-            find $SRC_DIR -type d -name "build-*" -exec rm -rf {} + 2>/dev/null || true
-            find $SRC_DIR -type d -name "android-*" -exec rm -rf {} + 2>/dev/null || true
-            find $SRC_DIR -type d -name "cmake-build-*" -exec rm -rf {} + 2>/dev/null || true
-        fi
-        log_info "Source code directory preserved: $SRC_DIR"
-        log_info "Installation directory preserved: $PREFIX_DIR"
-        log_success "Cleanup complete! (All source code preserved)"
-    else
-        log_info "Keeping all files: $BUILD_ROOT"
-        log_info "Source code directory: $SRC_DIR"
-        log_info "You can run this script again to rebuild"
+    log_info "=========================================="
+    log_info "Cleaning up temporary build files..."
+    log_info "=========================================="
+
+    # Only delete build directories, keep source code and installation files
+    if [ -d "$SRC_DIR" ]; then
+        log_info "Removing build directories from: $SRC_DIR"
+        find $SRC_DIR -type d -name "build-*" -exec rm -rf {} + 2>/dev/null || true
+        find $SRC_DIR -type d -name "android-*" -exec rm -rf {} + 2>/dev/null || true
+        find $SRC_DIR -type d -name "cmake-build-*" -exec rm -rf {} + 2>/dev/null || true
+
+        # Count removed directories
+        local removed_count=$(find $SRC_DIR -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+        log_info "Removed temporary build directories"
     fi
+
+    log_success "✅ Cleanup complete!"
+    log_info "Source code preserved: $SRC_DIR"
+    log_info "Installation files preserved: $PREFIX_DIR"
+    log_info "You can run this script again to rebuild"
 }
 
 # ============================================
@@ -982,7 +984,7 @@ main() {
     # Cleanup
     cleanup
 
-    log_success "All complete! 🎊"
+    log_success "All complete!"
 }
 
 # Run main function
