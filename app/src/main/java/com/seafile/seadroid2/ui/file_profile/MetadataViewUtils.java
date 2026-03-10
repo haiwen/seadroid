@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.core.content.ContextCompat;
@@ -82,6 +83,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
@@ -1086,45 +1088,95 @@ public class MetadataViewUtils {
         }
     }
 
+    @Nullable
+    private static GeoLocationModel parseGeoLocation(MetadataModel metadataModel, FileProfileConfigModel configModel) {
+        if (CollectionUtils.isEmpty(configModel.getRecordResultList())) {
+            return null;
+        }
+
+        MetadataConfigDataModel model = metadataModel.getConfigData();
+        if (StringUtils.isEmpty(model.geo_format)) {
+            return null;
+        }
+
+        if (StringUtils.equals("lng_lat", model.geo_format)) {
+            GeoLocationModel translatedGeoModel = checkLocationTranslated(configModel);
+            if (metadataModel.value instanceof LinkedTreeMap<?, ?>) {
+                LinkedTreeMap<String, Double> map = (LinkedTreeMap<String, Double>) metadataModel.value;
+                Double lat = map.getOrDefault("lat", Double.MIN_VALUE);
+                Double lng = map.getOrDefault("lng", Double.MIN_VALUE);
+                if (lat != null && lat != Double.MIN_VALUE) {
+                    if (translatedGeoModel != null) {
+                        translatedGeoModel.geo_format = model.geo_format;
+                        translatedGeoModel.lat = lat;
+                        translatedGeoModel.lng = lng;
+                        return translatedGeoModel;
+                    } else {
+                        GeoLocationModel geoLocationModel = new GeoLocationModel();
+                        geoLocationModel.geo_format = model.geo_format;
+                        geoLocationModel.lat = lat;
+                        geoLocationModel.lng = lng;
+                        return geoLocationModel;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private static GeoLocationModel checkLocationTranslated(FileProfileConfigModel configModel) {
+        Map<String, Object> map = configModel.getRecordResultList().get(0);
+        if (!map.containsKey("_location_translated")) {
+            return null;
+        }
+
+        Object ltObj = map.get("_location_translated");
+        if (ltObj instanceof LinkedTreeMap<?, ?>) {
+            LinkedTreeMap<String, String> ltMap = (LinkedTreeMap<String, String>) ltObj;
+            String address = ltMap.getOrDefault("address", "");
+            String street = ltMap.getOrDefault("street", "");
+            String district = ltMap.getOrDefault("district", "");
+            String city = ltMap.getOrDefault("city", "");
+            String province = ltMap.getOrDefault("province", "");
+            String country = ltMap.getOrDefault("country", "");
+
+            GeoLocationModel geoLocationModel = new GeoLocationModel();
+            geoLocationModel.address = address;
+            geoLocationModel.street = street;
+            geoLocationModel.district = district;
+            geoLocationModel.city = city;
+            geoLocationModel.province = province;
+            geoLocationModel.country = country;
+            return geoLocationModel;
+        }
+        return null;
+    }
 
     public static void buildEditableGeoLocation(Context context,
                                                 boolean editable,
                                                 LinearLayout parentContainer,
                                                 MetadataModel metadataModel,
-                                                GeoLocationModel location,
+                                                FileProfileConfigModel configModel,
                                                 OnViewClickListener clickListener) {
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
 
-        if (location == null || location.isEmptyAddress()) {
-            //edit view
-            View add_view = getEditableTextButton(context, context.getString(R.string.profile_editor_select_address));
-            add_view.findViewById(R.id.text_view_id).setEnabled(true);
-            add_view.findViewById(R.id.text_view_id).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clickListener.onClick(v, metadataModel.key);
-                }
-            });
-            flexboxContainer.addView(add_view);
+        GeoLocationModel locationModel = parseGeoLocation(metadataModel, configModel);
+
+        TextView textView = getCommonTextViewWithDrawable(context);
+        textView.setEnabled(editable);
+        textView.setBackgroundResource(R.drawable.shape_solid_f0_radius_4);
+
+        if (locationModel != null) {
+            textView.setText(locationModel.getText());
         } else {
-            TextView textView = getCommonTextViewWithDrawable(context);
-            textView.setEnabled(editable);
-            textView.setBackgroundResource(R.drawable.shape_solid_f0_radius_4);
-
-            textView.setText(location.getText());
-
-            if (clickListener != null) {
-                textView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        clickListener.onClick(textView, metadataModel.key);
-                    }
-                });
-            }
-            flexboxContainer.addView(textView);
+            textView.setText(R.string.empty);
         }
+
+        flexboxContainer.addView(textView);
 
 
         if (!isAdded) {
@@ -1155,7 +1207,7 @@ public class MetadataViewUtils {
                 if (op.isPresent()) {
                     UserModel userModel = op.get();
 
-                    View v = buildCollaboratorView(context, userModel.getAvatarUrl(), userModel.getName(), finalI, new OnViewClickListener() {
+                    View v = buildCollaboratorView(context, editable, userModel.getAvatarUrl(), userModel.getName(), finalI, new OnViewClickListener() {
                         @Override
                         public void onClick(View view, String tag) {
                             flexboxContainer.removeView(view);
@@ -1189,7 +1241,7 @@ public class MetadataViewUtils {
         }
     }
 
-    private static View buildCollaboratorView(Context context, String avatarUrl, String name, int index, OnViewClickListener onRemoveClickListener) {
+    private static View buildCollaboratorView(Context context, boolean editable, String avatarUrl, String name, int index, OnViewClickListener onRemoveClickListener) {
         FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         flexLayoutParams.bottomMargin = DP_4;
         flexLayoutParams.rightMargin = DP_4;
@@ -1204,7 +1256,7 @@ public class MetadataViewUtils {
                 .into(imageView);
 
         user_name_text_view.setText(name);
-        if (onRemoveClickListener != null) {
+        if (editable && onRemoveClickListener != null) {
             ImageView removeView = ltr.findViewById(R.id.remove);
             removeView.setVisibility(View.VISIBLE);
             removeView.setOnClickListener(new View.OnClickListener() {
@@ -1241,6 +1293,7 @@ public class MetadataViewUtils {
         List<OptionsTagModel> optionsList = metadataConfigDataModel.options;
 
         SupportMetadataRadioGroup radioGroup = new SupportMetadataRadioGroup(context);
+        radioGroup.setKey(metadataModel.key);
         radioGroup.setEditable(editable);
         radioGroup.setChangedListener(optionsChangedListener);
 
