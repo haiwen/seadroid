@@ -22,8 +22,10 @@ import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
 import com.seafile.seadroid2.ui.file_profile.MetadataViewUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DocProfileView extends LinearLayout {
     public DocProfileView(Context context) {
@@ -63,28 +65,20 @@ public class DocProfileView extends LinearLayout {
             throw new IllegalArgumentException("detail is null");
         }
 
-        convert();
-
         addView();
     }
 
-    private void convert() {
-        List<MetadataModel> metadataList = new ArrayList<>(configModel.getRecordMetaDataList());
-        for (MetadataModel metadata : metadataList) {
-            if ("_file_modifier".equals(metadata.key)) {
-                metadata.type = "collaborator";
-                metadata.value = CollectionUtils.newArrayList(getValueByKey(metadata.name));
-            } else {
-                metadata.value = getValueByKey(metadata.name);
-            }
-        }
-        configModel.setRecordMetaDataList(metadataList);
-    }
-
     private void addView() {
-        for (MetadataModel metadata : configModel.getRecordMetaDataList()) {
-            if (metadata.key.startsWith("_")) {
-                if (_supportedField.contains(metadata.key)) {
+        LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
+        Set<String> keys = recordMetaDataMap.keySet();
+        for (String key : keys) {
+            MetadataModel metadata = recordMetaDataMap.get(key);
+            if (metadata == null) {
+                continue;
+            }
+
+            if (key.startsWith("_")) {
+                if (MetadataViewUtils.getSupportedFieldMap().containsKey(key)) {
                     addMetadataView(metadata);
                 }
             } else {
@@ -93,23 +87,7 @@ public class DocProfileView extends LinearLayout {
         }
     }
 
-    private void addMetadataView(MetadataModel metadata) {
-        parseViewByType(metadata);
-    }
-
-    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_description", "_collaborators", "_owner", "_reviewer", "_status", "_tags", "_location", "_rate");
-
-    private Object getValueByKey(String key) {
-        if (configModel.getRecordResultList().isEmpty()) {
-            return null;
-        }
-
-        Map<String, Object> model = configModel.getRecordResultList().get(0);
-        return model.get(key);
-    }
-
-
-    public void parseViewByType(MetadataModel metadata) {
+    public void addMetadataView(MetadataModel metadata) {
         final String type = metadata.type;
         LinearLayout view = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_details_keyview_valuecontainer, null);
 

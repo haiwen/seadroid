@@ -50,12 +50,11 @@ import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.filter.CharacterNoRepeatSpecialCountInputFilter;
 import com.seafile.seadroid2.filter.NumberDotOnlyInputFilter;
-import com.seafile.seadroid2.framework.model.sdoc.FileLinkModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.GeoLocationModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
-import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -81,9 +80,9 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
@@ -108,6 +107,27 @@ import io.noties.markwon.inlineparser.MarkwonInlineParserPlugin;
 import io.noties.markwon.linkify.LinkifyPlugin;
 
 public class MetadataViewUtils {
+
+    private static final LinkedHashMap<String, Boolean> _supportedField = new LinkedHashMap<String, Boolean>();
+
+    public static LinkedHashMap<String, Boolean> getSupportedFieldMap() {
+        if (_supportedField.isEmpty()) {
+            _supportedField.put("_size", false);
+            _supportedField.put("_file_modifier", false);
+            _supportedField.put("_file_mtime", false);
+            _supportedField.put("_owner", true);
+            _supportedField.put("_description", true);
+            _supportedField.put("_collaborators", true);
+            _supportedField.put("_reviewer", true);
+            _supportedField.put("_status", true);
+            _supportedField.put("_location", false);
+            _supportedField.put("_tags", true);
+            _supportedField.put("_rate", true);
+            _supportedField.put("_expire_time", true);
+        }
+        return _supportedField;
+    }
+
     private static FlexboxLayout.LayoutParams getFlexParams() {
         FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         flexLayoutParams.bottomMargin = DP_4;
@@ -245,9 +265,9 @@ public class MetadataViewUtils {
             TextView textView = ltr.findViewById(R.id.text);
             MaterialCardView cardView = ltr.findViewById(R.id.card_view);
 
-            Optional<OptionsTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(value)).findFirst();
+            Optional<OptionTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(value)).findFirst();
             if (option.isPresent()) {
-                OptionsTagModel t = option.get();
+                OptionTagModel t = option.get();
                 int r = ColumnTypeUtils.getResNameByKey(t.name);
                 if (r == Resources.ID_NULL) {
                     textView.setText(t.name);
@@ -282,9 +302,9 @@ public class MetadataViewUtils {
                 TextView textView = ltr.findViewById(R.id.text);
                 MaterialCardView cardView = ltr.findViewById(R.id.card_view);
 
-                Optional<OptionsTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(key)).findFirst();
+                Optional<OptionTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(key)).findFirst();
                 if (option.isPresent()) {
-                    OptionsTagModel t = option.get();
+                    OptionTagModel t = option.get();
                     textView.setText(t.name);
                     textView.setTextColor(Color.parseColor(t.textColor));
                     cardView.setCardBackgroundColor(Color.parseColor(t.color));
@@ -1090,7 +1110,7 @@ public class MetadataViewUtils {
 
     @Nullable
     private static GeoLocationModel parseGeoLocation(MetadataModel metadataModel, FileProfileConfigModel configModel) {
-        if (CollectionUtils.isEmpty(configModel.getRecordResultList())) {
+        if (configModel.getRecordResultMap().isEmpty()) {
             return null;
         }
 
@@ -1127,12 +1147,11 @@ public class MetadataViewUtils {
 
     @Nullable
     private static GeoLocationModel checkLocationTranslated(FileProfileConfigModel configModel) {
-        Map<String, Object> map = configModel.getRecordResultList().get(0);
-        if (!map.containsKey("_location_translated")) {
+        if (!configModel.getRecordMetaDataMap().containsKey("_location_translated")) {
             return null;
         }
 
-        Object ltObj = map.get("_location_translated");
+        Object ltObj = configModel.getRecordMetaDataMap().get("_location_translated");
         if (ltObj instanceof LinkedTreeMap<?, ?>) {
             LinkedTreeMap<String, String> ltMap = (LinkedTreeMap<String, String>) ltObj;
             String address = ltMap.getOrDefault("address", "");
@@ -1195,26 +1214,17 @@ public class MetadataViewUtils {
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
 
-        if (metadataModel.value instanceof ArrayList) {
-            List<String> arrayList = (List<String>) metadataModel.value;
-            for (int i = 0; i < arrayList.size(); i++) {
-                int finalI = i;
-                Optional<UserModel> op = configModel.getRelatedUserList()
-                        .stream()
-                        .filter(f -> f.getEmail().equals(arrayList.get(finalI)))
-                        .findFirst();
-
-                if (op.isPresent()) {
-                    UserModel userModel = op.get();
-
-                    View v = buildCollaboratorView(context, editable, userModel.getAvatarUrl(), userModel.getName(), finalI, new OnViewClickListener() {
-                        @Override
-                        public void onClick(View view, String tag) {
-                            flexboxContainer.removeView(view);
-                        }
-                    });
-                    flexboxContainer.addView(v);
-                }
+        List<UserModel> userList = getUserList(metadataModel, configModel);
+        if (!CollectionUtils.isEmpty(userList)) {
+            for (int i = 0; i < userList.size(); i++) {
+                UserModel userModel = userList.get(i);
+                View v = buildCollaboratorView(context, editable, userModel.getAvatarUrl(), userModel.getName(), i, new OnViewClickListener() {
+                    @Override
+                    public void onClick(View view, String tag) {
+                        flexboxContainer.removeView(view);
+                    }
+                });
+                flexboxContainer.addView(v);
             }
         }
 
@@ -1239,6 +1249,28 @@ public class MetadataViewUtils {
         if (!isAdded) {
             parentContainer.addView(flexboxContainer);
         }
+    }
+
+    public static List<UserModel> getUserList(MetadataModel metadataModel, FileProfileConfigModel configModel) {
+        boolean isList = metadataModel.value instanceof ArrayList;
+        if (!isList) {
+            return null;
+        }
+
+        List<UserModel> userList = new ArrayList<>();
+
+        List<String> arrayList = (List<String>) metadataModel.value;
+        for (int i = 0; i < arrayList.size(); i++) {
+            int finalI = i;
+            Optional<UserModel> op = configModel.getRelatedUserList()
+                    .stream()
+                    .filter(f -> f.getEmail().equals(arrayList.get(finalI)))
+                    .findFirst();
+
+            op.ifPresent(userList::add);
+        }
+
+        return userList;
     }
 
     private static View buildCollaboratorView(Context context, boolean editable, String avatarUrl, String name, int index, OnViewClickListener onRemoveClickListener) {
@@ -1290,14 +1322,14 @@ public class MetadataViewUtils {
             return;
         }
 
-        List<OptionsTagModel> optionsList = metadataConfigDataModel.options;
+        List<OptionTagModel> optionsList = metadataConfigDataModel.options;
 
         SupportMetadataRadioGroup radioGroup = new SupportMetadataRadioGroup(context);
         radioGroup.setKey(metadataModel.key);
         radioGroup.setEditable(editable);
         radioGroup.setChangedListener(optionsChangedListener);
 
-        for (OptionsTagModel optionsModel : optionsList) {
+        for (OptionTagModel optionsModel : optionsList) {
             radioGroup.addRadioView(optionsModel);
         }
 
@@ -1336,7 +1368,7 @@ public class MetadataViewUtils {
         checkGroup.setChangedListener(optionsChangedListener);
 
         for (int i = 0; i < metadataConfigDataModel.options.size(); i++) {
-            OptionsTagModel optionsModel = metadataConfigDataModel.options.get(i);
+            OptionTagModel optionsModel = metadataConfigDataModel.options.get(i);
             checkGroup.addCheckView(optionsModel);
         }
 
@@ -1444,7 +1476,7 @@ public class MetadataViewUtils {
                                         boolean editable,
                                         LinearLayout parentContainer,
                                         MetadataModel metadataModel,
-                                        FileProfileConfigModel configModel) {
+                                        FileProfileConfigModel configModel, OnViewClickListener onViewClickListener) {
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
@@ -1457,28 +1489,61 @@ public class MetadataViewUtils {
             return;
         }
 
-        if (metadataModel.value instanceof ArrayList<?>) {
-            ArrayList<LinkedTreeMap> list = (ArrayList<LinkedTreeMap>) metadataModel.value;
-            for (LinkedTreeMap fileLinkModel : list) {
-                String o = fileLinkModel.get("row_id").toString();
-                SDocTagModel tagModel = configModel.getTagMap().get(o);
-                if (tagModel != null) {
-                    View ltr = LayoutInflater.from(context).inflate(R.layout.layout_detail_tag, null);
-                    ltr.findViewById(R.id.remove).setVisibility(editable ? View.VISIBLE : View.GONE);
+        List<OptionTagModel> tagModels = getOptionTagListWithTagField(metadataModel, configModel);
+        if (!CollectionUtils.isEmpty(tagModels)) {
+            for (OptionTagModel tagModel : tagModels) {
+                View ltr = LayoutInflater.from(context).inflate(R.layout.layout_detail_tag, null);
+                ltr.findViewById(R.id.remove).setVisibility(editable ? View.VISIBLE : View.GONE);
 
-                    TextView textView = ltr.findViewById(R.id.text);
-                    textView.setText(tagModel.name);
-                    MaterialCardView materialCardView = ltr.findViewById(R.id.indicator);
-                    materialCardView.setCardBackgroundColor(Color.parseColor(tagModel.color));
-                    ltr.setLayoutParams(llp);
+                TextView textView = ltr.findViewById(R.id.text);
+                textView.setText(tagModel.name);
+                MaterialCardView materialCardView = ltr.findViewById(R.id.indicator);
+                materialCardView.setCardBackgroundColor(Color.parseColor(tagModel.getColor()));
+                ltr.setLayoutParams(llp);
 
-                    flexboxContainer.addView(ltr);
-                }
+                flexboxContainer.addView(ltr);
             }
+        }
+
+        if (editable && onViewClickListener != null) {
+            flexboxContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onViewClickListener.onClick(v, metadataModel.key);
+                }
+            });
         }
 
         if (!isAdded) {
             parentContainer.addView(flexboxContainer);
         }
+    }
+
+    public static List<OptionTagModel> getOptionTagListWithTagField(MetadataModel metadataModel, FileProfileConfigModel configModel) {
+        if (metadataModel == null || configModel == null) {
+            return null;
+        }
+
+        boolean isArrayList = metadataModel.value instanceof ArrayList<?>;
+        if (!isArrayList) {
+            return null;
+        }
+
+        ArrayList<LinkedTreeMap> list = (ArrayList<LinkedTreeMap>) metadataModel.value;
+
+        List<OptionTagModel> tags = new ArrayList<>();
+        for (LinkedTreeMap fileLinkModel : list) {
+            String o = fileLinkModel.get("row_id").toString();
+            SDocTagModel tagModel = configModel.getTagMap().get(o);
+
+            OptionTagModel optionTagModel = new OptionTagModel();
+            optionTagModel.name = tagModel.name;
+            optionTagModel.color = tagModel.color;
+            optionTagModel.id = tagModel.id;
+            tags.add(optionTagModel);
+        }
+
+        return tags;
+
     }
 }

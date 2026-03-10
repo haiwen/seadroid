@@ -1,7 +1,6 @@
-package com.seafile.seadroid2.ui.sdoc;
+package com.seafile.seadroid2.ui.file_profile;
 
 import static com.seafile.seadroid2.config.Constants.DP.DP_16;
-import static com.seafile.seadroid2.config.Constants.DP.DP_4;
 import static com.seafile.seadroid2.config.Constants.DP.DP_8;
 
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -24,7 +22,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.google.android.flexbox.FlexboxLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.config.ColumnType;
@@ -32,9 +29,9 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.ActivitySdocEditorBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarBinding;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.model.sdoc.GeoLocationModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
-import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
+import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.listener.OnSingleSelectChangedListener;
@@ -43,33 +40,30 @@ import com.seafile.seadroid2.listener.OnTextChangedListener;
 import com.seafile.seadroid2.listener.OnTextViewClickListener;
 import com.seafile.seadroid2.listener.OnViewClickListener;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
-import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
-import com.seafile.seadroid2.ui.file_profile.MetadataViewUtils;
+import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
+import com.seafile.seadroid2.ui.selector.CollaboratorSelectorFragment;
 import com.seafile.seadroid2.ui.selector.DateSelectorActivity;
 import com.seafile.seadroid2.ui.selector.LongTextSelectorActivity;
+import com.seafile.seadroid2.ui.selector.SelectSelectorFragment;
 import com.seafile.seadroid2.view.ratingbar.OnRatingChangedListener;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
-public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
-    private static final String TAG = "SDocEditorActivity";
+public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
+    private static final String TAG = "ProfileEditorActivity";
     private ActivitySdocEditorBinding binding;
     private ToolbarActionbarBinding bindingOfToolbar;
 
     private String repoId, path;
     private FileProfileConfigModel configModel;
-    private LinkedHashMap<String, Object> linkedHashMap = new LinkedHashMap<>();
     private Context context;
+    // Content modified by the user
+    private final LinkedHashMap<String, Object> contentMap = new LinkedHashMap<>();
 
-    // value: can editable?
-    private final HashMap<String, Boolean> _supportedField = new HashMap<>();
     private final String TEXT_VIEW_TITLE_TAG_PREFIX = "Text:Title:";
     private final String CHILD_CONTAINER_TAG_PREFIX = "Container:";
 
@@ -83,7 +77,7 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     public static Intent getIntent(Context context, FileProfileConfigModel configModel) {
         TransportHolder.get().put("config_model", configModel);
 
-        Intent intent = new Intent(context, SDocEditorActivity.class);
+        Intent intent = new Intent(context, ProfileEditorActivity.class);
         return intent;
     }
 
@@ -103,7 +97,7 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         context = this;
 
         initVM();
-        initData();
+
         registerResultLauncher();
 
         init();
@@ -111,7 +105,7 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         if (!StringUtils.isEmpty(repoId) && !StringUtils.isEmpty(path)) {
             loadFileDetail(repoId, path);
         } else if (configModel != null) {
-            parseData();
+            checkData();
         }
     }
 
@@ -141,20 +135,6 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
 
     }
 
-    private void initData() {
-        _supportedField.put("_size", false);
-        _supportedField.put("_file_modifier", false);
-        _supportedField.put("_file_mtime", false);
-        _supportedField.put("_owner", true);
-        _supportedField.put("_description", true);
-        _supportedField.put("_collaborators", true);
-        _supportedField.put("_reviewer", true);
-        _supportedField.put("_status", true);
-        _supportedField.put("_location", false);
-        _supportedField.put("_tags", true);
-        _supportedField.put("_rate", true);
-    }
-
     private void initVM() {
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
@@ -177,7 +157,7 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 if (configModel == null) {
                     Toasts.show("null");
                 } else {
-                    parseData();
+                    checkData();
                 }
             }
         });
@@ -187,44 +167,38 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         getViewModel().loadFileDetail(repoId, path);
     }
 
-    private void parseData() {
+    private void checkData() {
         if (configModel == null) {
             return;
         }
 
-        List<MetadataModel> metadataList = new ArrayList<>(configModel.getRecordMetaDataList());
-        for (MetadataModel metadata : metadataList) {
-            if ("_file_modifier".equals(metadata.key)) {
-                metadata.type = "collaborator";
-                metadata.value = CollectionUtils.newArrayList(getValueByKey(metadata.name));
-            } else {
-                metadata.value = getValueByKey(metadata.name);
-            }
-
-            linkedHashMap.put(metadata.name, metadata);
+        if (configModel.getRecordMetaDataMap().isEmpty()) {
+            // todo 空布局
+            return;
         }
-        configModel.setRecordMetaDataList(metadataList);
 
         setData(binding.container);
     }
 
-    private void setData(LinearLayout parent) {
-        for (MetadataModel metadata : configModel.getRecordMetaDataList()) {
-            if (metadata.key.startsWith("_")) {
-                if (_supportedField.containsKey(metadata.key)) {
-                    addMetadataView(parent, metadata);
+    private void setData(LinearLayout rootContainer) {
+        LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
+        Set<String> keys = recordMetaDataMap.keySet();
+        for (String key : keys) {
+            MetadataModel metadata = recordMetaDataMap.get(key);
+            if (metadata == null) {
+                continue;
+            }
+
+            if (key.startsWith("_")) {
+                if (MetadataViewUtils.getSupportedFieldMap().containsKey(key)) {
+                    addMetadataView(rootContainer, metadata);
                 }
             } else {
-                addMetadataView(parent, metadata);
+                addMetadataView(rootContainer, metadata);
             }
         }
     }
 
-
-    private Object getValueByKey(String key) {
-        Map<String, Object> model = configModel.getRecordResultList().get(0);
-        return model.get(key);
-    }
 
     private void addMetadataView(LinearLayout parent, MetadataModel metadata) {
 
@@ -241,8 +215,8 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private boolean isEditableByKey(String key) {
         boolean isEditable = true;
-        if (_supportedField.containsKey(key)) {
-            return Boolean.TRUE.equals(_supportedField.get(key));
+        if (MetadataViewUtils.getSupportedFieldMap().containsKey(key)) {
+            return Boolean.TRUE.equals(MetadataViewUtils.getSupportedFieldMap().get(key));
         }
         return isEditable;
     }
@@ -255,14 +229,18 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
             MetadataViewUtils.buildEditableText(context, isEditable, parent, metadata, new OnTextChangedListener() {
                 @Override
                 public void onChanged(String text) {
-                    linkedHashMap.put(metadata.key, text);
+                    contentMap.put(metadata.key, text);
                 }
             });
         } else if (TextUtils.equals(ColumnType.LONG_TEXT, type)) {
             MetadataViewUtils.buildEditableLongText(context, isEditable, parent, metadata, new OnViewClickListener() {
                 @Override
                 public void onClick(View view, String tag) {
-                    Intent intent = LongTextSelectorActivity.getIntent(context,"","","");
+                    String inputValue = null;
+                    if (metadata.value instanceof String) {
+                        inputValue = (String) metadata.value;
+                    }
+                    Intent intent = LongTextSelectorActivity.getIntent(context, metadata.key, inputValue, metadata.name);
                     pickLongTextLauncher.launch(intent);
                 }
             });
@@ -270,63 +248,88 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
             MetadataViewUtils.buildEditableNumber(context, isEditable, parent, metadata, new OnTextChangedListener() {
                 @Override
                 public void onChanged(String text) {
-//                    linkedHashMap.put(metadata.key, text);
+                    contentMap.put(metadata.key, text);
                 }
             });
         } else if (TextUtils.equals(ColumnType.DATE, type)) {
             MetadataViewUtils.buildEditableDate(context, isEditable, parent, metadata, new OnTextViewClickListener() {
                 @Override
                 public void onClick(TextView textView, String tag) {
-                   Intent intent = DateSelectorActivity.getIntent(context,"","","","");
-                   pickDateLauncher.launch(intent);
+                    String format = null;
+                    if (CollectionUtils.isNotEmpty(metadata.config)) {
+                        format = metadata.config.get(0).format;
+                    }
+                    Intent intent = DateSelectorActivity.getIntent(context, metadata.key, format, metadata.name);
+                    pickDateLauncher.launch(intent);
                 }
             });
         } else if (TextUtils.equals(ColumnType.COLLABORATOR, type)) {
+            List<UserModel> userList = MetadataViewUtils.getUserList(metadata,configModel);
             MetadataViewUtils.buildEditableCollaborator(context, isEditable, parent, metadata, configModel, new OnViewClickListener() {
                 @Override
                 public void onClick(View view, String tag) {
-
+                    CollaboratorSelectorFragment sheetFragment = CollaboratorSelectorFragment.newInstance(userList, null);
+                    sheetFragment.show(getSupportFragmentManager(), CollaboratorSelectorFragment.class.getSimpleName());
                 }
             });
         } else if (TextUtils.equals(ColumnType.SINGLE_SELECT, type)) {
             MetadataViewUtils.buildEditableSingleSelect(context, isEditable, parent, metadata, new OnSingleSelectChangedListener() {
                 @Override
-                public void onChanged(OptionsTagModel optionsTagModel) {
-
+                public void onChanged(OptionTagModel optionTagModel) {
+                    contentMap.put(metadata.key, optionTagModel);
                 }
             });
         } else if (TextUtils.equals(ColumnType.MULTIPLE_SELECT, type)) {
             MetadataViewUtils.buildEditableMultiSelect(context, isEditable, parent, metadata, new OnTaskViewOptionsChangedListener() {
                 @Override
-                public void onChanged(List<OptionsTagModel> optionsModels) {
-
+                public void onChanged(List<OptionTagModel> optionsModels) {
+                    contentMap.put(metadata.key, optionsModels);
                 }
             });
         } else if (TextUtils.equals(ColumnType.RATE, type)) {
             MetadataViewUtils.buildEditableRate(context, isEditable, parent, metadata, 0f, new OnRatingChangedListener() {
                 @Override
                 public void onRatingChanged(double rating) {
-
+                    contentMap.put(metadata.key, rating);
                 }
             });
         } else if (TextUtils.equals(ColumnType.GEOLOCATION, type)) {
             MetadataViewUtils.buildEditableGeoLocation(context, isEditable, parent, metadata, configModel, new OnViewClickListener() {
                 @Override
                 public void onClick(View view, String tag) {
-
+                    // can not edit
                 }
             });
         } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
             MetadataViewUtils.buildEditableCheckbox(context, isEditable, parent, metadata, true, new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+                    contentMap.put(metadata.key, isChecked);
                 }
             });
         } else if (TextUtils.equals(ColumnType.LINK, type)) {
             //tag
             if (TextUtils.equals("_tags", metadata.key)) {
-                MetadataViewUtils.buildEditableTag(context, isEditable, parent, metadata, configModel);
+                MetadataViewUtils.buildEditableTag(context, isEditable, parent, metadata, configModel, new OnViewClickListener() {
+                    @Override
+                    public void onClick(View view, String tag) {
+
+                        List<OptionTagModel> tagModels = MetadataViewUtils.getOptionTagListWithTagField(metadata, configModel);
+
+                        String title = null;
+                        int titleRes = ColumnTypeUtils.getResNameByKey(metadata.name);
+                        if (titleRes != 0) {
+                            title = getString(titleRes);
+                        }
+                        SelectSelectorFragment sheetFragment = SelectSelectorFragment.newInstance(
+                                tag,
+                                title,
+                                true,
+                                tagModels,
+                                null);
+                        sheetFragment.show(getSupportFragmentManager(), SelectSelectorFragment.class.getSimpleName());
+                    }
+                });
             }
         }
     }
@@ -364,10 +367,10 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
 
-
     private ActivityResultLauncher<Intent> pickDateLauncher;
     private ActivityResultLauncher<Intent> pickLongTextLauncher;
     private ActivityResultLauncher<Intent> dynamicCollaboratorLauncher;
+
     private void registerResultLauncher() {
         //dynamically select collaborators
         dynamicCollaboratorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -386,6 +389,12 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 if (result == null || result.getData() == null) {
                     return;
                 }
+
+                String key = result.getData().getStringExtra("columnKey");
+                String value = result.getData().getStringExtra("longtext");
+                contentMap.put(key, value);
+
+                updateConfigMapMetadata(key, value);
             }
         });
 
@@ -397,8 +406,27 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 if (result == null || result.getData() == null) {
                     return;
                 }
+
+                String key = result.getData().getStringExtra("columnKey");
+                String value = result.getData().getStringExtra("date");
+                contentMap.put(key, value);
+
+                updateConfigMapMetadata(key, value);
             }
         });
 
+    }
+
+    private void updateConfigMapMetadata(String key, Object value) {
+        MetadataModel metadataModel = configModel.getRecordMetaDataMap().get(key);
+        if (metadataModel == null) {
+            return;
+        }
+
+        metadataModel.value = value;
+        configModel.getRecordMetaDataMap().put(key, metadataModel);
+
+        LinearLayout ll = binding.container.findViewWithTag(CHILD_CONTAINER_TAG_PREFIX + key);
+        parseViewByType(context, ll, metadataModel);
     }
 }

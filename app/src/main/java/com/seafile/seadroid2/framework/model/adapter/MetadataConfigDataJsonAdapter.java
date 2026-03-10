@@ -14,7 +14,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
-import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class MetadataConfigDataJsonAdapter implements JsonDeserializer<List<Meta
 
             if (!CollectionUtils.isEmpty(src.options)) {
                 JsonArray optionsJsonArray = new JsonArray();
-                for (OptionsTagModel option : src.options) {
+                for (OptionTagModel option : src.options) {
                     JsonObject jsonObject1 = new JsonObject();
                     jsonObject1.addProperty("borderColor", option.borderColor);
                     jsonObject1.addProperty("color", option.color);

@@ -749,6 +749,7 @@
     <string name="_location">Location</string>
     <string name="_owner">File owner</string>
     <string name="_rate">Rate</string>
+    <string name="_expire_time">Expire time</string>
 
     <string name="mark_resolve">Mark as resolved</string>
     <string name="delete_confirm">Are you sure you want to delete this item?</string>

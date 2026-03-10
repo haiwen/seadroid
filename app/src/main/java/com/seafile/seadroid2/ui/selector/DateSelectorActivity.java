@@ -25,15 +25,14 @@ public class DateSelectorActivity extends BaseActivity {
     private FragmentSelectorDateBinding binding;
     private ToolbarActionbarForSelectorBinding toolbarBinding;
 
-    private String inputValue, columnKey, format, title;
+    private String columnKey, format, title;
 
     private boolean isSelectHourMinute = false;
     private int y, mon, dofM, hofD, min;
 
-    public static Intent getIntent(Context context, String columnKey, String inputValue, String format, String title) {
+    public static Intent getIntent(Context context, String columnKey, String format, String title) {
         Intent args = new Intent(context, DateSelectorActivity.class);
         args.putExtra("columnKey", columnKey);
-        args.putExtra("inputValue", inputValue);
         args.putExtra("format", format);
         args.putExtra("title", title);
         return args;
@@ -57,7 +56,6 @@ public class DateSelectorActivity extends BaseActivity {
 
         if (getIntent() != null) {
             columnKey = getIntent().getStringExtra("columnKey");
-            inputValue = getIntent().getStringExtra("inputValue");
             format = getIntent().getStringExtra("format");
             title = getIntent().getStringExtra("title");
         }
