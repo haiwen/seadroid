@@ -16,6 +16,10 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
@@ -41,6 +45,8 @@ import com.seafile.seadroid2.listener.OnViewClickListener;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
 import com.seafile.seadroid2.ui.file_profile.MetadataViewUtils;
+import com.seafile.seadroid2.ui.selector.DateSelectorActivity;
+import com.seafile.seadroid2.ui.selector.LongTextSelectorActivity;
 import com.seafile.seadroid2.view.ratingbar.OnRatingChangedListener;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +56,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     private static final String TAG = "SDocEditorActivity";
@@ -97,6 +104,8 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
 
         initVM();
         initData();
+        registerResultLauncher();
+
         init();
 
         if (!StringUtils.isEmpty(repoId) && !StringUtils.isEmpty(path)) {
@@ -141,7 +150,7 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         _supportedField.put("_collaborators", true);
         _supportedField.put("_reviewer", true);
         _supportedField.put("_status", true);
-        _supportedField.put("_location", true);
+        _supportedField.put("_location", false);
         _supportedField.put("_tags", true);
         _supportedField.put("_rate", true);
     }
@@ -253,7 +262,8 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
             MetadataViewUtils.buildEditableLongText(context, isEditable, parent, metadata, new OnViewClickListener() {
                 @Override
                 public void onClick(View view, String tag) {
-//                    linkedHashMap.put(metadata.key, tag);
+                    Intent intent = LongTextSelectorActivity.getIntent(context,"","","");
+                    pickLongTextLauncher.launch(intent);
                 }
             });
         } else if (TextUtils.equals(ColumnType.NUMBER, type)) {
@@ -267,7 +277,8 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
             MetadataViewUtils.buildEditableDate(context, isEditable, parent, metadata, new OnTextViewClickListener() {
                 @Override
                 public void onClick(TextView textView, String tag) {
-
+                   Intent intent = DateSelectorActivity.getIntent(context,"","","","");
+                   pickDateLauncher.launch(intent);
                 }
             });
         } else if (TextUtils.equals(ColumnType.COLLABORATOR, type)) {
@@ -299,8 +310,7 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 }
             });
         } else if (TextUtils.equals(ColumnType.GEOLOCATION, type)) {
-            GeoLocationModel locationModel = new GeoLocationModel();
-            MetadataViewUtils.buildEditableGeoLocation(context, isEditable, parent, metadata, locationModel, new OnViewClickListener() {
+            MetadataViewUtils.buildEditableGeoLocation(context, isEditable, parent, metadata, configModel, new OnViewClickListener() {
                 @Override
                 public void onClick(View view, String tag) {
 
@@ -351,5 +361,44 @@ public class SDocEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         textView.setPadding(0, Constants.DP.DP_2, Constants.DP.DP_2, Constants.DP.DP_2);
         textView.setTag(TEXT_VIEW_TITLE_TAG_PREFIX + key);
         return textView;
+    }
+
+
+
+    private ActivityResultLauncher<Intent> pickDateLauncher;
+    private ActivityResultLauncher<Intent> pickLongTextLauncher;
+    private ActivityResultLauncher<Intent> dynamicCollaboratorLauncher;
+    private void registerResultLauncher() {
+        //dynamically select collaborators
+        dynamicCollaboratorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result == null || result.getData() == null) {
+                    return;
+                }
+            }
+        });
+
+        //
+        pickLongTextLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result == null || result.getData() == null) {
+                    return;
+                }
+            }
+        });
+
+
+        //
+        pickDateLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result == null || result.getData() == null) {
+                    return;
+                }
+            }
+        });
+
     }
 }

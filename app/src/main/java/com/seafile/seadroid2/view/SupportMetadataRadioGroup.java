@@ -19,6 +19,9 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
 import com.seafile.seadroid2.listener.OnSingleSelectChangedListener;
 import com.seafile.seadroid2.listener.OnTaskViewOptionsChangedListener;
+import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +30,16 @@ import java.util.Optional;
 public class SupportMetadataRadioGroup extends RadioGroup {
 
     private boolean editable = true;
+    private String key;
     private final List<OptionsTagModel> options = new ArrayList<>();
     private OnSingleSelectChangedListener changedListener;
 
     public void setEditable(boolean editable) {
         this.editable = editable;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public SupportMetadataRadioGroup(Context context) {
@@ -137,9 +145,14 @@ public class SupportMetadataRadioGroup extends RadioGroup {
         textView.setTextColor(Color.parseColor(optionsModel.textColor));
         textView.setMaxLines(1);
         textView.setEllipsize(TextUtils.TruncateAt.END);
-        textView.setText(optionsModel.name);
-        cardView.setCardBackgroundColor(Color.parseColor(optionsModel.color));
+
+        if (StringUtils.equals("_status", key)) {
+            textView.setText(ColumnTypeUtils.getResNameByKey(optionsModel.name));
+        }else{
+            textView.setText(optionsModel.name);
+        }
+
+        cardView.setCardBackgroundColor(Color.parseColor(optionsModel.getColor()));
         return ltr;
     }
-
 }
