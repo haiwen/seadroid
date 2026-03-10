@@ -3,6 +3,8 @@ package com.seafile.seadroid2.ui.file_profile;
 import android.content.res.Resources;
 import android.os.Build;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.ColumnType;
 
@@ -85,6 +87,8 @@ public class ColumnTypeUtils {
                 return R.string._owner;
             case "_rate":
                 return R.string._rate;
+            case "_expire_time":
+                return R.string._expire_time;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

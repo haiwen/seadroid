@@ -12,7 +12,7 @@ public class MetadataConfigDataModel implements Parcelable {
     public String format;
 
     public String geo_format;
-    public List<OptionsTagModel> options;
+    public List<OptionTagModel> options;
 
     public boolean enable_precision;
     public int precision;
@@ -57,7 +57,7 @@ public class MetadataConfigDataModel implements Parcelable {
     protected MetadataConfigDataModel(Parcel in) {
         this.format = in.readString();
         this.geo_format = in.readString();
-        this.options = in.createTypedArrayList(OptionsTagModel.CREATOR);
+        this.options = in.createTypedArrayList(OptionTagModel.CREATOR);
         this.rate_max_number = in.readInt();
         this.rate_style_color = in.readString();
         this.display_column_key = in.readString();

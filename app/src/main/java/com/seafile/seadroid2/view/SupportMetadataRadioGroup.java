@@ -11,14 +11,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.listener.OnSingleSelectChangedListener;
-import com.seafile.seadroid2.listener.OnTaskViewOptionsChangedListener;
 import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +29,7 @@ public class SupportMetadataRadioGroup extends RadioGroup {
 
     private boolean editable = true;
     private String key;
-    private final List<OptionsTagModel> options = new ArrayList<>();
+    private final List<OptionTagModel> options = new ArrayList<>();
     private OnSingleSelectChangedListener changedListener;
 
     public void setEditable(boolean editable) {
@@ -60,7 +58,7 @@ public class SupportMetadataRadioGroup extends RadioGroup {
         this.changedListener = changedListener;
     }
 
-    public void addRadioView(OptionsTagModel optionsModel) {
+    public void addRadioView(OptionTagModel optionsModel) {
         options.add(optionsModel);
 
         View view = getCheckRadioSelectLayoutView(getContext(), optionsModel);
@@ -105,13 +103,13 @@ public class SupportMetadataRadioGroup extends RadioGroup {
         }
     }
 
-    public OptionsTagModel getSelectedOption() {
+    public OptionTagModel getSelectedOption() {
         int c = getChildCount();
         for (int i = 0; i < c; i++) {
             RadioButton radioButton = getChildAt(i).findViewById(R.id.radio_button);
             if (radioButton.isChecked()) {
                 String name = radioButton.getTag().toString();
-                Optional<OptionsTagModel> op = options.stream()
+                Optional<OptionTagModel> op = options.stream()
                         .filter(f -> f.name.equals(name))
                         .findFirst();
                 if (op.isPresent()) {
@@ -134,7 +132,7 @@ public class SupportMetadataRadioGroup extends RadioGroup {
         }
     }
 
-    private View getCheckRadioSelectLayoutView(Context context, OptionsTagModel optionsModel) {
+    private View getCheckRadioSelectLayoutView(Context context, OptionTagModel optionsModel) {
         View ltr = LayoutInflater.from(context).inflate(R.layout.layout_check_radio_text_round, null);
         LayoutParams flp = new LayoutParams(-1, -2);
         flp.topMargin = Constants.DP.DP_8;

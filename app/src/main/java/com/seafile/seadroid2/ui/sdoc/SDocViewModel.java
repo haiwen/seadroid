@@ -179,7 +179,7 @@ public class SDocViewModel extends BaseViewModel {
                             if (r.results.isEmpty()) {
                                 configModel.initDefaultIfMetaNotEnable();
                             } else {
-                                configModel.addRecordWrapperModel(r);
+                                configModel.setRecordWrapperModel(r);
                             }
                         } else {
                             configModel.initDefaultIfMetaNotEnable();

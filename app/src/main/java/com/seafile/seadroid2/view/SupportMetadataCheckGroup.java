@@ -9,17 +9,15 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.listener.OnTaskViewOptionsChangedListener;
 
 import java.util.ArrayList;
@@ -29,7 +27,7 @@ import java.util.Optional;
 public class SupportMetadataCheckGroup extends LinearLayout {
 
     private boolean editable = true;
-    private final List<OptionsTagModel> options = new ArrayList<>();
+    private final List<OptionTagModel> options = new ArrayList<>();
     private OnTaskViewOptionsChangedListener changedListener;
 
     public SupportMetadataCheckGroup(Context context) {
@@ -65,7 +63,7 @@ public class SupportMetadataCheckGroup extends LinearLayout {
         this.changedListener = changedListener;
     }
 
-    public void addCheckView(OptionsTagModel optionsModel) {
+    public void addCheckView(OptionTagModel optionsModel) {
         options.add(optionsModel);
 
         View view = getCheckBoxSelectLayoutView(getContext(), optionsModel);
@@ -110,14 +108,14 @@ public class SupportMetadataCheckGroup extends LinearLayout {
         }
     }
 
-    public List<OptionsTagModel> getSelectedOptions() {
-        List<OptionsTagModel> selected_options = new ArrayList<>();
+    public List<OptionTagModel> getSelectedOptions() {
+        List<OptionTagModel> selected_options = new ArrayList<>();
         int c = getChildCount();
         for (int i = 0; i < c; i++) {
             CheckBox checkBox = getChildAt(i).findViewById(R.id.checkbox);
             if (checkBox.isChecked()) {
                 String name = checkBox.getTag().toString();
-                Optional<OptionsTagModel> op = options
+                Optional<OptionTagModel> op = options
                         .stream()
                         .filter(f -> f.name.equals(name))
                         .findFirst();
@@ -127,7 +125,7 @@ public class SupportMetadataCheckGroup extends LinearLayout {
         return selected_options;
     }
 
-    private View getCheckBoxSelectLayoutView(Context context, OptionsTagModel optionsModel) {
+    private View getCheckBoxSelectLayoutView(Context context, OptionTagModel optionsModel) {
         View ltr = LayoutInflater.from(context).inflate(R.layout.layout_check_box_text_round, null);
         FlexboxLayout.LayoutParams flp = new FlexboxLayout.LayoutParams(-1, -2);
         flp.topMargin = Constants.DP.DP_8;

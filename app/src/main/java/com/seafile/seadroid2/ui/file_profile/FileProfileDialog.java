@@ -29,11 +29,12 @@ import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.databinding.DialogFileProfileBinding;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
-import com.seafile.seadroid2.ui.sdoc.SDocEditorActivity;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FileProfileDialog extends BottomSheetDialogFragment {
     private FileProfileConfigModel configModel;
@@ -95,27 +96,22 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             profileBinding.edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = SDocEditorActivity.getIntent(requireContext(), configModel);
+                    Intent intent = ProfileEditorActivity.getIntent(requireContext(), configModel);
                     startActivity(intent);
                 }
             });
         }
 
-        List<MetadataModel> metadataList = new ArrayList<>(configModel.getRecordMetaDataList());
-        for (MetadataModel metadata : metadataList) {
-            if ("_file_modifier".equals(metadata.key)) {
-                metadata.type = "collaborator";
-                metadata.value = CollectionUtils.newArrayList(getValueByKey(metadata.name));
-            } else {
-                Object v = getValueByKey(metadata.name);
-                metadata.value = v;
+        LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
+        Set<String> keys = recordMetaDataMap.keySet();
+        for (String key : keys) {
+            MetadataModel metadata = recordMetaDataMap.get(key);
+            if (metadata == null) {
+                continue;
             }
-        }
-        configModel.setRecordMetaDataList(metadataList);
 
-        for (MetadataModel metadata : configModel.getRecordMetaDataList()) {
-            if (metadata.key.startsWith("_")) {
-                if (_supportedField.contains(metadata.key)) {
+            if (key.startsWith("_")) {
+                if (MetadataViewUtils.getSupportedFieldMap().containsKey(key)) {
                     addMetadataView(parent, metadata);
                 }
             } else {
@@ -128,20 +124,6 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         parseViewByType(getContext(), parent, metadata);
     }
 
-    //not support: _tags
-    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_owner", "_description", "_collaborators", "_reviewer", "_status", "_location", "_tags", "_rate");
-
-    private Object getValueByKey(String key) {
-        Map<String, Object> model = configModel.getRecordResultList().get(0);
-        return model.get(key);
-    }
-
-    private FlexboxLayout.LayoutParams getFlexParams() {
-        FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        flexLayoutParams.bottomMargin = DP_4;
-        flexLayoutParams.rightMargin = DP_4;
-        return flexLayoutParams;
-    }
 
     public void parseViewByType(Context context, LinearLayout parent, MetadataModel metadata) {
         final String type = metadata.type;

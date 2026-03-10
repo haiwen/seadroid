@@ -6,7 +6,7 @@ import android.text.TextUtils;
 
 import androidx.room.Ignore;
 
-public class OptionsTagModel implements Parcelable {
+public class OptionTagModel implements Parcelable {
     public String borderColor;
 
     //default #EED5FF
@@ -96,10 +96,10 @@ public class OptionsTagModel implements Parcelable {
         this.isSelected = source.readByte() != 0;
     }
 
-    public OptionsTagModel() {
+    public OptionTagModel() {
     }
 
-    protected OptionsTagModel(Parcel in) {
+    protected OptionTagModel(Parcel in) {
         this.borderColor = in.readString();
         this.color = in.readString();
         this.id = in.readString();
@@ -108,15 +108,15 @@ public class OptionsTagModel implements Parcelable {
         this.isSelected = in.readByte() != 0;
     }
 
-    public static final Creator<OptionsTagModel> CREATOR = new Creator<OptionsTagModel>() {
+    public static final Creator<OptionTagModel> CREATOR = new Creator<OptionTagModel>() {
         @Override
-        public OptionsTagModel createFromParcel(Parcel source) {
-            return new OptionsTagModel(source);
+        public OptionTagModel createFromParcel(Parcel source) {
+            return new OptionTagModel(source);
         }
 
         @Override
-        public OptionsTagModel[] newArray(int size) {
-            return new OptionsTagModel[size];
+        public OptionTagModel[] newArray(int size) {
+            return new OptionTagModel[size];
         }
     };
 }
