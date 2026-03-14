@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.file_monitor;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -11,6 +12,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -21,10 +23,14 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePr
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.main.MainActivity;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class FileDaemonService extends Service {
+    private static final AtomicBoolean STARTED = new AtomicBoolean(false);
     private final String TAG = "FileDaemonService";
 
     @Nullable
@@ -37,16 +43,29 @@ public class FileDaemonService extends Service {
     public void onCreate() {
         super.onCreate();
         SLogs.e(TAG, "onCreate()");
-
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         SLogs.e(TAG, "onStartCommand()", "file daemon service started");
+        // Ensure the service initialization logic runs only once
+        if (!STARTED.compareAndSet(false, true)) {
+            SLogs.d(TAG, "Service already started, ignore duplicated start command");
+            return START_NOT_STICKY;
+        }
 
-        startNotify();
+        try {
+
+            startNotify();
+
+        } catch (Exception e) {
+            SLogs.e(TAG, "Exception in startNotify: " + e.getMessage());
+            stopSelf();
+            return START_NOT_STICKY;
+        }
 
         startPeriodicScanTask();
+
         return START_STICKY;
     }
 
@@ -131,34 +150,29 @@ public class FileDaemonService extends Service {
     public void onTimeout(int startId, int fgsType) {
         super.onTimeout(startId, fgsType);
 
-        if (BackupThreadExecutor.getInstance().isFolderBackupRunning()) {
-            startNotify();
-        } else {
-            stopForeground(STOP_FOREGROUND_REMOVE);
-            stopSelf(startId);
-        }
+        SLogs.d(TAG, "onTimeout()", "file daemon service timeout");
+
+        periodicHandler.removeCallbacks(periodicTask);
+        isPeriodicRunning = false;
+
+        stopForeground(STOP_FOREGROUND_REMOVE);
+        stopSelf();
     }
 
     @Override
     public void onDestroy() {
         SLogs.e(TAG, "onDestroy()", "file daemon service destroy");
 
+        STARTED.set(false);
+
         // 1. Stop all scheduled tasks immediately to prevent new workers from starting during the shutdown
         periodicHandler.removeCallbacks(periodicTask);
         isPeriodicRunning = false;
 
         // 2. Remove foreground notifications (must be completed before service destruction is complete)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE);
-        } else {
-            stopForeground(true);
-        }
+        stopForeground(STOP_FOREGROUND_REMOVE);
 
         super.onDestroy();
-    }
-
-    public void stopDaemon() {
-        stopSelf();
     }
 
 }

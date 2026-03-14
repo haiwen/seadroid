@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.ScreenUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
@@ -36,8 +37,11 @@ import com.seafile.seadroid2.databinding.ItemThumbnailItemVerticalBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -87,7 +91,9 @@ public class ThumbnailAdapter extends BaseAdapter<DirentModel, ThumbnailAdapter.
 
         holder.itemView.setEnabled(true);
         holder.itemView.getLayoutParams().width = itemWidth;
-        String thumbnailUrl = convertThumbnailUrl(model.repo_id, model.full_path);
+
+        String thumbnailUrl = ThumbnailUtils.convertThumbnailUrl(serverUrl, model);
+
         if (TextUtils.isEmpty(thumbnailUrl)) {
             holder.binding.imageView.setImageResource(R.drawable.shape_solid_grey100_radius_4);
             return;
@@ -106,16 +112,6 @@ public class ThumbnailAdapter extends BaseAdapter<DirentModel, ThumbnailAdapter.
             .fallback(R.drawable.shape_solid_grey100_radius_4)
             .error(R.drawable.icon_format_pic)
             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
-
-    private String convertThumbnailUrl(String repoId, String fullPath) {
-
-        if (TextUtils.isEmpty(serverUrl)) {
-            return null;
-        }
-
-        return ThumbnailUtils.convertThumbnailUrl(serverUrl, repoId, fullPath);
-    }
-
 
     public static class ThumbnailItemViewHolder extends BaseViewHolder {
         private final ItemThumbnailItemVerticalBinding binding;

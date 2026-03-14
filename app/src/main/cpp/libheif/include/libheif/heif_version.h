@@ -28,10 +28,10 @@
 #define LIBHEIF_HEIF_VERSION_H
 
 /* Numeric representation of the version */
-#define LIBHEIF_NUMERIC_VERSION ((1<<24) | (20<<16) | (2<<8) | 0)
+#define LIBHEIF_NUMERIC_VERSION ((1<<24) | (21<<16) | (2<<8) | 0)
 
 /* Version string */
-#define LIBHEIF_VERSION "1.20.2"
+#define LIBHEIF_VERSION "1.21.2"
 
 #define LIBHEIF_PLUGIN_DIRECTORY "/Users/zhwanng/Documents/workspace/seafile/seadroid/libheif-android-build/prefix/libheif/arm64-v8a/lib/libheif"
 

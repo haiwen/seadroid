@@ -124,6 +124,12 @@ public abstract class TransferWorker extends BaseWorker {
         send(dataSource, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE, b);
     }
 
+    protected void sendScanCompleteEvent(FeatureDataSource dataSource, String content) {
+        Bundle b = new Bundle();
+        b.putString(TransferWorker.KEY_DATA_RESULT, content);
+        send(dataSource, TransferEvent.EVENT_SCAN_COMPLETE, b);
+    }
+
     protected void sendScanCompleteEvent(FeatureDataSource dataSource, String content, int totalPendingCount) {
         Bundle b = new Bundle();
         b.putString(TransferWorker.KEY_DATA_RESULT, content);

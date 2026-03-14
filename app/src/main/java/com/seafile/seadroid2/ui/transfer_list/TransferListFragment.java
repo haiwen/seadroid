@@ -237,7 +237,7 @@ public abstract class TransferListFragment extends BaseFragment {
 
     private void doDelete(TransferModel transferModel, boolean isDeleteLocalFile) throws ExecutionException, InterruptedException {
         // stop transfer
-        BackupThreadExecutor.getInstance().stopById(transferModel.getId(), transferModel.data_source);
+        BackupThreadExecutor.getInstance().stopSpecialTransmitter(transferModel.getId(), transferModel.data_source);
 
         if (FeatureDataSource.DOWNLOAD == transferModel.data_source) {
             if (isDeleteLocalFile) {

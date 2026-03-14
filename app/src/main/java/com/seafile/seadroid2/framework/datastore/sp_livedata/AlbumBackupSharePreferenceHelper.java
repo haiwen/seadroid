@@ -48,8 +48,18 @@ public class AlbumBackupSharePreferenceHelper {
         sp.edit().putLong(SettingsManager.CAMERA_BACKUP_LAST_TIME, time).apply();
     }
 
+    public static void writeLastScanTime2(long time) {
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
+        if (sp == null) {
+            return;
+        }
+
+        sp.edit().putLong(SettingsManager.CAMERA_BACKUP_LAST_TIME_2, time).apply();
+    }
+
     public static void resetLastScanTime() {
         writeLastScanTime(0L);
+        writeLastScanTime2(0L);
     }
 
     public static long readLastScanTimeMills() {
@@ -59,6 +69,15 @@ public class AlbumBackupSharePreferenceHelper {
         }
 
         return sp.getLong(SettingsManager.CAMERA_BACKUP_LAST_TIME, 0L);
+    }
+
+    public static long readLastScanTimeMills2() {
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
+        if (sp == null) {
+            return 0L;
+        }
+
+        return sp.getLong(SettingsManager.CAMERA_BACKUP_LAST_TIME_2, 0L);
     }
 
     public static void writeLastMediaVersion(String version) {

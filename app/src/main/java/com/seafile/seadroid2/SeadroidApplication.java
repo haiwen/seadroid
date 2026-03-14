@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.BoolRes;
 import androidx.annotation.IntegerRes;
 import androidx.annotation.StringRes;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
@@ -32,6 +33,10 @@ public class SeadroidApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        ProcessLifecycleOwner.get()
+                .getLifecycle()
+                .addObserver(new AppProcessLifeObserver());
 
         context = this;
 

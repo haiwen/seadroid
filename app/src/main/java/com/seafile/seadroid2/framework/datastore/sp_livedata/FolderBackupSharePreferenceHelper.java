@@ -50,6 +50,13 @@ public class FolderBackupSharePreferenceHelper {
         }
         return sp.getLong(SettingsManager.FOLDER_BACKUP_LAST_TIME, 0);
     }
+    public static long readLastScanTime2() {
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
+        if (sp == null) {
+            return 0L;
+        }
+        return sp.getLong(SettingsManager.FOLDER_BACKUP_LAST_TIME_2, 0);
+    }
 
     public static void writeLastScanTime(long time) {
         SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
@@ -57,9 +64,15 @@ public class FolderBackupSharePreferenceHelper {
             sp.edit().putLong(SettingsManager.FOLDER_BACKUP_LAST_TIME, time).apply();
         }
     }
-
+    public static void writeLastScanTime2(long time) {
+        SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
+        if (sp != null) {
+            sp.edit().putLong(SettingsManager.FOLDER_BACKUP_LAST_TIME, time).apply();
+        }
+    }
     public static void resetLastScanTime() {
         writeLastScanTime(0L);
+        writeLastScanTime2(0L);
     }
 
     //"WIFI" or "WIFI_AND_MOBILE"

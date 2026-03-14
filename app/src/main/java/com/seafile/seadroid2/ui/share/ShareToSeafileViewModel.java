@@ -26,6 +26,8 @@ import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.repo.RepoService;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +72,10 @@ public class ShareToSeafileViewModel extends BaseViewModel {
                 //todo simplify
                 for (Uri uri : uris) {
                     String fileName = Utils.getFilenameFromUri(context, uri);
+                    if (StringUtils.isEmpty(fileName)){
+                        continue;
+                    }
+
                     for (DirentModel direntModel : wrapperModel.dirent_list) {
                         if (TextUtils.equals(direntModel.name, fileName)) {
                             SLogs.d(ShareToSeafileActivity.TAG, "exists in remote: " + fileName);
@@ -106,6 +112,10 @@ public class ShareToSeafileViewModel extends BaseViewModel {
 
         for (Uri uri : uris) {
             String fileName = Utils.getFilenameFromUri(context, uri);
+            if (StringUtils.isEmpty(fileName)){
+                continue;
+            }
+
             TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isReplace);
             GlobalTransferCacheList.SHARE_FILE_TO_SEAFILE_QUEUE.put(transferModel);
             SLogs.d(ShareToSeafileActivity.TAG, "gen model file name: " + fileName);

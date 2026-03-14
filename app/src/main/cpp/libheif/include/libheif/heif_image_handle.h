@@ -53,10 +53,17 @@ int heif_image_handle_is_primary_image(const heif_image_handle* handle);
 LIBHEIF_API
 heif_item_id heif_image_handle_get_item_id(const heif_image_handle* handle);
 
-// Get the resolution of an image.
+/** Get the image width.
+ *
+ * If 'handle' is invalid (NULL) or if the image size exceeds the range of `int`, 0 is returned.
+ */
 LIBHEIF_API
 int heif_image_handle_get_width(const heif_image_handle* handle);
 
+/** Get the image height.
+ *
+ * If 'handle' is invalid (NULL) or if the image size exceeds the range of `int`, 0 is returned.
+ */
 LIBHEIF_API
 int heif_image_handle_get_height(const heif_image_handle* handle);
 
@@ -112,6 +119,8 @@ int heif_image_handle_get_pixel_aspect_ratio(const heif_image_handle*, uint32_t*
 LIBHEIF_API
 heif_context* heif_image_handle_get_context(const heif_image_handle* handle);
 
+LIBHEIF_API
+const char* heif_image_handle_get_gimi_content_id(const heif_image_handle* handle);
 
 #ifdef __cplusplus
 }

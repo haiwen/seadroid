@@ -56,13 +56,6 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
     private DirentModel direntModel;
     private Account account;
 
-    public static Intent start(Context context, DirentModel direntModel, FileReturnActionEnum actionEnum) {
-        Intent starter = new Intent(context, FileActivity.class);
-        starter.putExtra("action", actionEnum.name());
-        //
-        TransportHolder.get().put("dirent", direntModel);
-        return starter;
-    }
 
     public static Intent startFromStarred(Context context, StarredModel model, FileReturnActionEnum actionEnum) {
         DirentModel direntModel = DirentModel.convertStarredModelToThis(model);
@@ -79,6 +72,13 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         return start(context, direntModel, actionEnum);
     }
 
+    public static Intent start(Context context, DirentModel direntModel, FileReturnActionEnum actionEnum) {
+        Intent starter = new Intent(context, FileActivity.class);
+        starter.putExtra("action", actionEnum.name());
+        //
+        TransportHolder.get().put("dirent", direntModel);
+        return starter;
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,7 +106,10 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         TransportHolder.get().remove("dirent");
 
         if (null == direntModel) {
-            throw new IllegalArgumentException("missing dirent args");
+            SLogs.e("missing dirent args, finishing FileActivity");
+            Toasts.show(R.string.unknow_error);
+            finishWithCancel();
+            return;
         }
 
         repoId = direntModel.repo_id;

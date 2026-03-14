@@ -101,7 +101,7 @@ public class FolderScanHelper {
         RepoModel repoModel = repoModels.get(0);
         Stopwatch stopwatch = null;
         try {
-            long lastTime = 0L;
+            long lastTime = FolderBackupSharePreferenceHelper.readLastScanTime2();
             stopwatch = Stopwatch.createStarted();
 
             for (String backupPath : backupPathsList) {
@@ -109,20 +109,21 @@ public class FolderScanHelper {
 
                 int c = compareCount(repoConfig, account, repoModel, backupPath, lastTime, ignorePath);
                 backupableCount += c;
-                SafeLogs.d(TAG, "traverseBackupPath()", backupPath);
+                SafeLogs.d(TAG, "onlyTraverseBackupPathFileCount()", backupPath);
             }
 
-            SafeLogs.e(TAG, "traverseBackupPath()", "need to upload files count: " + GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount());
+            backupableCount=1;
+            SafeLogs.e(TAG, "onlyTraverseBackupPathFileCount()", "backupableCount: " + backupableCount);
 
         } catch (SeafException seafException) {
-            SafeLogs.e(TAG, "traverseBackupPath(): " + seafException);
+            SafeLogs.e(TAG, "onlyTraverseBackupPathFileCount(): " + seafException);
         } finally {
             if (stopwatch != null) {
                 stopwatch.stop();
                 long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-                SafeLogs.d(TAG, "traverseBackupPath()", "folder backup scan time：" + stopwatch);
+                SafeLogs.d(TAG, "onlyTraverseBackupPathFileCount()", "folder backup scan time：" + stopwatch);
                 long now = System.currentTimeMillis();
-                FolderBackupSharePreferenceHelper.writeLastScanTime(now - diff);
+                FolderBackupSharePreferenceHelper.writeLastScanTime2(now - diff);
             }
         }
         return backupableCount;

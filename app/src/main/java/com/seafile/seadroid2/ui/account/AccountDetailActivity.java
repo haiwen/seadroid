@@ -349,7 +349,9 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
                 if (!url.startsWith(prefix)) {
                     int oldOffset = Math.max(prefix.length(), binding.serverUrl.getSelectionStart());
                     binding.serverUrl.setText(old);
-                    binding.serverUrl.setSelection(oldOffset, oldOffset);
+                    // Fix: ensure oldOffset doesn't exceed the actual text length
+                    int safeOffset = Math.min(oldOffset, old.length());
+                    binding.serverUrl.setSelection(safeOffset, safeOffset);
                 }
             }
         });

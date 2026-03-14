@@ -14,6 +14,13 @@ public class BusHelper {
     private static final String NETWORK_STATUS_CHANGE_EVENT = "NETWORK_STATUS_CHANGE_EVENT";
 
     private static final String COMMON_BUS_EVENT = "COMMON_BUS_EVENT";
+    private static final String MEDIA_MOUNT_BUS_EVENT = "MediaMountEvent";
+
+
+    public static Observable<String> getMediaMountObserver() {
+        return LiveEventBus.get(MEDIA_MOUNT_BUS_EVENT);
+    }
+
     public static Observable<String> getCommonObserver() {
         return LiveEventBus.get(COMMON_BUS_EVENT);
     }

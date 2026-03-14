@@ -38,6 +38,7 @@ import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.ui.wiki.WikiFragment;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.List;
@@ -53,11 +54,16 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MainViewModel extends BaseViewModel {
     private final String TAG = "MainViewModel";
+    private final MutableLiveData<Boolean> _restart_file_sync_monitor_live_data = new MutableLiveData<>();
+
     //force refresh repo/dirents
     private final MutableLiveData<Boolean> _on_force_refresh_repo_list_live_data = new MutableLiveData<>();
 
     private final MutableLiveData<ServerInfo> _server_info_live_data = new MutableLiveData<>();
 
+    public MutableLiveData<Boolean> getRestartFileSyncMonitorLiveData() {
+        return _restart_file_sync_monitor_live_data;
+    }
 
     public MutableLiveData<Boolean> getOnForceRefreshRepoListLiveData() {
         return _on_force_refresh_repo_list_live_data;
@@ -146,7 +152,9 @@ public class MainViewModel extends BaseViewModel {
                     SLogs.d(TAG, "multipleCheckRemoteDirent()", "request " + parentDir + " children result is null or empty.");
                     for (Uri uri : uris) {
                         String fileName = Utils.getFilenameFromUri(context, uri);
-
+                        if (StringUtils.isEmpty(fileName)){
+                            continue;
+                        }
                         TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, false);
                         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                     }

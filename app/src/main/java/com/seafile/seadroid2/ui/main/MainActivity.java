@@ -30,7 +30,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.NetworkUtils;
@@ -39,18 +38,16 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.bus.BusAction;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.NightMode;
-import com.seafile.seadroid2.framework.file_monitor.FileDaemonService;
+import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
@@ -287,13 +284,7 @@ public class MainActivity extends BaseActivity {
         stopWatching();
 
         //
-        BusHelper.getCommonObserver().removeObserver(commonBusObserver);
         BusHelper.getNavContextObserver().removeObserver(navContextObserver);
-
-//        BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
-//        BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(SeadroidApplication.getAppContext());
-//        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
-
 
         unbindService();
         //
@@ -450,9 +441,15 @@ public class MainActivity extends BaseActivity {
     private void initViewModel() {
         //register bus
         BusHelper.getNavContextObserver().observe(this, navContextObserver);
-        BusHelper.getCommonObserver().observe(this, commonBusObserver);
 
-
+        mainViewModel.getRestartFileSyncMonitorLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (syncService != null) {
+                    syncService.restartFolderMonitor();
+                }
+            }
+        });
         mainViewModel.getServerInfoLiveData().observe(this, new Observer<ServerInfo>() {
             @Override
             public void onChanged(ServerInfo serverInfo) {
@@ -472,18 +469,17 @@ public class MainActivity extends BaseActivity {
 
     // service
     private void bindService() {
-        Intent syncIntent = new Intent(this, FileSyncService.class);
+        Intent syncIntent = new Intent(getApplicationContext(), FileSyncService.class);
         if (!isBound) {
             bindService(syncIntent, syncConnection, Context.BIND_AUTO_CREATE);
             isBound = true;
         }
 
         boolean isTurnOn = Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue();
-        Intent daemonIntent = new Intent(this, FileDaemonService.class);
         if (isTurnOn) {
-            ContextCompat.startForegroundService(this, daemonIntent);
+            FileDaemonServiceManager.getInstance().startService();
         } else {
-            stopService(daemonIntent);
+            FileDaemonServiceManager.getInstance().stopService();
         }
     }
 
@@ -726,30 +722,6 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-    private final Observer<String> commonBusObserver = new Observer<String>() {
-        @Override
-        public void onChanged(String action) {
-            if (TextUtils.isEmpty(action)) {
-                return;
-            }
-
-            if (TextUtils.equals(action, BusAction.RESTART_FILE_MONITOR)) {
-                if (syncService != null) {
-                    syncService.restartFolderMonitor();
-                }
-            } else if (TextUtils.equals(action, BusAction.START_FOREGROUND_FILE_MONITOR)) {
-
-                Intent intent = new Intent(MainActivity.this, FileDaemonService.class);
-                ContextCompat.startForegroundService(MainActivity.this, intent);
-
-            } else if (TextUtils.equals(action, BusAction.STOP_FOREGROUND_FILE_MONITOR)) {
-                Intent intent = new Intent(MainActivity.this, FileDaemonService.class);
-                stopService(intent);
-            }
-        }
-    };
-
-
     /**
      * Start observing mount/unmount events
      */
@@ -791,7 +763,7 @@ public class MainActivity extends BaseActivity {
     };
 
     private void notifyMountChanged(String action, String path) {
-        BusHelper.getCommonObserver().post(action + "-" + path);
+        BusHelper.getMediaMountObserver().post(action + "-" + path);
     }
 
     /**

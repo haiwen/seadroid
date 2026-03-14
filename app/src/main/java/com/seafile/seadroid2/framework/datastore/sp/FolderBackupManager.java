@@ -44,7 +44,7 @@ public class FolderBackupManager {
         if (currentAccountSignature == null) {
             Account account = SupportAccountManager.getInstance().getCurrentAccount();
             if (account == null) {
-                throw new IllegalArgumentException("account is null.");
+                return null;
             }
 
             currentAccountSignature = account.getSignature();
@@ -57,27 +57,51 @@ public class FolderBackupManager {
     }
 
     public static void writeBackupSwitch(boolean isChecked) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return;
+        }
+
         DataStoreManager.getInstanceByUser(getCurrentAccount()).writeBoolean(SettingsManager.FOLDER_BACKUP_SWITCH_KEY, isChecked);
     }
 
     public static boolean readBackupSwitch() {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return false;
+        }
+
         return DataStoreManager.getInstanceByUser(getCurrentAccount()).readBoolean(SettingsManager.FOLDER_BACKUP_SWITCH_KEY);
     }
 
     public static long readLastScanTime() {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return 0L;
+        }
+
         return DataStoreManager.getInstanceByUser(getCurrentAccount()).readLong(SettingsManager.FOLDER_BACKUP_LAST_TIME);
     }
 
     public static void writeLastScanTime(long time) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return;
+        }
+
         DataStoreManager.getInstanceByUser(getCurrentAccount()).writeLong(SettingsManager.FOLDER_BACKUP_LAST_TIME, time);
     }
 
     //"WIFI" or "WIFI_AND_MOBILE"
     public static void writeNetworkMode(String network) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return;
+        }
+
         DataStoreManager.getInstanceByUser(getCurrentAccount()).writeString(SettingsManager.FOLDER_BACKUP_NETWORK_MODE, network);
     }
 
     public static String readNetworkMode() {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return "WIFI";
+        }
+
         return DataStoreManager.getInstanceByUser(getCurrentAccount()).readString(SettingsManager.FOLDER_BACKUP_NETWORK_MODE, "WIFI");
     }
 
@@ -87,6 +111,10 @@ public class FolderBackupManager {
     }
 
     public static void writeRepoConfig(RepoConfig repoConfig) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return;
+        }
+
         String confStr = GsonUtils.toJson(repoConfig);
 
         DataStoreManager.getInstanceByUser(getCurrentAccount()).writeString(SettingsManager.FOLDER_BACKUP_LIBRARY_KEY, confStr);
@@ -95,6 +123,10 @@ public class FolderBackupManager {
 
     @Nullable
     public static RepoConfig readRepoConfig() {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return null;
+        }
+
         String confStr = DataStoreManager.getInstanceByUser(getCurrentAccount()).readString(SettingsManager.FOLDER_BACKUP_LIBRARY_KEY);
         if (TextUtils.isEmpty(confStr)) {
             return null;
@@ -104,6 +136,10 @@ public class FolderBackupManager {
     }
 
     public static void writeBackupPaths(List<String> paths) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return;
+        }
+
         String confStr;
         if (CollectionUtils.isEmpty(paths)) {
             confStr = "";
@@ -115,10 +151,18 @@ public class FolderBackupManager {
     }
 
     public static String readBackupPathStr() {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return null;
+        }
+
         return DataStoreManager.getInstanceByUser(getCurrentAccount()).readString(SettingsManager.FOLDERS_BACKUP_SELECTED_PATH_KEY);
     }
 
     public static List<String> readBackupPaths() {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return CollectionUtils.newArrayList();
+        }
+
         String confStr = DataStoreManager.getInstanceByUser(getCurrentAccount()).readString(SettingsManager.FOLDERS_BACKUP_SELECTED_PATH_KEY);
         if (TextUtils.isEmpty(confStr) || "[]".equals(confStr) || "null".equals(confStr) || "\"\"".equals(confStr) || "\"null\"".equals(confStr) || "{}".equals(confStr)) {
             return CollectionUtils.newArrayList();
@@ -132,6 +176,10 @@ public class FolderBackupManager {
     }
 
     public static long readBackupPathLastScanTime(String absPath) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return 0L;
+        }
+
         String k = SettingsManager.FOLDER_BACKUP_LAST_TIME_PREFIX + EncryptUtils.encryptMD5ToString(absPath);
         return DataStoreManager
                 .getInstanceByUser(getCurrentAccount())
@@ -139,6 +187,10 @@ public class FolderBackupManager {
     }
 
     public static void writeBackupPathLastScanTime(String absPath) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return;
+        }
+
         String k = SettingsManager.FOLDER_BACKUP_LAST_TIME_PREFIX + EncryptUtils.encryptMD5ToString(absPath);
 
         DataStoreManager
@@ -147,6 +199,10 @@ public class FolderBackupManager {
     }
 
     public static void clearBackupPathLastScanTime(String absPath) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return;
+        }
+
         String k = SettingsManager.FOLDER_BACKUP_LAST_TIME_PREFIX + EncryptUtils.encryptMD5ToString(absPath);
 
         DataStoreManager
@@ -155,6 +211,10 @@ public class FolderBackupManager {
     }
 
     public static void writeSkipHiddenFiles(boolean isSkip) {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return;
+        }
+
         DataStoreManager.getInstanceByUser(getCurrentAccount()).writeBoolean(SettingsManager.FOLDER_BACKUP_SKIP_HIDDEN_FILES, isSkip);
     }
 
@@ -162,6 +222,10 @@ public class FolderBackupManager {
      * Is it necessary to filter hidden files when the folder backup service is turned on
      */
     public static boolean isFolderBackupSkipHiddenFiles() {
+        if (TextUtils.isEmpty(getCurrentAccount())){
+            return false;
+        }
+
         return DataStoreManager.getInstanceByUser(getCurrentAccount()).readAndSetBooleanWhenNotExists(SettingsManager.FOLDER_BACKUP_SKIP_HIDDEN_FILES, true);
     }
 }

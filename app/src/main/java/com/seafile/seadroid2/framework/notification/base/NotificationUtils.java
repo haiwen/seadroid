@@ -24,8 +24,11 @@ public class NotificationUtils {
     //persistently
     public static final int NID_FILE_MONITOR_PERSISTENTLY = 3001;
     //album
+    public static final int NID_SCAN_RESULT = 3102;
+
     public static final int NID_ALBUM_BACKUP = 3100;
     public static final int NID_ALBUM_BACKUP_SCAN = 3101;
+
 
     //folder
     public static final int NID_FOLDER_BACKUP_SCAN = 3200;

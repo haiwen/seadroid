@@ -44,7 +44,7 @@ elif [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME/ndk" ]; then
 fi
 
 # Android API Level
-export ANDROID_API=28
+export ANDROID_API=34
 
 # The schema to compile
 ABIS=(
@@ -55,7 +55,10 @@ ABIS=(
 )
 
 # LibHeif version
-LIBHEIF_VERSION="v1.20.2"
+LIBHEIF_VERSION="v1.21.2"
+
+# LibJpeg version
+LIBJPEG_VERSION="3.1.3"
 
 # ============================================
 # macos system configuration
@@ -144,14 +147,18 @@ check_environment() {
 
 build_libjpeg() {
     log_info "=========================================="
-    log_info "Starting to build libjpeg-turbo..."
+    log_info "Starting to build libjpeg-turbo $LIBJPEG_VERSION..."
     log_info "=========================================="
     cd $SRC_DIR
     if [ ! -d "libjpeg-turbo" ]; then
         log_info "Cloning libjpeg-turbo source code..."
-        git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
+        git clone --branch $LIBJPEG_VERSION https://github.com/libjpeg-turbo/libjpeg-turbo.git
     else
         log_info "libjpeg-turbo source code already exists, skipping download"
+        cd libjpeg-turbo
+        git fetch --tags
+        git checkout $LIBJPEG_VERSION
+        cd ..
     fi
     cd libjpeg-turbo
     for ABI in "${ABIS[@]}"; do
@@ -176,7 +183,7 @@ build_libjpeg() {
         cd ..
         log_success "libjpeg-turbo for $ABI build complete"
     done
-    log_success "✅ libjpeg-turbo build complete!"
+    log_success "✅ libjpeg-turbo $LIBJPEG_VERSION build complete!"
 }
 
 # ============================================
@@ -196,326 +203,6 @@ init_directories() {
 }
 
 # ============================================
-# Build x265
-# ============================================
-
-build_x265() {
-    log_info "=========================================="
-    log_info "Starting to build x265..."
-    log_info "=========================================="
-
-    cd $SRC_DIR
-
-    # Download x265
-    if [ ! -d "x265" ]; then
-        log_info "Cloning x265 source code..."
-        git clone https://bitbucket.org/multicoreware/x265_git.git x265
-    else
-        log_info "x265 source code already exists, skipping download"
-    fi
-
-    # Patch x265 CMakeLists.txt
-    log_info "Patching x265 CMakeLists.txt..."
-    if [ -f "x265/source/CMakeLists.txt" ]; then
-         # Fix unknown processor armv7-a
-         sed -i '' 's/set(ARM_ALIASES armv6l armv7l)/set(ARM_ALIASES armv6l armv7l armv7-a)/g' x265/source/CMakeLists.txt
-         # Fix pthread linking on Android
-          sed -i '' 's/list(APPEND PLATFORM_LIBS pthread)/#list(APPEND PLATFORM_LIBS pthread)/g' x265/source/CMakeLists.txt
-          # Fix unsupported flags for Android ARM build
-          sed -i '' 's/-mcpu=native -mfloat-abi=hard//g' x265/source/CMakeLists.txt
-     fi
-
-    cd x265/build
-
-    # Build for each architecture
-    for ABI in "${ABIS[@]}"; do
-        log_info "Building x265 for $ABI..."
-
-        BUILD_DIR="android-$ABI"
-        INSTALL_DIR="$PREFIX_DIR/x265/$ABI"
-
-        rm -rf $BUILD_DIR
-        mkdir -p $BUILD_DIR
-        cd $BUILD_DIR
-
-        cmake ../../source \
-            -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
-            -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
-            -DANDROID_ABI=$ABI \
-            -DANDROID_PLATFORM=android-$ANDROID_API \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
-            -DENABLE_SHARED=ON \
-            -DENABLE_CLI=OFF \
-            -DENABLE_ASSEMBLY=OFF \
-            -DHIGH_BIT_DEPTH=OFF \
-            -DENABLE_PTHREADS=OFF \
-            -DTHREADS=OFF \
-            -DENABLE_PIC=ON \
-            -DENABLE_LIBNUMA=OFF \
-            -DCMAKE_CXX_FLAGS="-DANDROID -fPIC" \
-            -DCMAKE_C_FLAGS="-DANDROID -fPIC"
-
-        ninja -j$NPROC
-        ninja install
-
-        cd ..
-
-        log_success "x265 for $ABI build complete"
-    done
-
-    log_success "✅ x265 build complete!"
-}
-
-# ============================================
-# Build libde265
-# ============================================
-
-build_libde265() {
-    log_info "=========================================="
-    log_info "Starting to build libde265..."
-    log_info "=========================================="
-
-    cd $SRC_DIR
-
-    # Download libde265
-    if [ ! -d "libde265" ]; then
-        log_info "Cloning libde265 source code..."
-        git clone https://github.com/strukturag/libde265.git
-    else
-        log_info "libde265 source code already exists, skipping download"
-    fi
-
-    cd libde265
-
-    # Build for each architecture
-    for ABI in "${ABIS[@]}"; do
-        log_info "Building libde265 for $ABI..."
-
-        BUILD_DIR="build-$ABI"
-        INSTALL_DIR="$PREFIX_DIR/libde265/$ABI"
-
-        rm -rf $BUILD_DIR
-        mkdir -p $BUILD_DIR
-        cd $BUILD_DIR
-
-        cmake .. \
-            -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
-            -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
-            -DANDROID_ABI=$ABI \
-            -DANDROID_PLATFORM=android-$ANDROID_API \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
-            -DBUILD_SHARED_LIBS=ON \
-            -DENABLE_SDL=OFF \
-            -DENABLE_DECODER=ON
-
-        ninja -j$NPROC
-        ninja install
-
-        cd ..
-
-        log_success "libde265 for $ABI build complete"
-    done
-
-    log_success "✅ libde265 build complete!"
-}
-
-# ============================================
-# build Bento4 (not use)
-# ============================================
-build_bento4() {
-    log_info "=========================================="
-    log_info "Starting to build Bento4..."
-    log_info "=========================================="
-
-    cd $SRC_DIR
-
-    # Download Bento4
-    if [ ! -d "Bento4" ]; then
-        log_info "Cloning Bento4 source code..."
-        git clone https://github.com/axiomatic-systems/Bento4.git
-    else
-        log_info "Bento4 source code already exists, skipping download"
-    fi
-
-    cd Bento4
-
-    # Bento4 doesn't provide CMake install support, we need to manually compile source files
-    # Create a simple CMakeLists.txt for compilation
-
-    cat > CMakeLists.txt <<EOF
-cmake_minimum_required(VERSION 3.10)
-project(ap4)
-
-file(GLOB CORE_SOURCES "Source/C++/Core/*.cpp")
-file(GLOB CODEC_SOURCES "Source/C++/Codecs/*.cpp")
-file(GLOB METADATA_SOURCES "Source/C++/MetaData/*.cpp")
-file(GLOB CRYPTO_SOURCES "Source/C++/Crypto/*.cpp")
-
-# Android System Sources
-set(SYSTEM_SOURCES
-    "Source/C++/System/StdC/Ap4StdCFileByteStream.cpp"
-    "Source/C++/System/Posix/Ap4PosixRandom.cpp"
-)
-
-add_library(ap4 SHARED
-    \${CORE_SOURCES}
-    \${CODEC_SOURCES}
-    \${METADATA_SOURCES}
-    \${CRYPTO_SOURCES}
-    \${SYSTEM_SOURCES}
-)
-
-target_include_directories(ap4 PUBLIC
-    Source/C++/Core
-    Source/C++/Codecs
-    Source/C++/MetaData
-    Source/C++/Crypto
-)
-EOF
-
-    # Build for each architecture
-    for ABI in "${ABIS[@]}"; do
-        log_info "Building Bento4 for $ABI..."
-
-        BUILD_DIR="cmake-build-$ABI"
-        INSTALL_DIR="$PREFIX_DIR/bento4/$ABI"
-
-        rm -rf $BUILD_DIR
-        mkdir -p $BUILD_DIR
-        cd $BUILD_DIR
-
-        cmake .. \
-            -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
-            -DANDROID_ABI=$ABI \
-            -DANDROID_PLATFORM=android-$ANDROID_API \
-            -DCMAKE_BUILD_TYPE=Release
-
-        ninja -j$NPROC
-
-        # Manual installation
-        mkdir -p $INSTALL_DIR/lib
-        mkdir -p $INSTALL_DIR/include/Bento4
-
-        cp libap4.so $INSTALL_DIR/lib/
-        cp -r ../Source/C++/Core/*.h $INSTALL_DIR/include/Bento4/
-        cp -r ../Source/C++/Codecs/*.h $INSTALL_DIR/include/Bento4/
-        cp -r ../Source/C++/MetaData/*.h $INSTALL_DIR/include/Bento4/
-        cp -r ../Source/C++/Crypto/*.h $INSTALL_DIR/include/Bento4/
-
-        cd ..
-
-        log_success "Bento4 for $ABI build complete"
-    done
-
-    log_success "✅ Bento4 build complete!"
-}
-
-# ============================================
-# build ffmpeg (not use)
-# ============================================
-
-build_ffmpeg() {
-    log_info "=========================================="
-    log_info "Starting to build ffmpeg..."
-    log_info "=========================================="
-
-    cd $SRC_DIR
-
-    # Download ffmpeg
-    if [ ! -d "ffmpeg" ]; then
-        log_info "Cloning ffmpeg source code..."
-        if ! git clone --depth 1 --branch n6.1 https://github.com/FFmpeg/FFmpeg.git ffmpeg; then
-            log_warn "GitHub clone failed, trying official mirror"
-            git clone --depth 1 --branch n6.1 https://git.ffmpeg.org/ffmpeg.git ffmpeg
-        fi
-    else
-        log_info "ffmpeg source code already exists, skipping download"
-    fi
-
-    cd ffmpeg
-
-    for ABI in "${ABIS[@]}"; do
-        log_info "build ffmpeg for $ABI..."
-
-        BUILD_DIR="build-$ABI"
-        INSTALL_DIR="$PREFIX_DIR/ffmpeg/$ABI"
-
-        rm -rf $BUILD_DIR
-        mkdir -p $BUILD_DIR
-        cd $BUILD_DIR
-
-        # Set cross-compilation toolchain
-        case $ABI in
-            "armeabi-v7a")
-                ARCH="arm"
-                CPU="armv7-a"
-                CROSS_PREFIX="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/armv7a-linux-androideabi$ANDROID_API-"
-                ;;
-            "arm64-v8a")
-                ARCH="arm64"
-                CPU="armv8-a"
-                CROSS_PREFIX="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/aarch64-linux-android$ANDROID_API-"
-                ;;
-            "x86")
-                ARCH="x86"
-                CPU="i686"
-                CROSS_PREFIX="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/i686-linux-android$ANDROID_API-"
-                ;;
-        esac
-
-        SYSROOT="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/sysroot"
-
-        # x86 architecture needs to disable assembly optimization to avoid PIC linking errors
-        EXTRA_FLAGS=""
-        if [ "$ABI" = "x86" ]; then
-            EXTRA_FLAGS="--disable-asm"
-            log_info "x86 architecture: disabling assembly optimization"
-        fi
-
-        # Configure ffmpeg
-        ../configure \
-            --prefix=$INSTALL_DIR \
-            --enable-cross-compile \
-            --cross-prefix=$CROSS_PREFIX \
-            --target-os=android \
-            --arch=$ARCH \
-            --cpu=$CPU \
-            --sysroot=$SYSROOT \
-            --cc=${CROSS_PREFIX}clang \
-            --cxx=${CROSS_PREFIX}clang++ \
-            --extra-cflags="-fPIC -O3" \
-            --enable-pic \
-            --enable-shared \
-            --disable-static \
-            --disable-doc \
-            --disable-autodetect \
-            --disable-programs \
-            --disable-avdevice \
-            --disable-postproc \
-            --disable-avfilter \
-            --disable-network \
-            --disable-debug \
-            --disable-stripping \
-            --disable-vulkan \
-            --disable-hwaccels \
-            $EXTRA_FLAGS
-
-        make -j$NPROC
-        make install
-
-        cd ..
-        log_success "ffmpeg for $ABI build complete"
-    done
-
-    log_success "✅ ffmpeg build complete!"
-}
-
-# ============================================
 # Build libheif
 # ============================================
 
@@ -529,14 +216,16 @@ build_libheif() {
     # Download libheif
     if [ ! -d "libheif" ]; then
         log_info "clone libheif source code..."
-        git clone https://github.com/strukturag/libheif.git
+        git clone --branch $LIBHEIF_VERSION https://github.com/strukturag/libheif.git
     else
         log_info "libheif source code already exists, skipping download"
+        cd libheif
+        git fetch --tags
+        git checkout $LIBHEIF_VERSION
+        cd ..
     fi
 
     cd libheif
-    git fetch --tags
-    git checkout $LIBHEIF_VERSION
 
     # Build for each architecture
     for ABI in "${ABIS[@]}"; do
@@ -549,8 +238,6 @@ build_libheif() {
         mkdir -p $BUILD_DIR
         cd $BUILD_DIR
 
-         export PKG_CONFIG_PATH="$PREFIX_DIR/x265/$ABI/lib/pkgconfig:$PREFIX_DIR/libde265/$ABI/lib/pkgconfig"
-
         cmake .. \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
@@ -562,8 +249,8 @@ build_libheif() {
             -DBUILD_SHARED_LIBS=ON \
             -DWITH_EXAMPLES=OFF \
             -DBUILD_TESTING=OFF \
-            -DWITH_LIBDE265=ON \
-            -DWITH_X265=ON \
+            -DWITH_LIBDE265=OFF \
+            -DWITH_X265=OFF \
             -DWITH_AOM_DECODER=OFF \
             -DWITH_AOM_ENCODER=OFF \
             -DWITH_DAV1D=OFF \
@@ -584,12 +271,8 @@ build_libheif() {
             -DWITH_HEADER_COMPRESSION=OFF \
             -DENABLE_MULTITHREADING_SUPPORT=ON \
             -DENABLE_PARALLEL_TILE_DECODING=ON \
-             -DLIBDE265_LIBRARY=$PREFIX_DIR/libde265/$ABI/lib/libde265.so \
-             -DLIBDE265_INCLUDE_DIR=$PREFIX_DIR/libde265/$ABI/include \
-             -DX265_LIBRARY=$PREFIX_DIR/x265/$ABI/lib/libx265.so \
-             -DX265_INCLUDE_DIR=$PREFIX_DIR/x265/$ABI/include \
-             -DJPEG_LIBRARY=$PREFIX_DIR/libjpeg/$ABI/lib/libjpeg.so \
-             -DJPEG_INCLUDE_DIR=$PREFIX_DIR/libjpeg/$ABI/include
+            -DJPEG_LIBRARY=$PREFIX_DIR/libjpeg/$ABI/lib/libjpeg.so \
+            -DJPEG_INCLUDE_DIR=$PREFIX_DIR/libjpeg/$ABI/include
 
         ninja -j$NPROC
         ninja install
@@ -626,17 +309,6 @@ copy_to_project() {
         mkdir -p $TARGET_DIR/include/libjpeg
         cp -r $PREFIX_DIR/libjpeg/arm64-v8a/include/* $TARGET_DIR/include/libjpeg/
     fi
-    # [Commented] Copy Bento4 headers - currently only building libheif and libjpeg
-    # if [ "$NEED_BENTO4" = "true" ]; then
-    #     mkdir -p $TARGET_DIR/include/Bento4
-    #     cp -r $PREFIX_DIR/bento4/arm64-v8a/include/Bento4/* $TARGET_DIR/include/Bento4/
-    # fi
-    # [Commented] Copy ffmpeg headers - currently only building libheif and libjpeg
-    # if [ "$NEED_FFMPEG" = "true" ] || [ -d "$PREFIX_DIR/ffmpeg/arm64-v8a/include" ]; then
-    #     mkdir -p $TARGET_DIR/include/ffmpeg
-    #     cp -r $PREFIX_DIR/ffmpeg/arm64-v8a/include/* $TARGET_DIR/include/ffmpeg/
-    # fi
-
     # Copy library files
     for ABI in "${ABIS[@]}"; do
         log_info "Copying $ABI library files..."
@@ -647,27 +319,9 @@ copy_to_project() {
             cp $PREFIX_DIR/libheif/$ABI/lib/libheif.so $TARGET_DIR/lib/$ABI/
         fi
 
-         if [ "$NEED_X265" = "true" ]; then
-             cp $PREFIX_DIR/x265/$ABI/lib/libx265.so $TARGET_DIR/lib/$ABI/
-         fi
-         if [ "$NEED_LIBDE265" = "true" ]; then
-             cp $PREFIX_DIR/libde265/$ABI/lib/libde265.so $TARGET_DIR/lib/$ABI/
-         fi
-        # [Commented] Copy Bento4 - currently only building libheif and libjpeg
-        # if [ "$NEED_BENTO4" = "true" ]; then
-        #     cp $PREFIX_DIR/bento4/$ABI/lib/libap4.so $TARGET_DIR/lib/$ABI/
-        # fi
-
         if [ -f "$PREFIX_DIR/libjpeg/$ABI/lib/libjpeg.so" ]; then
             cp $PREFIX_DIR/libjpeg/$ABI/lib/libjpeg.so $TARGET_DIR/lib/$ABI/
         fi
-
-        # [Commented] Copy ffmpeg library files - currently only building libheif and libjpeg
-        # if [ "$NEED_FFMPEG" = "true" ] || [ -d "$PREFIX_DIR/ffmpeg/$ABI/lib" ]; then
-        #     if [ -d "$PREFIX_DIR/ffmpeg/$ABI/lib" ]; then
-        #         cp $PREFIX_DIR/ffmpeg/$ABI/lib/*.so $TARGET_DIR/lib/$ABI/ 2>/dev/null || true
-        #     fi
-        # fi
 
         log_success "$ABI lib files copy complete"
     done
@@ -705,14 +359,6 @@ strip_libraries() {
         if [ -f "$STRIP_TOOL" ]; then
             [ -f "$TARGET_DIR/$ABI/libheif.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libheif.so
             [ -f "$TARGET_DIR/$ABI/libjpeg.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libjpeg.so
-            # [Commented] Currently only building libheif and libjpeg
-            # [ -f "$TARGET_DIR/$ABI/libx265.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libx265.so
-            # [ -f "$TARGET_DIR/$ABI/libde265.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libde265.so
-            # [ -f "$TARGET_DIR/$ABI/libap4.so" ] && $STRIP_TOOL $TARGET_DIR/$ABI/libap4.so
-            # [Commented] Strip ffmpeg library files - currently only building libheif and libjpeg
-            # for ffmpeg_lib in $TARGET_DIR/$ABI/libav*.so $TARGET_DIR/$ABI/libsw*.so $TARGET_DIR/$ABI/libpostproc.so; do
-            #     [ -f "$ffmpeg_lib" ] && $STRIP_TOOL "$ffmpeg_lib"
-            # done
             log_success "$ABI lib files strip complete"
         else
             log_warn "Strip tool not found: $STRIP_TOOL"
@@ -783,12 +429,8 @@ check_needs() {
     local TARGET_LIB_DIR="$PROJECT_DIR/app/src/main/cpp/libheif/lib"
 
     # Default libraries to build (currently only building libheif and libjpeg)
-    NEED_X265=false
-    NEED_LIBDE265=false
-    NEED_BENTO4=false
     NEED_LIBHEIF=true
     NEED_LIBJPEG=true
-    NEED_FFMPEG=false
 
     # Helper function: Check if a library exists for all ABIs
     check_lib_exists() {
@@ -802,86 +444,20 @@ check_needs() {
     }
 
     # Check library status
-    # [Commented] Currently only building libheif and libjpeg, not checking other libraries
-     if check_lib_exists "libx265.so"; then APP_HAS_X265=true; else APP_HAS_X265=false; fi
-     if check_lib_exists "libde265.so"; then APP_HAS_DE265=true; else APP_HAS_DE265=false; fi
-    # if check_lib_exists "libap4.so"; then APP_HAS_BENTO4=true; else APP_HAS_BENTO4=false; fi
-    # if check_lib_exists "libavcodec.so"; then APP_HAS_FFMPEG=true; else APP_HAS_FFMPEG=false; fi
+    # Currently only building libheif and libjpeg, not checking other libraries
     if check_lib_exists "libheif.so"; then APP_HAS_HEIF=true; else APP_HAS_HEIF=false; fi
     if check_lib_exists "libjpeg.so"; then APP_HAS_JPEG=true; else APP_HAS_JPEG=false; fi
 
-    # [Commented] 1. Bento4 (no dependencies)
-    # if [ "$APP_HAS_BENTO4" = "true" ]; then
-    #     NEED_BENTO4=false
-    #     log_info "Bento4 already exists, skipping build"
-    # fi
-
-    # 2. LibHeif check (currently doesn't depend on x265, libde265)
+    # LibHeif check (currently doesn't depend on x265, libde265)
     if [ "$APP_HAS_HEIF" = "true" ]; then
         NEED_LIBHEIF=false
         log_info "libheif already exists, skipping build"
     fi
 
-     if [ "$APP_HAS_HEIF" = "true" ]; then
-         NEED_LIBHEIF=false
-         log_info "libheif already exists, skipping build"
-
-         # If libheif doesn't need to be built, dependencies only need to check if they exist in App
-         if [ "$APP_HAS_X265" = "true" ]; then
-             NEED_X265=false
-             log_info "x265 already exists, skipping build"
-         fi
-         if [ "$APP_HAS_DE265" = "true" ]; then
-             NEED_LIBDE265=false
-             log_info "libde265 already exists, skipping build"
-         fi
-     else
-         # LibHeif needs to be built, must ensure dependencies are available in PREFIX_DIR
-         log_info "libheif needs to be built, checking dependencies..."
-
-         # Check x265 in PREFIX
-         local prefix_has_x265=true
-         for ABI in "${ABIS[@]}"; do
-             if [ ! -f "$PREFIX_DIR/x265/$ABI/lib/libx265.so" ]; then prefix_has_x265=false; break; fi
-         done
-
-         if [ "$APP_HAS_X265" = "true" ] && [ "$prefix_has_x265" = "true" ]; then
-             NEED_X265=false
-             log_info "x265 exists and build files complete, skipping build"
-         elif [ "$APP_HAS_X265" = "true" ] && [ "$prefix_has_x265" = "false" ]; then
-             NEED_X265=true
-             log_warn "x265 exists in App but missing from build directory (required for libheif build), will rebuild"
-         elif [ "$APP_HAS_X265" = "false" ]; then
-             NEED_X265=true
-         fi
-
-         # Check libde265 in PREFIX
-         local prefix_has_de265=true
-         for ABI in "${ABIS[@]}"; do
-             if [ ! -f "$PREFIX_DIR/libde265/$ABI/lib/libde265.so" ]; then prefix_has_de265=false; break; fi
-         done
-
-         if [ "$APP_HAS_DE265" = "true" ] && [ "$prefix_has_de265" = "true" ]; then
-             NEED_LIBDE265=false
-             log_info "libde265 exists and build files complete, skipping build"
-         elif [ "$APP_HAS_DE265" = "true" ] && [ "$prefix_has_de265" = "false" ]; then
-             NEED_LIBDE265=true
-             log_warn "libde265 exists in App but missing from build directory (required for libheif build), will rebuild"
-         elif [ "$APP_HAS_DE265" = "false" ]; then
-             NEED_LIBDE265=true
-         fi
-     fi
-
     if [ "$APP_HAS_JPEG" = "true" ]; then
         NEED_LIBJPEG=false
         log_info "libjpeg already exists, skipping build"
     fi
-
-    # [Commented] Check ffmpeg
-    # if [ "$APP_HAS_FFMPEG" = "true" ]; then
-    #     NEED_FFMPEG=false
-    #     log_info "ffmpeg already exists, skipping build"
-    # fi
 }
 
 # ============================================
@@ -916,32 +492,10 @@ main() {
     echo ""
 
     # Build dependencies
-     if [ "$NEED_X265" = "true" ]; then
-         build_x265
-         echo ""
-     fi
-
-     if [ "$NEED_LIBDE265" = "true" ]; then
-         build_libde265
-         echo ""
-     fi
-
     if [ "$NEED_LIBJPEG" = "true" ]; then
         build_libjpeg
         echo ""
     fi
-
-    # [Commented] Bento4 build - currently only building libheif and libjpeg
-    # if [ "$NEED_BENTO4" = "true" ]; then
-    #     build_bento4
-    #     echo ""
-    # fi
-
-    # [Commented] ffmpeg build - currently only building libheif and libjpeg
-    # if [ "$NEED_FFMPEG" = "true" ]; then
-    #     build_ffmpeg
-    #     echo ""
-    # fi
 
     # Build libheif
     if [ "$NEED_LIBHEIF" = "true" ]; then
