@@ -42,7 +42,6 @@ public class FolderBackupScanJobService extends JobService {
                     BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
                 }
 
-                // 标记任务完成
                 jobFinished(params, false);
             }
         });

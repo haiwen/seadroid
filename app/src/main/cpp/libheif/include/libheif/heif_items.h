@@ -21,7 +21,9 @@
 #ifndef LIBHEIF_HEIF_ITEMS_H
 #define LIBHEIF_HEIF_ITEMS_H
 
-#include "libheif/heif.h"
+#include "heif_library.h"
+#include "heif_error.h"
+#include "heif_metadata.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -166,6 +168,27 @@ heif_error heif_item_get_item_data(const heif_context* ctx,
 LIBHEIF_API
 void heif_release_item_data(const heif_context* ctx, uint8_t** item_data);
 
+
+// ------------------------- item language -------------------------
+
+/**
+ * Get the extended language associated with the item.
+ * The item is usually a text item.
+ *
+ * @param context the heif file context containg the item.
+ * @param itemId the identifier for the item
+ * @param out_language output parameter with the item's language. Free with heif_string_release().
+ * @return heif_error_ok on success, or an error value indicating the problem
+ */
+LIBHEIF_API
+heif_error heif_item_get_property_extended_language(const heif_context* context,
+                                                    heif_item_id itemId,
+                                                    char** out_language);
+
+LIBHEIF_API
+heif_error heif_item_set_property_extended_language(heif_context* context,
+                                                    heif_item_id item_id,
+                                                    const char* language, heif_property_id* out_optional_propertyId);
 
 // ------------------------- item references -------------------------
 

@@ -776,12 +776,8 @@ public class PhotoFragment extends BaseFragment {
             Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator == null) return;
             long durationMs = 30L;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                VibrationEffect effect = VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE);
-                vibrator.vibrate(effect);
-            } else {
-                vibrator.vibrate(durationMs);
-            }
+            VibrationEffect effect = VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE);
+            vibrator.vibrate(effect);
         } catch (Throwable ignored) {
         }
     }
@@ -861,14 +857,6 @@ public class PhotoFragment extends BaseFragment {
                     }
                 })
                 .into(binding.photoView);
-    }
-
-    private String convertThumbnailUrl(String fullPath) {
-        if (TextUtils.isEmpty(serverUrl)) {
-            return null;
-        }
-
-        return ThumbnailUtils.convertThumbnailUrl(serverUrl, repoId, fullPath);
     }
 
     private HashMap<String, String> loadExifMeta(String localPath) {

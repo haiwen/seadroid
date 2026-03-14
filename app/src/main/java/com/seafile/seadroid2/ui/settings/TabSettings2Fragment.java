@@ -46,7 +46,6 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.annotation.Unstable;
-import com.seafile.seadroid2.bus.BusAction;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.ObjKey;
@@ -56,11 +55,13 @@ import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -80,6 +81,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupConfigActivity;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupSelectedPathActivity;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
+import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.selector.folder_selector.FolderSelectorActivity;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.transfer_list.TransferActivity;
@@ -105,6 +107,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Handler viewHandler;
     private final Account currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
     private SettingsFragmentViewModel viewModel;
+    private MainViewModel mainViewModel;
 
 
     //backup settings
@@ -145,7 +148,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     public void onDestroy() {
         super.onDestroy();
 
-        BusHelper.getCommonObserver().removeObserver(busObserver);
+        BusHelper.getMediaMountObserver().removeObserver(mediaMountBusObserver);
     }
 
     @Override
@@ -161,6 +164,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         viewModel = new ViewModelProvider(this).get(SettingsFragmentViewModel.class);
     }
 
@@ -183,7 +187,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         initViewModel();
 
-        BusHelper.getCommonObserver().observe(getViewLifecycleOwner(), busObserver);
         registerResultLauncher();
 
         getListView().setPadding(0, 0, 0, Constants.DP.DP_32);
@@ -748,6 +751,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void initWorkerBusObserver() {
+        BusHelper.getMediaMountObserver().observe(getViewLifecycleOwner(), mediaMountBusObserver);
+
         BusHelper.getTransferProgressObserver().observe(getViewLifecycleOwner(), new Observer<Bundle>() {
             @Override
             public void onChanged(Bundle bundle) {
@@ -1011,12 +1016,13 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             // start periodic album backup scan worker
 //            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
         } else {
-            //stop
             // stop periodic album backup scan worker
-//            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
+//            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan();
 
+            //
             BackupThreadExecutor.getInstance().stopAlbumBackup();
 
+            //
             CameraUploadManager.getInstance().disableCameraUpload();
         }
 
@@ -1092,8 +1098,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.clear();
 
-        //
-        BusHelper.getCommonObserver().post(BusAction.RESTART_FILE_MONITOR);
+        //RESTART_FILE_MONITOR
+        mainViewModel.getRestartFileSyncMonitorLiveData().setValue(true);
 
         if (FolderBackupSharePreferenceHelper.isFolderBackupEnable()) {
 
@@ -1105,8 +1111,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         } else {
 
             // stop periodic folder backup service
-//            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan(requireContext().getApplicationContext());
-
+//            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan();
+            //
             BackupThreadExecutor.getInstance().stopFolderBackup();
         }
 
@@ -1139,11 +1145,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
     }
 
-    private void updateBackgroundBackupService(boolean isTurnOnOrTurnOff) {
-        if (isTurnOnOrTurnOff) {
-            BusHelper.getCommonObserver().post(BusAction.START_FOREGROUND_FILE_MONITOR);
+    private void updateBackgroundBackupService(boolean isTurnOn) {
+        if (isTurnOn) {
+            FileDaemonServiceManager.getInstance().startService();
         } else {
-            BusHelper.getCommonObserver().post(BusAction.STOP_FOREGROUND_FILE_MONITOR);
+            FileDaemonServiceManager.getInstance().stopService();
         }
     }
 
@@ -1385,7 +1391,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         viewModel.modifyStorageLocation(requireContext(), paths.get(0));
     }
 
-    private final Observer<String> busObserver = new Observer<String>() {
+    private final Observer<String> mediaMountBusObserver = new Observer<String>() {
         @Override
         public void onChanged(String actionStr) {
             if (TextUtils.isEmpty(actionStr)) {
@@ -1422,7 +1428,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
 
         // send to main activity
-        BusHelper.getCommonObserver().post(BusAction.RESTART_FILE_MONITOR);
+        mainViewModel.getRestartFileSyncMonitorLiveData().setValue(true);
 
         //
         if (isMount) {

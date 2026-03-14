@@ -37,12 +37,6 @@ endif()
 add_library(heif SHARED IMPORTED)
 set_target_properties(heif PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libheif.so")
 
-add_library(de265 SHARED IMPORTED)
-set_target_properties(de265 PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libde265.so")
-
-add_library(x265 SHARED IMPORTED)
-set_target_properties(x265 PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libx265.so")
-
 # Add libjpeg-turbo (prebuilt)
 add_library(jpeg SHARED IMPORTED)
 set_target_properties(jpeg PROPERTIES IMPORTED_LOCATION "${LIB_DIR}/libjpeg.so")
@@ -102,11 +96,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
         # libjpeg-turbo (no dependencies)
         jpeg
 
-        # HEVC decoders (no dependencies)
-        de265
-        x265
-
-        # libheif (depends on de265, x265)
+        # libheif (depends on libjpeg)
         heif
 
         # Standard Libraries

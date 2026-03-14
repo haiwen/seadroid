@@ -40,7 +40,8 @@ enum heif_item_property_type
   heif_item_property_type_image_size = heif_fourcc('i', 's', 'p', 'e'),
   heif_item_property_type_uuid = heif_fourcc('u', 'u', 'i', 'd'),
   heif_item_property_type_tai_clock_info = heif_fourcc('t', 'a', 'i', 'c'),
-  heif_item_property_type_tai_timestamp = heif_fourcc('i', 't', 'a', 'i')
+  heif_item_property_type_tai_timestamp = heif_fourcc('i', 't', 'a', 'i'),
+  heif_item_property_type_extended_language = heif_fourcc('e', 'l', 'n', 'g')
 };
 
 // Get the heif_property_id for a heif_item_id.
@@ -112,6 +113,7 @@ enum heif_transform_mirror_direction
 };
 
 // Will return 'heif_transform_mirror_direction_invalid' in case of error.
+// If 'propertyId==0', it returns the first imir property found.
 LIBHEIF_API
 enum heif_transform_mirror_direction heif_item_get_property_transform_mirror(const heif_context* context,
                                                                              heif_item_id itemId,
@@ -119,6 +121,7 @@ enum heif_transform_mirror_direction heif_item_get_property_transform_mirror(con
 
 // Returns only 0, 90, 180, or 270 angle values.
 // Returns -1 in case of error (but it will only return an error in case of wrong usage).
+// If 'propertyId==0', it returns the first irot property found.
 LIBHEIF_API
 int heif_item_get_property_transform_rotation_ccw(const heif_context* context,
                                                   heif_item_id itemId,
@@ -127,6 +130,7 @@ int heif_item_get_property_transform_rotation_ccw(const heif_context* context,
 // Returns the number of pixels that should be removed from the four edges.
 // Because of the way this data is stored, you have to pass the image size at the moment of the crop operation
 // to compute the cropped border sizes.
+// If 'propertyId==0', it returns the first clap property found.
 LIBHEIF_API
 void heif_item_get_property_transform_crop_borders(const heif_context* context,
                                                    heif_item_id itemId,

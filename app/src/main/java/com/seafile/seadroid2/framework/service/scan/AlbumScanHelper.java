@@ -130,7 +130,7 @@ public class AlbumScanHelper {
         boolean hasResult;
         Stopwatch stopwatch = Stopwatch.createStarted();
         try {
-            long lastScanTime = AlbumBackupSharePreferenceHelper.readLastScanTimeMills();
+            long lastScanTime = AlbumBackupSharePreferenceHelper.readLastScanTimeMills2();
             if (lastScanTime == 0) {
                 SafeLogs.d(TAG, "readMediaResult()", "no last scan time");
             } else {
@@ -153,7 +153,7 @@ public class AlbumScanHelper {
             long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
             SafeLogs.d(TAG, "readMediaResult()", "album backup scan time：" + stopwatch);
             long now = System.currentTimeMillis();
-            AlbumBackupSharePreferenceHelper.writeLastScanTime(now - diff);
+            AlbumBackupSharePreferenceHelper.writeLastScanTime2(now - diff);
         }
 
         SafeLogs.d(TAG, "readMediaResult()", "hasResult: " + hasResult);

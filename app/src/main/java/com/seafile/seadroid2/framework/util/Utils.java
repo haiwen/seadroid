@@ -20,6 +20,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
@@ -31,6 +32,7 @@ import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -204,14 +206,18 @@ public class Utils {
         return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
     }
 
-    public static Pair<String,Boolean> isJpegMotionPhoto(Context context, Uri uri) {
+    public static Pair<String, Boolean> isJpegMotionPhoto(Context context, Uri uri) {
         String fileName = Utils.getFilenameFromUri(context, uri);
+        if (StringUtils.isEmpty(fileName)) {
+            return new Pair<>(fileName, false);
+        }
+
         if (!Utils.isJpeg(fileName)) {
-            return new Pair<>(fileName,false);
+            return new Pair<>(fileName, false);
         }
 
         MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(context, uri);
-        return new Pair<>(fileName,descriptor.isMotionPhoto());
+        return new Pair<>(fileName, descriptor.isMotionPhoto());
     }
 
     public static boolean isJpeg(String name) {
@@ -500,7 +506,12 @@ public class Utils {
         return getFileMimeType(file.getPath());
     }
 
+    @Nullable
     public static String getFilenameFromUri(Context context, Uri uri) {
+
+        if (uri == null) {
+            return null;
+        }
 
         ContentResolver resolver = context.getContentResolver();
         Cursor cursor = resolver.query(uri, null, null, null, null);

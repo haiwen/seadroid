@@ -1,10 +1,6 @@
 package com.seafile.seadroid2.framework.worker;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
-import android.os.Build;
+import android.provider.MediaStore;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -15,16 +11,12 @@ import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.NoLongerSupported;
-import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.service.scan.AlbumBackupScanJobService;
-import com.seafile.seadroid2.framework.service.scan.FolderBackupScanJobService;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.worker.periodic.AlbumBackupPeriodicScanStarter;
 import com.seafile.seadroid2.framework.worker.periodic.FolderBackupPeriodicScanStarter;
@@ -33,7 +25,7 @@ import com.seafile.seadroid2.framework.worker.upload.FolderBackupUploadWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupUploadWorker;
 
-import java.util.List;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @NoLongerSupported
@@ -76,146 +68,48 @@ public class BackgroundJobManagerImpl {
         return WorkManager.getInstance(SeadroidApplication.getAppContext());
     }
 
-    // get is running
-    public boolean getAlbumModuleRunning() {
-        boolean ab = AlbumBackupPeriodicScanStarter.isIsWorkerRunning();
-        if (ab) {
-            return true;
-        }
 
-        boolean sb = MediaBackupScanWorker.isIsWorkerRunning();
-        if (sb) {
-            return true;
-        }
-
-        boolean ub = MediaBackupUploadWorker.isIsWorkerRunning();
-        if (ub) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean getFolderModuleRunning() {
-        boolean ab = FolderBackupPeriodicScanStarter.isIsWorkerRunning();
-        if (ab) {
-            return true;
-        }
-
-        boolean sb = FolderBackupScanWorker.isIsWorkerRunning();
-        if (sb) {
-            return true;
-        }
-
-        boolean ub = FolderBackupUploadWorker.isIsWorkerRunning();
-        if (ub) {
-            return true;
-        }
-
-        return false;
-    }
+    /// /////////////////// media //////////////////////
 
     /**
      * Schedules a periodic AlbumBackupScanWorker.
      */
-    public void scheduleAlbumBackupPeriodicScan(Context context) {
-        assert context != null;
+    public void monitorAlbumBackup() {
+        OneTimeWorkRequest request = getAlbumBackupTriggerRequest();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            PeriodicWorkRequest scanPeriodicRequest = getAlbumBackupScanWorkerRequest();
-
-            getWorkManager().enqueueUniquePeriodicWork(
-                    AlbumBackupPeriodicScanStarter.TAG,
-                    ExistingPeriodicWorkPolicy.KEEP,
-                    scanPeriodicRequest
-            );
-        } else {
-            ComponentName component = new ComponentName(context, AlbumBackupScanJobService.class);
-            boolean isAllowData = AlbumBackupSharePreferenceHelper.readAllowDataPlanSwitch();
-            JobInfo.Builder builder = new JobInfo.Builder(JOB_ID_ALBUM_BACKUP, component)
-                    .setRequiredNetworkType(isAllowData ? JobInfo.NETWORK_TYPE_ANY : JobInfo.NETWORK_TYPE_UNMETERED)
-                    .setPersisted(true)
-                    .setPeriodic(15 * 60 * 1000); // 15m
-
-            JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            scheduler.schedule(builder.build());
-        }
+        getWorkManager().enqueueUniqueWork(
+                AlbumBackupPeriodicScanStarter.TAG,
+                ExistingWorkPolicy.KEEP,
+                request
+        );
     }
 
-    public void stopAlbumBackupPeriodicScan(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            WorkManager wm = getWorkManager();
-            wm.cancelUniqueWork(AlbumBackupPeriodicScanStarter.TAG);
-            wm.pruneWork();
-        } else {
-            JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            scheduler.cancel(JOB_ID_ALBUM_BACKUP);
-        }
-    }
-
-    private PeriodicWorkRequest getAlbumBackupScanWorkerRequest() {
+    private OneTimeWorkRequest getAlbumBackupTriggerRequest() {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
+                .addContentUriTrigger(MediaStore.Images.Media.INTERNAL_CONTENT_URI, true)
+                .addContentUriTrigger(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true)
+                .addContentUriTrigger(MediaStore.Video.Media.INTERNAL_CONTENT_URI, true)
+                .addContentUriTrigger(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, true)
+                .addContentUriTrigger(MediaStore.Files.getContentUri("external"), true)
+                .setTriggerContentUpdateDelay(Duration.ofSeconds(5))
+                .setTriggerContentMaxDelay(Duration.ofSeconds(5))
                 .build();
 
-        return periodicRequestBuilder(AlbumBackupPeriodicScanStarter.class)
+        return oneTimeRequestBuilder(AlbumBackupPeriodicScanStarter.class)
+                .setConstraints(constraints)
                 .setId(AlbumBackupPeriodicScanStarter.UID)
-                .setInitialDelay(10, TimeUnit.MINUTES)
-                .setConstraints(constraints)
-                .build();
-    }
-
-    public void scheduleFolderBackupPeriodicScan(Context context) {
-        assert context != null;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            PeriodicWorkRequest scanPeriodicRequest = getFolderBackupScanWorkerRequest();
-
-            getWorkManager().enqueueUniquePeriodicWork(
-                    FolderBackupPeriodicScanStarter.TAG,
-                    ExistingPeriodicWorkPolicy.KEEP,
-                    scanPeriodicRequest
-            );
-        } else {
-            ComponentName component = new ComponentName(context, FolderBackupScanJobService.class);
-            boolean isAllowData = FolderBackupSharePreferenceHelper.readDataPlanAllowed();
-            JobInfo.Builder builder = new JobInfo.Builder(JOB_ID_FOLDER_BACKUP, component)
-                    .setRequiredNetworkType(isAllowData ? JobInfo.NETWORK_TYPE_ANY : JobInfo.NETWORK_TYPE_UNMETERED)
-                    .setPersisted(true)
-                    .setPeriodic(15 * 60 * 1000); // 15m
-
-            JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            scheduler.schedule(builder.build());
-        }
-    }
-
-    public void stopFolderBackupPeriodicScan(Context context) {
-        assert context != null;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            WorkManager wm = getWorkManager();
-            wm.cancelUniqueWork(FolderBackupPeriodicScanStarter.TAG);
-            wm.pruneWork();
-        } else {
-            JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            scheduler.cancel(JOB_ID_FOLDER_BACKUP);
-        }
-    }
-
-    private PeriodicWorkRequest getFolderBackupScanWorkerRequest() {
-
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        return periodicRequestBuilder(FolderBackupPeriodicScanStarter.class)
-                .setId(FolderBackupPeriodicScanStarter.UID)
-                .setInitialDelay(10, TimeUnit.MINUTES)
-                .setConstraints(constraints)
-                .build();
     }
 
-    /// /////////////////// media //////////////////////
+    public void stopAlbumBackupPeriodicScan() {
+        SLogs.d(TAG, "stopAlbumBackupPeriodicScan()");
+
+        WorkManager wm = getWorkManager();
+        wm.cancelUniqueWork(AlbumBackupPeriodicScanStarter.TAG);
+        wm.pruneWork();
+    }
 
     public void startMediaBackupChain(boolean isForce) {
         SLogs.d(TAG, "startMediaBackupChain()", "isForce:" + isForce);
@@ -267,6 +161,37 @@ public class BackgroundJobManagerImpl {
 
     /// /////////////////// upload folder //////////////////////
 
+    public void scheduleFolderBackupPeriodicScan() {
+        PeriodicWorkRequest scanPeriodicRequest = getPeriodicFolderBackupPeriodicScanStarterRequest();
+
+        SLogs.d(TAG, "scheduleFolderBackupPeriodicScan()");
+
+        getWorkManager().enqueueUniquePeriodicWork(
+                FolderBackupPeriodicScanStarter.TAG,
+                ExistingPeriodicWorkPolicy.KEEP,
+                scanPeriodicRequest
+        );
+    }
+
+    private PeriodicWorkRequest getPeriodicFolderBackupPeriodicScanStarterRequest() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        return periodicRequestBuilder(FolderBackupPeriodicScanStarter.class)
+                .setId(FolderBackupPeriodicScanStarter.UID)
+                .setConstraints(constraints)
+                .build();
+    }
+
+    public void stopFolderBackupPeriodicScan() {
+        SLogs.d(TAG, "stopFolderBackupPeriodicScan()");
+
+        WorkManager wm = getWorkManager();
+        wm.cancelUniqueWork(FolderBackupPeriodicScanStarter.TAG);
+        wm.pruneWork();
+    }
+
     public void startFolderBackupChain(boolean isForce) {
         SLogs.d(TAG, "startFolderBackupChain()", "isForce:" + isForce);
 
@@ -296,6 +221,7 @@ public class BackgroundJobManagerImpl {
                 .setConstraints(constraints)
                 .build();
     }
+
 
     private OneTimeWorkRequest getFolderBackupUploadWorkerRequest() {
         NetworkType networkType = NetworkType.UNMETERED;

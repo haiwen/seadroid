@@ -1,16 +1,29 @@
 package com.seafile.seadroid2.framework.worker.periodic;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
+import android.app.ForegroundServiceStartNotAllowedException;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.notification.FolderBackupScanNotificationHelper;
+import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.scan.FolderScanHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -18,6 +31,7 @@ import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
+import com.seafile.seadroid2.ui.main.MainActivity;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,18 +41,30 @@ import java.util.UUID;
 public class FolderBackupPeriodicScanStarter extends Worker {
     public static final String TAG = "FolderBackupScanStarter";
     public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupPeriodicScanStarter.class.getSimpleName().getBytes());
-    // @FIXME fix this
-    private static volatile boolean isWorkerRunning = false;
+    private final FolderBackupScanNotificationHelper notificationManager;
 
-    private static void setIsRunning(boolean running) {
-        isWorkerRunning = running;
-    }
-
-    public static boolean isIsWorkerRunning() {
-        return isWorkerRunning;
-    }
     public FolderBackupPeriodicScanStarter(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+
+        notificationManager = new FolderBackupScanNotificationHelper(context);
+    }
+
+    private void showNotification() {
+        //
+        String title = getApplicationContext().getString(R.string.settings_folder_backup_info_title);
+        String subTitle = getApplicationContext().getString(R.string.is_scanning);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification(title, subTitle);
+                setForegroundAsync(foregroundInfo);
+            } catch (ForegroundServiceStartNotAllowedException e) {
+                SLogs.e(e.getMessage());
+            }
+        } else {
+            ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification(title, subTitle);
+            setForegroundAsync(foregroundInfo);
+        }
     }
 
     private static boolean canExc() {
@@ -96,6 +122,7 @@ public class FolderBackupPeriodicScanStarter extends Worker {
             SLogs.d(TAG, "data plan is allowed", "current network type: ", NetworkUtils.getNetworkType().name());
         }
 
+        showNotification();
 
         boolean isForce = getInputData().getBoolean(TransferWorker.DATA_FORCE_TRANSFER_KEY, false);
         if (isForce) {
@@ -104,19 +131,45 @@ public class FolderBackupPeriodicScanStarter extends Worker {
 
         //scan
         int count = FolderScanHelper.onlyTraverseBackupPathFileCount(backupPaths, account, repoConfig);
-        if (count == 0) {
-            SLogs.d(TAG, "The folder scan task was not started, because no new files were found");
-            return returnSuccess();
-        }
+        SLogs.d(TAG, "periodic folder scan task complete", "count: " + count);
 
-        SLogs.d(TAG, "start scan", "backup path file count: ", GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getTotalCount() + "");
-        BackgroundJobManagerImpl.getInstance().startFolderBackupChain(true);
+        if (count > 0) {
+            showScanResultNotification();
+        }
 
         return returnSuccess();
     }
 
     protected Result returnSuccess() {
-        setIsRunning(false);
         return Result.success();
+    }
+
+
+    private void showScanResultNotification() {
+        Context context = getApplicationContext();
+
+        NotificationManager manager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+        String title = context.getString(R.string.settings_folder_backup_info_title);
+        String subTitle = context.getString(R.string.settings_folder_backup_info_title);
+
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent, FLAG_IMMUTABLE);
+
+        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.FILE_TRANSFER_CHANNEL)
+                .setSmallIcon(R.drawable.icon)
+                .setContentTitle(title)
+                .setContentText(subTitle)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        manager.notify(NotificationUtils.NID_SCAN_RESULT, notification);
     }
 }

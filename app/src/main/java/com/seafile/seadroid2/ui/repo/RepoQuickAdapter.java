@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.SizeUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -54,6 +55,8 @@ import com.seafile.seadroid2.ui.repo.vh.RepoViewHolder;
 import com.seafile.seadroid2.ui.repo.vh.UnsupportedViewHolder;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundShapeUtils;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -434,7 +437,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
                     .into(holder.binding.itemIcon);
         } else {
-            loadImage(model, holder.binding.itemIcon, smallSize);
+            loadImage(model, holder.binding.itemIcon);
         }
 
         //action mode
@@ -523,7 +526,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     .into(holder.binding.itemIcon);
         } else {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            loadImage(model, holder.binding.itemIcon, largeSize);
+            loadImage(model, holder.binding.itemIcon);
         }
 
         //action mode
@@ -563,7 +566,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
                     .into(holder.binding.itemIcon);
         } else {
-            loadImage(model, holder.binding.itemIcon, largeSize);
+            loadImage(model, holder.binding.itemIcon);
         }
 
         updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
@@ -649,7 +652,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             DirentModel direntModel = new DirentModel();
             direntModel.full_path = model.fullpath;
             direntModel.repo_id = model.repo_id;
-            loadImage(direntModel, holder.binding.itemIcon, smallSize);
+            loadImage(direntModel, holder.binding.itemIcon);
         }
 
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
@@ -664,11 +667,8 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
     }
 
-    private final int largeSize = 512;
-    private final int smallSize = 128;
-
-    private void loadImage(DirentModel direntModel, ImageView imageView, int size) {
-        String thumbnailUrl = convertThumbnailUrl(direntModel, size);
+    private void loadImage(DirentModel direntModel, ImageView imageView) {
+        String thumbnailUrl = ThumbnailUtils.convertThumbnailUrl(getServerUrl(), direntModel);
         if (TextUtils.isEmpty(thumbnailUrl)) {
             GlideApp.with(getContext())
                     .load(direntModel.getIcon())
@@ -700,14 +700,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
         server_url = HttpIO.getCurrentInstance().getServerUrl();
         return server_url;
-    }
-
-    private String convertThumbnailUrl(DirentModel direntModel, int size) {
-        String serverUrl = getServerUrl();
-        if (TextUtils.isEmpty(serverUrl)) {
-            return null;
-        }
-        return ThumbnailUtils.convertThumbnailUrl(serverUrl, direntModel.repo_id, direntModel.full_path, size);
     }
 
     public void setOnActionMode(boolean on) {

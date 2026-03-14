@@ -18,7 +18,6 @@ import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
 import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -125,7 +124,7 @@ public class BackupThreadExecutor {
         notificationDispatcher.clearDelay();
     }
 
-    public void stopById(String modelId, FeatureDataSource dataSource) {
+    public void stopSpecialTransmitter(String modelId, FeatureDataSource dataSource) {
         if (TextUtils.isEmpty(modelId)) {
             throw new RuntimeException("You must provide a valid parameter.");
         }

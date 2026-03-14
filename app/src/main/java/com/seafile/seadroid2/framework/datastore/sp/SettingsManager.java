@@ -51,6 +51,7 @@ public final class SettingsManager {
     public static final String CAMERA_UPLOAD_BUCKETS_KEY = gAppContext.getString(R.string.key_camera_upload_advanced_buckets_select);
     public static final String CAMERA_UPLOAD_STATE = gAppContext.getString(R.string.key_camera_upload_state);
     public static final String CAMERA_BACKUP_LAST_TIME = "camera_backup_last_time";
+    public static final String CAMERA_BACKUP_LAST_TIME_2 = "camera_backup_last_time_2";
     public static final String CAMERA_BACKUP_LAST_MEDIA_VERSION = "camera_backup_last_media_version";
 
 
@@ -84,6 +85,7 @@ public final class SettingsManager {
      * The last time the folder backup service was executed
      */
     public static final String FOLDER_BACKUP_LAST_TIME = "folder_backup_last_time";
+    public static final String FOLDER_BACKUP_LAST_TIME_2 = "folder_backup_last_time_2";
 
     /**
      * The last sync time for each backup folder

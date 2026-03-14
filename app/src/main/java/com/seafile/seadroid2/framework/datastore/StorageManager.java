@@ -160,6 +160,35 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         }
     }
 
+    /**
+     * Find the best matching cache directory for a given media directory index.
+     * When getExternalMediaDirs() and getExternalCacheDirs() return arrays of different lengths,
+     * this method finds the closest matching cache directory by searching from the target index backwards.
+     *
+     * @param cacheDir Array of cache directories
+     * @param targetIndex The target index from mediaDirs array
+     * @return The best matching cache directory, or null if none found
+     */
+    private File findBestMatchCacheDir(File[] cacheDir, int targetIndex) {
+        if (cacheDir == null || cacheDir.length == 0) {
+            return null;
+        }
+
+        // Try exact match first
+        if (targetIndex < cacheDir.length && cacheDir[targetIndex] != null) {
+            return cacheDir[targetIndex];
+        }
+
+        // Search from targetIndex backwards to find the closest available cache directory
+        for (int i = Math.min(targetIndex, cacheDir.length - 1); i >= 0; i--) {
+            if (cacheDir[i] != null) {
+                return cacheDir[i];
+            }
+        }
+
+        // Fallback: return the first available cache directory
+        return cacheDir[0];
+    }
 
     public Pair<String, String> getPrettyVolumeName(String volumePath) {
         android.os.storage.StorageManager storageManager = (android.os.storage.StorageManager) getContext().getSystemService(Context.STORAGE_SERVICE);
@@ -259,7 +288,9 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
             Location location = new Location();
             location.id = i;
             location.mediaPath = mediaDirs[i];
-            location.cachePath = cacheDir[i];
+            // Fix: find the closest matching cache directory when array lengths differ
+            // getExternalMediaDirs() and getExternalCacheDirs() may return different length arrays
+            location.cachePath = findBestMatchCacheDir(cacheDir, i);
             retList.add(location);
         }
 
