@@ -668,7 +668,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void loadImage(DirentModel direntModel, ImageView imageView) {
-        String thumbnailUrl = ThumbnailUtils.convertThumbnailUrl(server_url, direntModel);
+        String thumbnailUrl = ThumbnailUtils.convertThumbnailUrl(getServerUrl(), direntModel);
         if (TextUtils.isEmpty(thumbnailUrl)) {
             GlideApp.with(getContext())
                     .load(direntModel.getIcon())

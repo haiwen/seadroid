@@ -55,18 +55,40 @@ public class FileDaemonService extends Service {
         }
 
         try {
-
             startNotify();
+            startPeriodicScanTask();
+            return START_STICKY;
 
         } catch (Exception e) {
-            SLogs.e(TAG, "Exception in startNotify: " + e.getMessage());
+            SLogs.e(TAG, "Failed to start FileDaemonService", e);
+
+            // Clean up service state properly
+            cleanupServiceState();
+
+            // Stop the service
             stopSelf();
+
             return START_NOT_STICKY;
         }
+    }
 
-        startPeriodicScanTask();
+    /**
+     * Clean up service state when service fails to start
+     */
+    private void cleanupServiceState() {
+        // Reset the started flag to allow retry
+        STARTED.set(false);
 
-        return START_STICKY;
+        // Remove any pending periodic tasks
+        periodicHandler.removeCallbacks(periodicTask);
+        isPeriodicRunning = false;
+
+        // Remove foreground notification if it was started
+        try {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        } catch (Exception e) {
+            SLogs.e(TAG, "Failed to remove foreground notification during cleanup", e);
+        }
     }
 
     private void startNotify() {
@@ -152,10 +174,10 @@ public class FileDaemonService extends Service {
 
         SLogs.d(TAG, "onTimeout()", "file daemon service timeout");
 
-        periodicHandler.removeCallbacks(periodicTask);
-        isPeriodicRunning = false;
+        // Clean up service state properly
+        cleanupServiceState();
 
-        stopForeground(STOP_FOREGROUND_REMOVE);
+        // Stop the service
         stopSelf();
     }
 
