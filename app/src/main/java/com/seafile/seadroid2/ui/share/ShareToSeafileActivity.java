@@ -97,29 +97,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         checkReceiveParams();
     }
 
-    private void launchObjSelector() {
-        //launch obj selector activity
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("isFilterUnavailable", false);
-        bundle.putBoolean("isAddStarredGroup", true);
-
-
-        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
-        if (CollectionUtils.isEmpty(accounts)) {
-            Toasts.show(R.string.err_token_expired);
-            return;
-        }
-
-        ObjSelectType t = ObjSelectType.ACCOUNT;
-        if (accounts.size() == 1) {
-            t = ObjSelectType.REPO;
-        }
-
-        Intent intent = ObjSelectorActivity.getIntent(this, t, ObjSelectType.DIR, bundle);
-        objSelectorLauncher.launch(intent);
-    }
-
-
     private void initViewModel() {
         getViewModel().getActionLiveData().observe(this, new Observer<Boolean>() {
             @Override
@@ -136,6 +113,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         Intent intent = getIntent();
         if (intent == null) {
             Toasts.show("Invalid shared content");
+            SLogs.d(TAG, "invalid shared content");
             finish();
             return;
         }
@@ -163,13 +141,11 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             }
         }
 
-
         if (CollectionUtils.isEmpty(fileUris)) {
             SLogs.d(TAG, "no shared files");
             finish();
             return;
         }
-
 
         disposable = isSafeSharedUri(fileUris.get(0))
                 .subscribeOn(Schedulers.io())
@@ -177,6 +153,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
+                        SLogs.d(TAG, "isSafeSharedUri: " + aBoolean);
                         if (aBoolean) {
                             launchObjSelector();
                         } else {
@@ -186,6 +163,27 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     }
                 });
 
+    }
+
+    private void launchObjSelector() {
+        //launch obj selector activity
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("isFilterUnavailable", false);
+        bundle.putBoolean("isAddStarredGroup", true);
+
+        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
+        if (CollectionUtils.isEmpty(accounts)) {
+            Toasts.show(R.string.err_token_expired);
+            return;
+        }
+
+        ObjSelectType t = ObjSelectType.ACCOUNT;
+        if (accounts.size() == 1) {
+            t = ObjSelectType.REPO;
+        }
+
+        Intent intent = ObjSelectorActivity.getIntent(this, t, ObjSelectType.DIR, bundle);
+        objSelectorLauncher.launch(intent);
     }
 
     private void registerResultLauncher() {
@@ -279,6 +277,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
     private void notifyFileOverwriting() {
         if (shareResult == null || CollectionUtils.isEmpty(shareResult.uriList)) {
+            SLogs.d(TAG, "shareResult or shareResult.uriList is empty.");
             return;
         }
 
@@ -286,6 +285,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             @Override
             public void accept(Boolean b) throws Exception {
                 if (b) {
+                    SLogs.d(TAG, "file already exists, show dialog");
                     showExistsDialog(ShareToSeafileActivity.this, shareResult.uriList);
                 } else {
                     SLogs.d(TAG, "gen transfer model, and insert into queue, and upload it");
@@ -324,98 +324,113 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
     /**
      * Security-critical check:
-     * 0、If the uri is empty, returns false
-     * 1、Do not receive: Files that are not in a content agreement
-     * 2、Do not receive：Files in the '/data/data/' directory and the '/data/user/' directory
-     * 3、Do not receive：The path that contains the package name in the file path
+     * 0. Reject null URIs
+     * 1. Only accept content:// scheme URIs
+     * 2. Verify system-granted read capability
+     * 3. Reject files in /data/data/ or /data/user/ directories
+     * 4. Reject files in app's private directory
      */
     private Single<Boolean> isSafeSharedUri(Uri uri) {
         return Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                // 0
+                // 0. Null check
                 if (uri == null) {
+                    SLogs.d(TAG, "uri is null");
                     emitter.onSuccess(false);
                     return;
                 }
 
-                // 1、Reject file:// outright
+                // 1. Reject non-content schemes (file://, http://, etc.)
                 if (!"content".equals(uri.getScheme())) {
+                    SLogs.d(TAG, "Rejected uri with scheme: " + uri.getScheme());
                     emitter.onSuccess(false);
                     return;
                 }
 
-                //
-                if (uri.toString().contains("/data/data") || uri.toString().contains("/data/user")) {
-                    emitter.onSuccess(false);
-                    return;
-                }
-
-                // 2、Verify system-granted read capability
+                // 2. Verify system-granted read capability BEFORE any path checks
                 try {
                     ContentResolver resolver = getContentResolver();
                     try (java.io.InputStream is = resolver.openInputStream(uri)) {
                         if (is == null) {
+                            SLogs.d(TAG, "Cannot open input stream for uri: " + uri);
                             emitter.onSuccess(false);
                             return;
                         }
+                        // Successfully opened and can read from this uri
                     }
                 } catch (SecurityException | IOException e) {
-                    SLogs.w(TAG, "Cannot read shared uri: " + uri, e);
+                    SLogs.d(TAG, "Cannot read shared uri: " + uri, e.getMessage());
                     emitter.onSuccess(false);
                     return;
                 }
 
+                // 3. Get real file path for additional validation (may be null for content URIs)
+                String realPath = getSharedFilePath(uri);
 
-                // 4、Verify path is not in private app directory, except cache
-                String streamToUpload = getSharedFilePath(uri);
-                if (TextUtils.isEmpty(streamToUpload)) {
-
+                if (TextUtils.isEmpty(realPath)) {
+                    // Content URI without file path (e.g., from cloud storage providers)
+                    // is acceptable since we verified readability above
+                    SLogs.d(TAG, "realPath is empty for uri: " + uri);
                     emitter.onSuccess(true);
                     return;
                 }
 
-                // 3、Verify path does not contain package name
-                if (streamToUpload.contains(getPackageName())) {
-                    SLogs.w(TAG, "Rejected uri with package name: " + uri);
+                // 4. Check if path is in app's private directory
+                String packageName = getPackageName();
+                if (realPath.startsWith("/data/data/" + packageName) ||
+                    (realPath.startsWith("/data/user/") && realPath.contains("/" + packageName + "/"))) {
+                    SLogs.d(TAG, "Rejected uri in app private dir: " + uri);
                     emitter.onSuccess(false);
                     return;
                 }
 
-                // 
-                if (streamToUpload.startsWith("/data/data") || streamToUpload.contains("/data/user")) {
+                // 5. Check for generic system data directories
+                if (realPath.startsWith("/data/data") || realPath.startsWith("/data/user")) {
+                    SLogs.d(TAG, "Rejected uri with system data path: " + uri);
                     emitter.onSuccess(false);
                     return;
                 }
-
-                //
+                SLogs.d(TAG, "All checks passed for uri: " + uri);
+                // All checks passed
                 emitter.onSuccess(true);
             }
         });
     }
 
+    /**
+     * Get the real file path from a content URI.
+     * Note: On Android 10+, this may return null for content URIs that don't have
+     * a direct file path. This is expected behavior - such URIs should be handled
+     * via InputStream instead.
+     */
     private String getSharedFilePath(Uri uri) {
         if (uri == null) {
             return null;
         }
 
+        // Handle file:// scheme (should already be rejected by isSafeSharedUri)
         if (Objects.equals(uri.getScheme(), "file")) {
             return uri.getPath();
         }
 
         ContentResolver contentResolver = getContentResolver();
-        String filePath;
-        try (Cursor cursor = contentResolver.query(uri, null, null, null, null)) {
-            if (cursor == null || !cursor.moveToFirst()) {
-                return null;
-            }
+        String filePath = null;
 
-            int dataIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            if (dataIndex == -1) {
-                return null;
+        // Try to get the file path from various MediaStore columns
+        // Priority: DATA column (deprecated but still works for most cases)
+        String[] projection = { MediaStore.Images.Media.DATA };
+        try (Cursor cursor = contentResolver.query(uri, projection, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                if (dataIndex != -1) {
+                    filePath = cursor.getString(dataIndex);
+                }
             }
-            filePath = cursor.getString(dataIndex);
+        } catch (Exception e) {
+            SLogs.d(TAG, "Error getting file path for uri: " + uri, e.getMessage());
         }
+
         return filePath;
     }
 

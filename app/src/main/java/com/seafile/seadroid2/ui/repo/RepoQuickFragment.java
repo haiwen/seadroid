@@ -1415,7 +1415,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         final int index = gridLayoutManager.findFirstVisibleItemPosition();
         final ScrollState state = new ScrollState(index, top);
-        SLogs.d(state.toString());
 
         removeScrolledPosition();
 
