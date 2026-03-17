@@ -365,7 +365,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     return;
                 }
 
-                // 3. Get real file path for additional validation (may be null for content URIs)
+                // 3. Get real file path for additional validation (maybe null for content URIs)
                 String realPath = getSharedFilePath(uri);
 
                 if (TextUtils.isEmpty(realPath)) {
@@ -401,8 +401,10 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
     /**
      * Get the real file path from a content URI.
      * Note: On Android 10+, this may return null for content URIs that don't have
-     * a direct file path. This is expected behavior - such URIs should be handled
-     * via InputStream instead.
+     * a direct file path (e.g., Google Drive, cloud storage providers). This is
+     * expected behavior - such URIs should be handled via InputStream instead.
+     *
+     * @return The file path if available, null otherwise
      */
     private String getSharedFilePath(Uri uri) {
         if (uri == null) {
@@ -415,23 +417,24 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         }
 
         ContentResolver contentResolver = getContentResolver();
+
+        // Only query the _data column if available
+        String[] projection = { MediaStore.Images.Media.DATA };
         String filePath = null;
 
-        // Try to get the file path from various MediaStore columns
-        // Priority: DATA column (deprecated but still works for most cases)
-        String[] projection = { MediaStore.Images.Media.DATA };
         try (Cursor cursor = contentResolver.query(uri, projection, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
+                // Use getColumnIndex instead of getColumnIndexOrThrow to avoid exception
                 int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
                 if (dataIndex != -1) {
                     filePath = cursor.getString(dataIndex);
                 }
             }
         } catch (Exception e) {
-            SLogs.d(TAG, "Error getting file path for uri: " + uri, e.getMessage());
+            // Log but don't throw - many content providers don't have _data column
+            SLogs.d(TAG, "Could not get file path for uri: " + uri, e.getMessage());
         }
 
         return filePath;
     }
-
 }

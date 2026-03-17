@@ -5,6 +5,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.CookieManager;
+import android.webkit.DownloadListener;
 import android.webkit.WebSettings;
 
 import androidx.annotation.NonNull;
@@ -103,6 +104,10 @@ public class SeaWebView extends NestedWebView {
         registerCommonHandler();
     }
 
+    public void setOnDownloadListener(DownloadListener downloadListener) {
+        this.setDownloadListener(downloadListener);
+    }
+
     public void setOnWebPageListener(OnWebPageListener onWebPageListener) {
         mWebViewClient.setOnWebPageListener(onWebPageListener);
         this.setWebViewClient(mWebViewClient);
@@ -152,7 +157,7 @@ public class SeaWebView extends NestedWebView {
                 return;
             }
 
-            if (TextUtils.equals(model.action,WebViewActionConstant.SDOC_EDITOR_SYSTEM_EVENT)){
+            if (TextUtils.equals(model.action, WebViewActionConstant.SDOC_EDITOR_SYSTEM_EVENT)) {
                 this.onWebDataCallback.onCallback(model);
                 return;
             }
