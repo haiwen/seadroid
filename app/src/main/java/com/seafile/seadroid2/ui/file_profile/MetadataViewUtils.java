@@ -599,38 +599,6 @@ public class MetadataViewUtils {
         return editText;
     }
 
-    private static View getEditableWrapTextButton(Context context, String text) {
-        LinearLayout linearLayout = (LinearLayout) getEditableTextButton(context, text);
-        LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) linearLayout.getLayoutParams();
-        llp.width = LinearLayout.LayoutParams.WRAP_CONTENT;
-        llp.topMargin = DP_4;
-        llp.rightMargin = Constants.DP.DP_8;
-        return linearLayout;
-    }
-
-    private static View getEditableTextButton(Context context, String text) {
-        TextView textView = new TextView(context);
-        textView.setPadding(Constants.DP.DP_16, Constants.DP.DP_8, Constants.DP.DP_16, Constants.DP.DP_8);
-        textView.setText(text);
-        textView.setId(R.id.text_view_id);
-        textView.setTextSize(14);
-        textView.setBackgroundResource(R.drawable.shape_solid_f0_radius_4);
-        textView.setMaxLines(1);
-        textView.setEllipsize(TextUtils.TruncateAt.END);
-
-        //Water ripples
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
-        textView.setForeground(ContextCompat.getDrawable(context, outValue.resourceId));
-
-        LinearLayout linearLayout = new LinearLayout(context);
-        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        linearLayout.setLayoutParams(llp);
-
-        linearLayout.addView(textView);
-        return linearLayout;
-    }
-
     public static View getErrorTextView(Context context, String str) {
         TextView editText = new TextView(context);
         editText.setTextSize(14);
@@ -736,7 +704,12 @@ public class MetadataViewUtils {
         llp.topMargin = Constants.DP.DP_8;
         textView.setPadding(Constants.DP.DP_16, Constants.DP.DP_8, Constants.DP.DP_16, Constants.DP.DP_8);
         textView.setMovementMethod(LinkMovementMethod.getInstance());
-        textView.setBackgroundResource(R.drawable.shape_solid_f5_radius_4);
+
+        if (editable) {
+            textView.setBackgroundResource(R.drawable.shape_solid_f5_radius_4);
+        } else {
+            textView.setBackgroundResource(R.drawable.shape_task_view_no_editable);
+        }
 
         if (editable && clickListener != null) {
             textView.setOnClickListener(new View.OnClickListener() {
@@ -1187,7 +1160,11 @@ public class MetadataViewUtils {
 
         TextView textView = getCommonTextViewWithDrawable(context);
         textView.setEnabled(editable);
-        textView.setBackgroundResource(R.drawable.shape_solid_f0_radius_4);
+        if (editable) {
+            textView.setBackgroundResource(R.drawable.shape_solid_f0_radius_4);
+        } else {
+            textView.setBackgroundResource(R.drawable.shape_task_view_no_editable);
+        }
 
         if (locationModel != null) {
             textView.setText(locationModel.getText());
