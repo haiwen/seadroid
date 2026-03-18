@@ -12,7 +12,7 @@
     app:cardElevation="0dp"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="false"
-    app:strokeColor="@color/fancy_white"
+    app:strokeColor="@color/divider_color"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -39,7 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:background="@drawable/shape_stroke1_radius16_solid_white"
+                android:background="@drawable/shape_stroke1_radius16"
                 android:gravity="center"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
