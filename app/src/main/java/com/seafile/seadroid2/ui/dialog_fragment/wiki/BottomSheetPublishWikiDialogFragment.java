@@ -149,7 +149,7 @@ public class BottomSheetPublishWikiDialogFragment extends RequestBottomSheetDial
     private boolean checkData() {
         EditText editText = getEditText();
         Editable editable = editText.getText();
-        if (editable == null || editable.isEmpty()) {
+        if (editable == null || TextUtils.isEmpty(editable.toString())) {
             return false;
         }
 
