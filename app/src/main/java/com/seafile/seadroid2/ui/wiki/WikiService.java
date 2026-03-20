@@ -33,8 +33,8 @@ public interface WikiService {
     @DELETE("api/v2.1/wiki2/{wiki_id}/publish/")
     Single<ResultModel> cancelPublishWiki(@Path("wiki_id") String wikiId);
 
-    // publish_url
-    @DELETE("api/v2.1/wiki2/{wiki_id}/publish/")
-    Single<String> deleteWiki(@Path("wiki_id") String wikiId);
+    //
+    @DELETE("api/v2.1/wiki2/{wiki_id}/")
+    Single<ResultModel> deleteWiki(@Path("wiki_id") String wikiId);
 
 }

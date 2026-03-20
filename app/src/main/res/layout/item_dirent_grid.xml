@@ -14,17 +14,34 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         app:aspectRatio="1.78">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/item_icon"
+        <FrameLayout
+            android:id="@+id/item_icon_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitCenter"
-            android:src="@drawable/baseline_repo_24"
+            android:layout_marginVertical="12dp"
+            android:layout_marginStart="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearance="?shapeAppearanceSmallComponent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/item_icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/icon_format_file"
+                app:shapeAppearance="@style/ShapeCorner4Style" />
+
+            <ImageView
+                android:id="@+id/item_icon_status"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_margin="4dp"
+                android:layout_gravity="bottom|end"
+                android:contentDescription="@null"
+                android:src="@drawable/icon_file_freezed" />
+
+        </FrameLayout>
 
         <ImageView
             android:id="@+id/item_multi_select"

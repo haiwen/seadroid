@@ -1415,7 +1415,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         final int index = gridLayoutManager.findFirstVisibleItemPosition();
         final ScrollState state = new ScrollState(index, top);
-        SLogs.d(state.toString());
 
         removeScrolledPosition();
 
@@ -1707,7 +1706,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         if (fileName.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
-            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
+            boolean canNotEdit = dirent.is_freezed || dirent.is_locked;
+            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name,canNotEdit);
             return;
         }
 

@@ -93,16 +93,18 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     private LayoutSdocEditorBar2Binding editorBarBinding;
     private SeaWebView mWebView;
     private String repoId, repoName, path, fileName, targetUrl;
+    private boolean canNotEdit = false;
     private PermissionEntity repoPermission;
 
     private SDocPageOptionsModel pageOptionsData;
 
-    public static void openSdoc(Context context, String repoName, String repoID, String path, String name) {
+    public static void openSdoc(Context context, String repoName, String repoID, String path, String name, boolean canNotEdit) {
         Intent intent = new Intent(context, SDocWebViewActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
         intent.putExtra("fileName", name);
+        intent.putExtra("canNotEdit", canNotEdit);
         ActivityUtils.startActivity(intent);
     }
 
@@ -118,6 +120,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         outState.putString("path", path);
         outState.putString("fileName", fileName);
         outState.putString("targetUrl", targetUrl);
+        outState.putBoolean("canNotEdit", canNotEdit);
     }
 
 
@@ -155,6 +158,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             repoName = savedInstanceState.getString("repoName");
             path = savedInstanceState.getString("path");
             targetUrl = savedInstanceState.getString("targetUrl");
+            canNotEdit = savedInstanceState.getBoolean("canNotEdit");
+            fileName = savedInstanceState.getString("fileName");
 
             mWebView.restoreState(savedInstanceState);
         } else {
@@ -206,6 +211,8 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         repoName = intent.getStringExtra("repoName");
         path = intent.getStringExtra("filePath");
         fileName = intent.getStringExtra("fileName");
+        canNotEdit = intent.getBooleanExtra("canNotEdit", false);
+
 
         if (TextUtils.isEmpty(repoId) || TextUtils.isEmpty(path)) {
             throw new IllegalArgumentException("repoId or path is null");
@@ -754,7 +761,10 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             String title = editMenuItem.getTitle().toString();
             setToolMenuTitle(title);
 
-            if (!isPageLoaded) {
+            if (canNotEdit) {
+                editMenuItem.setEnabled(false);
+                editMenuItem.setVisible(false);
+            } else if (!isPageLoaded) {
                 editMenuItem.setEnabled(false);
             }
         }

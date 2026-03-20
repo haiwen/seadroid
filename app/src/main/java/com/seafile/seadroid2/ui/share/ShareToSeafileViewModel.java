@@ -107,6 +107,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
                        String parentDir, List<Uri> uris, boolean isReplace) {
 
         if (CollectionUtils.isEmpty(uris)) {
+            SLogs.d(ShareToSeafileActivity.TAG, "URIs is empty");
             return;
         }
 
