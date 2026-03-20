@@ -375,7 +375,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (model.obj_name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
+            SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name,false);
 
         } else if (Utils.isOnlyOfficeFile(model.obj_name) && serverInfo.isEnableOnlyOffice()) {
             OfficeDocumentWebActivity.openDocument(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);

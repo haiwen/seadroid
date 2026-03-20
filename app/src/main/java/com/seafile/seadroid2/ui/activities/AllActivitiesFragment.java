@@ -408,7 +408,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (activityModel.name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
+            SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name,false);
 
         } else if (Utils.isOnlyOfficeFile(activityModel.name) && serverInfo.isEnableOnlyOffice()) {
             OfficeDocumentWebActivity.openDocument(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);

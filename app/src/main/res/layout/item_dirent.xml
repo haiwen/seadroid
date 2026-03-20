@@ -7,18 +7,25 @@
     android:layout_marginHorizontal="16dp"
     android:foreground="?android:selectableItemBackground">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/item_icon"
-        android:layout_width="@dimen/lv_icon_width"
-        android:layout_height="@dimen/lv_icon_width"
+    <FrameLayout
+        android:id="@+id/item_icon_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginVertical="12dp"
-        android:scaleType="centerCrop"
         android:layout_marginStart="16dp"
-        android:src="@drawable/icon_format_file"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearance="@style/ShapeCorner4Style" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/item_icon"
+            android:layout_width="@dimen/lv_icon_width"
+            android:layout_height="@dimen/lv_icon_width"
+            android:scaleType="centerCrop"
+            android:src="@drawable/icon_format_file"
+            app:shapeAppearance="@style/ShapeCorner4Style" />
+
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/title_container"
@@ -30,7 +37,7 @@
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/action_container"
-        app:layout_constraintStart_toEndOf="@+id/item_icon"
+        app:layout_constraintStart_toEndOf="@+id/item_icon_container"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -52,6 +59,16 @@
             android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/item_icon_status"
+                android:layout_width="@dimen/lv_download_icon_width"
+                android:layout_height="@dimen/lv_download_icon_height"
+                android:layout_marginTop="1dp"
+                android:contentDescription="@null"
+                android:padding="1dp"
+                android:src="@drawable/icon_file_freezed"
+                android:tint="@color/bar_icon_tint_color" />
+
+            <ImageView
                 android:id="@+id/item_download_status"
                 android:layout_width="@dimen/lv_download_icon_width"
                 android:layout_height="@dimen/lv_download_icon_height"
@@ -61,12 +78,12 @@
                 android:src="@drawable/list_item_download_finished"
                 android:visibility="visible" />
 
-<!--            <ProgressBar-->
-<!--                android:id="@+id/item_download_status_progressbar"-->
-<!--                android:layout_width="@dimen/lv_download_icon_width"-->
-<!--                android:layout_height="@dimen/lv_download_icon_height"-->
-<!--                android:layout_marginEnd="@dimen/lv_download_icon_margin_right"-->
-<!--                android:visibility="gone" />-->
+            <!--            <ProgressBar-->
+            <!--                android:id="@+id/item_download_status_progressbar"-->
+            <!--                android:layout_width="@dimen/lv_download_icon_width"-->
+            <!--                android:layout_height="@dimen/lv_download_icon_height"-->
+            <!--                android:layout_marginEnd="@dimen/lv_download_icon_margin_right"-->
+            <!--                android:visibility="gone" />-->
 
             <TextView
                 android:id="@+id/item_subtitle"
@@ -108,7 +125,7 @@
             android:layout_gravity="center"
             android:padding="6dp"
             android:src="@drawable/ic_checkbox_checked"
-            android:visibility="visible"/>
+            android:visibility="visible" />
     </FrameLayout>
 
     <com.google.android.material.divider.MaterialDivider
@@ -116,7 +133,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        app:dividerInsetStart="16dp"
         app:dividerColor="@color/divider_color"
+        app:dividerInsetStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent" />
 </com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout>

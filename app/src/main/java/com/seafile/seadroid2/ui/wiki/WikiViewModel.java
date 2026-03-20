@@ -243,10 +243,10 @@ public class WikiViewModel extends BaseViewModel {
     public void deleteWiki(String wikiId) {
         getRefreshLiveData().setValue(true);
 
-        Single<String> single = HttpIO.getCurrentInstance().execute(WikiService.class).deleteWiki(wikiId);
-        addSingleDisposable(single, new Consumer<String>() {
+        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(WikiService.class).deleteWiki(wikiId);
+        addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
-            public void accept(String result) throws Exception {
+            public void accept(ResultModel result) throws Exception {
                 getRefreshLiveData().setValue(false);
                 getSeafExceptionLiveData().setValue(SeafException.SUCCESS);
             }

@@ -440,6 +440,13 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             loadImage(model, holder.binding.itemIcon);
         }
 
+        boolean canNotEdit = model.is_freezed || model.is_locked;
+        if (canNotEdit) {
+            holder.binding.itemIconStatus.setVisibility(View.VISIBLE);
+        } else {
+            holder.binding.itemIconStatus.setVisibility(View.GONE);
+        }
+
         //action mode
         updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
 
@@ -527,6 +534,13 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         } else {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
             loadImage(model, holder.binding.itemIcon);
+        }
+
+        boolean canNotEdit = model.is_freezed || model.is_locked;
+        if (canNotEdit) {
+            holder.binding.itemIconStatus.setVisibility(View.VISIBLE);
+        } else {
+            holder.binding.itemIconStatus.setVisibility(View.GONE);
         }
 
         //action mode
