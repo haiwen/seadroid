@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.sdoc;
+package com.seafile.seadroid2.ui.docs_comment;
 
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentWrapperModel;

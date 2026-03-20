@@ -18,7 +18,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
-import com.seafile.seadroid2.listener.OnTaskViewOptionsChangedListener;
+import com.seafile.seadroid2.listener.OnMultiOptionsChangedListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class SupportMetadataCheckGroup extends LinearLayout {
 
     private boolean editable = true;
     private final List<OptionTagModel> options = new ArrayList<>();
-    private OnTaskViewOptionsChangedListener changedListener;
+    private OnMultiOptionsChangedListener changedListener;
 
     public SupportMetadataCheckGroup(Context context) {
         super(context);
@@ -59,7 +59,7 @@ public class SupportMetadataCheckGroup extends LinearLayout {
         this.editable = editable;
     }
 
-    public void setChangedListener(OnTaskViewOptionsChangedListener changedListener) {
+    public void setChangedListener(OnMultiOptionsChangedListener changedListener) {
         this.changedListener = changedListener;
     }
 

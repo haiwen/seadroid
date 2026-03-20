@@ -6,8 +6,13 @@ import static com.seafile.seadroid2.config.Constants.DP.DP_8;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.util.Pair;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
@@ -18,6 +23,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
@@ -34,8 +40,8 @@ import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.listener.OnSingleSelectChangedListener;
-import com.seafile.seadroid2.listener.OnTaskViewOptionsChangedListener;
+import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
+import com.seafile.seadroid2.listener.OnMultiOptionsChangedListener;
 import com.seafile.seadroid2.listener.OnTextChangedListener;
 import com.seafile.seadroid2.listener.OnTextViewClickListener;
 import com.seafile.seadroid2.listener.OnViewClickListener;
@@ -52,6 +58,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     private static final String TAG = "ProfileEditorActivity";
@@ -136,6 +144,12 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void initVM() {
+        getViewModel().getSecondRefreshLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                showLoadingDialog(aBoolean);
+            }
+        });
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
@@ -161,6 +175,73 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 }
             }
         });
+
+        getViewModel().getOnUserSelectedLiveData().observe(this, new Observer<Pair<String, List<UserModel>>>() {
+            @Override
+            public void onChanged(Pair<String, List<UserModel>> pair) {
+
+                String key = pair.first;
+                List<String> value = pair.second.stream().map(new Function<UserModel, String>() {
+                    @Override
+                    public String apply(UserModel userModel) {
+                        return userModel.getEmail();
+                    }
+                }).collect(Collectors.toList());
+                contentMap.put(key, value);
+
+                updateConfigMapMetadata(key, value);
+            }
+        });
+
+        getViewModel().getOnTagSelectedLiveData().observe(this, new Observer<Pair<String, List<OptionTagModel>>>() {
+            @Override
+            public void onChanged(Pair<String, List<OptionTagModel>> pair) {
+                String key = pair.first;
+                List<OptionTagModel> value = pair.second;
+                contentMap.put(key, value);
+
+                updateConfigMapMetadata(key, value);
+            }
+        });
+    }
+
+    private MenuItem editMenuItem;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
+        editMenuItem = menu.findItem(R.id.sdoc_edit);
+        editMenuItem.setVisible(true);
+
+        String title = editMenuItem.getTitle().toString();
+        setToolMenuTitle(title);
+        return true;
+    }
+
+    private void setToolMenuTitle(String title) {
+        SpannableString spanString = new SpannableString(title);
+        int blue = getColor(R.color.blue_900);
+        spanString.setSpan(new ForegroundColorSpan(blue), 0, spanString.length(), 0);
+        editMenuItem.setTitle(spanString);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.sdoc_edit) {
+            save();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void save() {
+        Object object = configModel.getRecordResultMap().get("_id");
+        if (object == null) {
+            return;
+        }
+        String recordId = object.toString();
+//        getViewModel().postRecord(repoId, recordId, contentMap);
     }
 
     private void loadFileDetail(String repoId, String path) {
@@ -196,6 +277,9 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
             } else {
                 addMetadataView(rootContainer, metadata);
             }
+
+            //
+//            contentMap.put(key, metadata.value);
         }
     }
 
@@ -264,23 +348,23 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 }
             });
         } else if (TextUtils.equals(ColumnType.COLLABORATOR, type)) {
-            List<UserModel> userList = MetadataViewUtils.getUserList(metadata,configModel);
             MetadataViewUtils.buildEditableCollaborator(context, isEditable, parent, metadata, configModel, new OnViewClickListener() {
                 @Override
                 public void onClick(View view, String tag) {
-                    CollaboratorSelectorFragment sheetFragment = CollaboratorSelectorFragment.newInstance(userList, null);
+                    List<UserModel> selectedUserList = MetadataViewUtils.getUserList(metadata, configModel);
+                    CollaboratorSelectorFragment sheetFragment = CollaboratorSelectorFragment.newInstance(metadata.key, configModel.getRelatedUserList(), selectedUserList);
                     sheetFragment.show(getSupportFragmentManager(), CollaboratorSelectorFragment.class.getSimpleName());
                 }
             });
         } else if (TextUtils.equals(ColumnType.SINGLE_SELECT, type)) {
-            MetadataViewUtils.buildEditableSingleSelect(context, isEditable, parent, metadata, new OnSingleSelectChangedListener() {
+            MetadataViewUtils.buildEditableSingleSelect(context, isEditable, parent, metadata, new OnSingleOptionChangedListener() {
                 @Override
                 public void onChanged(OptionTagModel optionTagModel) {
                     contentMap.put(metadata.key, optionTagModel);
                 }
             });
         } else if (TextUtils.equals(ColumnType.MULTIPLE_SELECT, type)) {
-            MetadataViewUtils.buildEditableMultiSelect(context, isEditable, parent, metadata, new OnTaskViewOptionsChangedListener() {
+            MetadataViewUtils.buildEditableMultiSelect(context, isEditable, parent, metadata, new OnMultiOptionsChangedListener() {
                 @Override
                 public void onChanged(List<OptionTagModel> optionsModels) {
                     contentMap.put(metadata.key, optionsModels);
@@ -310,23 +394,25 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         } else if (TextUtils.equals(ColumnType.LINK, type)) {
             //tag
             if (TextUtils.equals("_tags", metadata.key)) {
+
                 MetadataViewUtils.buildEditableTag(context, isEditable, parent, metadata, configModel, new OnViewClickListener() {
                     @Override
                     public void onClick(View view, String tag) {
 
-                        List<OptionTagModel> tagModels = MetadataViewUtils.getOptionTagListWithTagField(metadata, configModel);
+                        List<OptionTagModel> tagModels = MetadataViewUtils.convertLinkedTagToTagList(metadata, configModel);
 
                         String title = null;
                         int titleRes = ColumnTypeUtils.getResNameByKey(metadata.name);
                         if (titleRes != 0) {
                             title = getString(titleRes);
                         }
+
                         SelectSelectorFragment sheetFragment = SelectSelectorFragment.newInstance(
-                                tag,
+                                metadata.key,
                                 title,
-                                true,
-                                tagModels,
-                                null);
+                                false,
+                                configModel.getTagList(),
+                                tagModels);
                         sheetFragment.show(getSupportFragmentManager(), SelectSelectorFragment.class.getSimpleName());
                     }
                 });
@@ -369,18 +455,8 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private ActivityResultLauncher<Intent> pickDateLauncher;
     private ActivityResultLauncher<Intent> pickLongTextLauncher;
-    private ActivityResultLauncher<Intent> dynamicCollaboratorLauncher;
 
     private void registerResultLauncher() {
-        //dynamically select collaborators
-        dynamicCollaboratorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                if (result == null || result.getData() == null) {
-                    return;
-                }
-            }
-        });
 
         //
         pickLongTextLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {

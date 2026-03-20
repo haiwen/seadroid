@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,8 +58,8 @@ import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.listener.OnSingleSelectChangedListener;
-import com.seafile.seadroid2.listener.OnTaskViewOptionsChangedListener;
+import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
+import com.seafile.seadroid2.listener.OnMultiOptionsChangedListener;
 import com.seafile.seadroid2.listener.OnTextChangedListener;
 import com.seafile.seadroid2.listener.OnTextViewClickListener;
 import com.seafile.seadroid2.listener.OnViewClickListener;
@@ -79,6 +78,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -222,24 +222,25 @@ public class MetadataViewUtils {
 
     //container
     public static void parseCollaborator(Context context, LinearLayout view, FileProfileConfigModel configModel, MetadataModel model) {
-        if (model.value instanceof ArrayList) {
-            ArrayList<String> arrayList = (ArrayList<String>) model.value;
-            for (String userEmail : arrayList) {
-                UserModel userModel = getRelatedUserByEmail(configModel, userEmail);
-                if (userModel == null) {
-                    continue;
+        if (model.value instanceof ArrayList<?> arrayList) {
+            for (Object object : arrayList) {
+                if (object instanceof String userEmail) {
+                    UserModel userModel = getRelatedUserByEmail(configModel, userEmail);
+                    if (userModel == null) {
+                        continue;
+                    }
+
+                    View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_avatar_username_round, null);
+                    TextView user_name_text_view = ltr.findViewById(R.id.user_name);
+                    ShapeableImageView imageView = ltr.findViewById(R.id.user_avatar);
+                    Glide.with(imageView)
+                            .load(userModel.getAvatarUrl())
+                            .apply(GlideLoadConfig.getOptions())
+                            .into(imageView);
+
+                    user_name_text_view.setText(userModel.getName());
+                    view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
                 }
-
-                View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_avatar_username_round, null);
-                TextView user_name_text_view = ltr.findViewById(R.id.user_name);
-                ShapeableImageView imageView = ltr.findViewById(R.id.user_avatar);
-                Glide.with(imageView)
-                        .load(userModel.getAvatarUrl())
-                        .apply(GlideLoadConfig.getOptions())
-                        .into(imageView);
-
-                user_name_text_view.setText(userModel.getName());
-                view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
             }
         }
     }
@@ -295,32 +296,36 @@ public class MetadataViewUtils {
             return;
         }
 
-        if (model.value instanceof ArrayList) {
-            ArrayList<String> arrayList = (ArrayList<String>) model.value;
-            for (String key : arrayList) {
-                View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_text_round, null);
-                TextView textView = ltr.findViewById(R.id.text);
-                MaterialCardView cardView = ltr.findViewById(R.id.card_view);
+        if (model.value instanceof ArrayList<?> arrayList) {
+            for (Object object : arrayList) {
+                if (object instanceof String strKey) {
+                    View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_text_round, null);
+                    TextView textView = ltr.findViewById(R.id.text);
+                    MaterialCardView cardView = ltr.findViewById(R.id.card_view);
 
-                Optional<OptionTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(key)).findFirst();
-                if (option.isPresent()) {
-                    OptionTagModel t = option.get();
-                    textView.setText(t.name);
-                    textView.setTextColor(Color.parseColor(t.textColor));
-                    cardView.setCardBackgroundColor(Color.parseColor(t.color));
-                } else {
-                    textView.setText(key);
+                    Optional<OptionTagModel> option = configDataModel.options.stream().filter(f -> f.name.equals(strKey)).findFirst();
+                    if (option.isPresent()) {
+                        OptionTagModel t = option.get();
+                        textView.setText(t.name);
+                        textView.setTextColor(Color.parseColor(t.textColor));
+                        cardView.setCardBackgroundColor(Color.parseColor(t.color));
+                    } else {
+                        textView.setText(strKey);
+                    }
+
+                    view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
                 }
-
-                view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
             }
         }
+
     }
 
     //location
     public static void parseGeoLocation(Context context, LinearLayout view, MetadataModel model) {
-        if (model.value instanceof LinkedTreeMap) {
-            LinkedTreeMap<String, Object> treeMap = (LinkedTreeMap<String, Object>) model.value;
+        if (model.value instanceof LinkedTreeMap<?, ?> tMap) {
+            if (tMap.isEmpty()) {
+                return;
+            }
 
             List<MetadataConfigDataModel> configDataModelList = model.config;
             if (CollectionUtils.isEmpty(configDataModelList)) {
@@ -331,30 +336,30 @@ public class MetadataViewUtils {
 
             String content = "";
             if (TextUtils.equals("lng_lat", geo_format)) {
-                String lat = treeMap.get("lat").toString();
-                String lng = treeMap.get("lng").toString();
+                String lat = getLinkedMapStringValue(tMap, "lat");
+                String lng = getLinkedMapStringValue(tMap, "lng");
                 String formatLat = Utils.convertLatitude(lat);
                 String formatLng = Utils.convertLongitude(lng);
-                content = formatLat + ", " + formatLng;
+                content = joinWithStrings(",", formatLat, formatLng);
             } else if (TextUtils.equals("geolocation", geo_format)) {
-                String province = treeMap.get("province").toString();
-                String city = treeMap.get("city").toString();
-                String dis = treeMap.get("district").toString();
-                String detail = treeMap.get("detail").toString();
-                content = province + city + dis + detail;
+                String province = getLinkedMapStringValue(tMap, "province");
+                String city = getLinkedMapStringValue(tMap, "city");
+                String dis = getLinkedMapStringValue(tMap, "district");
+                String detail = getLinkedMapStringValue(tMap, "detail");
+                content = joinStrings(province, city, dis, detail);
             } else if (TextUtils.equals("country_region", geo_format)) {
-                content = treeMap.get("country_region").toString();
+                content = getLinkedMapStringValue(tMap, "country_region");
             } else if (TextUtils.equals("province", geo_format)) {
-                content = treeMap.get("province").toString();
+                content = getLinkedMapStringValue(tMap, "province");
             } else if (TextUtils.equals("province_city", geo_format)) {
-                String province = treeMap.get("province").toString();
-                String city = treeMap.get("city").toString();
-                content = province + city;
+                String province = getLinkedMapStringValue(tMap, "province");
+                String city = getLinkedMapStringValue(tMap, "city");
+                content = joinStrings(province, city);
             } else if (TextUtils.equals("province_city_district", geo_format)) {
-                String province = treeMap.get("province").toString();
-                String city = treeMap.get("city").toString();
-                String dis = treeMap.get("district").toString();
-                content = province + city + dis;
+                String province = getLinkedMapStringValue(tMap, "province");
+                String city = getLinkedMapStringValue(tMap, "city");
+                String dis = getLinkedMapStringValue(tMap, "district");
+                content = joinStrings(province, city, dis);
             }
 
             content = content.trim();
@@ -371,9 +376,35 @@ public class MetadataViewUtils {
         }
     }
 
+    private static String getLinkedMapStringValue(LinkedTreeMap<?, ?> tMap, String key) {
+        Object o = tMap.getOrDefault(key, null);
+        if (o == null) {
+            return "";
+        }
+
+        if (o instanceof String) {
+            return o.toString();
+        }
+        return "";
+    }
+
+    private static String joinStrings(String... strs) {
+        if (strs == null || strs.length == 0) {
+            return "";
+        }
+        return StringUtils.join(strs);
+    }
+
+    private static String joinWithStrings(String delimiter, String... strs) {
+        if (strs == null || strs.length == 0) {
+            return "";
+        }
+        return StringUtils.joinWith(delimiter, Arrays.stream(strs).toArray());
+    }
+
     //tag
     public static void parseTag(Context context, LinearLayout view, FileProfileConfigModel configModel, MetadataModel model) {
-        if (model.value instanceof ArrayList) {
+        if (model.value instanceof ArrayList<?> arrayList) {
             if (configModel.getTagMap().isEmpty()) {
                 return;
             }
@@ -383,77 +414,34 @@ public class MetadataViewUtils {
             flexLayoutParams.bottomMargin = DP_4;
             flexLayoutParams.rightMargin = DP_4;
 
-            ArrayList<LinkedTreeMap<String, String>> arrayList = (ArrayList<LinkedTreeMap<String, String>>) model.value;
             if (!CollectionUtils.isEmpty(arrayList)) {
-                for (LinkedTreeMap<String, String> map : arrayList) {
-                    String rowId = map.get("row_id");
-                    SDocTagModel tagModel = configModel.getTagMap().get(rowId);
-                    if (tagModel == null) {
-                        continue;
+                for (Object o : arrayList) {
+                    if (o instanceof LinkedTreeMap<?, ?> map) {
+                        String rowId = getLinkedMapStringValue(map, "row_id");
+                        SDocTagModel tagModel = configModel.getTagMap().get(rowId);
+                        if (tagModel == null) {
+                            continue;
+                        }
+
+                        View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_tag, null);
+
+                        MaterialCardView cardView = ltr.findViewById(R.id.indicator);
+
+                        if (!TextUtils.isEmpty(tagModel.color)) {
+                            cardView.setCardBackgroundColor(Color.parseColor(tagModel.color));
+                        }
+
+                        TextView textView = ltr.findViewById(R.id.text);
+                        textView.setMaxLines(1);
+                        textView.setEllipsize(TextUtils.TruncateAt.END);
+                        textView.setText(tagModel.name);
+                        flexboxLayout.addView(ltr, flexLayoutParams);
                     }
 
-                    View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_tag, null);
-
-                    MaterialCardView cardView = ltr.findViewById(R.id.indicator);
-
-                    if (!TextUtils.isEmpty(tagModel.color)) {
-                        cardView.setCardBackgroundColor(Color.parseColor(tagModel.color));
-                    }
-
-                    TextView textView = ltr.findViewById(R.id.text);
-                    textView.setMaxLines(1);
-                    textView.setEllipsize(TextUtils.TruncateAt.END);
-                    textView.setText(tagModel.name);
-                    flexboxLayout.addView(ltr, flexLayoutParams);
                 }
 
             }
         }
-    }
-
-    public static void parseImage(Context context, LinearLayout view, MetadataModel model) {
-        addNotSupportedLayoutView(context, view);
-//        if (model.value instanceof ArrayList) {
-//            FlexboxLayout flexboxLayout = view.findViewById(R.id.flex_box);
-//
-//            int wh = SizeUtils.dp2px(24);
-//            FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(wh, wh);
-//            flexLayoutParams.bottomMargin = DP_4;
-//            flexLayoutParams.rightMargin = DP_4;
-//
-//            ArrayList<String> imgList = (ArrayList<String>) model.value;
-//            for (int i = 0; i < imgList.size(); i++) {
-//                String url = imgList.get(i);
-//                ImageView imageView = new ImageView(flexboxLayout.getContext());
-//                Glide.with(imageView)
-//                        .load(GlideLoadConfig.getGlideUrl(url))
-//                        .apply(GlideLoadConfig.getOptions())
-//                        .into(imageView);
-//                flexboxLayout.addView(imageView, flexLayoutParams);
-//            }
-//        }
-    }
-
-    public static void parseFile(Context context, LinearLayout view, MetadataModel model) {
-        addNotSupportedLayoutView(context, view);
-//        if (model.value instanceof ArrayList) {
-//            FlexboxLayout flexboxLayout = view.findViewById(R.id.flex_box);
-//
-//            int wh = SizeUtils.dp2px(24);
-//            FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(wh, wh);
-//            flexLayoutParams.bottomMargin = DP_4;
-//            flexLayoutParams.rightMargin = DP_4;
-//
-//            ArrayList<LinkedTreeMap<String, String>> fileList = (ArrayList<LinkedTreeMap<String, String>>) model.value;
-//            for (LinkedTreeMap<String, String> treeMap : fileList) {
-//                ImageView imageView = new ImageView(flexboxLayout.getContext());
-//                String url = treeMap.get("url").toString();
-//
-//                int rid = MimeTypes.getFileIconFromExtension(url);
-//                imageView.setImageResource(rid);
-//                flexboxLayout.addView(imageView, flexLayoutParams);
-//            }
-//        }
     }
 
     public static void parseRate(Context context, LinearLayout view, MetadataModel model) {
@@ -506,7 +494,6 @@ public class MetadataViewUtils {
         }
     }
 
-
     public static void parseCheckbox(Context context, LinearLayout view, MetadataModel model) {
         if (model.value instanceof Boolean booleanValue) {
 
@@ -517,56 +504,6 @@ public class MetadataViewUtils {
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(checkBox, getFlexParams());
         }
-    }
-
-
-    public static void parseLink(Context context, LinearLayout view, MetadataModel model) {
-        addNotSupportedLayoutView(context, view);
-
-//        if (model.value instanceof ArrayList) {
-//
-//            FlexboxLayout flexboxLayout = view.findViewById(R.id.flex_box);
-//            FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//            flexLayoutParams.bottomMargin = DP_4;
-//            flexLayoutParams.rightMargin = DP_4;
-//
-//            ArrayList<LinkedTreeMap<String, String>> arrayList = (ArrayList<LinkedTreeMap<String, String>>) model.value;
-//            if (!CollectionUtils.isEmpty(arrayList)) {
-//                LinkedTreeMap<String, String> hashMap = arrayList.get(0);
-//                View ltr = LayoutInflater.from(flexboxLayout.getContext()).inflate(R.layout.layout_text_round, null);
-//                TextView textView = ltr.findViewById(R.id.text);
-//                textView.setMaxLines(1);
-//                textView.setEllipsize(TextUtils.TruncateAt.END);
-//                textView.setText(hashMap.get("display_value"));
-//                flexboxLayout.addView(ltr, flexLayoutParams);
-//
-//                //
-//                flexboxLayout.addView(TaskViews.getInstance().getSingleLineTextView(context, "..."));
-//            }
-//        }
-    }
-
-    //
-    public static void parseDigitalSign(Context context, LinearLayout view, MetadataModel model) {
-        addNotSupportedLayoutView(context, view);
-
-//        if (model.value instanceof LinkedTreeMap) {
-//            FlexboxLayout flexboxLayout = view.findViewById(R.id.flex_box);
-//            FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//            flexLayoutParams.bottomMargin = DP_4;
-//            flexLayoutParams.rightMargin = DP_4;
-//
-//            LinkedTreeMap<String, Object> treeMap = (LinkedTreeMap<String, Object>) model.value;
-//
-//            ///digital-signs/2023-05/chaohui.wang%40seafile.com-1684141281136.png
-//            String url = treeMap.get("sign_image_url").toString();
-//
-//            //https://dev.seatable.cn/thumbnail/workspace/246/asset/cf317040-a299-4311-a565-27d8b3dde319/digital-signs/2023-05/chaohui.wang%40seafile.com-1684141281136.png?size=256
-//            url = IO.getSingleton().getHostUrl() + "thumbnail/workspace/" + workFlowModel.id + "/asset/" + workFlowModel.dtable_uuid + url;
-//
-//            ImageView imageView = Views.TableActivityViews.getImageViewWithWhAndUrl(flexboxLayout.getContext(), 24, url);
-//            flexboxLayout.addView(imageView, flexLayoutParams);
-//        }
     }
 
     /// ///////////////////////////////build editable view///////////////////////////
@@ -596,20 +533,6 @@ public class MetadataViewUtils {
         editText.setLayoutParams(llp);
         editText.setBackground(AppCompatResources.getDrawable(context, R.drawable.shape_task_view_editable));
         editText.setPadding(Constants.DP.DP_16, Constants.DP.DP_8, Constants.DP.DP_16, Constants.DP.DP_8);
-        return editText;
-    }
-
-    public static View getErrorTextView(Context context, String str) {
-        TextView editText = new TextView(context);
-        editText.setTextSize(14);
-        editText.setText(str);
-        editText.setTextColor(context.getColor(R.color.fancy_black_red));
-        editText.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        llp.topMargin = DP_4;
-        editText.setLayoutParams(llp);
-        editText.setBackground(AppCompatResources.getDrawable(context, R.drawable.shape_task_view_error_editable));
-        editText.setPadding(Constants.DP.DP_24, Constants.DP.DP_16, Constants.DP.DP_24, Constants.DP.DP_16);
         return editText;
     }
 
@@ -740,8 +663,6 @@ public class MetadataViewUtils {
      * get markdown text
      */
     protected static Markwon getRenderedMarkdownText(Context context) {
-//        Prism4j prism4j = new Prism4j();
-//        Prism4jTheme prism4jTheme = Prism4jThemeDefault.create();
         final TaskListDrawable drawable = new TaskListDrawable(Color.GRAY, Color.GRAY, Color.WHITE);
 
         final TableTheme tableTheme = new TableTheme.Builder()
@@ -1050,13 +971,24 @@ public class MetadataViewUtils {
 
         TextView textView = getCommonTextViewWithDrawable(context);
 
+        String format = "";
+        MetadataConfigDataModel configDataModel = metadataModel.getConfigData();
+        if (configDataModel == null || StringUtils.isEmpty(configDataModel.format)) {
+            format = DateFormatType.DATE_YMD_HMS;
+        } else {
+            format = configDataModel.format
+                    .replace("YYYY", "yyyy")
+                    .replace("DD", "dd");
+        }
+
+        // set data
         if (metadataModel.value instanceof OffsetDateTime date) {
             String initText = date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                     .replace("T", " ");
             textView.setText(initText);
         } else if (metadataModel.value instanceof String date) {
             Date date1 = TimeUtils.string2Date(date, DateFormatType.DATE_XXX);
-            String initText = TimeUtils.date2String(date1, DateFormatType.DATE_YMD_HMS);
+            String initText = TimeUtils.date2String(date1, format);
 
             textView.setText(initText);
         }
@@ -1094,11 +1026,10 @@ public class MetadataViewUtils {
 
         if (StringUtils.equals("lng_lat", model.geo_format)) {
             GeoLocationModel translatedGeoModel = checkLocationTranslated(configModel);
-            if (metadataModel.value instanceof LinkedTreeMap<?, ?>) {
-                LinkedTreeMap<String, Double> map = (LinkedTreeMap<String, Double>) metadataModel.value;
-                Double lat = map.getOrDefault("lat", Double.MIN_VALUE);
-                Double lng = map.getOrDefault("lng", Double.MIN_VALUE);
-                if (lat != null && lat != Double.MIN_VALUE) {
+            if (metadataModel.value instanceof LinkedTreeMap<?, ?> map) {
+                Object latObj = map.getOrDefault("lat", null);
+                Object lngObj = map.getOrDefault("lng", null);
+                if (latObj instanceof Double lat && lngObj instanceof Double lng) {
                     if (translatedGeoModel != null) {
                         translatedGeoModel.geo_format = model.geo_format;
                         translatedGeoModel.lat = lat;
@@ -1120,19 +1051,20 @@ public class MetadataViewUtils {
 
     @Nullable
     private static GeoLocationModel checkLocationTranslated(FileProfileConfigModel configModel) {
-        if (!configModel.getRecordMetaDataMap().containsKey("_location_translated")) {
+        LinkedHashMap<String, Object> resultMap = configModel.getRecordResultMap();
+
+        if (resultMap == null || !resultMap.containsKey("_location_translated")) {
             return null;
         }
 
-        Object ltObj = configModel.getRecordMetaDataMap().get("_location_translated");
-        if (ltObj instanceof LinkedTreeMap<?, ?>) {
-            LinkedTreeMap<String, String> ltMap = (LinkedTreeMap<String, String>) ltObj;
-            String address = ltMap.getOrDefault("address", "");
-            String street = ltMap.getOrDefault("street", "");
-            String district = ltMap.getOrDefault("district", "");
-            String city = ltMap.getOrDefault("city", "");
-            String province = ltMap.getOrDefault("province", "");
-            String country = ltMap.getOrDefault("country", "");
+        Object ltObj = resultMap.get("_location_translated");
+        if (ltObj instanceof LinkedTreeMap<?, ?> tMap) {
+            String address = getLinkedMapStringValue(tMap, "address");
+            String street = getLinkedMapStringValue(tMap, "street");
+            String district = getLinkedMapStringValue(tMap, "district");
+            String city = getLinkedMapStringValue(tMap, "city");
+            String province = getLinkedMapStringValue(tMap, "province");
+            String country = getLinkedMapStringValue(tMap, "country");
 
             GeoLocationModel geoLocationModel = new GeoLocationModel();
             geoLocationModel.address = address;
@@ -1186,7 +1118,7 @@ public class MetadataViewUtils {
                                                  LinearLayout parentContainer,
                                                  MetadataModel metadataModel,
                                                  FileProfileConfigModel configModel,
-                                                 OnViewClickListener clickListener) {
+                                                 OnViewClickListener onViewClickListener) {
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
@@ -1205,22 +1137,27 @@ public class MetadataViewUtils {
             }
         }
 
-        if (editable) {
+        if (editable && onViewClickListener != null) {
             ImageView add_imageView = new ImageView(context);
             add_imageView.setImageResource(R.drawable.baseline_add_24);
             FlexboxLayout.LayoutParams flp = new FlexboxLayout.LayoutParams(Constants.DP.DP_24, Constants.DP.DP_24);
             add_imageView.setLayoutParams(flp);
             add_imageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.fancy_gray)));
-            if (clickListener != null) {
-                add_imageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        clickListener.onClick(flexboxContainer, metadataModel.key);
-                    }
-                });
-            }
-
+            add_imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onViewClickListener.onClick(flexboxContainer, metadataModel.key);
+                }
+            });
             flexboxContainer.addView(add_imageView);
+
+            //
+            flexboxContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onViewClickListener.onClick(v, metadataModel.key);
+                }
+            });
         }
 
         if (!isAdded) {
@@ -1236,15 +1173,17 @@ public class MetadataViewUtils {
 
         List<UserModel> userList = new ArrayList<>();
 
-        List<String> arrayList = (List<String>) metadataModel.value;
+        List<?> arrayList = (List<?>) metadataModel.value;
         for (int i = 0; i < arrayList.size(); i++) {
-            int finalI = i;
-            Optional<UserModel> op = configModel.getRelatedUserList()
-                    .stream()
-                    .filter(f -> f.getEmail().equals(arrayList.get(finalI)))
-                    .findFirst();
+            Object obj = arrayList.get(i);
+            if (obj instanceof String strObj) {
+                Optional<UserModel> op = configModel.getRelatedUserList()
+                        .stream()
+                        .filter(f -> f.getEmail().equals(strObj))
+                        .findFirst();
 
-            op.ifPresent(userList::add);
+                op.ifPresent(userList::add);
+            }
         }
 
         return userList;
@@ -1285,7 +1224,7 @@ public class MetadataViewUtils {
                                                  boolean editable,
                                                  LinearLayout parentContainer,
                                                  MetadataModel metadataModel,
-                                                 OnSingleSelectChangedListener optionsChangedListener) {
+                                                 OnSingleOptionChangedListener optionsChangedListener) {
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
@@ -1327,7 +1266,7 @@ public class MetadataViewUtils {
                                                 boolean editable,
                                                 LinearLayout parentContainer,
                                                 MetadataModel metadataModel,
-                                                OnTaskViewOptionsChangedListener optionsChangedListener) {
+                                                OnMultiOptionsChangedListener optionsChangedListener) {
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
@@ -1349,10 +1288,11 @@ public class MetadataViewUtils {
             checkGroup.addCheckView(optionsModel);
         }
 
-        if (metadataModel.value instanceof ArrayList<?>) {
-            ArrayList<String> initList = (ArrayList<String>) metadataModel.value;
-            for (String s : initList) {
-                checkGroup.select(s);
+        if (metadataModel.value instanceof ArrayList<?> initList) {
+            for (Object object : initList) {
+                if (object instanceof String str) {
+                    checkGroup.select(str);
+                }
             }
         }
 
@@ -1421,13 +1361,18 @@ public class MetadataViewUtils {
         int drawRes = R.drawable.icon_starred;
         //set empty
         Drawable emptyDrawable = ContextCompat.getDrawable(context, drawRes);
-        DrawableCompat.setTint(emptyDrawable, Color.rgb(229, 229, 229));
-        seaRatingBar.setStarEmptyDrawable(emptyDrawable);
+        if (emptyDrawable != null) {
+            DrawableCompat.setTint(emptyDrawable, Color.rgb(229, 229, 229));
+            seaRatingBar.setStarEmptyDrawable(emptyDrawable);
+        }
 
         //set full
         Drawable fullDrawable = ContextCompat.getDrawable(context, drawRes);
-        DrawableCompat.setTint(fullDrawable, Color.parseColor(configDataModel.rate_style_color));
-        seaRatingBar.setStarFullDrawable(fullDrawable);
+        if (fullDrawable != null) {
+            DrawableCompat.setTint(fullDrawable, Color.parseColor(configDataModel.rate_style_color));
+            seaRatingBar.setStarFullDrawable(fullDrawable);
+        }
+
         seaRatingBar.build();
 
         if (rateNum >= 0) {
@@ -1447,13 +1392,13 @@ public class MetadataViewUtils {
         }
     }
 
-
     //tag
     public static void buildEditableTag(Context context,
                                         boolean editable,
                                         LinearLayout parentContainer,
                                         MetadataModel metadataModel,
-                                        FileProfileConfigModel configModel, OnViewClickListener onViewClickListener) {
+                                        FileProfileConfigModel configModel,
+                                        OnViewClickListener onViewClickListener) {
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
@@ -1466,7 +1411,7 @@ public class MetadataViewUtils {
             return;
         }
 
-        List<OptionTagModel> tagModels = getOptionTagListWithTagField(metadataModel, configModel);
+        List<OptionTagModel> tagModels = convertLinkedTagToTagList(metadataModel, configModel);
         if (!CollectionUtils.isEmpty(tagModels)) {
             for (OptionTagModel tagModel : tagModels) {
                 View ltr = LayoutInflater.from(context).inflate(R.layout.layout_detail_tag, null);
@@ -1483,6 +1428,20 @@ public class MetadataViewUtils {
         }
 
         if (editable && onViewClickListener != null) {
+            ImageView add_imageView = new ImageView(context);
+            add_imageView.setImageResource(R.drawable.baseline_add_24);
+            FlexboxLayout.LayoutParams flp = new FlexboxLayout.LayoutParams(Constants.DP.DP_24, Constants.DP.DP_24);
+            add_imageView.setLayoutParams(flp);
+            add_imageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.fancy_gray)));
+            add_imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onViewClickListener.onClick(flexboxContainer, metadataModel.key);
+                }
+            });
+            flexboxContainer.addView(add_imageView);
+
+            //
             flexboxContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -1496,31 +1455,48 @@ public class MetadataViewUtils {
         }
     }
 
-    public static List<OptionTagModel> getOptionTagListWithTagField(MetadataModel metadataModel, FileProfileConfigModel configModel) {
+    public static List<OptionTagModel> convertLinkedTagToTagList(MetadataModel metadataModel, FileProfileConfigModel configModel) {
         if (metadataModel == null || configModel == null) {
             return null;
         }
 
-        boolean isArrayList = metadataModel.value instanceof ArrayList<?>;
+        return convertLinkedTagToTagList(metadataModel.value, configModel);
+    }
+
+    /**
+     * In Activity, after executing some logic, the value of metadata will be set to the ArrayList<OptionTagModel> type.
+     *
+     */
+    public static List<OptionTagModel> convertLinkedTagToTagList(Object value, FileProfileConfigModel configModel) {
+        if (value == null || configModel == null) {
+            return null;
+        }
+
+        boolean isArrayList = value instanceof ArrayList<?>;
         if (!isArrayList) {
             return null;
         }
 
-        ArrayList<LinkedTreeMap> list = (ArrayList<LinkedTreeMap>) metadataModel.value;
-
+        ArrayList<?> list = (ArrayList<?>) value;
         List<OptionTagModel> tags = new ArrayList<>();
-        for (LinkedTreeMap fileLinkModel : list) {
-            String o = fileLinkModel.get("row_id").toString();
-            SDocTagModel tagModel = configModel.getTagMap().get(o);
 
-            OptionTagModel optionTagModel = new OptionTagModel();
-            optionTagModel.name = tagModel.name;
-            optionTagModel.color = tagModel.color;
-            optionTagModel.id = tagModel.id;
-            tags.add(optionTagModel);
+        for (Object item : list) {
+            if (item instanceof LinkedTreeMap<?, ?> map) {
+                String rowId = map.get("row_id") != null ? map.get("row_id").toString() : null;
+                SDocTagModel tagModel = configModel.getTagMap().get(rowId);
+
+                if (tagModel != null) {
+                    OptionTagModel optionTagModel = new OptionTagModel();
+                    optionTagModel.name = tagModel.name;
+                    optionTagModel.color = tagModel.color;
+                    optionTagModel.id = tagModel.id;
+                    tags.add(optionTagModel);
+                }
+            } else if (item instanceof OptionTagModel m) {
+                tags.add(m);
+            }
         }
 
         return tags;
-
     }
 }

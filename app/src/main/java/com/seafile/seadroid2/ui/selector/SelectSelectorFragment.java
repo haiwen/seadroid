@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,8 +27,10 @@ import com.seafile.seadroid2.databinding.FragmentSelectorCollaboratorBinding;
 import com.seafile.seadroid2.databinding.ItemTextRoundOptionalBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarForSelectorBinding;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
+import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.ui.adapter.CustomLoadMoreAdapter;
 import com.seafile.seadroid2.ui.base.fragment.BaseBottomSheetDialogFragment;
+import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
 import com.seafile.seadroid2.view.LeftMarginDividerItemDecoration;
 
 import java.util.ArrayList;
@@ -39,57 +43,44 @@ public class SelectSelectorFragment extends BaseBottomSheetDialogFragment {
     private ToolbarActionbarForSelectorBinding toolbarBinding;
 
     private SelectSelectorAdapter adapter;
-    private QuickAdapterHelper helper;
     private String columnKey;
     private String title;
     private boolean isSingleSelect;
     private List<OptionTagModel> optionsModels;
     private List<OptionTagModel> selectedOptionsModels;
 
-    public static SelectSelectorFragment newInstance(String columnKey, String title, boolean isSingleSelect, List<OptionTagModel> optionsModels, List<OptionTagModel> selectedOptionsModels) {
+    private SDocViewModel sDocViewModel;
 
-        Bundle args = new Bundle();
+    public static SelectSelectorFragment newInstance(String columnKey, String title, boolean isSingleSelect, List<OptionTagModel> tags, List<OptionTagModel> selectedTags) {
+        TransportHolder.get().put("columnKey", columnKey);
+        TransportHolder.get().put("tags", tags);
+        TransportHolder.get().put("selectedTags", selectedTags);
+        TransportHolder.get().put("title", title);
+        TransportHolder.get().put("isSingleSelect", isSingleSelect);
 
-        args.putString("columnKey", columnKey);
-        args.putString("title", title);
-        args.putBoolean("isSingleSelect", isSingleSelect);
-
-        if (!CollectionUtils.isEmpty(optionsModels)) {
-            args.putParcelableArrayList("optionsModels", new ArrayList<>(optionsModels));
-        }
-
-        if (!CollectionUtils.isEmpty(selectedOptionsModels)) {
-            args.putParcelableArrayList("selectedOptionsModels", new ArrayList<>(selectedOptionsModels));
-        }
-        SelectSelectorFragment fragment = new SelectSelectorFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return new SelectSelectorFragment();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            columnKey = getArguments().getString("columnKey");
-            title = getArguments().getString("title");
-            isSingleSelect = getArguments().getBoolean("isSingleSelect");
+        columnKey = TransportHolder.get().get("columnKey");
+        optionsModels = TransportHolder.get().get("tags");
+        selectedOptionsModels = TransportHolder.get().get("selectedTags");
+        title = TransportHolder.get().get("title");
+        isSingleSelect = TransportHolder.get().get("isSingleSelect");
 
-            if (getArguments().containsKey("optionsModels")) {
-                List<OptionTagModel> tempOptionsModels = getArguments().getParcelableArrayList("optionsModels");
+        TransportHolder.get().remove("columnKey");
+        TransportHolder.get().remove("tags");
+        TransportHolder.get().remove("selectedTags");
+        TransportHolder.get().remove("title");
+        TransportHolder.get().remove("isSingleSelect");
 
-                //clone
-                TypeToken<ArrayList<OptionTagModel>> token = new TypeToken<ArrayList<OptionTagModel>>() {};
-                optionsModels = CloneUtils.deepClone(tempOptionsModels, token.getType());
-            }
+        sDocViewModel = new ViewModelProvider(requireActivity()).get(SDocViewModel.class);
 
-            if (getArguments().containsKey("selectedOptionsModels")) {
-                selectedOptionsModels = getArguments().getParcelableArrayList("selectedOptionsModels");
-            }
-        }
-
-        if (TextUtils.isEmpty(columnKey)) {
-            throw new IllegalArgumentException("no columnKey param");
+        if (TextUtils.isEmpty(columnKey) || CollectionUtils.isEmpty(optionsModels)) {
+            throw new IllegalArgumentException("no columnKey/tags param");
         }
 
     }
@@ -99,8 +90,6 @@ public class SelectSelectorFragment extends BaseBottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentSelectorCollaboratorBinding.inflate(inflater, container, false);
         toolbarBinding = ToolbarActionbarForSelectorBinding.bind(binding.toolbar.getRoot());
-
-
         return binding.getRoot();
     }
 
@@ -190,14 +179,12 @@ public class SelectSelectorFragment extends BaseBottomSheetDialogFragment {
     }
 
     private void onDone() {
-        List<OptionTagModel> ls = adapter.getItems().stream().filter(f -> f.isSelected).map(new Function<OptionTagModel, OptionTagModel>() {
-            @Override
-            public OptionTagModel apply(OptionTagModel model) {
-                model.isSelected = false;
-                return model;
-            }
-        }).collect(Collectors.toList());
+        List<OptionTagModel> ls = adapter.getItems()
+                .stream()
+                .filter(f -> f.isSelected)
+                .collect(Collectors.toList());
 
+        sDocViewModel.getOnTagSelectedLiveData().postValue(new Pair<>(columnKey, ls));
 
         dismiss();
     }

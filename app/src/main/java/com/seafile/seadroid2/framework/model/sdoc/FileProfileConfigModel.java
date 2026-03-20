@@ -209,6 +209,19 @@ public class FileProfileConfigModel implements Parcelable {
         return tagsMap;
     }
 
+    public List<OptionTagModel> getTagList() {
+        List<OptionTagModel> ops = new ArrayList<>();
+
+        for (SDocTagModel value : tagsMap.values()) {
+            OptionTagModel optionTagModel = new OptionTagModel();
+            optionTagModel.id = value.id;
+            optionTagModel.name = value.name;
+            optionTagModel.color = value.color;
+            ops.add(optionTagModel);
+        }
+        return ops;
+    }
+
     @Override
     public int describeContents() {
         return 0;
