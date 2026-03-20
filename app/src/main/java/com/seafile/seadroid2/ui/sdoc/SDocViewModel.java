@@ -10,27 +10,33 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocOutlineWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
+import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.ui.docs_comment.DocsCommentService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -42,6 +48,16 @@ import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 
 public class SDocViewModel extends BaseViewModel {
+    private final MutableLiveData<Pair<String, List<UserModel>>> _onUserSelectedLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Pair<String, List<OptionTagModel>>> _onTagSelectedLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<Pair<String, List<UserModel>>> getOnUserSelectedLiveData() {
+        return _onUserSelectedLiveData;
+    }
+
+    public MutableLiveData<Pair<String, List<OptionTagModel>>> getOnTagSelectedLiveData() {
+        return _onTagSelectedLiveData;
+    }
 
     private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<OutlineItemModel>> _sdocElementListLiveData = new MutableLiveData<>();
@@ -290,5 +306,41 @@ public class SDocViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
             }
         });
+    }
+
+    public void postRecord(String repoId, String recordId, Map<String, Object> data, List<String> tags) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("data", data);
+        params.put("record_id", recordId);
+
+        if (CollectionUtils.isNotEmpty(tags)) {
+            List<Map<String, Object>> fileTags = new ArrayList<>();
+            Map<String, Object> tagParams = new HashMap<>();
+            params.put("record_id", recordId);
+            params.put("tags", data.get("_tags"));
+            fileTags.add(tagParams);
+
+            Map<String, Object> t = new HashMap<>();
+            t.put("file_tags_data", fileTags);
+
+            Single<ResultModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).postRecordTag(repoId, t);
+
+        }
+
+        Single<ResultModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).postRecord(repoId, params);
+
+//        addSingleDisposable(single, new Consumer<ResultModel>() {
+//            @Override
+//            public void accept(ResultModel resultModel) throws Exception {
+//                getSecondRefreshLiveData().setValue(true);
+//            }
+//        }, new Consumer<Throwable>() {
+//            @Override
+//            public void accept(Throwable throwable) throws Exception {
+//                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+//                SLogs.e(seafException.toString());
+//                getSecondRefreshLiveData().setValue(false);
+//            }
+//        });
     }
 }

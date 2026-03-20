@@ -96,6 +96,8 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             profileBinding.edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    dismiss();
+
                     Intent intent = ProfileEditorActivity.getIntent(requireContext(), configModel);
                     startActivity(intent);
                 }

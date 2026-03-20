@@ -1,8 +1,8 @@
 package com.seafile.seadroid2.config;
 
 public class DateFormatType {
-    public static final String DATE_YMD = "YYYY-MM-DD";
-    public static final String DATE_YMD_HM = "YYYY-MM-DD HH:mm";
+    public static final String DATE_YMD = "yyyy-MM-dd";
+    public static final String DATE_YMD_HM = "yyyy-MM-dd HH:mm";
     public static final String DATE_YMD_HMS = "yyyy-MM-dd HH:mm:ss";
 
 

@@ -137,17 +137,9 @@ public class DocProfileView extends LinearLayout {
             //tag
             if (TextUtils.equals("_tags", metadata.key)) {
                 MetadataViewUtils.parseTag(getContext(), view, configModel, metadata);
-            } else {
-                MetadataViewUtils.parseLink(getContext(), view, metadata);
             }
-        } else if (TextUtils.equals(ColumnType.IMAGE, type)) {
-            MetadataViewUtils.parseImage(getContext(), view, metadata);
-        } else if (TextUtils.equals(ColumnType.FILE, type)) {
-            MetadataViewUtils.parseFile(getContext(), view, metadata);
         } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
             MetadataViewUtils.parseCheckbox(getContext(), view, metadata);
-        } else if (TextUtils.equals(ColumnType.DIGITAL_SIGN, type)) {
-            MetadataViewUtils.parseDigitalSign(getContext(), view, metadata);
         }
 
         addViewToThis(view);

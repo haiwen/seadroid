@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.selector;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,22 +28,30 @@ import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.ui.adapter.CustomLoadMoreAdapter;
 import com.seafile.seadroid2.ui.base.fragment.BaseBottomSheetDialogFragment;
+import com.seafile.seadroid2.ui.media.image.ImagePreviewViewModel;
+import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
 import com.seafile.seadroid2.view.LeftMarginDividerItemDecoration;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment {
     private FragmentSelectorCollaboratorBinding binding;
     private ToolbarActionbarForSelectorBinding toolbarBinding;
 
     private CollaboratorSelectorAdapter adapter;
-    private QuickAdapterHelper helper;
     private List<UserModel> userList;
     private List<UserModel> checkedUserList;
+    private String columnKey;
 
-    public static CollaboratorSelectorFragment newInstance(List<UserModel> userList, List<UserModel> checkedUserList) {
+    private SDocViewModel sDocViewModel;
+
+    public static CollaboratorSelectorFragment newInstance(String columnKey,List<UserModel> userList, List<UserModel> checkedUserList) {
+        TransportHolder.get().put("columnKey", columnKey);
         TransportHolder.get().put("user_list", userList);
-        TransportHolder.get().put("checked_user_list", userList);
+        TransportHolder.get().put("checked_user_list", checkedUserList);
 
         return new CollaboratorSelectorFragment();
     }
@@ -50,8 +60,15 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        columnKey = TransportHolder.get().get("columnKey");
         userList = TransportHolder.get().get("user_list");
         checkedUserList = TransportHolder.get().get("checked_user_list");
+
+        TransportHolder.get().remove("columnKey");
+        TransportHolder.get().remove("user_list");
+        TransportHolder.get().remove("checked_user_list");
+
+        sDocViewModel = new ViewModelProvider(requireActivity()).get(SDocViewModel.class);
 
         if (CollectionUtils.isEmpty(userList)) {
             throw new IllegalArgumentException("userList is null");
@@ -103,22 +120,37 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     private void initAdapter() {
         adapter = new CollaboratorSelectorAdapter();
         adapter.setStateViewEnable(true);
-
-        CustomLoadMoreAdapter customLoadMoreAdapter = new CustomLoadMoreAdapter();
-
-        helper = new QuickAdapterHelper.Builder(adapter)
-                .setTrailingLoadStateAdapter(customLoadMoreAdapter)
-                .build();
-
-        binding.rv.setAdapter(helper.getAdapter());
-
+        binding.rv.setAdapter(adapter);
     }
 
     private void loadData() {
+
+        if (CollectionUtils.isNotEmpty(checkedUserList)){
+            for (UserModel cModel : checkedUserList) {
+                for (UserModel uModel : userList) {
+                    if (StringUtils.equals(cModel.getEmail(),uModel.getEmail())){
+                        uModel.setSelected(true);
+                        break;
+                    }
+                }
+            }
+        }
+
         adapter.submitList(userList);
     }
 
+    private List<UserModel> getSelectedList() {
+        return adapter.getItems()
+                .stream()
+                .filter(UserModel::isSelected)
+                .collect(Collectors.toList());
+    }
+
     private void onDone() {
+
+        Pair<String,List<UserModel>> pair = new Pair<>(columnKey,getSelectedList());
+        sDocViewModel.getOnUserSelectedLiveData().setValue(pair);
+
         dismiss();
     }
 

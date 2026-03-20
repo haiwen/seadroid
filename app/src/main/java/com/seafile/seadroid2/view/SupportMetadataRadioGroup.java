@@ -16,7 +16,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
-import com.seafile.seadroid2.listener.OnSingleSelectChangedListener;
+import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
 import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +30,7 @@ public class SupportMetadataRadioGroup extends RadioGroup {
     private boolean editable = true;
     private String key;
     private final List<OptionTagModel> options = new ArrayList<>();
-    private OnSingleSelectChangedListener changedListener;
+    private OnSingleOptionChangedListener changedListener;
 
     public void setEditable(boolean editable) {
         this.editable = editable;
@@ -54,7 +54,7 @@ public class SupportMetadataRadioGroup extends RadioGroup {
         setLayoutParams(new FlexboxLayout.LayoutParams(-1, -2));
     }
 
-    public void setChangedListener(OnSingleSelectChangedListener changedListener) {
+    public void setChangedListener(OnSingleOptionChangedListener changedListener) {
         this.changedListener = changedListener;
     }
 

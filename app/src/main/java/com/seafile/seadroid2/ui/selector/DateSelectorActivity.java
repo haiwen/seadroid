@@ -27,7 +27,7 @@ public class DateSelectorActivity extends BaseActivity {
 
     private String columnKey, format, title;
 
-    private boolean isSelectHourMinute = false;
+    private boolean hasHourMinute = false;
     private int y, mon, dofM, hofD, min;
 
     public static Intent getIntent(Context context, String columnKey, String format, String title) {
@@ -62,6 +62,10 @@ public class DateSelectorActivity extends BaseActivity {
 
         if (TextUtils.isEmpty(format)) {
             format = "yyyy-MM-dd";
+        } else {
+            format = format
+                    .replace("YYYY", "yyyy")
+                    .replace("DD", "dd");
         }
 
 
@@ -92,10 +96,10 @@ public class DateSelectorActivity extends BaseActivity {
 
     private void init() {
         if (format.toLowerCase(Locale.getDefault()).contains("h:mm")) {
-            isSelectHourMinute = true;
+            hasHourMinute = true;
         }
 
-        if (!isSelectHourMinute) {
+        if (!hasHourMinute) {
             binding.datePickerTime.setVisibility(View.GONE);
             binding.pickerTime.setVisibility(View.GONE);
         } else if (format.contains("HH:") || format.contains("H:")) {
@@ -106,7 +110,7 @@ public class DateSelectorActivity extends BaseActivity {
         Calendar calendar = Calendar.getInstance();
         binding.pickerCalendar.setDate(calendar.getTimeInMillis());
 
-        if (isSelectHourMinute) {
+        if (hasHourMinute) {
             binding.pickerTime.setHour(calendar.get(binding.pickerTime.is24HourView() ? Calendar.HOUR_OF_DAY : Calendar.HOUR));
             binding.pickerTime.setMinute(calendar.get(Calendar.MINUTE));
         }
@@ -145,7 +149,7 @@ public class DateSelectorActivity extends BaseActivity {
         Calendar c = Calendar.getInstance();
         c.set(y, mon, dofM, hofD, min);
         long date = c.getTimeInMillis();
-        if (isSelectHourMinute) {
+        if (hasHourMinute) {
             String s = TimeUtils.millis2String(date, format);
 
             String[] ss = s.split(" ");
