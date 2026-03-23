@@ -1,8 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <LinearLayout
@@ -31,6 +31,24 @@
             android:textColor="@color/item_title_color"
             android:textSize="@dimen/tv_subtitle_txt_size" />
 
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:layout_marginStart="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/current_path"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:maxLines="1"
+
+                android:textColor="@color/item_subtitle_color" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <com.google.android.material.divider.MaterialDivider
@@ -48,11 +66,11 @@
 
         <com.seafile.seadroid2.view.LinearRecyclerView
             android:id="@+id/rv"
-            tools:listitem="@layout/item_dirent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingBottom="32dp" />
+            android:paddingBottom="32dp"
+            tools:listitem="@layout/item_dirent" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>

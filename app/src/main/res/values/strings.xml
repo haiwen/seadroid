@@ -113,6 +113,7 @@
     <string name="file_action_copy">Copy</string>
     <string name="file_action_move">Move</string>
     <string name="file_action_open_as">Open as</string>
+    <string name="file_action_profile">Profile</string>">
     <string name="file_action_more">More</string>
     <string name="file_action_more_title">Choose your preferred option</string>
     <string-array name="file_action_more_array">
@@ -790,7 +791,7 @@
     <string name="export_log_file_not_exists">No log file is available for export.</string>
 
     <string name="file_transfer_stopped">The file transfer was stopped</string>
-    <string name="last_path">Last path</string>
+
     <!-- font-style -->
     <string name="font_style_paragraph">Paragraph</string>
     <string name="font_style_title">Title</string>

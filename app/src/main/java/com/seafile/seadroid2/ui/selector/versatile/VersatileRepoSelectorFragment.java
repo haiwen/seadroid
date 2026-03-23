@@ -6,12 +6,12 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextClock;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
@@ -19,18 +19,14 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.context.NavContext;
-import com.seafile.seadroid2.databinding.FragmentRemoteLibraryFragmentBinding;
 import com.seafile.seadroid2.databinding.FragmentVersatileSelectorBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
-import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
-import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorViewModel;
@@ -40,13 +36,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import io.reactivex.Completable;
 
 public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewModel> {
     private FragmentVersatileSelectorBinding binding;
@@ -60,12 +51,8 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
     private final NavContext localNavContext = new NavContext();
     private Account mAccount;
 
-    public static VersatileRepoSelectorFragment newInstance() {
-        return newInstance(null, null);
-    }
-
-    public static VersatileRepoSelectorFragment newInstance(String startRepoId, String startPath) {
-        return newInstance(null, startRepoId, startPath);
+    public static VersatileRepoSelectorFragment newInstance(String accountSignature) {
+        return newInstance(accountSignature, null, null);
     }
 
     public static VersatileRepoSelectorFragment newInstance(String accountSignature, String startRepoId, String startPath) {
@@ -112,7 +99,9 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
 
 
         initView();
+
         initViewModel();
+
         initRv();
 
         initLoad();
@@ -140,7 +129,7 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
                                         localNavContext.switchToPath(startRepoModel, startPath);
                                     }
 
-                                    setReturnToEnable();
+                                    setReturnStyle();
 
                                     loadData();
 
@@ -150,7 +139,7 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
                     });
 
         } else {
-            setReturnToEnable();
+            setReturnStyle();
 
             loadData();
         }
@@ -217,12 +206,12 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
 //        adapter.selectItemByMode(position);
 
         if (model instanceof RepoModel repoModel) {
-            setReturnToEnable(true);
+            setReturnStyle(true);
             localNavContext.push(repoModel);
             loadData();
         } else if (model instanceof DirentModel direntModel) {
             if (direntModel.isDir()) {
-                setReturnToEnable(true);
+                setReturnStyle(true);
                 localNavContext.push(direntModel);
                 loadData();
             } else {
@@ -234,7 +223,7 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
     private void returnTo() {
         localNavContext.pop();
 
-        setReturnToEnable();
+        setReturnStyle();
 
         loadData();
     }
@@ -242,26 +231,28 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
     private void loadData() {
         if (localNavContext.inRepo()) {
             getViewModel().loadDirentsFromNet(mAccount, localNavContext);
-        } else if (TextUtils.isEmpty(startRepoId)) {
+        } else {
             getViewModel().loadReposFromNet(mAccount, true, false);
         }
+
+        binding.currentPath.setText(localNavContext.getFullNavName());
     }
 
-    private void setReturnToEnable() {
+    private void setReturnStyle() {
         if (!TextUtils.isEmpty(startRepoId)) {
-            if (localNavContext.inRepoRoot()) {
-                setReturnToEnable(false);
+            if (localNavContext.inRoot()) {
+                setReturnStyle(false);
             } else {
-                setReturnToEnable(true);
+                setReturnStyle(true);
             }
         } else if (!localNavContext.inRepo()) {
-            setReturnToEnable(false);
+            setReturnStyle(false);
         } else {
-            setReturnToEnable(true);
+            setReturnStyle(true);
         }
     }
 
-    private void setReturnToEnable(boolean isEnable) {
+    private void setReturnStyle(boolean isEnable) {
         binding.returnTo.setEnabled(isEnable);
         if (isEnable) {
             binding.returnToIcon.setAlpha(1f);

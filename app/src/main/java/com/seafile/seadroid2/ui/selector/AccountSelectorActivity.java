@@ -33,13 +33,16 @@ import java.util.List;
 
 public class AccountSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel> {
     private ActivitySelectorObjBinding binding;
-
+    private int maxCount = -1;
+    private boolean isSingleSelect = false;
     private RepoQuickAdapter adapter;
     private Account mAccount;
 
 
-    public static Intent getIntent(Context context) {
-        return new Intent(context, AccountSelectorActivity.class);
+    public static Intent getIntent(Context context, int maxCount) {
+        Intent intent = new Intent(context, AccountSelectorActivity.class);
+        intent.putExtra("max", maxCount);
+        return intent;
     }
 
     @Override
@@ -55,6 +58,9 @@ public class AccountSelectorActivity extends BaseActivityWithVM<ObjSelectorViewM
         if (intent == null) {
             throw new IllegalArgumentException("Intent is null");
         }
+
+        maxCount = intent.getIntExtra("max", -1);
+        isSingleSelect = maxCount == 1;
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -85,30 +91,16 @@ public class AccountSelectorActivity extends BaseActivityWithVM<ObjSelectorViewM
 
     private void initView() {
         binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
-        binding.ok.setVisibility(View.VISIBLE);
-        binding.ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onOkClick();
-            }
-        });
-    }
-
-    private void onOkClick() {
-        if (mAccount == null) {
-            Toasts.show(R.string.choose_an_account);
-            return;
+        
+        if (!isSingleSelect){
+            binding.ok.setVisibility(View.VISIBLE);
+            binding.ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onOkClick();
+                }
+            });
         }
-
-        Intent intent = new Intent();
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
-
-        intent.putExtra(ObjKey.ACCOUNT, mAccount);
-        setResult(RESULT_OK, intent);
-        finish();
     }
 
     private void initViewModel() {
@@ -131,7 +123,7 @@ public class AccountSelectorActivity extends BaseActivityWithVM<ObjSelectorViewM
         adapter = new RepoQuickAdapter();
 
         adapter.setSelectType(ObjSelectType.ACCOUNT);
-
+        adapter.setSingleSelect(isSingleSelect);
         adapter.setFileViewType(FileViewType.LIST);
         adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
             BaseModel baseModel = adapter.getItems().get(i);
@@ -152,10 +144,37 @@ public class AccountSelectorActivity extends BaseActivityWithVM<ObjSelectorViewM
     }
 
     private void onItemClick(BaseModel baseModel, int position) {
-        if (baseModel instanceof Account account) {
-            mAccount = account;
+        boolean isAcc = baseModel instanceof Account;
+        if (!isAcc) {
+            return;
+        }
+
+        mAccount = (Account) baseModel;
+
+        if (isSingleSelect) {
+            onOkClick();
+        } else {
             adapter.selectItemByMode(position);
         }
+
+    }
+
+
+    private void onOkClick() {
+        if (mAccount == null) {
+            Toasts.show(R.string.choose_an_account);
+            return;
+        }
+
+        Intent intent = new Intent();
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+
+        intent.putExtra(ObjKey.ACCOUNT, mAccount);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void loadData() {

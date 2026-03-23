@@ -210,8 +210,8 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_sdoc_preview, menu);
-        editMenuItem = menu.findItem(R.id.sdoc_edit);
+        getMenuInflater().inflate(R.menu.menu_action_save, menu);
+        editMenuItem = menu.findItem(R.id.edit_save);
         editMenuItem.setVisible(true);
 
         String title = editMenuItem.getTitle().toString();
@@ -228,7 +228,7 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.sdoc_edit) {
+        if (item.getItemId() == R.id.edit_save) {
             save();
             return true;
         }

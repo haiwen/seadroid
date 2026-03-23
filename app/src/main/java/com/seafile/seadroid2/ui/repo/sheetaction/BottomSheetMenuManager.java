@@ -372,19 +372,19 @@ public class BottomSheetMenuManager {
                 return CollectionUtils.newArrayList(
                         R.id.star, R.id.share, R.id.export, R.id.rename,
                         R.id.delete, R.id.copy, R.id.move, R.id.upload,
-                        R.id.download, R.id.open_with, R.id.save_as);
+                        R.id.download, R.id.open_with, R.id.save_as,R.id.profile);
             } else {
                 SearchModel sm = (SearchModel) selectedList.get(0);
                 if (sm.isDir()) {
                     return CollectionUtils.newArrayList(
                             R.id.star, R.id.share, R.id.rename, R.id.delete,
                             R.id.upload, R.id.export, R.id.open_with,
-                            R.id.download, R.id.save_as);
+                            R.id.download, R.id.save_as,R.id.profile);
                 } else {
                     //Only supported: Export, Copy, Move, Download, Open With, Save As
                     return CollectionUtils.newArrayList(
                             R.id.star, R.id.share, R.id.rename,
-                            R.id.delete, R.id.upload);
+                            R.id.delete, R.id.upload,R.id.profile);
                 }
             }
         }
@@ -395,7 +395,7 @@ public class BottomSheetMenuManager {
 
             } else if (baseModel instanceof DirentModel m) {
                 if (m.isDir()) {
-                    return CollectionUtils.newArrayList(R.id.export, R.id.open_with, R.id.upload, R.id.save_as);
+                    return CollectionUtils.newArrayList(R.id.export, R.id.open_with, R.id.upload, R.id.save_as,R.id.profile);
                 }
             }
 
@@ -416,14 +416,14 @@ public class BottomSheetMenuManager {
                 .count();
 
         if (selectedFolderCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.upload, R.id.save_as);
+            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.upload, R.id.save_as,R.id.profile);
         }
 
         long selectedDirentModelCount = selectedList.stream()
                 .filter(f -> f instanceof DirentModel)
                 .count();
         if (selectedDirentModelCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.save_as);
+            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.save_as,R.id.profile);
         }
 
         return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename);

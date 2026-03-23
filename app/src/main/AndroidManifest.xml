@@ -168,7 +168,7 @@
         <activity android:name=".ui.selector.DateSelectorActivity" />
         <activity android:name=".ui.selector.LongTextSelectorActivity" />
         <activity android:name=".ui.office_doc.OfficeDocumentWebActivity" />
-        <activity android:name=".ui.share.VersatileShareToSeafileActivity" />
+        <activity android:name=".ui.share.VersatileShareToSeafileSelectorActivity" />
         <activity android:name=".ui.file_profile.ProfileEditorActivity" />
 
         <provider
