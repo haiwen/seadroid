@@ -74,20 +74,31 @@ public abstract class NaturalOrderComparator<T> implements Comparator<T> {
                 continue;
             }
 
-            // make sure the numbers come before the letters
-            if (Character.isDigit(c1)) return -1;
-            if (Character.isDigit(c2)) return 1;
-
-            //
-            int casePriority = compareCasePriority(c1, c2);
-            if (casePriority != 0) {
-                return casePriority;
+            // Sort by character type priority: digit > letter > other
+            int typePriority = compareTypePriority(c1, c2);
+            if (typePriority != 0) {
+                return typePriority;
             }
 
-            // Compare characters using Collator (ignore case)
-            int cmp = collator.compare(Character.toString(c1), Character.toString(c2));
-            if (cmp != 0) {
-                return cmp;
+            // Both characters are of the same type, compare their values
+            if (isEnglishLetter(c1)) {
+                // Compare English letters using Collator (ignore case) first
+                int cmp = collator.compare(Character.toString(c1), Character.toString(c2));
+                if (cmp != 0) {
+                    return cmp;
+                }
+
+                // If the letters are the same (ignoring case), apply case priority
+                int casePriority = compareCasePriority(c1, c2);
+                if (casePriority != 0) {
+                    return casePriority;
+                }
+            } else {
+                // For non-English-letter characters (both digits or both others), use direct comparison
+                int cmp = Character.compare(c1, c2);
+                if (cmp != 0) {
+                    return cmp;
+                }
             }
 
             i1++;
@@ -99,13 +110,30 @@ public abstract class NaturalOrderComparator<T> implements Comparator<T> {
         return Integer.compare(len1, len2);
     }
 
-    private int compareCasePriority(char c1, char c2) {
-        boolean isLower1 = Character.isLowerCase(c1);
-        boolean isLower2 = Character.isLowerCase(c2);
+    private int compareTypePriority(char c1, char c2) {
+        int priority1 = getCharTypePriority(c1);
+        int priority2 = getCharTypePriority(c2);
 
-        //lowercase first logic
-        if (isLower1 && !isLower2) return -1;
-        if (!isLower1 && isLower2) return 1;
+        return Integer.compare(priority1, priority2);
+    }
+
+    private int getCharTypePriority(char c) {
+        if (Character.isDigit(c)) return 1;      // Highest priority: digits
+        if (isEnglishLetter(c)) return 2;        // Medium priority: English letters only
+        return 3;                                // Lowest priority: other characters (including Chinese)
+    }
+
+    private boolean isEnglishLetter(char c) {
+        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+    }
+
+    private int compareCasePriority(char c1, char c2) {
+        boolean isUpper1 = Character.isUpperCase(c1);
+        boolean isUpper2 = Character.isUpperCase(c2);
+
+        // Uppercase first logic: A, a, B, b, C, c, ...
+        if (isUpper1 && !isUpper2) return -1;
+        if (!isUpper1 && isUpper2) return 1;
 
         // The original order is maintained when it is in the same case
         return Character.compare(c1, c2);
