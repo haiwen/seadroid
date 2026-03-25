@@ -1,8 +1,6 @@
 package com.seafile.seadroid2.ui.file_profile;
 
 
-import static com.seafile.seadroid2.config.Constants.DP.DP_4;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -19,9 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.SizeUtils;
-import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.seafile.seadroid2.R;
@@ -30,10 +26,7 @@ import com.seafile.seadroid2.databinding.DialogFileProfileBinding;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class FileProfileDialog extends BottomSheetDialogFragment {

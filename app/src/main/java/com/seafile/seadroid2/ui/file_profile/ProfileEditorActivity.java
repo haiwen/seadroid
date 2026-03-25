@@ -50,7 +50,7 @@ import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
 import com.seafile.seadroid2.ui.selector.CollaboratorSelectorFragment;
 import com.seafile.seadroid2.ui.selector.DateSelectorActivity;
 import com.seafile.seadroid2.ui.selector.LongTextSelectorActivity;
-import com.seafile.seadroid2.ui.selector.SelectSelectorFragment;
+import com.seafile.seadroid2.ui.selector.TagSelectorFragment;
 import com.seafile.seadroid2.view.ratingbar.OnRatingChangedListener;
 
 import org.apache.commons.lang3.StringUtils;
@@ -407,13 +407,13 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                             title = getString(titleRes);
                         }
 
-                        SelectSelectorFragment sheetFragment = SelectSelectorFragment.newInstance(
+                        TagSelectorFragment sheetFragment = TagSelectorFragment.newInstance(
                                 metadata.key,
                                 title,
                                 false,
                                 configModel.getTagList(),
                                 tagModels);
-                        sheetFragment.show(getSupportFragmentManager(), SelectSelectorFragment.class.getSimpleName());
+                        sheetFragment.show(getSupportFragmentManager(), TagSelectorFragment.class.getSimpleName());
                     }
                 });
             }
@@ -425,7 +425,6 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         ll.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(-1, -2);
         llp.topMargin = DP_16;
-        llp.bottomMargin = DP_8;
         ll.setLayoutParams(llp);
         ll.setPadding(DP_8, 0, DP_8, 0);
         ll.setTag(CHILD_CONTAINER_TAG_PREFIX + tag);
@@ -435,7 +434,7 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     private TextView genTitleTextView(String name, String key) {
         TextView textView = new TextView(context);
         textView.setTextSize(16);
-        textView.setTextColor(context.getColor(R.color.black));
+        textView.setTextColor(context.getColor(R.color.profile_editor_title));
         textView.setMaxLines(1);
         textView.setEllipsize(TextUtils.TruncateAt.END);
         int resStrId = ColumnTypeUtils.getResNameByKey(key);

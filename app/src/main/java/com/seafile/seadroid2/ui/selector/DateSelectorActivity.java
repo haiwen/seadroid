@@ -76,7 +76,6 @@ public class DateSelectorActivity extends BaseActivity {
             }
         });
 
-        toolbarBinding.title.setText(title);
         toolbarBinding.cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

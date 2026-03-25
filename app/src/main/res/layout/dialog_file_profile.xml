@@ -11,30 +11,41 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="8dp">
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:foreground="@drawable/ripple_icon_large"
+            android:padding="4dp"
+            android:text="@string/cancel"
+            android:textColor="@color/fancy_gray"
+            android:visibility="invisible" />
 
         <TextView
             android:id="@+id/title"
-            style="@style/TextAppearance.Material3.TitleSmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
+            android:gravity="center"
+            android:textColor="@color/item_title_color"
+            android:text="@string/file_action_profile"
+            android:textSize="18sp"
             android:visibility="invisible" />
 
         <TextView
             android:id="@+id/edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:foreground="?selectableItemBackground"
-            android:text="@string/edit"
+            android:foreground="@drawable/ripple_icon_large"
+            android:gravity="center"
             android:padding="4dp"
+            android:text="@string/edit"
             android:textColor="@color/blue_900"
-            android:visibility="invisible" />
+            android:textSize="16sp" />
 
     </LinearLayout>
 

@@ -105,9 +105,11 @@
     <color name="live_photo_background_color">#BF242426</color>
     <color name="live_photo_stroke_color">#BF545456</color>
 
-<!--    <color name="single_select_in_progress_color">#d3d3d3</color>-->
-<!--    <color name="single_select_in_review_color">#d3d3d3</color>-->
-<!--    <color name="single_select_done_color">#ffffff</color>-->
-<!--    <color name="single_select_outdated_color">#ffffff</color>-->
+    <color name="item_selector_user_background">#3C3C3C</color>
+    <color name="item_selector_tag_background">#3C3C3C</color>
+    <color name="profile_editor_title">#d3d3d3</color>
+    <color name="profile_editor_divider">#212121</color>
+    <color name="profile_editor_editable">#2F2F2F</color>
+    <color name="profile_editor_no_editable">#2F2F2F</color>
 
 </resources>

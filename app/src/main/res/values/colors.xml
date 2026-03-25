@@ -116,4 +116,12 @@
     <color name="live_photo_text_color">#991c1c1e</color>
     <color name="live_photo_background_color">#bff2f2f9</color>
     <color name="live_photo_stroke_color">#bfc7c7ce</color>
+
+    <color name="item_selector_user_background">#e9e9e9</color>
+    <color name="item_selector_tag_background">#FFFFFF</color>
+    <color name="profile_editor_title">#666666</color>
+    <color name="profile_editor_divider">#F1F1F1</color>
+    <color name="profile_editor_editable">@color/white</color>
+    <color name="profile_editor_no_editable">#f8f8f8</color>
+
 </resources>

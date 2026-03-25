@@ -23,7 +23,11 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.FragmentSelectorCollaboratorBinding;
 import com.seafile.seadroid2.databinding.ItemAvatarUserOptionalBinding;
+import com.seafile.seadroid2.databinding.ItemUserAvatarBinding;
+import com.seafile.seadroid2.databinding.ItemUserSelectorBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarForSelectorBinding;
+import com.seafile.seadroid2.databinding.ToolbarActionbarForSelectorWithDragBinding;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.ui.adapter.CustomLoadMoreAdapter;
@@ -39,7 +43,7 @@ import java.util.stream.Collectors;
 
 public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment {
     private FragmentSelectorCollaboratorBinding binding;
-    private ToolbarActionbarForSelectorBinding toolbarBinding;
+    private ToolbarActionbarForSelectorWithDragBinding toolbarBinding;
 
     private CollaboratorSelectorAdapter adapter;
     private List<UserModel> userList;
@@ -80,7 +84,7 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentSelectorCollaboratorBinding.inflate(inflater, container, false);
-        toolbarBinding = ToolbarActionbarForSelectorBinding.bind(binding.toolbar.getRoot());
+        toolbarBinding = ToolbarActionbarForSelectorWithDragBinding.bind(binding.toolbar.getRoot());
 
         return binding.getRoot();
     }
@@ -100,7 +104,7 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
         binding.rv.setNestedScrollingEnabled(true);
         binding.rv.addItemDecoration(new LeftMarginDividerItemDecoration(
                 SizeUtils.dp2px(16),
-                ContextCompat.getColor(requireContext(), R.color.fancy_dark_gray)));
+                ContextCompat.getColor(requireContext(), R.color.divider_color)));
 
         toolbarBinding.done.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,6 +124,15 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     private void initAdapter() {
         adapter = new CollaboratorSelectorAdapter();
         adapter.setStateViewEnable(true);
+        adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener<UserModel>() {
+            @Override
+            public void onClick(@NonNull BaseQuickAdapter<UserModel, ?> baseQuickAdapter, @NonNull View view, int i) {
+
+                adapter.getItems().get(i).setSelected(!adapter.getItems().get(i).isSelected());
+                baseQuickAdapter.notifyItemChanged(i);
+            }
+        });
+
         binding.rv.setAdapter(adapter);
     }
 
@@ -158,7 +171,10 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
 
         @Override
         protected void onBindViewHolder(@NonNull CollaboratorSelectorViewHolder holder, int i, @Nullable UserModel model) {
-            final int p = i;
+            if (model == null){
+                return;
+            }
+
             holder.binding.userName.setText(model.getName());
 
             Glide.with(getContext())
@@ -167,29 +183,20 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
                     .into(holder.binding.userAvatar);
 
             holder.binding.userSelected.setVisibility(model.isSelected() ? View.VISIBLE : View.GONE);
-
-            holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    model.setSelected(!model.isSelected());
-                    notifyItemChanged(p);
-                }
-            });
-
         }
 
         @NonNull
         @Override
         protected CollaboratorSelectorViewHolder onCreateViewHolder(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
-            ItemAvatarUserOptionalBinding binding = ItemAvatarUserOptionalBinding.inflate(LayoutInflater.from(viewGroup.getContext()), viewGroup, false);
+            ItemUserSelectorBinding binding = ItemUserSelectorBinding.inflate(LayoutInflater.from(viewGroup.getContext()), viewGroup, false);
             return new CollaboratorSelectorViewHolder(binding);
         }
     }
 
     public static class CollaboratorSelectorViewHolder extends RecyclerView.ViewHolder {
-        public ItemAvatarUserOptionalBinding binding;
+        public ItemUserSelectorBinding binding;
 
-        public CollaboratorSelectorViewHolder(@NonNull ItemAvatarUserOptionalBinding binding) {
+        public CollaboratorSelectorViewHolder(@NonNull ItemUserSelectorBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

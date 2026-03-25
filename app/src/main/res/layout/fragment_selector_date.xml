@@ -12,33 +12,37 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/bar_background_color"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp">
 
         <TextView
             android:id="@+id/date_picker_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:background="@drawable/shape_solid_f0_radius_4"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:text="@string/start"
-            android:textColor="@color/grey" />
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:textColor="@color/item_title_color"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/date_picker_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:background="@drawable/shape_solid_f0_radius_4"
             android:gravity="start"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:textColor="@color/grey" />
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:textColor="@color/item_title_color"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <ScrollView
@@ -55,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@color/white" />
+                android:background="@color/bar_background_color" />
 
             <TimePicker
                 android:id="@+id/picker_time"
@@ -63,7 +67,7 @@
                 android:layout_height="140dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
-                android:background="@color/white"
+                android:background="@color/bar_background_color"
                 android:timePickerMode="spinner" />
 
             <TextView
@@ -71,12 +75,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@color/white"
+                android:background="@color/bar_background_color"
                 android:foreground="?selectableItemBackground"
                 android:gravity="center"
                 android:paddingVertical="12dp"
                 android:text="@string/clear"
-                android:textColor="@color/fancy_orange"
+                android:textColor="@color/item_title_color"
                 android:textSize="16sp" />
         </LinearLayout>
     </ScrollView>

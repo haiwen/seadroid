@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.file_profile;
 
+import static com.seafile.seadroid2.config.Constants.DP.DP_16;
 import static com.seafile.seadroid2.config.Constants.DP.DP_4;
 
 import android.content.Context;
@@ -516,7 +517,7 @@ public class MetadataViewUtils {
             flexboxContainer = new FlexboxLayout(context);
             LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(-1, -2);
             llp.topMargin = Constants.DP.DP_8;
-            llp.bottomMargin = Constants.DP.DP_16;
+            llp.bottomMargin = Constants.DP.DP_8;
             flexboxContainer.setLayoutParams(llp);
             flexboxContainer.setTag(key);
             flexboxContainer.setFlexWrap(FlexWrap.WRAP);
@@ -524,34 +525,33 @@ public class MetadataViewUtils {
         return new Pair<>(isAdded, flexboxContainer);
     }
 
-    public static EditText getEditableEditView(Context context) {
+    public static EditText getFlexEditView(Context context) {
         EditText editText = new EditText(context);
-        editText.setTextSize(14);
-        editText.setTextColor(context.getColor(R.color.grey));
+        editText.setTextSize(16);
+        editText.setTextColor(context.getColor(R.color.bar_title_color));
         editText.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        editText.setLayoutParams(llp);
         editText.setBackground(AppCompatResources.getDrawable(context, R.drawable.shape_task_view_editable));
         editText.setPadding(Constants.DP.DP_16, Constants.DP.DP_8, Constants.DP.DP_16, Constants.DP.DP_8);
+
+        editText.setLayoutParams(new FlexboxLayout.LayoutParams(-1, -2));
         return editText;
     }
 
-    public static TextView getCommonTextViewWithDrawable(Context context) {
-        return getCommonTextViewWithDrawable(context, null);
+    public static TextView getFlexTextView(Context context) {
+        return getFlexTextView(context, null);
     }
 
-    public static TextView getCommonTextViewWithDrawable(Context context, String string) {
+    public static TextView getFlexTextView(Context context, String string) {
         TextView textView = new TextView(context);
-        textView.setTextSize(14);
-        textView.setTextColor(context.getColor(R.color.grey));
+        textView.setTextSize(16);
+        textView.setTextColor(context.getColor(R.color.bar_title_color));
         textView.setText(string);
         textView.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-//        llp.topMargin = DP.DP_8;
-//        llp.bottomMargin = DP.DP_16;
-        textView.setLayoutParams(llp);
         textView.setBackground(AppCompatResources.getDrawable(context, R.drawable.shape_stroke1_radius4));
         textView.setPadding(Constants.DP.DP_16, Constants.DP.DP_8, Constants.DP.DP_16, Constants.DP.DP_8);
+
+        FlexboxLayout.LayoutParams flp = new FlexboxLayout.LayoutParams(-1, -2);
+        textView.setLayoutParams(flp);
         return textView;
     }
 
@@ -569,7 +569,7 @@ public class MetadataViewUtils {
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
 
-        EditText text = getEditableEditView(context);
+        EditText text = getFlexEditView(context);
 
         if (metadataModel.value instanceof String) {
             String initText = metadataModel.value.toString();
@@ -622,14 +622,16 @@ public class MetadataViewUtils {
         boolean isAdded = pair.first;
 
         //text view
-        TextView textView = getCommonTextViewWithDrawable(context);
-        LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) textView.getLayoutParams();
-        llp.topMargin = Constants.DP.DP_8;
+        TextView textView = getFlexTextView(context);
+        textView.setMinHeight(Constants.DP.DP_72);
+        textView.setHint(R.string.empty);
+        textView.setGravity(Gravity.START);
+
         textView.setPadding(Constants.DP.DP_16, Constants.DP.DP_8, Constants.DP.DP_16, Constants.DP.DP_8);
         textView.setMovementMethod(LinkMovementMethod.getInstance());
 
         if (editable) {
-            textView.setBackgroundResource(R.drawable.shape_solid_f5_radius_4);
+            textView.setBackgroundResource(R.drawable.shape_task_view_editable);
         } else {
             textView.setBackgroundResource(R.drawable.shape_task_view_no_editable);
         }
@@ -759,7 +761,15 @@ public class MetadataViewUtils {
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
 
-        EditText text = getEditableEditView(context);
+        EditText text = getFlexEditView(context);
+
+        text.setEnabled(editable);
+        if (editable) {
+            text.setBackgroundResource(R.drawable.shape_task_view_editable);
+        } else {
+            text.setBackgroundResource(R.drawable.shape_task_view_no_editable);
+        }
+
         text.setKeyListener(new NumberDotOnlyInputFilter());
         text.setFilters(new InputFilter[]{new CharacterNoRepeatSpecialCountInputFilter('.', 1)});
 
@@ -782,10 +792,7 @@ public class MetadataViewUtils {
             text.setText("");
         }
 
-        if (!editable) {
-            text.setEnabled(false);
-            text.setBackgroundResource(R.drawable.shape_task_view_no_editable);
-        } else if (onTextChangedListener != null) {
+        if (editable && onTextChangedListener != null) {
             text.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
@@ -969,7 +976,14 @@ public class MetadataViewUtils {
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
 
-        TextView textView = getCommonTextViewWithDrawable(context);
+        TextView textView = getFlexTextView(context);
+
+        textView.setEnabled(editable);
+        if (editable) {
+            textView.setBackgroundResource(R.drawable.shape_task_view_editable);
+        } else {
+            textView.setBackgroundResource(R.drawable.shape_task_view_no_editable);
+        }
 
         String format = "";
         MetadataConfigDataModel configDataModel = metadataModel.getConfigData();
@@ -993,17 +1007,13 @@ public class MetadataViewUtils {
             textView.setText(initText);
         }
 
-        if (editable) {
-            textView.setBackgroundResource(R.drawable.shape_task_view_editable);
+        if (editable && clickListener != null) {
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     clickListener.onClick(textView, metadataModel.key);
                 }
             });
-        } else {
-            textView.setEnabled(false);
-            textView.setBackgroundResource(R.drawable.shape_task_view_no_editable);
         }
 
         flexboxContainer.addView(textView);
@@ -1090,12 +1100,21 @@ public class MetadataViewUtils {
 
         GeoLocationModel locationModel = parseGeoLocation(metadataModel, configModel);
 
-        TextView textView = getCommonTextViewWithDrawable(context);
+        TextView textView = getFlexTextView(context);
+
         textView.setEnabled(editable);
         if (editable) {
-            textView.setBackgroundResource(R.drawable.shape_solid_f0_radius_4);
+            textView.setBackgroundResource(R.drawable.shape_task_view_editable);
         } else {
             textView.setBackgroundResource(R.drawable.shape_task_view_no_editable);
+        }
+        if (editable && clickListener != null) {
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickListener.onClick(flexboxContainer, metadataModel.key);
+                }
+            });
         }
 
         if (locationModel != null) {
@@ -1314,7 +1333,7 @@ public class MetadataViewUtils {
         boolean isAdded = pair.first;
 
 
-        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(-2, -2);
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(DP_16, DP_16);
 
         AppCompatCheckBox checkBox = new AppCompatCheckBox(context);
         checkBox.setText("");

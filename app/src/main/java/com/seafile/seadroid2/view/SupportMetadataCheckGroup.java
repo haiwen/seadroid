@@ -133,7 +133,7 @@ public class SupportMetadataCheckGroup extends LinearLayout {
         ltr.setLayoutParams(flp);
         TextView textView = ltr.findViewById(R.id.text);
         MaterialCardView cardView = ltr.findViewById(R.id.card_view);
-        textView.setTextColor(Color.parseColor(optionsModel.textColor));
+        textView.setTextColor(Color.parseColor(optionsModel.getTextColor()));
         textView.setMaxLines(1);
         textView.setEllipsize(TextUtils.TruncateAt.END);
         textView.setText(optionsModel.name);

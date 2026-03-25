@@ -75,6 +75,7 @@ public class Constants {
         public static final int DP_16 = SizeUtils.dp2px(16);
         public static final int DP_24 = SizeUtils.dp2px(24);
         public static final int DP_32 = SizeUtils.dp2px(32);
+        public static final int DP_72 = SizeUtils.dp2px(72);
         public static final int DP_128 = SizeUtils.dp2px(128);
         public static final int DP_160 = SizeUtils.dp2px(160);
     }

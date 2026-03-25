@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar_actionbar_for_selector" />
+        layout="@layout/toolbar_actionbar_for_selector_with_drag" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

@@ -20,7 +20,7 @@ public class LongTextSelectorActivity extends BaseActivity {
     private FragmentSelectorLongTextBinding binding;
     private ToolbarActionbarForSelectorBinding toolbarBinding;
 
-    private String inputValue, columnKey, title;
+    private String inputValue, columnKey;
 
     public static Intent getIntent(Context context, String columnKey, String inputValue, String title) {
         Intent args = new Intent(context, LongTextSelectorActivity.class);
@@ -63,7 +63,6 @@ public class LongTextSelectorActivity extends BaseActivity {
             binding.editText.setText(inputValue);
         }
 
-        toolbarBinding.title.setText(title);
         toolbarBinding.cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/card_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="2dp"
+            app:cardBackgroundColor="@color/item_selector_user_background"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:contentPaddingBottom="3dp"
+            app:contentPaddingLeft="5dp"
+            app:contentPaddingRight="8dp"
+            app:contentPaddingTop="3dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/user_avatar"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/default_avatar"
+                    app:shapeAppearance="@style/ShapeCircleStyle" />
+
+                <com.seafile.seadroid2.view.CenterTextView
+                    android:id="@+id/user_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/app_name"
+                    android:textColor="@color/item_title_color"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/remove"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:padding="1dp"
+                    android:src="@drawable/baseline_close_24"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/user_selected"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:importantForAccessibility="no"
+        android:padding="4dp"
+        android:src="@drawable/pop_selected" />
+</LinearLayout>

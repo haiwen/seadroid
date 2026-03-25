@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/window_background_color"
     android:orientation="vertical">
 
     <include
@@ -12,10 +11,13 @@
     <EditText
         android:id="@+id/edit_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="@color/white"
+        android:layout_height="match_parent"
+        android:background="@color/bar_background_color"
         android:gravity="start|top"
+        android:hint="@string/empty"
         android:importantForAutofill="no"
-        android:padding="16dp" />
+        android:inputType="text"
+        android:minHeight="120dp"
+        android:padding="24dp"
+        android:textColor="@color/item_title_color" />
 </LinearLayout>

@@ -107,6 +107,7 @@
   <string name="file_action_copy">复制</string>
   <string name="file_action_move">移动</string>
   <string name="file_action_open_as">打开为</string>
+  <string name="file_action_profile">属性</string>
   <string name="file_action_more">更多</string>
   <string name="file_action_more_title">选择你喜欢的选项</string>
   <string-array name="file_action_more_array">
@@ -711,6 +712,7 @@ Email: support@seafile.com<br>
   <string name="_location">位置</string>
   <string name="_owner">文件所有者</string>
   <string name="_rate">评分</string>
+  <string name="_expire_time">过期时间</string>
   <string name="mark_resolve">标记为已解决</string>
   <string name="delete_confirm">你确定想要删除此条内容？</string>
   <string name="image_capture_time">拍摄时间</string>

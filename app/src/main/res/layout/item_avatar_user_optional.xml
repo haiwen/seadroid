@@ -35,5 +35,5 @@
         android:layout_height="24dp"
         android:importantForAccessibility="no"
         android:padding="4dp"
-        android:src="@drawable/icon_editor_check_square" />
+        android:src="@drawable/pop_selected" />
 </LinearLayout>
