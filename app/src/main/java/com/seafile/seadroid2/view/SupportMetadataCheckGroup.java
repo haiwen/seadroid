@@ -131,13 +131,15 @@ public class SupportMetadataCheckGroup extends LinearLayout {
         flp.topMargin = Constants.DP.DP_8;
         flp.rightMargin = Constants.DP.DP_8;
         ltr.setLayoutParams(flp);
+
         TextView textView = ltr.findViewById(R.id.text);
-        MaterialCardView cardView = ltr.findViewById(R.id.card_view);
         textView.setTextColor(Color.parseColor(optionsModel.getTextColor()));
         textView.setMaxLines(1);
         textView.setEllipsize(TextUtils.TruncateAt.END);
         textView.setText(optionsModel.name);
-        cardView.setCardBackgroundColor(Color.parseColor(optionsModel.color));
+
+        MaterialCardView cardView = ltr.findViewById(R.id.card_view);
+        cardView.setCardBackgroundColor(Color.parseColor(optionsModel.getColor()));
         return ltr;
     }
 

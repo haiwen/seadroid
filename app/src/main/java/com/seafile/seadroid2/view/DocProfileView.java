@@ -22,6 +22,7 @@ import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
 import com.seafile.seadroid2.ui.file_profile.MetadataViewUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,11 +70,17 @@ public class DocProfileView extends LinearLayout {
     }
 
     private void addView() {
+        HashMap<String,Boolean> detailsSettingsMap = configModel.getDetailsSettingsMap();
         LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
         Set<String> keys = recordMetaDataMap.keySet();
         for (String key : keys) {
             MetadataModel metadata = recordMetaDataMap.get(key);
             if (metadata == null) {
+                continue;
+            }
+
+            Boolean isShown = detailsSettingsMap.get(key);
+            if (Boolean.FALSE.equals(isShown)){
                 continue;
             }
 
@@ -131,7 +138,7 @@ public class DocProfileView extends LinearLayout {
         } else if (TextUtils.equals(ColumnType.RATE, type)) {
             MetadataViewUtils.parseRate(getContext(), view, metadata);
         } else if (TextUtils.equals(ColumnType.GEOLOCATION, type)) {
-            MetadataViewUtils.parseGeoLocation(getContext(), view, metadata);
+            MetadataViewUtils.parseGeoLocation(getContext(), view, metadata,configModel);
         } else if (TextUtils.equals(ColumnType.LINK, type)) {
 
             //tag

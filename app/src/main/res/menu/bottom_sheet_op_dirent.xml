@@ -62,6 +62,6 @@
 
     <item
         android:id="@id/profile"
-        android:icon="@drawable/baseline_save_as_24"
+        android:icon="@drawable/icon_sdoc_info"
         android:title="@string/file_action_profile" />
 </menu>

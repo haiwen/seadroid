@@ -64,6 +64,7 @@ public class DateSelectorActivity extends BaseActivity {
             format = "yyyy-MM-dd";
         } else {
             format = format
+                    .replace("M/D/YYYY","M/d/yyyy")
                     .replace("YYYY", "yyyy")
                     .replace("DD", "dd");
         }
@@ -160,11 +161,10 @@ public class DateSelectorActivity extends BaseActivity {
         }
     }
 
-    private String getDate() {
+    private long getDate() {
         Calendar c = Calendar.getInstance();
         c.set(y, mon, dofM, hofD, min);
-        long date = c.getTimeInMillis();
-        return TimeUtils.millis2String(date, format);
+        return c.getTimeInMillis();
     }
 
     private void clear() {
@@ -176,6 +176,7 @@ public class DateSelectorActivity extends BaseActivity {
         Intent intent = new Intent();
         intent.putExtra("columnKey", columnKey);
         intent.putExtra("date", getDate());
+        intent.putExtra("format", format);
         setResult(RESULT_OK, intent);
         finish();
     }

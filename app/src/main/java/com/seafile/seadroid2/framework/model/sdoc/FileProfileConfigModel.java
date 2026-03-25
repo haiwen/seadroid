@@ -4,8 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.config.ColumnType;
+import com.seafile.seadroid2.framework.model.profile.DetailsSettingsKeyModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -19,6 +22,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class FileProfileConfigModel implements Parcelable {
+    private String repoId;
     private FileDetailModel detail;
     private MetadataConfigModel metadataConfig;
 
@@ -27,9 +31,33 @@ public class FileProfileConfigModel implements Parcelable {
     private final LinkedHashMap<String, Object> recordResultMap = new LinkedHashMap<>();
     private Map<String, SDocTagModel> tagsMap = new HashMap<>();
 
+    public void setRepoId(String repoId) {
+        this.repoId = repoId;
+    }
+
+    public String getRepoId() {
+        return repoId;
+    }
 
     public void setMetadataConfigModel(MetadataConfigModel metadataConfigModel) {
         this.metadataConfig = metadataConfigModel;
+    }
+
+    public HashMap<String,Boolean> getDetailsSettingsMap() {
+        if (metadataConfig == null) {
+            throw new RuntimeException("please first call setMetadataConfigModel()");
+        }
+        HashMap<String,Boolean> map = new HashMap<>();
+        List<DetailsSettingsKeyModel> list = metadataConfig.getDetailsSettingsList();
+        if (CollectionUtils.isEmpty(list)){
+            return map;
+        }
+
+        for (DetailsSettingsKeyModel model : list) {
+            map.put(model.key, model.shown);
+        }
+
+        return map;
     }
 
     public boolean isMetadataEnabled() {

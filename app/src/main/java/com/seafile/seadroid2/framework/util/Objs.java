@@ -6,6 +6,7 @@ import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.RepoType;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
@@ -22,11 +23,18 @@ import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
+import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
 import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
+import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.comparator.DirentNaturalOrderComparator;
 import com.seafile.seadroid2.ui.comparator.RepoNaturalOrderComparator;
 import com.seafile.seadroid2.ui.repo.RepoService;
+import com.seafile.seadroid2.ui.sdoc.SDocService;
 import com.seafile.seadroid2.ui.star.StarredService;
 
 import java.util.ArrayList;
@@ -34,6 +42,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import io.reactivex.Completable;
@@ -42,6 +51,7 @@ import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 public class Objs {
@@ -609,4 +619,93 @@ public class Objs {
         return newList;
     }
 
+    public static Single<FileProfileConfigModel> getLoadFileDetailSingle(String repoId, String path) {
+        //Even if isMetadataEnable is enabled, you still need to check whether the enable field of MetadataConfigModel is available
+        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId).onErrorReturnItem(new MetadataConfigModel());
+        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getFileDetail(repoId, path);
+
+        return Single.zip(metadataSingle, detailSingle, new BiFunction<MetadataConfigModel, FileDetailModel, FileProfileConfigModel>() {
+            @Override
+            public FileProfileConfigModel apply(MetadataConfigModel metadataConfigModel, FileDetailModel fileDetailModel) {
+
+                FileProfileConfigModel configModel = new FileProfileConfigModel();
+                configModel.setRepoId(repoId);
+                configModel.setMetadataConfigModel(metadataConfigModel);
+                configModel.setFileDetail(fileDetailModel);
+                return configModel;
+            }
+        }).flatMap(new io.reactivex.functions.Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
+            @Override
+            public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel configModel) throws Exception {
+                List<Single<?>> singles = new ArrayList<>();
+
+                if (configModel.isMetadataEnabled()) {
+
+                    String parent_dir;
+                    String name;
+
+                    // 1. /a/b/c/t.txt
+                    // 2. /a/t.txt
+                    // 3. /t.txt
+                    // 4. t.txt
+                    // 5. /
+                    if (path.contains("/")) {
+                        parent_dir = path.substring(0, path.lastIndexOf("/"));
+                        name = path.substring(path.lastIndexOf("/") + 1);
+                    } else {
+                        parent_dir = null;
+                        name = path;
+                    }
+
+                    if (TextUtils.isEmpty(parent_dir)) {
+                        parent_dir = "/";
+                    }
+                    Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+                    singles.add(userSingle);
+
+                    Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
+                    singles.add(recordSingle);
+                }
+
+                if (configModel.isTagsEnabled()) {
+                    Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getTags(repoId);
+                    singles.add(tagSingle);
+                }
+
+                if (singles.isEmpty()) {
+                    configModel.initDefaultIfMetaNotEnable();
+                    return Single.just(configModel);
+                }
+
+                return Single.zip(singles, new io.reactivex.functions.Function<Object[], FileProfileConfigModel>() {
+                    @Override
+                    public FileProfileConfigModel apply(Object[] results) throws Exception {
+                        if (configModel.isMetadataEnabled()) {
+                            UserWrapperModel u = (UserWrapperModel) results[0];
+                            configModel.setRelatedUserWrapperModel(u);
+
+                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
+                            if (r.results.isEmpty()) {
+                                configModel.initDefaultIfMetaNotEnable();
+                            } else {
+                                configModel.setRecordWrapperModel(r);
+                            }
+                        } else {
+                            configModel.initDefaultIfMetaNotEnable();
+                        }
+
+                        if (configModel.isMetadataEnabled() && configModel.isTagsEnabled()) {
+                            FileTagWrapperModel t = (FileTagWrapperModel) results[2];
+                            configModel.setTagWrapperModel(t);
+                        } else if (configModel.isTagsEnabled()) {
+                            FileTagWrapperModel t = (FileTagWrapperModel) results[0];
+                            configModel.setTagWrapperModel(t);
+                        }
+
+                        return configModel;
+                    }
+                });
+            }
+        }).delay(200, TimeUnit.MILLISECONDS);
+    }
 }

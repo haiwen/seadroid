@@ -24,21 +24,28 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.TimeUtils;
+import com.google.gson.internal.LinkedTreeMap;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.databinding.ActivitySdocEditorBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarBinding;
+import com.seafile.seadroid2.framework.model.profile.DetailsSettingsKeyModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
 import com.seafile.seadroid2.listener.OnMultiOptionsChangedListener;
@@ -55,8 +62,11 @@ import com.seafile.seadroid2.view.ratingbar.OnRatingChangedListener;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -75,18 +85,18 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     private final String TEXT_VIEW_TITLE_TAG_PREFIX = "Text:Title:";
     private final String CHILD_CONTAINER_TAG_PREFIX = "Container:";
 
-//    public static Intent getIntent(Context context, String repoId, String path) {
-//        Intent intent = new Intent(context, SDocEditorActivity.class);
-//        intent.putExtra("repoId", repoId);
-//        intent.putExtra("path", path);
-//        return intent;
-//    }
+    public static Intent getIntent(Context context, String repoId, String path) {
+        TransportHolder.get().put("repoId", repoId);
+        TransportHolder.get().put("path", path);
 
-    public static Intent getIntent(Context context, FileProfileConfigModel configModel) {
+        return new Intent(context, ProfileEditorActivity.class);
+    }
+
+    public static Intent getIntent(Context context, String repoId, FileProfileConfigModel configModel) {
         TransportHolder.get().put("config_model", configModel);
+        TransportHolder.get().put("repoId", repoId);
 
-        Intent intent = new Intent(context, ProfileEditorActivity.class);
-        return intent;
+        return new Intent(context, ProfileEditorActivity.class);
     }
 
     @Override
@@ -110,6 +120,8 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
 
         init();
 
+        initView();
+
         if (!StringUtils.isEmpty(repoId) && !StringUtils.isEmpty(path)) {
             loadFileDetail(repoId, path);
         } else if (configModel != null) {
@@ -118,19 +130,20 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void init() {
-        if (getIntent() == null) {
-            throw new IllegalArgumentException("Intent is null");
-        }
-
+        repoId = TransportHolder.get().get("repoId");
+        path = TransportHolder.get().get("path");
         configModel = TransportHolder.get().get("config_model");
+        TransportHolder.get().remove("repoId");
+        TransportHolder.get().remove("path");
         TransportHolder.get().remove("config_model");
 
-        if (configModel == null && StringUtils.isEmpty(repoId)) {
+
+        if (StringUtils.isEmpty(repoId)) {
             throw new IllegalArgumentException("intent params is null");
         }
+    }
 
-        binding.swipeRefreshLayout.setEnabled(false);
-
+    private void initView() {
         Toolbar toolbar = bindingOfToolbar.toolbarActionbar;
 
         toolbar.setTitle("");
@@ -140,7 +153,6 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         toolbar.setNavigationOnClickListener(v -> {
             finish();
         });
-
     }
 
     private void initVM() {
@@ -150,17 +162,24 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 showLoadingDialog(aBoolean);
             }
         });
-        getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                binding.swipeRefreshLayout.setRefreshing(aBoolean);
-            }
-        });
 
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
             @Override
             public void onChanged(SeafException e) {
+                SLogs.e(e);
+                Toasts.show(e.getMessage());
+            }
+        });
 
+        getViewModel().getOnSaveLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean) {
+                    // clear
+                    contentMap.clear();
+
+                    Toasts.show(R.string.saved);
+                }
             }
         });
 
@@ -240,8 +259,108 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         if (object == null) {
             return;
         }
+
         String recordId = object.toString();
-//        getViewModel().postRecord(repoId, recordId, contentMap);
+        if (TextUtils.isEmpty(recordId)) {
+            return;
+        }
+
+        HashMap<String, Object> hashMap = parseParams();
+        if (hashMap == null) {
+            return;
+        }
+
+        List<String> tagIds = parseTagField();
+
+        getViewModel().putRecord(repoId, recordId, hashMap, tagIds);
+    }
+
+    private HashMap<String, Object> parseParams() {
+        if (contentMap.isEmpty()) {
+            return null;
+        }
+        HashMap<String, Object> hashMap = new HashMap<>();
+        for (String key : contentMap.keySet()) {
+            MetadataModel metadataModel = configModel.getRecordMetaDataMap().getOrDefault(key, null);
+            if (metadataModel == null) {
+                continue;
+            }
+
+//            if (StringUtils.equals("collaborator", metadataModel.type)) {
+//                Object o = contentMap.get(key);
+//                if (o instanceof List<?> list){
+//                    List<String> emails = new ArrayList<>();
+//                    for (Object item : list) {
+//
+//                    }
+//                }
+//            } else
+            if (StringUtils.equals("date", metadataModel.type)) {
+                String format = null;
+                if (metadataModel.getConfigData() != null) {
+                    format = metadataModel.getConfigData().getFormat();
+                }
+                if (StringUtils.isNotEmpty(format)) {
+                    Object o = contentMap.get(key);
+                    if (o instanceof String t) {
+                        long mills = TimeUtils.string2Millis(t, DateFormatType.DATE_XXX);
+                        String dt;
+                        if (format.toLowerCase().contains("h:mm")) {
+                            dt = TimeUtils.millis2String(mills, DateFormatType.DATE_YMD_HM);
+                        }else{
+                            dt = TimeUtils.millis2String(mills, DateFormatType.DATE_YMD);
+                        }
+
+                        hashMap.put(metadataModel.name, dt);
+                    }
+                }
+            } else if (StringUtils.equals("single-select", metadataModel.type)) {
+                Object o = contentMap.get(key);
+                if (o instanceof OptionTagModel m) {
+                    hashMap.put(metadataModel.name, m.name);
+                }
+            } else if (StringUtils.equals("multiple-select", metadataModel.type)) {
+                Object o = contentMap.get(key);
+                if (o instanceof ArrayList<?> list) {
+                    List<String> names = new ArrayList<>();
+                    for (Object object : list) {
+                        if (object instanceof OptionTagModel m) {
+                            names.add(m.name);
+                        }
+                    }
+                    hashMap.put(metadataModel.name, names);
+                }
+            } else if (TextUtils.equals(ColumnType.LINK, metadataModel.type)) {
+                // remove tag field, see parseTagField().
+                if (TextUtils.equals("_tags", metadataModel.key)) {//tag
+                }
+            } else {
+                hashMap.put(metadataModel.name, contentMap.get(key));
+            }
+        }
+        return hashMap;
+    }
+
+    @Nullable
+    private List<String> parseTagField() {
+        if (!contentMap.containsKey("_tags")) {
+            return null;
+        }
+        Object obj = contentMap.get("_tags");
+        boolean isArrayList = obj instanceof ArrayList<?>;
+        if (!isArrayList) {
+            return null;
+        }
+
+        ArrayList<?> list = (ArrayList<?>) obj;
+
+        List<String> tags = new ArrayList<>();
+        for (Object item : list) {
+            if (item instanceof OptionTagModel m) {
+                tags.add(m.id);
+            }
+        }
+        return tags;
     }
 
     private void loadFileDetail(String repoId, String path) {
@@ -262,11 +381,19 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void setData(LinearLayout rootContainer) {
+
+        HashMap<String,Boolean> detailsSettingsMap = configModel.getDetailsSettingsMap();
+
         LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
         Set<String> keys = recordMetaDataMap.keySet();
         for (String key : keys) {
             MetadataModel metadata = recordMetaDataMap.get(key);
             if (metadata == null) {
+                continue;
+            }
+
+            Boolean isShown = detailsSettingsMap.get(key);
+            if (Boolean.FALSE.equals(isShown)){
                 continue;
             }
 
@@ -340,8 +467,8 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 @Override
                 public void onClick(TextView textView, String tag) {
                     String format = null;
-                    if (CollectionUtils.isNotEmpty(metadata.config)) {
-                        format = metadata.config.get(0).format;
+                    if (metadata.getConfigData() != null) {
+                        format = metadata.getConfigData().getFormat();
                     }
                     Intent intent = DateSelectorActivity.getIntent(context, metadata.key, format, metadata.name);
                     pickDateLauncher.launch(intent);
@@ -371,21 +498,21 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 }
             });
         } else if (TextUtils.equals(ColumnType.RATE, type)) {
-            MetadataViewUtils.buildEditableRate(context, isEditable, parent, metadata, 0f, new OnRatingChangedListener() {
+            MetadataViewUtils.buildEditableRate(context, isEditable, parent, metadata, new OnRatingChangedListener() {
                 @Override
                 public void onRatingChanged(double rating) {
-                    contentMap.put(metadata.key, rating);
+                    contentMap.put(metadata.key, (int) rating);
                 }
             });
         } else if (TextUtils.equals(ColumnType.GEOLOCATION, type)) {
             MetadataViewUtils.buildEditableGeoLocation(context, isEditable, parent, metadata, configModel, new OnViewClickListener() {
                 @Override
                 public void onClick(View view, String tag) {
-                    // can not edit
+                    // The GEO field can not edit
                 }
             });
         } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
-            MetadataViewUtils.buildEditableCheckbox(context, isEditable, parent, metadata, true, new CompoundButton.OnCheckedChangeListener() {
+            MetadataViewUtils.buildEditableCheckbox(context, isEditable, parent, metadata, new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     contentMap.put(metadata.key, isChecked);
@@ -483,10 +610,14 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 }
 
                 String key = result.getData().getStringExtra("columnKey");
-                String value = result.getData().getStringExtra("date");
-                contentMap.put(key, value);
+                long value = result.getData().getLongExtra("date", 0L);
+                String format = result.getData().getStringExtra("format");
 
-                updateConfigMapMetadata(key, value);
+                String v = TimeUtils.millis2String(value, DateFormatType.DATE_XXX);
+
+                contentMap.put(key, v);
+
+                updateConfigMapMetadata(key, v);
             }
         });
 

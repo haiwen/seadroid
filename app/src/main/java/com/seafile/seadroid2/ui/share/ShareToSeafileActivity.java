@@ -149,6 +149,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             finish();
             return;
         }
+        SLogs.d(TAG, "shared files count: " + fileUris.size());
 
         disposable = isSafeSharedUri(fileUris.get(0))
                 .subscribeOn(Schedulers.io())
@@ -170,6 +171,8 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
     private void launchObjSelector() {
         String lastPathStr = Settings.getSpecialUserSharedPreferences(account).getString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, "");
+        SLogs.d(TAG, "lastPathStr: " + lastPathStr);
+
         Pair<String, String> pair = parseLastPathStr(lastPathStr);
 
         Intent pathSelector = VersatileShareToSeafileSelectorActivity.getSpecialAccountIntent(ShareToSeafileActivity.this, account.getSignature(), pair.first, pair.second, null, 2);
@@ -264,56 +267,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
         return new Pair<>(s[1], s[2]);
     }
-//    private void launchObjSelector() {
-//        //launch obj selector activity
-//        Bundle bundle = new Bundle();
-//        bundle.putBoolean("isFilterUnavailable", false);
-//        bundle.putBoolean("isAddStarredGroup", true);
-//
-//        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
-//        if (CollectionUtils.isEmpty(accounts)) {
-//            Toasts.show(R.string.err_token_expired);
-//            return;
-//        }
-//
-//        ObjSelectType t = ObjSelectType.ACCOUNT;
-//        if (accounts.size() == 1) {
-//            t = ObjSelectType.REPO;
-//        }
-//
-//        Intent intent = ObjSelectorActivity.getIntent(this, t, ObjSelectType.DIR, bundle);
-//        VersatileShareToSeafileActivity.getSpecialAccountIntent(this,)
-//        objSelectorLauncher.launch(intent);
-//    }
-//
-//    private void registerResultLauncher() {
-//
-//        objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-//
-//            @Override
-//            public void onActivityResult(ActivityResult o) {
-//                if (o.getResultCode() != Activity.RESULT_OK) {
-//                    finish();
-//                    return;
-//                }
-//
-//                Intent intent = o.getData();
-//                if (intent == null) {
-//                    finish();
-//                    return;
-//                }
-//
-//                account = intent.getParcelableExtra(ObjKey.ACCOUNT);
-//                dstRepoId = intent.getStringExtra(ObjKey.REPO_ID);
-//                dstRepoName = intent.getStringExtra(ObjKey.REPO_NAME);
-//                dstDir = intent.getStringExtra(ObjKey.DIR);
-//
-//                SLogs.d(TAG, "account: " + account.getSignature(), "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
-//                notifyFileOverwriting();
-//            }
-//        });
-//
-//    }
 
     private void initWorkerBusObserver() {
         BusHelper.getTransferProgressObserver().observe(this, new Observer<Bundle>() {
@@ -440,6 +393,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     emitter.onSuccess(false);
                     return;
                 }
+                SLogs.d(TAG, "uri NULL check passed");
 
                 // 1. Reject non-content schemes (file://, http://, etc.)
                 if (!"content".equals(uri.getScheme())) {
@@ -447,6 +401,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     emitter.onSuccess(false);
                     return;
                 }
+                SLogs.d(TAG, "content scheme check passed");
 
                 // 2. Verify system-granted read capability BEFORE any path checks
                 try {
@@ -464,9 +419,11 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     emitter.onSuccess(false);
                     return;
                 }
+                SLogs.d(TAG, "read capability check passed");
 
                 // 3. Get real file path for additional validation (maybe null for content URIs)
                 String realPath = getSharedFilePath(uri);
+                SLogs.d(TAG, "realPath: " + realPath);
 
                 if (TextUtils.isEmpty(realPath)) {
                     // Content URI without file path (e.g., from cloud storage providers)
@@ -475,6 +432,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     emitter.onSuccess(true);
                     return;
                 }
+                SLogs.d(TAG, "realPath check passed");
 
                 // 4. Check if path is in app's private directory
                 String packageName = getPackageName();
@@ -484,6 +442,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     emitter.onSuccess(false);
                     return;
                 }
+                SLogs.d(TAG, "path check passed");
 
                 // 5. Check for generic system data directories
                 if (realPath.startsWith("/data/data") || realPath.startsWith("/data/user")) {
@@ -510,11 +469,13 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         if (uri == null) {
             return null;
         }
+        SLogs.d(TAG, "getSharedFilePath for uri: " + uri);
 
         // Handle file:// scheme (should already be rejected by isSafeSharedUri)
         if (Objects.equals(uri.getScheme(), "file")) {
             return uri.getPath();
         }
+        SLogs.d(TAG, "file scheme check passed");
 
         ContentResolver contentResolver = getContentResolver();
 
@@ -524,10 +485,11 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
         try (Cursor cursor = contentResolver.query(uri, projection, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
-                // Use getColumnIndex instead of getColumnIndexOrThrow to avoid exception
                 int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                SLogs.d(TAG, "dataIndex: " + dataIndex);
                 if (dataIndex != -1) {
                     filePath = cursor.getString(dataIndex);
+                    SLogs.d(TAG, "filePath: " + filePath);
                 }
             }
         } catch (Exception e) {

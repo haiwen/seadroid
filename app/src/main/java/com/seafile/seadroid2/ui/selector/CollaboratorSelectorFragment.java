@@ -160,7 +160,6 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     }
 
     private void onDone() {
-
         Pair<String,List<UserModel>> pair = new Pair<>(columnKey,getSelectedList());
         sDocViewModel.getOnUserSelectedLiveData().setValue(pair);
 

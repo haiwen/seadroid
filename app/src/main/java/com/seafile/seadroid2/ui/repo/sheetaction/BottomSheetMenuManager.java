@@ -330,6 +330,10 @@ public class BottomSheetMenuManager {
                 long l = permissionList.stream().filter(f -> !f.download).count();
                 item.setEnabled(!(l > 0));
             }
+//            else if (item.getItemId() == R.id.profile) {
+//                long l = permissionList.stream().filter(f -> !f.).count();
+//                item.setEnabled(!(l > 0));
+//            }
 
             if (!CollectionUtils.isEmpty(disableMenuIds)) {
                 if (disableMenuIds.contains(item.getItemId())) {

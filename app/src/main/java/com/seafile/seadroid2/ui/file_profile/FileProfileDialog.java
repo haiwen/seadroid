@@ -25,36 +25,36 @@ import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.databinding.DialogFileProfileBinding;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
+import com.seafile.seadroid2.framework.transport.TransportHolder;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
 public class FileProfileDialog extends BottomSheetDialogFragment {
+    private DialogFileProfileBinding profileBinding;
+
     private FileProfileConfigModel configModel;
+    private String repoId;
 
     public static FileProfileDialog newInstance(FileProfileConfigModel configModel) {
-        Bundle args = new Bundle();
-        args.putParcelable("config_model", configModel);
-        FileProfileDialog fragment = new FileProfileDialog();
-        fragment.setArguments(args);
-        return fragment;
+        TransportHolder.get().put("config_model", configModel);
+        return new FileProfileDialog();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() == null || !getArguments().containsKey("config_model")) {
-            throw new IllegalArgumentException("configModel is null");
-        }
+        configModel = TransportHolder.get().get("config_model");
+        TransportHolder.get().remove("config_model");
 
-        configModel = getArguments().getParcelable("config_model");
         if (configModel == null) {
             throw new IllegalArgumentException("configModel is null");
         }
+        repoId = configModel.getRepoId();
     }
 
-    private DialogFileProfileBinding profileBinding;
 
     @Nullable
     @Override
@@ -90,18 +90,23 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
                 @Override
                 public void onClick(View v) {
                     dismiss();
-
-                    Intent intent = ProfileEditorActivity.getIntent(requireContext(), configModel);
+                    Intent intent = ProfileEditorActivity.getIntent(requireContext(), repoId, configModel);
                     startActivity(intent);
                 }
             });
         }
 
+        HashMap<String, Boolean> detailsSettingsMap = configModel.getDetailsSettingsMap();
         LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
         Set<String> keys = recordMetaDataMap.keySet();
         for (String key : keys) {
             MetadataModel metadata = recordMetaDataMap.get(key);
             if (metadata == null) {
+                continue;
+            }
+
+            Boolean isShown = detailsSettingsMap.get(key);
+            if (Boolean.FALSE.equals(isShown)) {
                 continue;
             }
 
@@ -168,7 +173,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         } else if (TextUtils.equals(ColumnType.RATE, type)) {
             MetadataViewUtils.parseRate(requireContext(), kvView, metadata);
         } else if (TextUtils.equals(ColumnType.GEOLOCATION, type)) {
-            MetadataViewUtils.parseGeoLocation(requireContext(), kvView, metadata);
+            MetadataViewUtils.parseGeoLocation(requireContext(), kvView, metadata, configModel);
         } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
             MetadataViewUtils.parseCheckbox(requireContext(), kvView, metadata);
         } else if (TextUtils.equals(ColumnType.LINK, type)) {

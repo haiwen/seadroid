@@ -439,7 +439,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
+        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name) || StringUtils.isEmpty(model.encoded_thumbnail_src)) {
             GlideApp.with(getContext())
                     .load(model.getIcon())
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
@@ -533,7 +533,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemOutline.setVisibility(View.VISIBLE);
         }
 
-        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
+        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name) || StringUtils.isEmpty(model.encoded_thumbnail_src)) {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
             GlideApp.with(getContext())
                     .load(model.getIcon())

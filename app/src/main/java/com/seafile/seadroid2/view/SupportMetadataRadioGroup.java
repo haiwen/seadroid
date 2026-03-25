@@ -138,8 +138,8 @@ public class SupportMetadataRadioGroup extends RadioGroup {
         flp.topMargin = Constants.DP.DP_8;
         flp.rightMargin = Constants.DP.DP_8;
         ltr.setLayoutParams(flp);
+
         TextView textView = ltr.findViewById(R.id.text);
-        MaterialCardView cardView = ltr.findViewById(R.id.card_view);
         textView.setTextColor(Color.parseColor(optionsModel.getTextColor()));
         textView.setMaxLines(1);
         textView.setEllipsize(TextUtils.TruncateAt.END);
@@ -150,6 +150,7 @@ public class SupportMetadataRadioGroup extends RadioGroup {
             textView.setText(optionsModel.name);
         }
 
+        MaterialCardView cardView = ltr.findViewById(R.id.card_view);
         cardView.setCardBackgroundColor(Color.parseColor(optionsModel.getColor()));
         return ltr;
     }

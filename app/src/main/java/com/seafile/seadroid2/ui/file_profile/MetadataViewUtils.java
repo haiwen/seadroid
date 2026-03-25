@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.file_profile;
 
 import static com.seafile.seadroid2.config.Constants.DP.DP_16;
 import static com.seafile.seadroid2.config.Constants.DP.DP_4;
+import static com.seafile.seadroid2.config.Constants.DP.DP_8;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -212,7 +213,15 @@ public class MetadataViewUtils {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
 
             Date date1 = TimeUtils.string2Date(date, DateFormatType.DATE_XXX);
-            String d = TimeUtils.date2String(date1, DateFormatType.DATE_YMD_HMS);
+
+            String format = null;
+            if (model.getConfigData() != null) {
+                format = model.getConfigData().getFormat();
+            }
+            if (StringUtils.isEmpty(format)) {
+                format = DateFormatType.DATE_YMD_HMS;
+            }
+            String d = TimeUtils.date2String(date1, format);
 
             ltr.<TextView>findViewById(R.id.text_view).setText(d);
 
@@ -322,59 +331,19 @@ public class MetadataViewUtils {
     }
 
     //location
-    public static void parseGeoLocation(Context context, LinearLayout view, MetadataModel model) {
-        if (model.value instanceof LinkedTreeMap<?, ?> tMap) {
-            if (tMap.isEmpty()) {
-                return;
-            }
+    public static void parseGeoLocation(Context context, LinearLayout view, MetadataModel metadataModel,FileProfileConfigModel configModel) {
+        GeoLocationModel locationModel = parseGeoLocation(metadataModel, configModel);
 
-            List<MetadataConfigDataModel> configDataModelList = model.config;
-            if (CollectionUtils.isEmpty(configDataModelList)) {
-                return;
-            }
-            MetadataConfigDataModel columnDataModel = configDataModelList.get(0);
-            String geo_format = columnDataModel.geo_format;
-
-            String content = "";
-            if (TextUtils.equals("lng_lat", geo_format)) {
-                String lat = getLinkedMapStringValue(tMap, "lat");
-                String lng = getLinkedMapStringValue(tMap, "lng");
-                String formatLat = Utils.convertLatitude(lat);
-                String formatLng = Utils.convertLongitude(lng);
-                content = joinWithStrings(",", formatLat, formatLng);
-            } else if (TextUtils.equals("geolocation", geo_format)) {
-                String province = getLinkedMapStringValue(tMap, "province");
-                String city = getLinkedMapStringValue(tMap, "city");
-                String dis = getLinkedMapStringValue(tMap, "district");
-                String detail = getLinkedMapStringValue(tMap, "detail");
-                content = joinStrings(province, city, dis, detail);
-            } else if (TextUtils.equals("country_region", geo_format)) {
-                content = getLinkedMapStringValue(tMap, "country_region");
-            } else if (TextUtils.equals("province", geo_format)) {
-                content = getLinkedMapStringValue(tMap, "province");
-            } else if (TextUtils.equals("province_city", geo_format)) {
-                String province = getLinkedMapStringValue(tMap, "province");
-                String city = getLinkedMapStringValue(tMap, "city");
-                content = joinStrings(province, city);
-            } else if (TextUtils.equals("province_city_district", geo_format)) {
-                String province = getLinkedMapStringValue(tMap, "province");
-                String city = getLinkedMapStringValue(tMap, "city");
-                String dis = getLinkedMapStringValue(tMap, "district");
-                content = joinStrings(province, city, dis);
-            }
-
-            content = content.trim();
-            View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
-            if (TextUtils.isEmpty(content) || TextUtils.equals(",", content)) {
-                ltr.<TextView>findViewById(R.id.text_view).setText(context.getResources().getString(R.string.empty));
-                ltr.<TextView>findViewById(R.id.text_view).setTextColor(ContextCompat.getColor(context, R.color.grey));
-            } else {
-                ltr.<TextView>findViewById(R.id.text_view).setTextColor(ContextCompat.getColor(context, R.color.item_title_color));
-                ltr.<TextView>findViewById(R.id.text_view).setText(content);
-            }
-
-            view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
+        View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
+        if (locationModel == null || TextUtils.isEmpty(locationModel.getText())) {
+            ltr.<TextView>findViewById(R.id.text_view).setText(context.getResources().getString(R.string.empty));
+            ltr.<TextView>findViewById(R.id.text_view).setTextColor(ContextCompat.getColor(context, R.color.grey));
+        } else {
+            ltr.<TextView>findViewById(R.id.text_view).setTextColor(ContextCompat.getColor(context, R.color.item_title_color));
+            ltr.<TextView>findViewById(R.id.text_view).setText(locationModel.getText());
         }
+
+        view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
     }
 
     private static String getLinkedMapStringValue(LinkedTreeMap<?, ?> tMap, String key) {
@@ -990,9 +959,7 @@ public class MetadataViewUtils {
         if (configDataModel == null || StringUtils.isEmpty(configDataModel.format)) {
             format = DateFormatType.DATE_YMD_HMS;
         } else {
-            format = configDataModel.format
-                    .replace("YYYY", "yyyy")
-                    .replace("DD", "dd");
+            format = configDataModel.getFormat();
         }
 
         // set data
@@ -1262,7 +1229,6 @@ public class MetadataViewUtils {
         SupportMetadataRadioGroup radioGroup = new SupportMetadataRadioGroup(context);
         radioGroup.setKey(metadataModel.key);
         radioGroup.setEditable(editable);
-        radioGroup.setChangedListener(optionsChangedListener);
 
         for (OptionTagModel optionsModel : optionsList) {
             radioGroup.addRadioView(optionsModel);
@@ -1272,6 +1238,9 @@ public class MetadataViewUtils {
             String initText = metadataModel.value.toString();
             radioGroup.select(initText);
         }
+
+        // listener
+        radioGroup.setChangedListener(optionsChangedListener);
 
         flexboxContainer.addView(radioGroup);
 
@@ -1300,7 +1269,6 @@ public class MetadataViewUtils {
 
         SupportMetadataCheckGroup checkGroup = new SupportMetadataCheckGroup(context);
         checkGroup.setEditable(editable);
-        checkGroup.setChangedListener(optionsChangedListener);
 
         for (int i = 0; i < metadataConfigDataModel.options.size(); i++) {
             OptionTagModel optionsModel = metadataConfigDataModel.options.get(i);
@@ -1315,6 +1283,9 @@ public class MetadataViewUtils {
             }
         }
 
+        // listener
+        checkGroup.setChangedListener(optionsChangedListener);
+
         flexboxContainer.addView(checkGroup);
 
         if (!isAdded) {
@@ -1326,7 +1297,6 @@ public class MetadataViewUtils {
                                              boolean editable,
                                              LinearLayout parentContainer,
                                              MetadataModel metadataModel,
-                                             Boolean isChecked,
                                              CompoundButton.OnCheckedChangeListener onCheckedChangeListener) {
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
@@ -1340,9 +1310,11 @@ public class MetadataViewUtils {
         checkBox.setLayoutParams(llp);
         checkBox.setEnabled(editable);
 
-        if (isChecked != null) {
-            checkBox.setChecked(isChecked);
+        boolean isChecked = false;
+        if (metadataModel.value instanceof Boolean b) {
+            isChecked = b;
         }
+        checkBox.setChecked(isChecked);
 
         if (onCheckedChangeListener != null) {
             checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
@@ -1358,7 +1330,6 @@ public class MetadataViewUtils {
                                          boolean editable,
                                          LinearLayout parentContainer,
                                          MetadataModel metadataModel,
-                                         float rateNum,
                                          OnRatingChangedListener onRatingChangedListener) {
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
@@ -1369,12 +1340,17 @@ public class MetadataViewUtils {
             return;
         }
 
+        int rateNum = 0;
+        if (metadataModel.value instanceof Number n) {
+            rateNum = n.intValue();
+        }
+
         SeaRatingBar seaRatingBar = new SeaRatingBar(context);
         seaRatingBar.setEnabled(editable);
         seaRatingBar.setStarHeight(Constants.DP.DP_24);
         seaRatingBar.setStarWidth(Constants.DP.DP_24);
         seaRatingBar.setStarTotal(configDataModel.rate_max_number);
-        seaRatingBar.setStarPadding(4);
+        seaRatingBar.setStarPadding(DP_8);
         seaRatingBar.setRatingStatus(RatingStatus.Enable);
 
         int drawRes = R.drawable.icon_starred;

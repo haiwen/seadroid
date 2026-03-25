@@ -71,6 +71,18 @@ public class Utils {
     private Utils() {
     }
 
+    public static boolean isSDoc(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return false;
+        }
+        String suffix = FilenameUtils.getExtension(fileName);
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
+
+        return StringUtils.equals("sdoc", suffix.toLowerCase());
+    }
+
     public static String getVendorNormalized() {
         String raw = android.os.Build.MANUFACTURER;
         if (raw == null) return "";
@@ -270,6 +282,22 @@ public class Utils {
 
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         return TextUtils.equals(mime, "image/gif");
+    }
+
+    public static boolean availableThumbnail(String fileName) {
+        if (isViewableImage(fileName)) {
+            return true;
+        }
+
+        if (isVideoFile(fileName)) {
+            return true;
+        }
+
+        if (isSDoc(fileName)) {
+            return true;
+        }
+
+        return false;
     }
 
     public static boolean isViewableImage(String name) {

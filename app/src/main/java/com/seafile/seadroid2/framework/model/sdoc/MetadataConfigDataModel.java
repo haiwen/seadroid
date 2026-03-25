@@ -36,6 +36,14 @@ public class MetadataConfigDataModel implements Parcelable {
     public MetadataConfigDataModel() {
     }
 
+    public String getFormat() {
+
+        return format
+                .replace("M/D/YYYY","M/d/yyyy")
+                .replace("YYYY", "yyyy")
+                .replace("DD", "dd");
+    }
+
     @Override
     public int describeContents() {
         return 0;

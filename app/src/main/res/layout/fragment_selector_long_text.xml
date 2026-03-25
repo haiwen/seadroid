@@ -16,6 +16,7 @@
         android:gravity="start|top"
         android:hint="@string/empty"
         android:importantForAutofill="no"
+        android:textSize="16sp"
         android:inputType="text"
         android:minHeight="120dp"
         android:padding="24dp"

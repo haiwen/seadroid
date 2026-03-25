@@ -1,9 +1,11 @@
 package com.seafile.seadroid2.ui.media.image;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -68,6 +70,7 @@ import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.ui.file_profile.ProfileEditorActivity;
 import com.seafile.seadroid2.ui.media.data_source.MotionPhotoDataSourceFactory;
 import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
@@ -85,7 +88,7 @@ import java.util.Locale;
 public class PhotoFragment extends BaseFragment {
     public static final String TAG = "PhotoFragment";
     private FragmentPhotoViewBinding binding;
-
+    private FileProfileConfigModel configModel;
     private String repoId, repoName, fullPath;
     private String imageUrl;
     private boolean isNightMode = false;
@@ -277,11 +280,21 @@ public class PhotoFragment extends BaseFragment {
             public void onChanged(FileProfileConfigModel configModel) {
                 binding.bottomProgressBar.setVisibility(GONE);
 
+                //
+                PhotoFragment.this.configModel = configModel;
+
                 DocProfileView detailView = new DocProfileView(requireContext());
                 detailView.parseData(configModel);
 
+                if (configModel.isMetadataEnabled()) {
+                    binding.profileActionbarContainer.setVisibility(VISIBLE);
+                } else {
+                    binding.profileActionbarContainer.setVisibility(INVISIBLE);
+                }
+
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
-                binding.bottomDetailsContainer.addView(detailView, 0, lp);
+                binding.bottomDetailsContainer.addView(detailView, 1, lp);
+
             }
         });
 
@@ -299,7 +312,17 @@ public class PhotoFragment extends BaseFragment {
     }
 
     private void initView() {
-
+        binding.edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (configModel == null){
+                    SLogs.d(TAG, "configModel is null, can not click.");
+                    return;
+                }
+                Intent intent = ProfileEditorActivity.getIntent(requireContext(), repoId, configModel);
+                startActivity(intent);
+            }
+        });
         // live photo
         FrameLayout.LayoutParams fl = (FrameLayout.LayoutParams) binding.btnLivePhoto.getLayoutParams();
         fl.topMargin = BarUtils.getStatusBarHeight() + CarouselImagePreviewActivity.actionbarHeight + Constants.DP.DP_8;
