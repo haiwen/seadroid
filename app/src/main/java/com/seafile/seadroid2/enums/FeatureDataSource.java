@@ -6,12 +6,13 @@ public enum FeatureDataSource {
     DOWNLOAD,
     MANUAL_FILE_UPLOAD,
     SHARE_FILE_TO_SEAFILE,
-    AUTO_UPDATE_LOCAL_FILE;
+    AUTO_UPDATE_LOCAL_FILE,
+    FOLDER_SYNC;
 
     public static TransferDataSource toTransferDataSource(FeatureDataSource transferDataSource) {
         return switch (transferDataSource) {
             case ALBUM_BACKUP -> TransferDataSource.ALBUM_BACKUP;
-            case FOLDER_BACKUP -> TransferDataSource.FOLDER_BACKUP;
+            case FOLDER_BACKUP, FOLDER_SYNC -> TransferDataSource.FOLDER_BACKUP;
             case DOWNLOAD, AUTO_UPDATE_LOCAL_FILE -> TransferDataSource.DOWNLOAD;
             case MANUAL_FILE_UPLOAD, SHARE_FILE_TO_SEAFILE -> TransferDataSource.FILE_BACKUP;
         };

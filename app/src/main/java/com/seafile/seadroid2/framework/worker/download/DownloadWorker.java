@@ -1,11 +1,13 @@
 package com.seafile.seadroid2.framework.worker.download;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
@@ -22,6 +24,8 @@ import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.SyncRule;
+import com.seafile.seadroid2.framework.datastore.SyncRuleManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
@@ -44,11 +48,15 @@ import com.seafile.seadroid2.ui.file.FileService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -357,13 +365,101 @@ public class DownloadWorker extends BaseDownloadWorker {
                 }
 
                 //important
-                Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                boolean isSuccess = path.toFile().exists();
-                if (isSuccess) {
-                    java.nio.file.Files.deleteIfExists(tempFile.toPath());
-                    updateToSuccess(fileId, localFile);
+                // Check if this file matches a sync rule
+                SyncRule syncRule = SyncRuleManager.findMatch(currentTransferModel.repo_id, currentTransferModel.full_path);
+
+                if (syncRule != null) {
+                    // Move file to the user's chosen sync destination (not a copy)
+                    boolean moved = moveToSyncDestination(tempFile, syncRule, currentTransferModel.full_path);
+                    if (moved) {
+                        Files.deleteIfExists(tempFile.toPath());
+                        updateToSuccess(fileId, localFile);
+                    } else {
+                        // Fallback to normal cache if sync dest fails
+                        SLogs.d(TAG, "download()", "Sync dest failed, falling back to cache");
+                        Path path = Files.move(tempFile.toPath(), localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        if (path.toFile().exists()) {
+                            Files.deleteIfExists(tempFile.toPath());
+                            updateToSuccess(fileId, localFile);
+                        }
+                    }
+                } else {
+                    // No sync rule — normal cache behavior
+                    Path path = Files.move(tempFile.toPath(), localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    boolean isSuccess = path.toFile().exists();
+                    if (isSuccess) {
+                        Files.deleteIfExists(tempFile.toPath());
+                        updateToSuccess(fileId, localFile);
+                    }
                 }
             }
+        }
+    }
+
+    /**
+     * Moves a temp file to the sync destination folder using SAF.
+     * Creates subdirectories as needed to preserve the relative path structure.
+     * Returns true on success.
+     */
+    private boolean moveToSyncDestination(File tempFile, SyncRule rule, String fullPath) {
+        try {
+            Uri treeUri = Uri.parse(rule.localUri);
+            DocumentFile destDir = DocumentFile.fromTreeUri(getApplicationContext(), treeUri);
+            if (destDir == null || !destDir.exists() || !destDir.canWrite()) {
+                SLogs.d(TAG, "moveToSyncDestination()", "Sync destination not accessible");
+                return false;
+            }
+
+            // Create subdirectories for the relative path
+            String relativePath = rule.getRelativePath(fullPath);
+            String[] parts = relativePath.split("/");
+            String fileName = parts[parts.length - 1];
+
+            // Navigate/create intermediate directories
+            DocumentFile currentDir = destDir;
+            for (int i = 0; i < parts.length - 1; i++) {
+                String dirName = parts[i];
+                if (dirName.isEmpty()) continue;
+                DocumentFile subDir = currentDir.findFile(dirName);
+                if (subDir == null || !subDir.isDirectory()) {
+                    subDir = currentDir.createDirectory(dirName);
+                }
+                if (subDir == null) {
+                    SLogs.d(TAG, "moveToSyncDestination()", "Failed to create subdirectory: " + dirName);
+                    return false;
+                }
+                currentDir = subDir;
+            }
+
+            // Remove existing file with same name
+            DocumentFile existingFile = currentDir.findFile(fileName);
+            if (existingFile != null) {
+                existingFile.delete();
+            }
+
+            DocumentFile newFile = currentDir.createFile("application/octet-stream", fileName);
+            if (newFile == null) {
+                SLogs.d(TAG, "moveToSyncDestination()", "Failed to create file");
+                return false;
+            }
+
+            try (InputStream in = new FileInputStream(tempFile);
+                 OutputStream out = getApplicationContext().getContentResolver().openOutputStream(newFile.getUri())) {
+                if (out == null) {
+                    return false;
+                }
+                byte[] buffer = new byte[SEGMENT_SIZE];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+            }
+
+            SLogs.d(TAG, "moveToSyncDestination()", "Moved to sync dest: " + fileName);
+            return true;
+        } catch (IOException e) {
+            SLogs.e(TAG, "moveToSyncDestination()", "Failed: " + e.getMessage());
+            return false;
         }
     }
 

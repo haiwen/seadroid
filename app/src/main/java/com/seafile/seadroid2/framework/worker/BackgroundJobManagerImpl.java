@@ -242,4 +242,51 @@ public class BackgroundJobManagerImpl {
     public void cancelAllJobs() {
         getWorkManager().cancelAllWork();
     }
+
+
+    /// /////////////////// folder sync //////////////////////
+
+    public void scheduleFolderSync() {
+        SLogs.d(TAG, "scheduleFolderSync()");
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        PeriodicWorkRequest request = periodicRequestBuilder(FolderSyncWorker.class)
+                .setId(FolderSyncWorker.UID)
+                .setConstraints(constraints)
+                .setInitialDelay(DEFAULT_PERIODIC_JOB_INTERVAL_MINUTES, TimeUnit.MINUTES)
+                .build();
+
+        getWorkManager().enqueueUniquePeriodicWork(
+                FolderSyncWorker.TAG,
+                ExistingPeriodicWorkPolicy.KEEP,
+                request
+        );
+    }
+
+    public void stopFolderSync() {
+        SLogs.d(TAG, "stopFolderSync()");
+        getWorkManager().cancelUniqueWork(FolderSyncWorker.TAG);
+        getWorkManager().pruneWork();
+    }
+
+    public void runFolderSyncNow() {
+        SLogs.d(TAG, "runFolderSyncNow()");
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        OneTimeWorkRequest request = oneTimeRequestBuilder(FolderSyncWorker.class)
+                .setConstraints(constraints)
+                .build();
+
+        getWorkManager().enqueueUniqueWork(
+                FolderSyncWorker.TAG + "_once",
+                ExistingWorkPolicy.KEEP,
+                request
+        );
+    }
 }

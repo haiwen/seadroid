@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.file;
 
+import com.seafile.seadroid2.framework.model.dirents.DeleteDirentModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentDirModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
@@ -10,6 +11,7 @@ import java.util.Map;
 import io.reactivex.Single;
 import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -60,4 +62,14 @@ public interface FileService {
 
     @GET("api2/repos/{repo_id}/update-link/")
     Single<String> getFileUpdateLinkSync(@Path("repo_id") String repoId);
+
+    @DELETE("api/v2.1/repos/{repo_id}/file/")
+    Call<DeleteDirentModel> deleteFileSync(
+            @Path("repo_id") String repoId,
+            @Query("p") String path);
+
+    @DELETE("api/v2.1/repos/{repo_id}/dir/")
+    Call<DeleteDirentModel> deleteDirSync(
+            @Path("repo_id") String repoId,
+            @Query("p") String path);
 }

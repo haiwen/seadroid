@@ -59,7 +59,7 @@ public class BackupThreadNotificationDispatcher implements ITransferNotification
 
         return switch (source) {
             case ALBUM_BACKUP -> context.getString(R.string.settings_camera_upload_info_title);
-            case FOLDER_BACKUP -> context.getString(R.string.settings_folder_backup_info_title);
+            case FOLDER_BACKUP, FOLDER_SYNC -> context.getString(R.string.settings_folder_backup_info_title);
             case MANUAL_FILE_UPLOAD, SHARE_FILE_TO_SEAFILE, AUTO_UPDATE_LOCAL_FILE ->
                     context.getString(R.string.channel_name_upload);
             case DOWNLOAD -> context.getString(R.string.download);
@@ -91,6 +91,11 @@ public class BackupThreadNotificationDispatcher implements ITransferNotification
             case DOWNLOAD: {
                 dIntent = new Intent(context, TransferActivity.class);
                 dIntent.putExtra(NOTIFICATION_MESSAGE_KEY, NOTIFICATION_OPEN_DOWNLOAD_TAB);
+                dIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            }
+            case FOLDER_SYNC: {
+                dIntent = new Intent(context, TransferActivity.class);
+                dIntent.putExtra(NOTIFICATION_MESSAGE_KEY, NOTIFICATION_OPEN_UPLOAD_TAB);
                 dIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             }
         }
