@@ -58,6 +58,7 @@ import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
@@ -331,7 +332,7 @@ public class MetadataViewUtils {
     }
 
     //location
-    public static void parseGeoLocation(Context context, LinearLayout view, MetadataModel metadataModel,FileProfileConfigModel configModel) {
+    public static void parseGeoLocation(Context context, LinearLayout view, MetadataModel metadataModel, FileProfileConfigModel configModel) {
         GeoLocationModel locationModel = parseGeoLocation(metadataModel, configModel);
 
         View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
@@ -739,37 +740,43 @@ public class MetadataViewUtils {
             text.setBackgroundResource(R.drawable.shape_task_view_no_editable);
         }
 
+        MetadataConfigDataModel configDataModel = metadataModel.getConfigData();
+
         text.setKeyListener(new NumberDotOnlyInputFilter());
         text.setFilters(new InputFilter[]{new CharacterNoRepeatSpecialCountInputFilter('.', 1)});
-
-        String initText = "";
-        if (metadataModel.value instanceof Double d) {
+        if (metadataModel.value instanceof Number number) {
             if (TextUtils.equals("_size", metadataModel.key)) {
-                initText = Utils.readableFileSize(d.longValue());
+                String initText = Utils.readableFileSize(number.longValue());
+                text.setText(initText);
             } else {
-                initText = metadataModel.value.toString();
+                String t = getFormattedNumber(number, configDataModel);
+                text.setText(t);
             }
         }
-        //
-        MetadataConfigDataModel metadataConfigDataModel = metadataModel.getConfigData();
-        if (metadataConfigDataModel != null && !StringUtils.isEmpty(initText)) {
-            String t = getNoDotCharNumber(initText, metadataConfigDataModel.format);
-            text.setText(t);
-        } else if (!StringUtils.isEmpty(initText)) {
-            text.setText(initText);
-        } else {
-            text.setText("");
-        }
+
 
         if (editable && onTextChangedListener != null) {
             text.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (hasFocus) {
-                        return;
+                        String r = getOriginalNumberByFormattedString(text.getText().toString(), configDataModel);
+                        text.setText(r);
+                    } else {
+                        // Use BigDecimal directly to avoid floating-point precision issues
+                        String inputStr = text.getText().toString();
+                        if (inputStr.isEmpty()) {
+                            return;
+                        }
+
+                        try {
+                            BigDecimal decimalValue = new BigDecimal(inputStr);
+                            String r = getFormattedNumber(decimalValue, configDataModel);
+                            text.setText(r);
+                        } catch (NumberFormatException e) {
+                            SLogs.e("Failed to parse number: " + inputStr);
+                        }
                     }
-                    String r = getNormalFormatNumber(text.getText().toString(), metadataConfigDataModel);
-                    text.setText(r);
                 }
             });
 
@@ -801,138 +808,391 @@ public class MetadataViewUtils {
         }
     }
 
-    public static String getNormalFormatNumber(String t, MetadataConfigDataModel columnDataModel) {
-        return getFormatNumber(t, columnDataModel, false);
-    }
-
-    public static String getNoDotCharNumber(String t, String format) {
-        if (TextUtils.isEmpty(format)) {
-            return t;
+    /**
+     * Modify thousands separator symbol, adding specified thousands separator to the number.
+     * input: Input number string, could be "101.11%", or "~11.11", "1.01¥", etc. Need to remove non-numeric characters before calculating thousands separator.
+     * <p>
+     * thousandSymbol: The symbol to replace with, three types: "no" means no input, return directly. "space" use space to replace. "comma" use comma to replace.
+     * <p>
+     * decima: Current decimal point symbol in the number string, could be dot or comma.
+     *
+     */
+    public static String modifyThousandsSymbol(String input, String thousandSymbol, String decima) {
+        if (input == null || input.isEmpty()) {
+            return input;
         }
 
-        //set default value
-        if (!"number".equals(format)) {
-            return t;
-        }
-        //1.234567890111E12
-
-        if (TextUtils.isEmpty(t)) {
-            return t;
+        // If no thousands separator needed, return directly
+        if ("no".equals(thousandSymbol)) {
+            if ("comma".equals(decima)) {
+                input = input.replace(".", ",");
+            }
+            return input;
         }
 
-        //Scientific notation
-        if (t.contains(".") && t.toLowerCase(Locale.getDefault()).contains("e")) {
-            BigDecimal bd = new BigDecimal(t);
-            return bd.toPlainString();
-        } else if (t.contains(".")) {
-            int decimalIndex = t.indexOf(".");
-            if (decimalIndex >= 0) {
-                String[] ts = t.split("\\.");
-                String decimalPart = ts[1];
-                double decimalValue = Double.parseDouble("0." + decimalPart);
-                if (decimalValue == 0) {
-                    return ts[0];
+        // Determine the final decimal separator character based on decima parameter
+        String finalDecimalSeparator = "comma".equals(decima) ? "," : ".";
+
+        // Determine the thousands separator character
+        String thousandsSeparator = "space".equals(thousandSymbol) ? " " : ",";
+
+        // Extract prefix, integer part, decimal part, and suffix
+        // Input decimal point is always "."
+        StringBuilder prefix = new StringBuilder(); // Non-numeric prefix (like ~, ¥)
+        StringBuilder integerPart = new StringBuilder(); // Integer part (digits before ".")
+        StringBuilder decimalPart = new StringBuilder(); // Decimal part (after ".")
+        StringBuilder suffix = new StringBuilder(); // Non-numeric suffix (like %)
+
+        boolean foundNumeric = false;
+        boolean foundDecimal = false;
+        boolean foundNegative = false;
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+
+            if (c == '-' && !foundNumeric && !foundNegative) {
+                foundNegative = true;
+                integerPart.append(c);
+                foundNumeric = true;
+            } else if (Character.isDigit(c)) {
+                if (!foundDecimal) {
+                    integerPart.append(c);
                 } else {
-                    return t;
+                    decimalPart.append(c);
                 }
+                foundNumeric = true;
+            } else if (c == '.' && !foundDecimal) {
+                // First "." is the decimal point
+                foundDecimal = true;
+                foundNumeric = true;
+            } else if (foundNumeric) {
+                if (!foundDecimal && c != ',' && c != ' ') {
+                    // After integer started but before decimal, could be old thousands separator or suffix
+                    // Check if it's a valid thousands separator (comma or space)
+                    if (c == ',' || c == ' ') {
+                        // Skip old thousands separator
+                    } else {
+                        // It's suffix
+                        suffix.append(c);
+                        foundNumeric = false; // Mark that we're now in suffix mode
+                    }
+                } else if (foundDecimal) {
+                    // After decimal, it's suffix
+                    suffix.append(c);
+                }
+            } else {
+                // Before numeric part, it's prefix
+                prefix.append(c);
             }
         }
 
+        String integerStr = integerPart.toString();
+        if (integerStr.isEmpty()) {
+            return input;
+        }
 
-        return t;
+        // Remove negative sign temporarily for processing
+        boolean isNegative = integerStr.startsWith("-");
+        if (isNegative) {
+            integerStr = integerStr.substring(1);
+        }
+
+        // Remove any existing thousands separators and non-digit characters
+        StringBuilder cleanInteger = new StringBuilder();
+        for (int i = 0; i < integerStr.length(); i++) {
+            char c = integerStr.charAt(i);
+            if (Character.isDigit(c)) {
+                cleanInteger.append(c);
+            }
+        }
+
+        // Add thousands separator to integer part
+        StringBuilder formattedInteger = new StringBuilder();
+        int count = 0;
+        for (int i = cleanInteger.length() - 1; i >= 0; i--) {
+            formattedInteger.insert(0, cleanInteger.charAt(i));
+            count++;
+            if (count == 3 && i > 0) {
+                formattedInteger.insert(0, thousandsSeparator);
+                count = 0;
+            }
+        }
+
+        // Add negative sign back if needed
+        if (isNegative) {
+            formattedInteger.insert(0, "-");
+        }
+
+        // Combine prefix, formatted number, decimal part (with final decimal separator), and suffix
+        StringBuilder result = new StringBuilder();
+        result.append(prefix.toString());
+        result.append(formattedInteger.toString());
+        if (decimalPart.length() > 0) {
+            result.append(finalDecimalSeparator);
+            result.append(decimalPart.toString());
+        }
+        result.append(suffix.toString());
+
+        return result.toString();
     }
 
     /**
-     * @param isPercentTypeMultiplyBy100 true: if type is percent, multiply by 100
+     * <p>将已格式化的字符串，还原成纯数字 Number 字符串<p/>
+     * 还原格式通过thousands、decima、precision等参数作为识别条件。<br/>
+     * thousands是千分位标识符("no","comma","space")<br/>
+     * decima是小数点标识符("dot","comma")<br/>
+     * precision是小数点后保留位数<br/>
+     * enable_precision代表是否启用小数点后保留位数。<br/>
+     * input: Formatted string。<br/>
+     * <p>
+     * 识别规则：<br/>
+     * a: 先去掉首尾的非数字字符，负号除外。<br/>
+     * b: 当 thousands是 comma，且decima也是comma时<br/>
+     * b.1: 如果最后一个 comma 后边的字符个数是 1、2、4、5、6位，那么即可认定最后一个 comma 为小数点标识<br/>
+     * b.2: 如果最后一个 comma 后边的字符格式是 3 位，那么此时无法分清最后一个 comma 到底是千分位标识还是小数点标识，那么可使用enable_precision 并且 precision == 3条件，判断是否启用3位精度的小数点，如果启用了则代表最后一个 comma 为小数点标识，否则则是千分位标识。<br/>
+     * c: 生成数字时，小数点标识要使用标准"."逗号<br/>
+     * <pre>
+     *   ～11.010000
+     *   11,0101
+     *   1 010 111,000000%: thousands="space", decima="comma", enable_precision=true, precision=6
+     *   ￥101,110000: decima="comma", enable_precision=true, precision=6
+     *   101,110000~: decima="comma", enable_precision=true, precision=6
+     *   101,110,000: thousands="comma", 如果 enable_precision=true, precision=3, 则最后一个 comma 为小数点标识
+     *   101,110,000: thousands="comma", 如果 enable_precision=false, 则最后一个 comma 为千分位标识
+     *   101,110,000000: 最后一个 comma 为小数点标识
+     *   101,110,00: 最后一个 comma 为小数点标识
+     * <pre/>
+     *
      */
-    public static String getFormatNumber(String t, MetadataConfigDataModel columnDataModel, boolean isPercentTypeMultiplyBy100) {
-        if (TextUtils.isEmpty(t)) {
-            return t;
+    public static String getOriginalNumberByFormattedString(String formattedString, MetadataConfigDataModel configDataModel) {
+        if (formattedString == null || formattedString.isEmpty()) {
+            return "0";
+        }
+
+        if (configDataModel == null) {
+            // default config
+            configDataModel = new MetadataConfigDataModel();
+            configDataModel.thousands = "no";
+            configDataModel.decimal = "dot";
+            configDataModel.enable_precision = false;
+            configDataModel.precision = 2;
+            configDataModel.format = "number";
+        }
+
+        // ～11.010000
+        // 11,0101
+        // 1 010 111,000000%
+        // ￥101,110000
+        // 101,110000~
+        // 101,110,000: enable_precision = true, precision=3,最后一个 comma 为小数点标识
+        // 101,110,00: 最后一个 comma 为小数点标识
+        // 101,110,000000: 最后一个 comma 为小数点标识
+
+        // Check if the input contains percentage sign
+        boolean isPercentage = formattedString.contains("%");
+
+        String thousands = configDataModel.thousands;
+        String decima = configDataModel.decimal;
+        boolean enable_precision = configDataModel.enable_precision;
+        int precision = configDataModel.precision;
+
+        // Step a: Remove non-numeric prefix and suffix (except negative sign)
+        StringBuilder numericPart = new StringBuilder();
+        boolean foundNumeric = false;
+        boolean foundNegative = false;
+
+        for (int i = 0; i < formattedString.length(); i++) {
+            char c = formattedString.charAt(i);
+
+            if (c == '-' && !foundNumeric && !foundNegative) {
+                foundNegative = true;
+                numericPart.append(c);
+                foundNumeric = true;
+            } else if (Character.isDigit(c)) {
+                numericPart.append(c);
+                foundNumeric = true;
+            } else if (c == '.' || c == ',' || c == ' ') {
+                // Keep potential separators
+                numericPart.append(c);
+                foundNumeric = true;
+            }
+            // Other characters (prefix/suffix) are ignored
+        }
+
+        String cleanedStr = numericPart.toString();
+        if (cleanedStr.isEmpty()) {
+            return "0";
+        }
+
+        // Determine the separator characters based on config
+        String thousandsSeparator;
+        if ("space".equals(thousands)) {
+            thousandsSeparator = " ";
+        } else if ("comma".equals(thousands)) {
+            thousandsSeparator = ",";
+        } else {
+            thousandsSeparator = null; // "no" means no thousands separator
+        }
+
+        String decimalSeparator = "comma".equals(decima) ? "," : ".";
+
+        // Step b: Handle special case when thousands is "comma" AND decima is "comma"
+        if ("comma".equals(thousands) && "comma".equals(decima)) {
+            int lastCommaIndex = cleanedStr.lastIndexOf(",");
+            if (lastCommaIndex != -1) {
+                String afterLastComma = cleanedStr.substring(lastCommaIndex + 1);
+                int afterLastCommaLength = afterLastComma.length();
+
+                // Rule b.1: If characters after last comma is 1, 2, 4, 5, or 6 digits, it's a decimal point
+                if (afterLastCommaLength == 1 || afterLastCommaLength == 2 ||
+                        afterLastCommaLength == 4 || afterLastCommaLength == 5 ||
+                        afterLastCommaLength == 6) {
+                    // Last comma is decimal point
+                    cleanedStr = cleanedStr.substring(0, lastCommaIndex) + "." + afterLastComma;
+                }
+                // Rule b.2: If characters after last comma is 3 digits
+                else if (afterLastCommaLength == 3) {
+                    // Check if enable_precision is true AND precision == 3
+                    if (enable_precision && precision == 3) {
+                        // Last comma is decimal point
+                        cleanedStr = cleanedStr.substring(0, lastCommaIndex) + "." + afterLastComma;
+                    } else {
+                        // Last comma is thousands separator, remove it
+                        cleanedStr = cleanedStr.substring(0, lastCommaIndex) + afterLastComma;
+                    }
+                } else {
+                    // Other cases: last comma is decimal point
+                    cleanedStr = cleanedStr.substring(0, lastCommaIndex) + "." + afterLastComma;
+                }
+            }
+
+            // Remove all remaining commas (thousands separators)
+            cleanedStr = cleanedStr.replace(",", "");
+        } else {
+            // Normal case: different thousands and decimal separators
+
+            // Remove thousands separator if exists
+            if (thousandsSeparator != null) {
+                cleanedStr = cleanedStr.replace(thousandsSeparator, "");
+            }
+
+            // Replace decimal separator with standard "."
+            if (!".".equals(decimalSeparator)) {
+                cleanedStr = cleanedStr.replace(decimalSeparator, ".");
+            }
+        }
+
+        // Remove any remaining spaces
+        cleanedStr = cleanedStr.replace(" ", "");
+
+        // Validate and return
+        if (cleanedStr.isEmpty() || cleanedStr.equals("-")) {
+            return "0";
+        }
+
+        // Handle percentage: divide by 100 if the original string contains "%"
+        if (isPercentage) {
+            try {
+                // Use BigDecimal to avoid floating-point precision issues
+                BigDecimal number = new BigDecimal(cleanedStr);
+                BigDecimal dividedValue = number.divide(BigDecimal.valueOf(100), 10, java.math.RoundingMode.HALF_UP);
+                cleanedStr = dividedValue.stripTrailingZeros().toPlainString();
+            } catch (NumberFormatException e) {
+                // If parsing fails, return as is
+                SLogs.e("Failed to parse percentage number: " + cleanedStr);
+            }
+        }
+
+        return cleanedStr;
+    }
+
+    @Nullable
+    public static String getFormattedNumber(Number t, MetadataConfigDataModel configDataModel) {
+        if (t == null) {
+            return null;
+        }
+
+        if (configDataModel == null) {
+            // default config
+            configDataModel = new MetadataConfigDataModel();
+            configDataModel.thousands = "no";
+            configDataModel.decimal = "dot";
+            configDataModel.enable_precision = false;
+            configDataModel.precision = 2;
+            configDataModel.format = "number";
         }
 
         //set default value
-        if ("number".equals(columnDataModel.format)) {
-            return getNoDotCharNumber(t, columnDataModel.format);
+        if ("number".equals(configDataModel.format)) {
+            String f;
+            if (configDataModel.enable_precision) {
+                f = NumberUtils.format(t.floatValue(), configDataModel.precision);
+            } else {
+                f = t.toString();
+            }
+
+            return modifyThousandsSymbol(f, configDataModel.thousands, configDataModel.decimal);
+
+        } else if ("percent".equals(configDataModel.format)) {
+            // Use BigDecimal to avoid floating-point precision issues
+            BigDecimal decimalValue;
+            if (t instanceof BigDecimal) {
+                decimalValue = (BigDecimal) t;
+            } else if (t instanceof Float || t instanceof Double) {
+                decimalValue = BigDecimal.valueOf(t.doubleValue());
+            } else {
+                decimalValue = new BigDecimal(t.toString());
+            }
+
+            BigDecimal percentValue = decimalValue.multiply(BigDecimal.valueOf(100));
+
+            String f;
+            if (configDataModel.enable_precision) {
+                f = NumberUtils.format(percentValue.doubleValue(), configDataModel.precision);
+            } else {
+                // Use BigDecimal's plain string representation to avoid precision issues
+                f = percentValue.stripTrailingZeros().toPlainString();
+            }
+
+            f = f + "%";
+            return modifyThousandsSymbol(f, configDataModel.thousands, configDataModel.decimal);
+
+        } else if ("yuan".equals(configDataModel.format) || "dollar".equals(configDataModel.format) || "euro".equals(configDataModel.format)) {
+            float d = t.floatValue();
+            String f;
+            if (configDataModel.enable_precision) {
+                f = NumberUtils.format(d, configDataModel.precision);
+            } else {
+                f = NumberUtils.format(d, 2);//default 2
+            }
+
+            if ("yuan".equals(configDataModel.format)) {
+                f = "¥" + f;
+            } else if ("dollar".equals(configDataModel.format)) {
+                f = "$" + f;
+            } else if ("euro".equals(configDataModel.format)) {
+                f = "€" + f;
+            }
+            return modifyThousandsSymbol(f, configDataModel.thousands, configDataModel.decimal);
+
+        } else if ("custom_currency".equals(configDataModel.format)) {
+            String f;
+            if (configDataModel.enable_precision) {
+                float d = t.floatValue();
+                f = NumberUtils.format(d, configDataModel.precision);
+            } else {
+                f = t.toString();
+            }
+
+            if ("before".equals(configDataModel.currency_symbol_position)) {
+                f = configDataModel.currency_symbol + f;
+            } else {
+                f = f + configDataModel.currency_symbol;
+            }
+
+            return modifyThousandsSymbol(f, configDataModel.thousands, configDataModel.decimal);
         }
-
-        if ("percent".equals(columnDataModel.format)) {
-            if (t.contains("%")) {
-                t = t.replace("%", "");
-            }
-            double d = Double.parseDouble(t);
-            if (isPercentTypeMultiplyBy100) {
-                d = d * 100;
-            }
-
-            String r;
-            if (columnDataModel.enable_precision) {
-                r = NumberUtils.format(d, columnDataModel.precision);
-            } else {
-                r = String.valueOf(d);
-            }
-
-            return r + "%";
-        } else if ("yuan".equals(columnDataModel.format)) {
-            if (t.contains("￥")) {
-                t = t.replace("￥", "");
-            }
-            double d = Double.parseDouble(t);
-
-            String r;
-            if (columnDataModel.enable_precision) {
-                r = NumberUtils.format(d, columnDataModel.precision);
-            } else {
-                r = String.valueOf(d);
-            }
-            return "￥" + r;
-        } else if ("dollar".equals(columnDataModel.format)) {
-            if (t.contains("$")) {
-                t = t.replace("$", "");
-            }
-
-            double d = Double.parseDouble(t);
-
-            String r;
-            if (columnDataModel.enable_precision) {
-                r = NumberUtils.format(d, columnDataModel.precision);
-            } else {
-                r = String.valueOf(d);
-            }
-
-            return "$" + r;
-        } else if ("euro".equals(columnDataModel.format)) {
-            if (t.contains("€")) {
-                t = t.replace("€", "");
-            }
-            double d = Double.parseDouble(t);
-
-            String r;
-            if (columnDataModel.enable_precision) {
-                r = NumberUtils.format(d, columnDataModel.precision);
-            } else {
-                r = String.valueOf(d);
-            }
-            return "€" + r;
-        } else if ("custom_currency".equals(columnDataModel.format)) {
-            if (t.contains(columnDataModel.currency_symbol)) {
-                t = t.replace(columnDataModel.currency_symbol, "");
-            }
-
-            double d = Double.parseDouble(t);
-            String r;
-            if (columnDataModel.enable_precision) {
-                r = NumberUtils.format(d, columnDataModel.precision);
-            } else {
-                r = String.valueOf(d);
-            }
-
-            if ("before".equals(columnDataModel.currency_symbol_position)) {
-                return columnDataModel.currency_symbol + r;
-            } else {
-                return r + columnDataModel.currency_symbol;
-            }
-        }
-        return t;
+        return t.toString();
     }
 
 

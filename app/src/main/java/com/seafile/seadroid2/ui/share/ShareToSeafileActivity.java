@@ -41,6 +41,8 @@ import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.selector.AccountSelectorActivity;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import kotlin.Triple;
 
 public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileViewModel> {
     public static final String TAG = "ShareToSeafileActivity";
@@ -159,7 +162,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     public void accept(Boolean aBoolean) throws Exception {
                         SLogs.d(TAG, "isSafeSharedUri: " + aBoolean);
                         if (aBoolean) {
-                            checkAndLaunch();
+                            launchSelector();
                         } else {
                             Toasts.show(R.string.not_supported);
                             finish();
@@ -169,17 +172,47 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
     }
 
-    private void launchObjSelector() {
-        String lastPathStr = Settings.getSpecialUserSharedPreferences(account).getString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, "");
+    // launch Account or Obj selector
+    private void launchSelector() {
+        String lastPathStr = Settings.getCommonPreferences().getString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, "");
         SLogs.d(TAG, "lastPathStr: " + lastPathStr);
 
-        Pair<String, String> pair = parseLastPathStr(lastPathStr);
+        if (StringUtils.isEmpty(lastPathStr)) {
+            launchAccountSelector();
+            return;
+        }
 
-        Intent pathSelector = VersatileShareToSeafileSelectorActivity.getSpecialAccountIntent(ShareToSeafileActivity.this, account.getSignature(), pair.first, pair.second, null, 2);
-        objSelectorLauncher.launch(pathSelector);
+        // acount/repoId/path
+        Triple<String, String, String> triple = parseLastConfigStr(lastPathStr);
+        if (StringUtils.isEmpty(triple.component1())) {// account
+            launchAccountSelector();
+            return;
+        }
+
+        account = SupportAccountManager.getInstance().getSpecialAccount(triple.component1());
+        if (account == null) {
+            launchAccountSelector();
+            return;
+        }
+
+        launchObjSelector(triple.component2(), triple.component3());
     }
 
-    private void checkAndLaunch() {
+    private Triple<String, String, String> parseLastConfigStr(String str) {
+        Triple<String, String, String> triple;
+        if (!str.contains("<->")) {
+            return new Triple<>("", "", "");
+        }
+
+        String[] s = str.split("<->");
+        if (s.length != 3) {
+            return new Triple<>("", "", "");
+        }
+
+        return new Triple<>(s[0], s[1], s[2]);
+    }
+
+    private void launchAccountSelector() {
         List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
         if (CollectionUtils.isEmpty(accounts)) {
             Toasts.show(R.string.no_account);
@@ -188,11 +221,19 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
         if (accounts.size() == 1) {
             account = accounts.get(0);
-            launchObjSelector();
+
+            launchObjSelector("", "");
         } else {
-            Intent intent = AccountSelectorActivity.getIntent(this,1);
+            Intent intent = AccountSelectorActivity.getIntent(this, 1);
             accountSelectorLauncher.launch(intent);
         }
+    }
+
+
+
+    private void launchObjSelector(String repoId, String path) {
+        Intent pathSelector = VersatileShareToSeafileSelectorActivity.getSpecialAccountIntent(ShareToSeafileActivity.this, account.getSignature(), repoId, path, null, 2);
+        objSelectorLauncher.launch(pathSelector);
     }
 
     private void registerResultLauncher() {
@@ -216,7 +257,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     return;
                 }
 
-                launchObjSelector();
+                launchObjSelector("", "");
             }
         });
 
@@ -225,13 +266,13 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
             @Override
             public void onActivityResult(ActivityResult o) {
                 if (o.getResultCode() != Activity.RESULT_OK) {
-                    finish();
+                    continueObjCancelState();
                     return;
                 }
 
                 Intent intent = o.getData();
                 if (intent == null) {
-                    finish();
+                    continueObjCancelState();
                     return;
                 }
 
@@ -244,7 +285,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
                 //save
                 String lastPathStr = account.getSignature() + "<->" + dstRepoId + "<->" + dstDir;
-                Settings.getSpecialUserSharedPreferences(account)
+                Settings.getCommonPreferences()
                         .edit().putString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, lastPathStr)
                         .apply();
 
@@ -253,19 +294,26 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         });
 
     }
+    private void continueObjCancelState(){
 
-    private Pair<String, String> parseLastPathStr(String str) {
-        Pair<String, String> pair;
-        if (!str.contains("<->")) {
-            return new Pair<>("", "");
+        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
+        if (CollectionUtils.isEmpty(accounts)) {
+            finish();
+            return;
         }
 
-        String[] s = str.split("<->");
-        if (s.length != 3) {
-            return new Pair<>("", "");
+        if (accounts.size() == 1) {
+            finish();
+            return;
         }
 
-        return new Pair<>(s[1], s[2]);
+//        // remove last path
+//        Settings.getCommonPreferences()
+//                .edit()
+//                .remove(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE)
+//                .apply();
+
+        launchAccountSelector();
     }
 
     private void initWorkerBusObserver() {

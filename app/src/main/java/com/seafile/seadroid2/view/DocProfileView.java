@@ -80,7 +80,7 @@ public class DocProfileView extends LinearLayout {
             }
 
             Boolean isShown = detailsSettingsMap.get(key);
-            if (Boolean.FALSE.equals(isShown)){
+            if (isShown == null || !isShown) {
                 continue;
             }
 

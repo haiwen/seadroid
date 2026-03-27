@@ -16,6 +16,9 @@ public class MetadataConfigDataModel implements Parcelable {
 
     public boolean enable_precision;
     public int precision;
+    // 小数点分隔符
+    public String decimal;
+    public String thousands;
     public String currency_symbol;
     public String currency_symbol_position;
 

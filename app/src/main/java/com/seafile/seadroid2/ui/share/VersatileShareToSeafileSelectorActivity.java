@@ -121,6 +121,8 @@ public class VersatileShareToSeafileSelectorActivity extends BaseActivity {
     }
 
     private void finishSelf() {
+        setResult(RESULT_CANCELED);
+
         finish();
     }
 
@@ -131,7 +133,7 @@ public class VersatileShareToSeafileSelectorActivity extends BaseActivity {
         }
 
         int index = binding.pager.getCurrentItem();
-        if (index == 2) {
+        if (index != 0) {
             return;
         }
 
@@ -267,7 +269,7 @@ public class VersatileShareToSeafileSelectorActivity extends BaseActivity {
         }
 
         int index = binding.pager.getCurrentItem();
-        if (index == 0 || index == 1) {
+        if (index == 0) {
             VersatileRepoSelectorFragment vrsf = (VersatileRepoSelectorFragment) fragments.get(index);
             Pair<Account, NavContext> pair = vrsf.getBackupInfo();
             NavContext navContext = pair.second;
@@ -289,8 +291,8 @@ public class VersatileShareToSeafileSelectorActivity extends BaseActivity {
             intent.putExtra(ObjKey.REPO_ID, repoID);
             intent.putExtra(ObjKey.DIR, dir);
 
-        } else if (index == 2) {
-            StarredQuickFragment starredQuickFragment = (StarredQuickFragment) fragments.get(2);
+        } else if (index == 1) {
+            StarredQuickFragment starredQuickFragment = (StarredQuickFragment) fragments.get(index);
             StarredModel starredModel = starredQuickFragment.getSingleSelectedModel();
             if (starredModel == null) {
                 return;

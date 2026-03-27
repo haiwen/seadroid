@@ -12,7 +12,8 @@
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:id="@+id/container"
@@ -24,6 +25,7 @@
 
         </LinearLayout>
     </ScrollView>
+
 
     <TextView
         android:id="@+id/text_error"
@@ -39,6 +41,5 @@
         android:id="@+id/view_placeholder"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
-
 
 </LinearLayout>

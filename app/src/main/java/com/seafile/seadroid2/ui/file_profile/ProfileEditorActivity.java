@@ -5,6 +5,7 @@ import static com.seafile.seadroid2.config.Constants.DP.DP_8;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -14,8 +15,11 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,11 +30,14 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 
-import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.google.gson.internal.LinkedTreeMap;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.config.ColumnType;
@@ -38,17 +45,15 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.DateFormatType;
 import com.seafile.seadroid2.databinding.ActivitySdocEditorBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarBinding;
-import com.seafile.seadroid2.framework.model.profile.DetailsSettingsKeyModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
-import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
 import com.seafile.seadroid2.listener.OnMultiOptionsChangedListener;
+import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
 import com.seafile.seadroid2.listener.OnTextChangedListener;
 import com.seafile.seadroid2.listener.OnTextViewClickListener;
 import com.seafile.seadroid2.listener.OnViewClickListener;
@@ -62,11 +67,11 @@ import com.seafile.seadroid2.view.ratingbar.OnRatingChangedListener;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -114,6 +119,8 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
 
         context = this;
 
+        adaptInputMethod();
+
         initVM();
 
         registerResultLauncher();
@@ -153,6 +160,23 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         toolbar.setNavigationOnClickListener(v -> {
             finish();
         });
+
+        binding.container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearFocus();
+
+            }
+        });
+    }
+
+    private void clearFocus() {
+        View view = binding.container.findFocus();
+        if (view instanceof EditText editText) {
+            editText.clearFocus();
+        }
+
+        KeyboardUtils.hideSoftInput(this);
     }
 
     private void initVM() {
@@ -222,6 +246,64 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                 updateConfigMapMetadata(key, value);
             }
         });
+    }
+
+    private void adaptInputMethod() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ViewCompat.setWindowInsetsAnimationCallback(binding.container, new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
+
+                        private int startHeight = 0;
+
+                        @Override
+                        public void onPrepare(@NonNull WindowInsetsAnimationCompat animation) {
+                            if (startHeight == 0) {
+                                startHeight = binding.viewPlaceholder.getHeight();
+                            }
+                        }
+
+                        @NonNull
+                        @Override
+                        public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets,
+                                                             @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+                            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                            Insets diff = Insets.subtract(imeInsets, systemBars);
+                            Insets maxDiff = Insets.max(diff, Insets.NONE);
+
+                            int diffH = Math.abs(maxDiff.top - maxDiff.bottom);
+
+                            ViewGroup.LayoutParams layoutParams = binding.viewPlaceholder.getLayoutParams();
+                            layoutParams.height = diffH;
+                            binding.viewPlaceholder.setLayoutParams(layoutParams);
+
+                            return insets;
+                        }
+                    }
+            );
+        } else {
+            // <= Android R
+            binding.viewPlaceholder.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                int lastBottom = 0;
+
+                @Override
+                public void onGlobalLayout() {
+                    WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(binding.viewPlaceholder);
+                    if (insets != null) {
+                        int bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+                        if (lastBottom != 0 && bottom == 0) {
+                            binding.viewPlaceholder.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+
+                        ViewGroup.LayoutParams layoutParams = binding.viewPlaceholder.getLayoutParams();
+                        layoutParams.height = bottom;
+                        binding.viewPlaceholder.setLayoutParams(layoutParams);
+
+                        lastBottom = bottom;
+                    }
+                }
+            });
+        }
     }
 
     private MenuItem editMenuItem;
@@ -307,7 +389,7 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                         String dt;
                         if (format.toLowerCase().contains("h:mm")) {
                             dt = TimeUtils.millis2String(mills, DateFormatType.DATE_YMD_HM);
-                        }else{
+                        } else {
                             dt = TimeUtils.millis2String(mills, DateFormatType.DATE_YMD);
                         }
 
@@ -382,7 +464,7 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
 
     private void setData(LinearLayout rootContainer) {
 
-        HashMap<String,Boolean> detailsSettingsMap = configModel.getDetailsSettingsMap();
+        HashMap<String, Boolean> detailsSettingsMap = configModel.getDetailsSettingsMap();
 
         LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
         Set<String> keys = recordMetaDataMap.keySet();
@@ -393,7 +475,7 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
             }
 
             Boolean isShown = detailsSettingsMap.get(key);
-            if (Boolean.FALSE.equals(isShown)){
+            if (isShown == null || !isShown) {
                 continue;
             }
 
@@ -459,7 +541,9 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
             MetadataViewUtils.buildEditableNumber(context, isEditable, parent, metadata, new OnTextChangedListener() {
                 @Override
                 public void onChanged(String text) {
-                    contentMap.put(metadata.key, text);
+                    String s = MetadataViewUtils.getOriginalNumberByFormattedString(text, metadata.getConfigData());
+                    BigDecimal number = new BigDecimal(s);
+                    contentMap.put(metadata.key, number.doubleValue());
                 }
             });
         } else if (TextUtils.equals(ColumnType.DATE, type)) {
