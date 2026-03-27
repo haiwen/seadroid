@@ -15,6 +15,7 @@ import androidx.work.WorkManager;
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.seafile.seadroid2.framework.monitor.ActivityMonitor;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
+import com.seafile.seadroid2.framework.util.AppLockManager;
 import com.seafile.seadroid2.framework.util.CrashHandler;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -49,9 +50,8 @@ public class SeadroidApplication extends Application {
         //
         Settings.initUserSettings();
 
-        // set gesture lock if available
-        //
-//        AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
+        // Lock the app on cold start if biometric lock is enabled
+        AppLockManager.lockIfEnabled();
 
         LiveEventBus.config()
                 .autoClear(true)

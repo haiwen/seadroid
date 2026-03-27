@@ -336,6 +336,19 @@
     <string name="gesture_lock">Gesture Lock</string>
     <string name="gesture_lock_on">Gesture lock on</string>
     <string name="gesture_lock_off">Gesture lock off</string>
+
+    <!-- Biometric lock -->
+    <string name="biometric_lock">App Lock</string>
+    <string name="biometric_lock_on">Unlock with fingerprint, face, or device PIN</string>
+    <string name="biometric_lock_off">App is not protected</string>
+    <string name="biometric_prompt_title">Unlock Seafile</string>
+    <string name="biometric_prompt_subtitle">Verify your identity to continue</string>
+    <string name="lock_timeout_title">Lock after</string>
+    <string name="lock_timeout_immediately">Immediately</string>
+    <string name="lock_timeout_1_min">1 minute</string>
+    <string name="lock_timeout_5_min">5 minutes</string>
+    <string name="lock_timeout_15_min">15 minutes</string>
+    <string name="lock_timeout_30_min">30 minutes</string>
     <string name="lockscreen_access_pattern_hint">Please draw Gesture Lock Pattern</string>
     <string name="lockscreen_access_pattern_start">Start to draw</string>
     <string name="lockscreen_access_pattern_cleared">Pattern cleared</string>

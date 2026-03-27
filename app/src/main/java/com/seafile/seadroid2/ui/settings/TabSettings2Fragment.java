@@ -58,6 +58,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePr
 import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
+import com.seafile.seadroid2.framework.util.AppLockManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -97,6 +98,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+
+
 import java.util.Map;
 
 public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
@@ -131,6 +134,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Preference mTransferDownloadState;
     private Preference mTransferUploadState;
     private Preference cacheLocationPref;
+
+    private TextSwitchPreference mBiometricLockSwitch;
+    private ListPreference mLockTimeoutPref;
 
     public static TabSettings2Fragment newInstance() {
         return new TabSettings2Fragment();
@@ -221,6 +227,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             isFirstLoadData = false;
         }
 
+        // Reinforce biometric switch on every resume (e.g., returning from another tab)
+        syncBiometricSwitchState();
+
         if (canLoad()) {
             loadData();
         }
@@ -240,6 +249,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             switchFolderBackupState(mFolderBackupSwitch.isChecked());
 
             updateBackgroundBackupSwitch();
+
+            // Reinforce biometric switch state after framework binding completes
+            syncBiometricSwitchState();
         });
 
     }
@@ -275,6 +287,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         initCachePref();
 
+        initSecurityPref();
+
         initAboutPref();
     }
 
@@ -304,6 +318,57 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             clearPassword();
             return true;
         });
+    }
+
+    private void initSecurityPref() {
+        mBiometricLockSwitch = findPreference(getString(R.string.pref_key_settings_biometric_lock));
+        mLockTimeoutPref = findPreference(getString(R.string.pref_key_settings_lock_timeout));
+
+        boolean canLock = AppLockManager.canAuthenticate();
+
+        // Read the stored value directly from the per-account SharedPreferences
+        // and explicitly set the switch state. This mirrors the pattern used by
+        // switchAlbumBackupState() and ensures the visual state matches persistence.
+        String prefKey = getString(R.string.pref_key_settings_biometric_lock);
+        boolean storedValue = getPreferenceManager().getSharedPreferences()
+                .getBoolean(prefKey, false);
+
+        if (mBiometricLockSwitch != null) {
+            mBiometricLockSwitch.setChecked(storedValue);
+            mBiometricLockSwitch.setVisible(canLock);
+            mBiometricLockSwitch.setOnPreferenceChangeListener((preference, newValue) -> {
+                boolean enabled = (Boolean) newValue;
+                if (mLockTimeoutPref != null) {
+                    mLockTimeoutPref.setVisible(enabled);
+                }
+                return true;
+            });
+        }
+
+        if (mLockTimeoutPref != null) {
+            mLockTimeoutPref.setVisible(canLock && storedValue);
+        }
+
+        // Adjust the clear-password preference radius based on biometric visibility
+        TextTitleSummaryPreference clearPassword = findPreference(getString(R.string.pref_key_security_clear_password));
+        if (clearPassword != null) {
+            clearPassword.setRadiusPosition(canLock ? RadiusPositionEnum.BOTTOM : RadiusPositionEnum.ALL);
+        }
+    }
+
+    /**
+     * Reads the biometric lock value directly from the per-account SharedPreferences
+     * and forces the switch + timeout visibility to match. Safe to call multiple times.
+     */
+    private void syncBiometricSwitchState() {
+        if (mBiometricLockSwitch == null) return;
+        String prefKey = getString(R.string.pref_key_settings_biometric_lock);
+        boolean stored = getPreferenceManager().getSharedPreferences()
+                .getBoolean(prefKey, false);
+        mBiometricLockSwitch.setChecked(stored);
+        if (mLockTimeoutPref != null) {
+            mLockTimeoutPref.setVisible(stored && AppLockManager.canAuthenticate());
+        }
     }
 
     private void initBackupSettings() {
@@ -746,6 +811,22 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             public void onChanged(String s) {
                 SLogs.d(TAG, "cache size：" + s);
                 findPreference(getString(R.string.pref_key_cache_info)).setSummary(s);
+            }
+        });
+
+        //////////////////
+        /// security
+        //////////////////
+        Settings.BIOMETRIC_LOCK_SWITCH.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean enabled) {
+                // Only manage timeout visibility here. The switch state is handled
+                // natively by the preference framework via per-account SharedPreferences.
+                // Calling setChecked() here would clobber the framework's correct value
+                // because SettingsLiveData does not load its initial value on construction.
+                if (mLockTimeoutPref != null) {
+                    mLockTimeoutPref.setVisible(enabled);
+                }
             }
         });
     }

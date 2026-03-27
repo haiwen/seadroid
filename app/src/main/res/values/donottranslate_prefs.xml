@@ -13,6 +13,11 @@
     <string name="pref_key_settings_gesture_lock">key_settings_gesture_lock</string>
     <string name="pref_key_settings_gesture_lock_timestamp">key_settings_gesture_lock_timestamp</string>
 
+    <!-- biometric lock -->
+    <string name="pref_key_settings_biometric_lock">key_settings_biometric_lock</string>
+    <string name="pref_key_settings_lock_timeout">key_settings_lock_timeout</string>
+    <string name="pref_default_value_lock_timeout">0</string>
+
     <!-- account -->
     <string name="pref_key_user_info">key_user_info</string>
     <string name="pref_key_user_space">key_space_info</string>
@@ -44,6 +49,22 @@
     <!-- security -->
     <string name="pref_key_security_clear_password">key_clear_password</string>
     <string name="pref_key_security_client_encrypt">key_client_encrypt</string>
+
+    <!-- lock timeout (values in milliseconds) -->
+    <string-array name="lock_timeout_entries">
+        <item>@string/lock_timeout_immediately</item>
+        <item>@string/lock_timeout_1_min</item>
+        <item>@string/lock_timeout_5_min</item>
+        <item>@string/lock_timeout_15_min</item>
+        <item>@string/lock_timeout_30_min</item>
+    </string-array>
+    <string-array name="lock_timeout_values">
+        <item>0</item>
+        <item>60000</item>
+        <item>300000</item>
+        <item>900000</item>
+        <item>1800000</item>
+    </string-array>
 
     <!-- background backup config-->
     <string name="pref_key_backup_settings_turn_on_background_switch">key_backup_settings_turn_on_background_switch</string>
