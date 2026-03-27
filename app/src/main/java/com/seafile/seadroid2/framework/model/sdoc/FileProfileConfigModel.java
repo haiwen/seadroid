@@ -43,13 +43,19 @@ public class FileProfileConfigModel implements Parcelable {
         this.metadataConfig = metadataConfigModel;
     }
 
-    public HashMap<String,Boolean> getDetailsSettingsMap() {
+    public HashMap<String, Boolean> getDetailsSettingsMap() {
         if (metadataConfig == null) {
             throw new RuntimeException("please first call setMetadataConfigModel()");
         }
-        HashMap<String,Boolean> map = new HashMap<>();
+
+        HashMap<String, Boolean> map = new HashMap<>();
+        // These three fields are displayed by default
+        map.put("_size", true);
+        map.put("_file_modifier", true);
+        map.put("_file_mtime", true);
+
         List<DetailsSettingsKeyModel> list = metadataConfig.getDetailsSettingsList();
-        if (CollectionUtils.isEmpty(list)){
+        if (CollectionUtils.isEmpty(list)) {
             return map;
         }
 

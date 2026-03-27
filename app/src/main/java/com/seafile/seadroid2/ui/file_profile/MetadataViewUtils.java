@@ -193,8 +193,10 @@ public class MetadataViewUtils {
                 ltr.<TextView>findViewById(R.id.text_view).setText(Utils.readableFileSize(number.intValue()));
             } else {
                 boolean isInteger = (number.doubleValue() % 1 == 0);
-                String r = isInteger ? Integer.toString(number.intValue()) : Double.toString(number.doubleValue());
-                ltr.<TextView>findViewById(R.id.text_view).setText(r);
+
+                String text = getFormattedNumber(number, model.getConfigData());
+//                String r = isInteger ? Integer.toString(number.intValue()) : Double.toString(number.doubleValue());
+                ltr.<TextView>findViewById(R.id.text_view).setText(text);
             }
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());

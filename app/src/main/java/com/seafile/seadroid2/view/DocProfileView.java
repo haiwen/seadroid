@@ -21,6 +21,8 @@ import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
 import com.seafile.seadroid2.ui.file_profile.MetadataViewUtils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
