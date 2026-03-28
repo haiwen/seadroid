@@ -56,7 +56,6 @@ import com.seafile.seadroid2.framework.model.sdoc.GeoLocationModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
-import com.seafile.seadroid2.framework.model.sdoc.SDocTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -85,7 +84,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
@@ -391,17 +389,16 @@ public class MetadataViewUtils {
                 for (Object o : arrayList) {
                     if (o instanceof LinkedTreeMap<?, ?> map) {
                         String rowId = getLinkedMapStringValue(map, "row_id");
-                        SDocTagModel tagModel = configModel.getTagMap().get(rowId);
+                        OptionTagModel tagModel = configModel.getTagMap().get(rowId);
                         if (tagModel == null) {
                             continue;
                         }
 
                         View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_detail_tag, null);
 
-                        MaterialCardView cardView = ltr.findViewById(R.id.indicator);
-
+                        MaterialCardView indicatorView = ltr.findViewById(R.id.indicator);
                         if (!TextUtils.isEmpty(tagModel.color)) {
-                            cardView.setCardBackgroundColor(Color.parseColor(tagModel.color));
+                            indicatorView.setCardBackgroundColor(Color.parseColor(tagModel.color));
                         }
 
                         TextView textView = ltr.findViewById(R.id.text);
@@ -1740,14 +1737,9 @@ public class MetadataViewUtils {
         for (Object item : list) {
             if (item instanceof LinkedTreeMap<?, ?> map) {
                 String rowId = map.get("row_id") != null ? map.get("row_id").toString() : null;
-                SDocTagModel tagModel = configModel.getTagMap().get(rowId);
-
+                OptionTagModel tagModel = configModel.getTagMap().get(rowId);
                 if (tagModel != null) {
-                    OptionTagModel optionTagModel = new OptionTagModel();
-                    optionTagModel.name = tagModel.name;
-                    optionTagModel.color = tagModel.color;
-                    optionTagModel.id = tagModel.id;
-                    tags.add(optionTagModel);
+                    tags.add(tagModel);
                 }
             } else if (item instanceof OptionTagModel m) {
                 tags.add(m);

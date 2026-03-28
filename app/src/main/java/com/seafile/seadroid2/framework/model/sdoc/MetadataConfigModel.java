@@ -15,18 +15,20 @@ import java.util.List;
 
 public class MetadataConfigModel implements Parcelable {
     public boolean enabled = false;
-    public boolean tags_enabled = false;
-    //public String tags_lang;
     public String details_settings;
-    //public boolean ocr_enabled;
-
-    public String getDetailsSettings() {
-        return details_settings;
-    }
+    public boolean tags_enabled = false;
+//    public String tags_lang;
+//    public boolean show_view;
+//    public List<String> global_hidden_columns;
+//    public boolean face_recognition_enabled;
 
     @Nullable
     public List<DetailsSettingsKeyModel> getDetailsSettingsList() {
         if (StringUtils.isEmpty(details_settings)) {
+            return null;
+        }
+
+        if (StringUtils.equals("{}", details_settings)) {
             return null;
         }
 
@@ -47,6 +49,7 @@ public class MetadataConfigModel implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte(this.enabled ? (byte) 1 : (byte) 0);
         dest.writeByte(this.tags_enabled ? (byte) 1 : (byte) 0);
+        dest.writeString(this.details_settings);
     }
 
     public MetadataConfigModel() {
@@ -55,6 +58,7 @@ public class MetadataConfigModel implements Parcelable {
     protected MetadataConfigModel(Parcel in) {
         this.enabled = in.readByte() != 0;
         this.tags_enabled = in.readByte() != 0;
+        this.details_settings = in.readString();
     }
 
     public static final Parcelable.Creator<MetadataConfigModel> CREATOR = new Parcelable.Creator<MetadataConfigModel>() {

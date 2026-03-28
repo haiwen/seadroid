@@ -96,6 +96,8 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
                     startActivity(intent);
                 }
             });
+        }else {
+            profileBinding.edit.setVisibility(View.GONE);
         }
 
         HashMap<String, Boolean> detailsSettingsMap = configModel.getDetailsSettingsMap();

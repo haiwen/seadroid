@@ -17,17 +17,12 @@ import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.ResultModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocOutlineWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
-import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -36,18 +31,15 @@ import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.docs_comment.DocsCommentService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 
 public class SDocViewModel extends BaseViewModel {

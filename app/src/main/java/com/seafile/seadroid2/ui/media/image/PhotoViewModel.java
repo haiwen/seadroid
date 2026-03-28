@@ -10,25 +10,19 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
-import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.file.FileService;
-import com.seafile.seadroid2.ui.sdoc.SDocService;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,7 +31,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Single;
