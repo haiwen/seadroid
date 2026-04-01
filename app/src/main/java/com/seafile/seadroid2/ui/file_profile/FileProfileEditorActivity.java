@@ -52,6 +52,7 @@ import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.listener.OnItemRemoveListener;
 import com.seafile.seadroid2.listener.OnMultiOptionsChangedListener;
 import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
 import com.seafile.seadroid2.listener.OnTextChangedListener;
@@ -76,7 +77,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
+public class FileProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
     private static final String TAG = "ProfileEditorActivity";
     private ActivitySdocEditorBinding binding;
     private ToolbarActionbarBinding bindingOfToolbar;
@@ -94,14 +95,14 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
         TransportHolder.get().put("repoId", repoId);
         TransportHolder.get().put("path", path);
 
-        return new Intent(context, ProfileEditorActivity.class);
+        return new Intent(context, FileProfileEditorActivity.class);
     }
 
     public static Intent getIntent(Context context, String repoId, FileProfileConfigModel configModel) {
         TransportHolder.get().put("config_model", configModel);
         TransportHolder.get().put("repoId", repoId);
 
-        return new Intent(context, ProfileEditorActivity.class);
+        return new Intent(context, FileProfileEditorActivity.class);
     }
 
     @Override
@@ -230,6 +231,7 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                         return userModel.getEmail();
                     }
                 }).collect(Collectors.toList());
+
                 contentMap.put(key, value);
 
                 updateConfigMapMetadata(key, value);
@@ -565,6 +567,11 @@ public class ProfileEditorActivity extends BaseActivityWithVM<SDocViewModel> {
                     List<UserModel> selectedUserList = MetadataViewUtils.getUserList(metadata, configModel);
                     CollaboratorSelectorFragment sheetFragment = CollaboratorSelectorFragment.newInstance(metadata.key, configModel.getRelatedUserList(), selectedUserList);
                     sheetFragment.show(getSupportFragmentManager(), CollaboratorSelectorFragment.class.getSimpleName());
+                }
+            }, new OnItemRemoveListener<UserModel>() {
+                @Override
+                public void onRemove(UserModel userModel) {
+                    metadata.value = MetadataViewUtils.removeSpecialUser(metadata, userModel);
                 }
             });
         } else if (TextUtils.equals(ColumnType.SINGLE_SELECT, type)) {

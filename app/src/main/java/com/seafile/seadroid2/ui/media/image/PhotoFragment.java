@@ -10,7 +10,6 @@ import android.content.res.Configuration;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -66,11 +65,10 @@ import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
-import com.seafile.seadroid2.ui.file_profile.ProfileEditorActivity;
+import com.seafile.seadroid2.ui.file_profile.FileProfileEditorActivity;
 import com.seafile.seadroid2.ui.media.data_source.MotionPhotoDataSourceFactory;
 import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
@@ -319,7 +317,7 @@ public class PhotoFragment extends BaseFragment {
                     SLogs.d(TAG, "configModel is null, can not click.");
                     return;
                 }
-                Intent intent = ProfileEditorActivity.getIntent(requireContext(), repoId, configModel);
+                Intent intent = FileProfileEditorActivity.getIntent(requireContext(), repoId, configModel);
                 startActivity(intent);
             }
         });

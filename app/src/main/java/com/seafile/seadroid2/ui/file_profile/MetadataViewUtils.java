@@ -60,6 +60,7 @@ import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.listener.OnItemRemoveListener;
 import com.seafile.seadroid2.listener.OnSingleOptionChangedListener;
 import com.seafile.seadroid2.listener.OnMultiOptionsChangedListener;
 import com.seafile.seadroid2.listener.OnTextChangedListener;
@@ -1363,7 +1364,12 @@ public class MetadataViewUtils {
                                                  LinearLayout parentContainer,
                                                  MetadataModel metadataModel,
                                                  FileProfileConfigModel configModel,
-                                                 OnViewClickListener onViewClickListener) {
+                                                 OnViewClickListener onViewClickListener, OnItemRemoveListener<UserModel> onUserRemoveListener) {
+
+        if (onUserRemoveListener == null) {
+            throw new IllegalArgumentException("onUserRemoveListener cannot be null");
+        }
+
         Pair<Boolean, FlexboxLayout> pair = getFlexContainer(context, parentContainer, metadataModel.key);
         FlexboxLayout flexboxContainer = pair.second;
         boolean isAdded = pair.first;
@@ -1375,6 +1381,7 @@ public class MetadataViewUtils {
                 View v = buildCollaboratorView(context, editable, userModel.getAvatarUrl(), userModel.getName(), i, new OnViewClickListener() {
                     @Override
                     public void onClick(View view, String tag) {
+                        onUserRemoveListener.onRemove(userModel);
                         flexboxContainer.removeView(view);
                     }
                 });
@@ -1408,6 +1415,29 @@ public class MetadataViewUtils {
         if (!isAdded) {
             parentContainer.addView(flexboxContainer);
         }
+    }
+
+    public static List<String> removeSpecialUser(MetadataModel metadataModel, UserModel userModel) {
+        if (userModel == null) {
+            return null;
+        }
+
+        boolean isList = metadataModel.value instanceof ArrayList;
+        if (!isList) {
+            return null;
+        }
+
+        List<String> userList = new ArrayList<>();
+        List<?> arrayList = (List<?>) metadataModel.value;
+        for (int i = 0; i < arrayList.size(); i++) {
+            Object obj = arrayList.get(i);
+            if (obj instanceof String strObj) {
+                if (!strObj.equals(userModel.getEmail())) {
+                    userList.add(strObj);
+                }
+            }
+        }
+        return userList;
     }
 
     public static List<UserModel> getUserList(MetadataModel metadataModel, FileProfileConfigModel configModel) {

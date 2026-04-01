@@ -11,14 +11,11 @@
     <EditText
         android:id="@+id/edit_text"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/bar_background_color"
-        android:gravity="start|top"
         android:hint="@string/empty"
         android:importantForAutofill="no"
         android:textSize="16sp"
-        android:inputType="text"
-        android:minHeight="120dp"
         android:padding="24dp"
         android:textColor="@color/item_title_color" />
 </LinearLayout>

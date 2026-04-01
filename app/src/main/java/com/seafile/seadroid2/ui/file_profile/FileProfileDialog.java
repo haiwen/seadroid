@@ -27,8 +27,6 @@ import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -92,7 +90,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
                 @Override
                 public void onClick(View v) {
                     dismiss();
-                    Intent intent = ProfileEditorActivity.getIntent(requireContext(), repoId, configModel);
+                    Intent intent = FileProfileEditorActivity.getIntent(requireContext(), repoId, configModel);
                     startActivity(intent);
                 }
             });

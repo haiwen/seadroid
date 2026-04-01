@@ -157,8 +157,16 @@ public class SeaRatingBar extends LinearLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (mRatingStatus == RatingStatus.Enable && !mBoundaryList.isEmpty()) {
-            setRating(calculateRating(event.getX()));
-            if (event.getAction() == MotionEvent.ACTION_DOWN) return true;
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                float calculatedRating = calculateRating(event.getX());
+                // 如果点击位置对应的评分与当前评分相同，则重置为 0
+                if (Math.abs(calculatedRating - mRating) < 0.1f) {
+                    setRating(0);
+                } else {
+                    setRating(calculatedRating);
+                }
+                return true;
+            }
         }
         return super.onTouchEvent(event);
     }

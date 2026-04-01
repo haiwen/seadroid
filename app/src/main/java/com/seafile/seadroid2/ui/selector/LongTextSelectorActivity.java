@@ -52,12 +52,9 @@ public class LongTextSelectorActivity extends BaseActivity {
             columnKey = getIntent().getStringExtra("columnKey");
         }
 
-//        if (TextUtils.isEmpty(columnKey)) {
-//            throw new IllegalArgumentException("no columnKey param");
-//        }
-
-
-        binding.editText.setHeight(ScreenUtils.getScreenHeight() / 2);
+        if (TextUtils.isEmpty(columnKey)) {
+            throw new IllegalArgumentException("no columnKey param");
+        }
 
         if (!TextUtils.isEmpty(inputValue)) {
             binding.editText.setText(inputValue);

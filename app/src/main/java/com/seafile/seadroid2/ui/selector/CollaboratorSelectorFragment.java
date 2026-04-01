@@ -52,7 +52,7 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
 
     private SDocViewModel sDocViewModel;
 
-    public static CollaboratorSelectorFragment newInstance(String columnKey,List<UserModel> userList, List<UserModel> checkedUserList) {
+    public static CollaboratorSelectorFragment newInstance(String columnKey, List<UserModel> userList, List<UserModel> checkedUserList) {
         TransportHolder.get().put("columnKey", columnKey);
         TransportHolder.get().put("user_list", userList);
         TransportHolder.get().put("checked_user_list", checkedUserList);
@@ -137,11 +137,16 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     }
 
     private void loadData() {
+        if (CollectionUtils.isNotEmpty(userList)) {
+            for (UserModel userModel : userList) {
+                userModel.setSelected(false);
+            }
+        }
 
-        if (CollectionUtils.isNotEmpty(checkedUserList)){
+        if (CollectionUtils.isNotEmpty(checkedUserList)) {
             for (UserModel cModel : checkedUserList) {
                 for (UserModel uModel : userList) {
-                    if (StringUtils.equals(cModel.getEmail(),uModel.getEmail())){
+                    if (StringUtils.equals(cModel.getEmail(), uModel.getEmail())) {
                         uModel.setSelected(true);
                         break;
                     }
@@ -160,7 +165,7 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     }
 
     private void onDone() {
-        Pair<String,List<UserModel>> pair = new Pair<>(columnKey,getSelectedList());
+        Pair<String, List<UserModel>> pair = new Pair<>(columnKey, getSelectedList());
         sDocViewModel.getOnUserSelectedLiveData().setValue(pair);
 
         dismiss();
@@ -170,7 +175,7 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
 
         @Override
         protected void onBindViewHolder(@NonNull CollaboratorSelectorViewHolder holder, int i, @Nullable UserModel model) {
-            if (model == null){
+            if (model == null) {
                 return;
             }
 
