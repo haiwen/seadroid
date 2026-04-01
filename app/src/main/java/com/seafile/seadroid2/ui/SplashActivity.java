@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.splashscreen.SplashScreen;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.seafile.seadroid2.framework.util.AppLockManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.compat.AppCompatKt;
@@ -46,6 +47,12 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_splash);
         splashScreen.setKeepOnScreenCondition(() -> true);
+
+        // If the app is locked, ActivityMonitor will redirect to LockedActivity.
+        // Stop here to prevent duplicate navigation.
+        if (AppLockManager.isLocked()) {
+            return;
+        }
 
         dataMigrationLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override

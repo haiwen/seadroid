@@ -12,6 +12,9 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundSwitchPreference;
 
 public class TextSwitchPreference extends BackgroundSwitchPreference {
+
+    private MaterialSwitch mMaterialSwitch;
+
     public TextSwitchPreference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
@@ -33,21 +36,25 @@ public class TextSwitchPreference extends BackgroundSwitchPreference {
         return R.layout.layout_pref_title_switch;
     }
 
-    private MaterialSwitch materialSwitch;
-
     @Override
     public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
-        materialSwitch = (MaterialSwitch) holder.findViewById(android.R.id.switch_widget);
-        materialSwitch.setClickable(false);
+        mMaterialSwitch = (MaterialSwitch) holder.findViewById(android.R.id.switch_widget);
+        // SwitchPreferenceCompat.syncSwitchView() does not reliably propagate
+        // mChecked to a MaterialSwitch in a custom layout. Force it here.
+        if (mMaterialSwitch != null) {
+            mMaterialSwitch.setChecked(isChecked());
+            mMaterialSwitch.setClickable(false);
+        }
     }
 
+    @Override
     public void setChecked(boolean checked) {
         super.setChecked(checked);
 
-        if (materialSwitch != null) {
-            materialSwitch.setChecked(checked);
+        if (mMaterialSwitch != null) {
+            mMaterialSwitch.setChecked(checked);
         }
     }
 }

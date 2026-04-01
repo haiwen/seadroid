@@ -42,6 +42,10 @@ public class Settings {
     public static final SettingsLiveData<Boolean> SETTINGS_GESTURE = new BooleanSettingLiveData(R.string.pref_key_settings_gesture_lock, R.bool.pref_default_true);
     public static final SettingsLiveData<Long> SETTINGS_GESTURE_LOCK_TIMESTAMP = new LongSettingLiveData(R.string.pref_key_settings_gesture_lock_timestamp, R.string.pref_default_value_key_gesture_lock_timestamp);
 
+    //biometric lock
+    public static SettingsLiveData<Boolean> BIOMETRIC_LOCK_SWITCH;
+    public static SettingsLiveData<String> LOCK_TIMEOUT;
+
     //////////////////
     /// user settings
     //////////////////
@@ -177,6 +181,10 @@ public class Settings {
         //cache
         CACHE_SIZE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_cache_info, R.string.settings_account_info_load_data);
 
+        //biometric lock
+        BIOMETRIC_LOCK_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_settings_biometric_lock);
+        LOCK_TIMEOUT = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_settings_lock_timeout, R.string.pref_default_value_lock_timeout);
+
 
         REGISTER_LIST.add(USER_INFO);
         REGISTER_LIST.add(SPACE_INFO);
@@ -203,6 +211,9 @@ public class Settings {
         REGISTER_LIST.add(TRANSFER_UPLOAD_STATE);
 
         REGISTER_LIST.add(CACHE_SIZE);
+
+        REGISTER_LIST.add(BIOMETRIC_LOCK_SWITCH);
+        REGISTER_LIST.add(LOCK_TIMEOUT);
     }
 
     private static void unregisterIfNotNull() {
