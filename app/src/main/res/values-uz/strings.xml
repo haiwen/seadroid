@@ -10,9 +10,12 @@
   <string name="delete_repo">Bu kutubxonani o\'chirishga ishonchingiz komilmi?</string>
   <string name="delete_file">Bu fayl yoki papkani o\'chirishga ishonchingiz komilmi?</string>
   <string name="delete_records">Rekord larni o\'chirishga ishonchingiz komilmi?</string>
+  <string name="delete_wiki_tip">Bu wiki o\'chirishga ishonchingiz komilmi?</string>
+  <string name="unpublish_wiki_tip">Bu wiki qayta tiklashga ishonchingiz komilmi?</string>
   <string name="delete_records_and_file">Rekordlar va lokal yuklab olingan fayllarni o\'chirib tashlashga ishonchingiz komilmi?</string>
   <string name="delete_successful">Muvofaqqiyatli o\'chirildi</string>
   <string name="delete_repo_title">Kutubxonani o\'chirish</string>
+  <string name="delete_wiki_title">Wiki o\'chirish</string>
   <string name="delete_file_f">Faylni o\'chirish</string>
   <string name="delete_local_file_sametime">Bir vaqtning o\'zida lokal fayllarni o\'chirish</string>
   <string name="recover_library">Kutubxonani qayta tiklash</string>
@@ -42,6 +45,9 @@
   <string name="shared">Ulashilgan</string>
   <string name="libraries">Kutubxonalar</string>
   <string name="my_libraries">Mening kutubxonalarim</string>
+  <string name="my_wiki">Mening wiki</string>
+  <string name="my_wiki_of_shared">Ulashilgan wiki</string>
+  <string name="my_wiki_of_old">Mening yangilangan wiki</string>
   <string name="cached">Keshlangan</string>
   <string name="activities">Tarix</string>
   <string name="pick_upload_type">Yuklash</string>
@@ -68,7 +74,8 @@
   <string name="err_passwd_mismatch">Parollar mos kelmadi</string>
   <string name="err_login_failed">Kirish muvaffaqiyatsiz</string>
   <string name="err_wrong_user_or_passwd">Email yoki parol xatoligi</string>
-  <string name="err_token_expired">Autentifikatsiya muddati tugadi, qayta kiring</string>
+  <string name="err_token_expired">Autentifikatsiya muddati tugadi kiring</string>
+  <string name="upload_file">Faylni yuklash</string>
   <string name="upload">Yuklash</string>
   <string name="uploaded">Yuklangan</string>
   <string name="re_upload">Qayta Yuklash</string>
@@ -100,6 +107,7 @@
   <string name="file_action_copy">Ko\'chirib olish</string>
   <string name="file_action_move">Boshqa joyga ko\'chirish</string>
   <string name="file_action_open_as">...sifatida ochish</string>
+  <string name="file_action_profile">Profil</string>
   <string name="file_action_more">Ko\'proq</string>
   <string name="file_action_more_title">O\'zingiz hohlagan variantni tanlang</string>
   <string-array name="file_action_more_array">
@@ -168,6 +176,7 @@
   </string-array>
   <string name="add_repo">Yangi kutibxona</string>
   <string name="add_file">Qo\'shish</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>Fayl yaratish</item>
     <item>Papka yaratish</item>
@@ -186,6 +195,7 @@
   <string name="create_files">Fayllar yaratish</string>
   <string name="create_new_dir">Yangi papka yaratish</string>
   <string name="camera">Shu yerga rasmga olish</string>
+  <string name="take_photo">Rasm olish</string>
   <string name="download">Yuklab olish</string>
   <string name="open">Ochish</string>
   <string name="last_modified">ohirgi o\'zgartirilgan</string>
@@ -208,6 +218,7 @@
   <string name="rename_repo">Kutubxonani qayta nomlash</string>
   <string name="rename_file">Faylni qayta nomlash</string>
   <string name="rename_dir">Papkani qayta nomlash</string>
+  <string name="rename_wiki">Wiki qayta nomlash</string>
   <string name="rename_successful">Qayta nomlash muvofaqqiyatli amalga oshirildi.</string>
   <string-array name="nav_array">
     <item>Fayllar</item>
@@ -216,6 +227,7 @@
     <item>Zaxira rasmlar</item>
   </string-array>
   <string name="navigate_to_directory">Katalogga o\'ting</string>
+  <string name="go_up">Qayta qaytish</string>
   <string name="no_starred_file">Hali yuldizlangan fayl yo\'q</string>
   <string name="added_to_upload_tasks">Yuklash boshlandi</string>
   <string name="added_photo_to_upload_tasks">Rasmni yuklash boshlandi</string>
@@ -223,6 +235,12 @@
   <string name="tabs_library">Kutubxonalar</string>
   <string name="tabs_activity">Amallar</string>
   <string name="tabs_starred">Yulduzlangan</string>
+  <string name="tabs_wiki">Wiki</string>
+  <string name="publish">Yuborish</string>
+  <string name="unpublish">Yuborish qilish</string>
+  <string name="published">Yuborildi</string>
+  <string name="publish_wiki">Wiki yuborish</string>
+  <string name="publish_wiki_custom_url">Wiki yuborish uchun havolani ulashing</string>
   <string name="starred_repos">Yulduzlangan kutubxonalar</string>
   <string name="starred_files">Yulduzlangan fayllar</string>
   <string name="starred_folder">Yulduzlangan papkalar</string>
@@ -272,6 +290,9 @@
   <string name="copied_successfully">Muvofaqqiyatli nusxalandi</string>
   <string name="moved_successfully">Muvofaqqiyatli ko\'chirildi</string>
   <string name="internal_server_error">Serverda xatolik</string>
+  <string name="current_library">Mening kutubxonasi</string>
+  <string name="other_libraries">Boshqa kutubxonalar</string>
+  <string name="recently_used">O\'zgirgi amallar</string>
   <string name="copy_file_ing">Fayl nusxalanyapti</string>
   <string name="move_file_ing">Fayl ko\'chirilyapti</string>
   <string name="copy_file_from">%1$s dan\n %2$sga nusxalanyapti</string>
@@ -513,6 +534,10 @@
     <item quantity="other">%1$d ta fayllar yuklab olinmoqda (%2$d %%)</item>
   </plurals>
   <string name="notification_download_completed">Yuklab olish yakunlandi</string>
+  <string name="notification_background_file_monitor_channel">Fayllarni boshqarish</string>
+  <string name="notification_background_file_monitor_desc">Fayllarni boshqarishda xatolik yuz berdi</string>
+  <string name="notification_background_file_monitor_title">Fayllarni boshqarishda xatolik yuz berdi</string>
+  <string name="notification_background_file_monitor_content">Fayllarni boshqarishda xatolik yuz berdi</string>
   <!--Gallery-->
   <string name="gallery_load_photos_error">Rasmlarni yuklashda xatolik</string>
   <string name="gallery_encrypted_repo_not_supported">Shifrlangan kutubxona qo‘llab-quvvatlanmagan</string>
@@ -622,6 +647,9 @@
   <string name="folder_backup_select_repo_update">Zahira kutibxonasini o\'zgartirish</string>
   <string name="UncaughtExceptionHandler_err">Ilova ishlashdan to\'xtab qoldi</string>
   <string name="settings_file_backup_info_title">Zahira fayl</string>
+  <!--backup config-->
+  <string name="backup_settings_title">Zahira fayl</string>
+  <string name="backup_settings_background_backup_title">Fayoshqarish</string>
   <!--action-->
   <string name="pause">To\'xtatish</string>
   <string name="paused">To\'xtatilgan</string>
@@ -649,6 +677,8 @@
   <string name="follow_system">Tizimga rioya qilish</string>
   <string name="empty">Bo\'sh</string>
   <string name="empty_data">Bo\'sh data</string>
+  <string name="turn_on">Yoniq</string>
+  <string name="turn_off">O\'chiq</string>
   <!--share link-->
   <string name="link_permission_set_permission">Ruxsatnoma o\'rnatish</string>
   <string name="link_permission_preview_and_download">Oldindan ko\'rish va yuklab olish</string>
@@ -680,6 +710,8 @@
   <string name="_tags">Yorliqlar</string>
   <string name="_location">Joylashuv</string>
   <string name="_owner">Fayl egasi</string>
+  <string name="_rate">Nomi</string>
+  <string name="_expire_time">Muddati o\'tgan vaqt</string>
   <string name="mark_resolve">Hal qilingan deb belgilash</string>
   <string name="delete_confirm">Bu narsani o\'chirishga ishonchingiz komilmi?</string>
   <string name="image_capture_time">Olingan vaqt</string>
@@ -699,4 +731,29 @@
   <string name="backup_failed">Zahiralash muvaffaqiyatsiz</string>
   <string name="export_log_file_not_exists">Log fayli mavjud emas</string>
   <string name="file_transfer_stopped">Fayl yuklash to\'xtatildi</string>
+  <!--font-style-->
+  <string name="font_style_paragraph">Matn</string>
+  <string name="font_style_title">Judud</string>
+  <string name="font_style_subtitle">Judud</string>
+  <string name="font_style_heading1">Judud 1</string>
+  <string name="font_style_heading2">Judud 2</string>
+  <string name="font_style_heading3">Judud 3</string>
+  <string name="font_style_heading4">Judud 4</string>
+  <string name="font_style_heading5">Judud 5</string>
+  <string name="font_style_heading6">Judud 6</string>
+  <!--sdoc system event-->
+  <string name="sdoc_system_event_failed_to_execute_operation_on_server">Serverda operatsiyani ishlashda xatolik yuz berdi</string>
+  <string name="sdoc_system_event_failed_to_sync_with_server_operations">Serverda operatsiyani synchroizlashda xatolik yuz berdi</string>
+  <string name="sdoc_system_event_internal_server_exec_operations_error">Serverda operatsiyani ishlashda xatolik yuz berdi</string>
+  <string name="sdoc_system_event_token_expired_please_refresh_the_page">Token o\'g\'irildi, lutfa qayta ko\'rish</string>
+  <string name="sdoc_system_event_pending_operations_exceed_limit">Jarayondagi operatsiyalar soni o\'g\'irdi</string>
+  <string name="sdoc_system_event_server_is_not_connected_operation_will_be_sent_to_server_later">Serverda ulashishda xatolik yuz berdi</string>
+  <string name="reconnecting">Fayoshqarishda</string>
+  <string name="reconnected">Fayoshqarildi</string>
+  <string name="saving">Yuklab olishda</string>
+  <string name="saved">Yuklab olishda</string>
+  <string name="live">Live</string>
+  <!--Tips-->
+  <string name="tip_press_again_to_exit">Yana yashash</string>
+  <string name="tip_publish_wiki_desc">Wikipediya yuborishda xatolik yuz berdi</string>
 </resources>

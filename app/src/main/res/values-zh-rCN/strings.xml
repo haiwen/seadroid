@@ -319,6 +319,18 @@
   <string name="gesture_lock">手势密码锁</string>
   <string name="gesture_lock_on">手势锁开启</string>
   <string name="gesture_lock_off">手势锁关闭</string>
+  <!--Biometric lock-->
+  <string name="biometric_lock">应用锁</string>
+  <string name="biometric_lock_on">通过指纹或者设备 PIN 码来解锁</string>
+  <string name="biometric_lock_off">未受应用锁保护</string>
+  <string name="biometric_prompt_title">解锁 Seafile</string>
+  <string name="biometric_prompt_subtitle">验证您的身份以继续</string>
+  <string name="lock_timeout_title">锁定</string>
+  <string name="lock_timeout_immediately">立即</string>
+  <string name="lock_timeout_1_min">1 分钟</string>
+  <string name="lock_timeout_5_min">5 分钟</string>
+  <string name="lock_timeout_15_min">15 分钟</string>
+  <string name="lock_timeout_30_min">30 分钟</string>
   <string name="lockscreen_access_pattern_hint">请绘制手势密码</string>
   <string name="lockscreen_access_pattern_start">开始绘制图案</string>
   <string name="lockscreen_access_pattern_cleared">图案已清除</string>
