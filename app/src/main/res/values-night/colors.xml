@@ -109,6 +109,7 @@
     <color name="item_selector_tag_background">#3C3C3C</color>
     <color name="profile_editor_title">#d3d3d3</color>
     <color name="profile_editor_divider">#212121</color>
+    <color name="profile_tag_stroke">#212121</color>
     <color name="profile_editor_editable">#2F2F2F</color>
     <color name="profile_editor_no_editable">#2F2F2F</color>
 

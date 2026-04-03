@@ -13,7 +13,7 @@
     app:contentPaddingLeft="5dp"
     app:contentPaddingRight="8dp"
     app:contentPaddingTop="3dp"
-    app:strokeColor="@color/profile_editor_divider"
+    app:strokeColor="@color/profile_tag_stroke"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -49,6 +49,6 @@
             android:padding="2dp"
             android:src="@drawable/baseline_close_24"
             android:visibility="gone"
-            app:tint="@color/bar_title_color" />
+            app:tint="@color/grey" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

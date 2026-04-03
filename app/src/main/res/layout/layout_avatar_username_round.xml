@@ -44,6 +44,7 @@
             android:layout_marginStart="4dp"
             android:padding="1dp"
             android:src="@drawable/baseline_close_24"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:tint="@color/grey" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

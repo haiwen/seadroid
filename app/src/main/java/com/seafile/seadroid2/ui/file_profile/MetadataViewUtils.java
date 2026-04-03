@@ -166,9 +166,13 @@ public class MetadataViewUtils {
     }
 
     public static void parseLongText(Context context, LinearLayout view, MetadataModel model) {
-        if (model.value instanceof String) {
+        if (model.value instanceof String str) {
             View ltr = LayoutInflater.from(view.getContext()).inflate(R.layout.layout_textview, null);
-            ltr.<TextView>findViewById(R.id.text_view).setText(model.value.toString());
+            String parsedStr = null;
+            if (StringUtils.isNotEmpty(str)) {
+                parsedStr = str.replace("\n", "");
+            }
+            ltr.<TextView>findViewById(R.id.text_view).setText(parsedStr);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, getFlexParams());
         }
@@ -810,9 +814,11 @@ public class MetadataViewUtils {
 
     /**
      * Modify thousands separator symbol, adding specified thousands separator to the number.
-     * input: Input number string, could be "101.11%", or "~11.11", "1.01¥", etc. Need to remove non-numeric characters before calculating thousands separator.
+     * input: Input number string, could be "101.11%", or "~11.11", "1.01¥", etc.
+     * Need to remove non-numeric characters before calculating thousands separator.
      * <p>
-     * thousandSymbol: The symbol to replace with, three types: "no" means no input, return directly. "space" use space to replace. "comma" use comma to replace.
+     * thousandSymbol: The symbol to replace with, three types: "no" means no input,
+     * return directly. "space" use space to replace. "comma" use comma to replace.
      * <p>
      * decima: Current decimal point symbol in the number string, could be dot or comma.
      *
@@ -936,34 +942,6 @@ public class MetadataViewUtils {
         return result.toString();
     }
 
-    /**
-     * <p>将已格式化的字符串，还原成纯数字 Number 字符串<p/>
-     * 还原格式通过thousands、decima、precision等参数作为识别条件。<br/>
-     * thousands是千分位标识符("no","comma","space")<br/>
-     * decima是小数点标识符("dot","comma")<br/>
-     * precision是小数点后保留位数<br/>
-     * enable_precision代表是否启用小数点后保留位数。<br/>
-     * input: Formatted string。<br/>
-     * <p>
-     * 识别规则：<br/>
-     * a: 先去掉首尾的非数字字符，负号除外。<br/>
-     * b: 当 thousands是 comma，且decima也是comma时<br/>
-     * b.1: 如果最后一个 comma 后边的字符个数是 1、2、4、5、6位，那么即可认定最后一个 comma 为小数点标识<br/>
-     * b.2: 如果最后一个 comma 后边的字符格式是 3 位，那么此时无法分清最后一个 comma 到底是千分位标识还是小数点标识，那么可使用enable_precision 并且 precision == 3条件，判断是否启用3位精度的小数点，如果启用了则代表最后一个 comma 为小数点标识，否则则是千分位标识。<br/>
-     * c: 生成数字时，小数点标识要使用标准"."逗号<br/>
-     * <pre>
-     *   ～11.010000
-     *   11,0101
-     *   1 010 111,000000%: thousands="space", decima="comma", enable_precision=true, precision=6
-     *   ￥101,110000: decima="comma", enable_precision=true, precision=6
-     *   101,110000~: decima="comma", enable_precision=true, precision=6
-     *   101,110,000: thousands="comma", 如果 enable_precision=true, precision=3, 则最后一个 comma 为小数点标识
-     *   101,110,000: thousands="comma", 如果 enable_precision=false, 则最后一个 comma 为千分位标识
-     *   101,110,000000: 最后一个 comma 为小数点标识
-     *   101,110,00: 最后一个 comma 为小数点标识
-     * <pre/>
-     *
-     */
     public static String getOriginalNumberByFormattedString(String formattedString, MetadataConfigDataModel configDataModel) {
         if (formattedString == null || formattedString.isEmpty()) {
             return "0";
@@ -1391,9 +1369,10 @@ public class MetadataViewUtils {
 
         if (editable && onViewClickListener != null) {
             ImageView add_imageView = new ImageView(context);
-            add_imageView.setImageResource(R.drawable.baseline_add_24);
+            add_imageView.setImageResource(R.drawable.icon_plus_sign);
             FlexboxLayout.LayoutParams flp = new FlexboxLayout.LayoutParams(Constants.DP.DP_24, Constants.DP.DP_24);
             add_imageView.setLayoutParams(flp);
+            add_imageView.setPadding(DP_4,DP_4,DP_4,DP_4);
             add_imageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.fancy_gray)));
             add_imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1467,7 +1446,7 @@ public class MetadataViewUtils {
     private static View buildCollaboratorView(Context context, boolean editable, String avatarUrl, String name, int index, OnViewClickListener onRemoveClickListener) {
         FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         flexLayoutParams.bottomMargin = DP_4;
-        flexLayoutParams.rightMargin = DP_4;
+        flexLayoutParams.rightMargin = DP_8;
 
         View ltr = LayoutInflater.from(context).inflate(R.layout.layout_avatar_username_round, null);
         TextView user_name_text_view = ltr.findViewById(R.id.user_name);
@@ -1598,7 +1577,6 @@ public class MetadataViewUtils {
         checkBox.setText("");
         checkBox.setLayoutParams(llp);
         checkBox.setEnabled(editable);
-
         boolean isChecked = false;
         if (metadataModel.value instanceof Boolean b) {
             isChecked = b;
@@ -1713,9 +1691,10 @@ public class MetadataViewUtils {
 
         if (editable && onViewClickListener != null) {
             ImageView add_imageView = new ImageView(context);
-            add_imageView.setImageResource(R.drawable.baseline_add_24);
+            add_imageView.setImageResource(R.drawable.icon_plus_sign);
             FlexboxLayout.LayoutParams flp = new FlexboxLayout.LayoutParams(Constants.DP.DP_24, Constants.DP.DP_24);
             add_imageView.setLayoutParams(flp);
+            add_imageView.setPadding(DP_4,DP_4,DP_4,DP_4);
             add_imageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.fancy_gray)));
             add_imageView.setOnClickListener(new View.OnClickListener() {
                 @Override

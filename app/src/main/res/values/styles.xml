@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <style name="Widget.App.Checkbox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">@color/checked_color_selector</item>
+    </style>
+
+    <style name="Widget.App.RadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="buttonTint">@color/checked_color_selector</item>
+    </style>
+
     <!-- Toolbar -->
     <style name="App.Widget.ToolBarStyle" parent="Widget.Material3.Toolbar">
         <item name="colorControlNormal">@color/bar_icon_tint_color</item>
@@ -18,7 +26,7 @@
     </style>
 
     <style name="ToolbarOverlay" parent="ThemeOverlay.Material3.Light">
-<!--        <item name="colorOnSurface">@color/bar_icon_tint_color</item>-->
+        <!--        <item name="colorOnSurface">@color/bar_icon_tint_color</item>-->
     </style>
 
     <style name="App.Widget.TabLayout" parent="Widget.Material3.TabLayout">
