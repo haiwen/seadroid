@@ -43,6 +43,8 @@ import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
 import com.seafile.seadroid2.enums.NightMode;
+import com.seafile.seadroid2.framework.datastore.SyncRuleManager;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
@@ -225,6 +227,11 @@ public class MainActivity extends BaseActivity {
 //        BackgroundJobManagerImpl.getInstance().getWorkManager().enqueue(oneTimeWorkRequest);
 
         requestNotificationPermission();
+
+        // Start periodic folder sync if rules exist
+        if (!SyncRuleManager.getAll().isEmpty()) {
+            BackgroundJobManagerImpl.getInstance().scheduleFolderSync();
+        }
     }
 
     private void requestNotificationPermission() {

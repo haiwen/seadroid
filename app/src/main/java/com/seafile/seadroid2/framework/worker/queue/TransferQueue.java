@@ -337,6 +337,27 @@ public class TransferQueue {
         }
     }
 
+    /**
+     * Remove all entries whose TransferModel matches the predicate.
+     */
+    public synchronized void removeIf(java.util.function.Predicate<TransferModel> predicate) {
+        List<String> toRemove = new ArrayList<>();
+        for (TransferModel model : getTransferMap().values()) {
+            if (predicate.test(model)) {
+                toRemove.add(model.getId());
+            }
+        }
+        for (String id : toRemove) {
+            getTransferMap().remove(id);
+        }
+        if (!toRemove.isEmpty() && !getTransferQueue().isEmpty()) {
+            List<String> remaining = getTransferQueue().stream()
+                    .filter(id -> !toRemove.contains(id))
+                    .collect(Collectors.toList());
+            addAllIntoQueueClearOld(remaining);
+        }
+    }
+
     public void clear() {
         getCategoryMap().clear();
         getTransferMap().clear();

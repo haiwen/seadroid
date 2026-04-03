@@ -31,6 +31,9 @@ public final class SettingsManager {
     public static final String PKG = "com.seafile.seadroid2";
 
     public static final String SHARED_PREF_STORAGE_DIR = PKG + ".storageId";
+    public static final String SHARED_PREF_DOWNLOAD_DIRECTORY = PKG + ".download_directory";
+    public static final String SHARED_PREF_SYNC_RULES = PKG + ".sync_rules";
+    public static final String SHARED_PREF_SYNC_STATE_PREFIX = PKG + ".sync_state.";
     public static final String SHARED_PREF_CUSTOM_STORAGE_DIR = PKG + ".custom_storage_dir";
 
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_ID = PKG + ".camera.repoid";

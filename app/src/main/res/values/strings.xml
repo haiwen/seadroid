@@ -475,6 +475,35 @@
     </string>
     <string name="settings_advance_feature_title">ADVANCED FEATURES</string>
     <string name="settings_transfer_title">UPLOAD &amp; DOWNLOAD</string>
+    <string name="settings_folder_sync_title">FOLDER SYNC</string>
+    <string name="settings_folder_sync_add">Add sync rule</string>
+    <string name="settings_folder_sync_add_summary">Map a Seafile folder to a local folder</string>
+    <string name="settings_folder_sync_empty">No sync rules configured</string>
+    <string name="settings_folder_sync_pick_remote">Select Seafile folder</string>
+    <string name="settings_folder_sync_pick_local">Select local folder</string>
+    <string name="settings_folder_sync_added">Sync rule added</string>
+    <string name="settings_folder_sync_removed">Sync rule removed</string>
+    <string name="settings_folder_sync_delete_confirm">Remove this sync rule?</string>
+    <string name="settings_folder_sync_enabled">Enabled</string>
+    <string name="settings_folder_sync_disabled">Disabled</string>
+    <string name="settings_folder_sync_now">Sync now</string>
+    <string name="settings_folder_sync_now_summary">Manually trigger folder sync</string>
+    <string name="settings_folder_sync_started">Folder sync started</string>
+    <string name="settings_folder_sync_syncing">Syncing files…</string>
+    <string name="settings_folder_sync_manage_files">Manage files</string>
+    <string name="settings_folder_sync_filters">Filters</string>
+    <string name="settings_folder_sync_max_size">Max file size (MB)</string>
+    <string name="settings_folder_sync_max_size_hint">0 = unlimited</string>
+    <string name="settings_folder_sync_ext_filter">File extensions</string>
+    <string name="settings_folder_sync_ext_filter_hint">e.g. mp3,flac,wav (empty = all)</string>
+    <string name="settings_folder_sync_filter_mode">Filter mode</string>
+    <string name="settings_folder_sync_filter_include">Include only these extensions</string>
+    <string name="settings_folder_sync_filter_exclude">Exclude these extensions</string>
+    <string name="settings_folder_sync_filters_saved">Filters saved</string>
+    <string name="settings_folder_sync_files_title">Manage synced files</string>
+    <string name="settings_folder_sync_files_loading">Loading file list…</string>
+    <string name="settings_folder_sync_files_empty">No files found on server</string>
+    <string name="settings_folder_sync_files_excluded">%1$d excluded</string>
     <string name="settings_storage_title">CACHE STORAGE</string>
     <string name="settings_cache_title">Cache size</string>
     <string name="settings_clear_cache_title">Clear cache</string>

@@ -15,9 +15,10 @@ public class GlobalTransferCacheList {
      * Put local updated files into queue
      */
     public static final TransferQueue LOCAL_FILE_MONITOR_QUEUE = new TransferQueue();
+    public static final TransferQueue FOLDER_SYNC_QUEUE = new TransferQueue();
 
     public static int getUploadPendingCount() {
-        return FOLDER_BACKUP_QUEUE.getPendingCount() + ALBUM_BACKUP_QUEUE.getPendingCount() + FILE_UPLOAD_QUEUE.getPendingCount();
+        return FOLDER_BACKUP_QUEUE.getPendingCount() + ALBUM_BACKUP_QUEUE.getPendingCount() + FILE_UPLOAD_QUEUE.getPendingCount() + FOLDER_SYNC_QUEUE.getPendingCount();
     }
 
     public static int getDownloadPendingCount() {
@@ -30,6 +31,7 @@ public class GlobalTransferCacheList {
         FILE_UPLOAD_QUEUE.clear();
         DOWNLOAD_QUEUE.clear();
         SHARE_FILE_TO_SEAFILE_QUEUE.clear();
+        FOLDER_SYNC_QUEUE.clear();
     }
 
     public static void updateTransferModel(TransferModel transferModel) {
@@ -47,6 +49,8 @@ public class GlobalTransferCacheList {
             DOWNLOAD_QUEUE.update(transferModel);
         } else if (transferModel.data_source == FeatureDataSource.SHARE_FILE_TO_SEAFILE) {
             SHARE_FILE_TO_SEAFILE_QUEUE.update(transferModel);
+        } else if (transferModel.data_source == FeatureDataSource.FOLDER_SYNC) {
+            FOLDER_SYNC_QUEUE.update(transferModel);
         }
     }
 }

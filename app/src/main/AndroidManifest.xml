@@ -156,6 +156,7 @@
         <activity android:name=".ui.transfer_list.TransferActivity" />
         <activity android:name=".ui.BugHandlerActivity" />
         <activity android:name=".ui.settings.SettingsAlbumBackupAdvancedActivity" />
+        <activity android:name=".ui.folder_sync.FolderSyncFilesActivity" />
         <activity android:name=".ui.data_migrate.DataMigrationV303Activity" />
         <activity android:name=".ui.sdoc.SDocWebViewActivity" />
         <activity

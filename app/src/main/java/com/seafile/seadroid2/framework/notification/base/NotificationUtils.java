@@ -41,6 +41,9 @@ public class NotificationUtils {
     //download
     public static final int NID_FILE_DOWNLOAD = 3400;
 
+    //folder sync
+    public static final int NID_FOLDER_SYNC = 3500;
+
 
     public static final String NOTIFICATION_MESSAGE_KEY = "notification_key";
     public static final String NOTIFICATION_OPEN_UPLOAD_TAB = "open_upload_tab_notification";
