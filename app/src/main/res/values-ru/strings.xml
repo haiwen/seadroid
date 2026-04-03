@@ -10,9 +10,12 @@
   <string name="delete_repo">Вы действительно хотите удалить эту библиотеку?</string>
   <string name="delete_file">Вы действительно хотите удалить этот файл или папку?</string>
   <string name="delete_records">Вы уверены, что хотите удалить записи?</string>
+  <string name="delete_wiki_tip">Вы уверены, что хотите удалить эту wiki?</string>
+  <string name="unpublish_wiki_tip">Вы уверены, что хотите отменить публикацию?</string>
   <string name="delete_records_and_file">Вы уверены, что хотите удалить записи и локально загруженный файл?</string>
   <string name="delete_successful">Успешно удалено</string>
   <string name="delete_repo_title">Удалить библиотеку</string>
+  <string name="delete_wiki_title">Удалить Wiki</string>
   <string name="delete_file_f">Удалить файл</string>
   <string name="delete_local_file_sametime">Удалить локальные файлы одновременно</string>
   <string name="recover_library">Восстановить библиотеку</string>
@@ -42,6 +45,9 @@
   <string name="shared">Общедоступно</string>
   <string name="libraries">Библиотеки</string>
   <string name="my_libraries">Мои собственные библиотеки</string>
+  <string name="my_wiki">Мои Wiki</string>
+  <string name="my_wiki_of_shared">Общедоступно</string>
+  <string name="my_wiki_of_old">Старая</string>
   <string name="cached">Кэшированы</string>
   <string name="activities">Активность</string>
   <string name="pick_upload_type">Загрузить</string>
@@ -69,6 +75,7 @@
   <string name="err_login_failed">Вход не удался</string>
   <string name="err_wrong_user_or_passwd">Ошибка Email или пароля</string>
   <string name="err_token_expired">Истекло время сессии, войдите снова</string>
+  <string name="upload_file">Загрузить файл</string>
   <string name="upload">Загрузить</string>
   <string name="uploaded">Загруженные</string>
   <string name="re_upload">Загрузить снова</string>
@@ -100,6 +107,7 @@
   <string name="file_action_copy">Копировать</string>
   <string name="file_action_move">Переместить</string>
   <string name="file_action_open_as">Открыть как</string>
+  <string name="file_action_profile">Профиль</string>
   <string name="file_action_more">Больше</string>
   <string name="file_action_more_title">Выберите нужный вариант</string>
   <string-array name="file_action_more_array">
@@ -171,6 +179,7 @@
   </string-array>
   <string name="add_repo">Новая библиотека</string>
   <string name="add_file">Добавить</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>Создать файл</item>
     <item>Создать папку</item>
@@ -189,6 +198,7 @@
   <string name="create_files">Создать файлы</string>
   <string name="create_new_dir">Создать новую папку</string>
   <string name="camera">Сделать фотографию</string>
+  <string name="take_photo">Сделать фото</string>
   <string name="download">Скачать</string>
   <string name="open">Открыть</string>
   <string name="last_modified">последний раз изменено</string>
@@ -211,6 +221,7 @@
   <string name="rename_repo">Переименовать библиотеку</string>
   <string name="rename_file">Переименовать файл</string>
   <string name="rename_dir">Переименовать папку</string>
+  <string name="rename_wiki">Переименовать</string>
   <string name="rename_successful">Успешно переименовано.</string>
   <string-array name="nav_array">
     <item>Файлы</item>
@@ -227,6 +238,12 @@
   <string name="tabs_library">Библиотеки</string>
   <string name="tabs_activity">Активность</string>
   <string name="tabs_starred">Помеченные</string>
+  <string name="tabs_wiki">Wiki</string>
+  <string name="publish">Опубликовать</string>
+  <string name="unpublish">Отменить публикацию</string>
+  <string name="published">Опубликовано</string>
+  <string name="publish_wiki">Опубликовать Wiki</string>
+  <string name="publish_wiki_custom_url">Настроить URL-адрес</string>
   <string name="starred_repos">Отмеченные звездочками библиотеки</string>
   <string name="starred_files">Отмеченные звездочками файлы</string>
   <string name="starred_folder">Отмеченная звездочкой папка</string>
@@ -721,6 +738,7 @@
   <string name="_location">Расположение</string>
   <string name="_owner">Владелец файла</string>
   <string name="_rate">Оценить</string>
+  <string name="_expire_time">Срок истечения</string>
   <string name="mark_resolve">Отметить как решенное</string>
   <string name="delete_confirm">Вы уверены, что хотите удалить этот элемент?</string>
   <string name="image_capture_time">Время захвата</string>
@@ -762,4 +780,7 @@
   <string name="saving">Сохранение</string>
   <string name="saved">Сохранено</string>
   <string name="live">ЖИВОЙ</string>
+  <!--Tips-->
+  <string name="tip_press_again_to_exit">Нажмите еще раз, чтобы выйти</string>
+  <string name="tip_publish_wiki_desc">Пользовательская часть URL-адреса должна иметь длину от 5 до 30 символов и может содержать только буквы (a-z), цифры и дефисы.</string>
 </resources>

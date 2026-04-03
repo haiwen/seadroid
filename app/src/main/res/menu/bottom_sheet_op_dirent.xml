@@ -59,4 +59,9 @@
         android:id="@id/save_as"
         android:icon="@drawable/baseline_save_as_24"
         android:title="@string/file_action_save_as" />
+
+    <item
+        android:id="@id/profile"
+        android:icon="@drawable/icon_sdoc_info"
+        android:title="@string/file_action_profile" />
 </menu>

@@ -10,24 +10,19 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
-import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
+import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.file.FileService;
-import com.seafile.seadroid2.ui.sdoc.SDocService;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,7 +31,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -77,115 +71,8 @@ public class PhotoViewModel extends BaseViewModel {
 
     public void getFileDetail(String repoId, String path) {
         SLogs.d(PhotoFragment.TAG, "getFileDetail()", path);
-
-        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance()
-                .execute(SDocService.class)
-                .getFileDetail(repoId, path);
-
-        Single<MetadataConfigModel> metadataSingle = HttpIO
-                .getCurrentInstance()
-                .execute(SDocService.class)
-                .getMetadata(repoId)
-                .onErrorReturnItem(new MetadataConfigModel());
-
-        Single<FileProfileConfigModel> s = Single.zip(metadataSingle, detailSingle, new BiFunction<MetadataConfigModel, FileDetailModel, FileProfileConfigModel>() {
-            @Override
-            public FileProfileConfigModel apply(MetadataConfigModel metadataConfigModel, FileDetailModel fileDetailModel) {
-                FileProfileConfigModel configModel = new FileProfileConfigModel();
-                configModel.setMetadataConfigModel(metadataConfigModel);
-                configModel.setDetail(fileDetailModel);
-                return configModel;
-            }
-        }).flatMap(new Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
-            @Override
-            public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel configModel) throws Exception {
-                List<Single<?>> singles = new ArrayList<>();
-
-                if (configModel.getMetaEnabled()) {
-
-                    String parent_dir;
-                    String name;
-
-                    // 1. /a/b/c/t.txt
-                    // 2. /a/t.txt
-                    // 3. /t.txt
-                    // 4. t.txt
-                    // 5. /
-                    if (path.contains("/")) {
-                        parent_dir = path.substring(0, path.lastIndexOf("/"));
-                        name = path.substring(path.lastIndexOf("/") + 1);
-                    } else {
-                        parent_dir = null;
-                        name = path;
-                    }
-
-                    if (TextUtils.isEmpty(parent_dir)) {
-                        parent_dir = "/";
-                    }
-
-                    SLogs.d(PhotoFragment.TAG, "metadata enabled", "path = " + path);
-                    //user
-                    Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance()
-                            .execute(SDocService.class)
-                            .getRelatedUsers(repoId);
-                    singles.add(userSingle);
-
-                    //record
-                    SLogs.d(PhotoFragment.TAG, "parent_dir: " + parent_dir + ", name: " + name);
-                    Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance()
-                            .execute(SDocService.class)
-                            .getRecords(repoId, parent_dir, name, name)
-                            .onErrorReturnItem(new FileRecordWrapperModel());
-                    singles.add(recordSingle);
-                }
-
-                if (configModel.getTagsEnabled()) {
-                    SLogs.d(PhotoFragment.TAG, "tag enabled", "path = " + path);
-                    //tag
-                    Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance()
-                            .execute(SDocService.class)
-                            .getTags(repoId)
-                            .onErrorReturnItem(new FileTagWrapperModel());
-                    singles.add(tagSingle);
-                }
-
-                if (singles.isEmpty()) {
-                    configModel.initDefaultIfMetaNotEnable();
-                    return Single.just(configModel);
-                }
-
-                return Single.zip(singles, new Function<Object[], FileProfileConfigModel>() {
-                    @Override
-                    public FileProfileConfigModel apply(Object[] results) throws Exception {
-
-                        if (configModel.getMetaEnabled()) {
-                            UserWrapperModel u = (UserWrapperModel) results[0];
-                            configModel.setRelatedUserWrapperModel(u);
-
-                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
-                            if (r.results.isEmpty()) {
-                                configModel.initDefaultIfMetaNotEnable();
-                            } else {
-                                configModel.addRecordWrapperModel(r);
-                            }
-                        } else {
-                            configModel.initDefaultIfMetaNotEnable();
-                        }
-
-                        if (configModel.getMetaEnabled() && configModel.getTagsEnabled()) {
-                            FileTagWrapperModel t = (FileTagWrapperModel) results[2];
-                            configModel.setTagWrapperModel(t);
-                        } else if (configModel.getTagsEnabled()) {
-                            FileTagWrapperModel t = (FileTagWrapperModel) results[0];
-                            configModel.setTagWrapperModel(t);
-                        }
-
-                        return configModel;
-                    }
-                });
-            }
-        });
-
+        
+        Single<FileProfileConfigModel> s = Objs.getLoadFileDetailSingle(repoId,path);
 
         addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
             @Override

@@ -13,6 +13,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -28,10 +29,10 @@ import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.selector.versatile.VersatileRepoSelectorFragment;
-import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VersatileShareToSeafileActivity extends BaseActivity {
+public class VersatileShareToSeafileSelectorActivity extends BaseActivity {
     private ActivityVersatileShareToSeafileBinding binding;
     private final List<Fragment> fragments = new ArrayList<>();
 
@@ -52,7 +53,7 @@ public class VersatileShareToSeafileActivity extends BaseActivity {
     private Account mAccount;
 
     public static Intent getSpecialAccountIntent(Context context, String accountSignature, String startRepoId, String startPath, String fileName, int actionType) {
-        Intent intent = new Intent(context, VersatileShareToSeafileActivity.class);
+        Intent intent = new Intent(context, VersatileShareToSeafileSelectorActivity.class);
         intent.putExtra("accountSignature", accountSignature);
         intent.putExtra("startRepoId", startRepoId);
         intent.putExtra("startPath", startPath);
@@ -95,6 +96,7 @@ public class VersatileShareToSeafileActivity extends BaseActivity {
         initViewPager();
     }
 
+
     private void receiveParams() {
         Intent intent = getIntent();
         if (intent == null) {
@@ -119,6 +121,8 @@ public class VersatileShareToSeafileActivity extends BaseActivity {
     }
 
     private void finishSelf() {
+        setResult(RESULT_CANCELED);
+
         finish();
     }
 
@@ -129,7 +133,7 @@ public class VersatileShareToSeafileActivity extends BaseActivity {
         }
 
         int index = binding.pager.getCurrentItem();
-        if (index == 2) {
+        if (index != 0) {
             return;
         }
 
@@ -233,7 +237,6 @@ public class VersatileShareToSeafileActivity extends BaseActivity {
     private void initViewPager() {
         fragments.clear();
         fragments.add(VersatileRepoSelectorFragment.newInstance(accountSignature, startRepoId, startPath));
-        fragments.add(VersatileRepoSelectorFragment.newInstance(accountSignature, null, null));
         fragments.add(StarredQuickFragment.newInstance(accountSignature, true));
 
         ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);
@@ -266,7 +269,7 @@ public class VersatileShareToSeafileActivity extends BaseActivity {
         }
 
         int index = binding.pager.getCurrentItem();
-        if (index == 0 || index == 1) {
+        if (index == 0) {
             VersatileRepoSelectorFragment vrsf = (VersatileRepoSelectorFragment) fragments.get(index);
             Pair<Account, NavContext> pair = vrsf.getBackupInfo();
             NavContext navContext = pair.second;
@@ -288,8 +291,8 @@ public class VersatileShareToSeafileActivity extends BaseActivity {
             intent.putExtra(ObjKey.REPO_ID, repoID);
             intent.putExtra(ObjKey.DIR, dir);
 
-        } else if (index == 2) {
-            StarredQuickFragment starredQuickFragment = (StarredQuickFragment) fragments.get(2);
+        } else if (index == 1) {
+            StarredQuickFragment starredQuickFragment = (StarredQuickFragment) fragments.get(index);
             StarredModel starredModel = starredQuickFragment.getSingleSelectedModel();
             if (starredModel == null) {
                 return;

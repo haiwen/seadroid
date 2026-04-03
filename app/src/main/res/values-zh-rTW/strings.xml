@@ -10,9 +10,12 @@
   <string name="delete_repo">是否要刪除這一個資料庫?</string>
   <string name="delete_file">是否要刪除這一個檔案或文件夾?</string>
   <string name="delete_records">是否要刪除這一個事件?</string>
+  <string name="delete_wiki_tip">是否要刪除這一個Wiki?</string>
+  <string name="unpublish_wiki_tip">是否要取消這一個Wiki的公開?</string>
   <string name="delete_records_and_file">是否要刪除這一個事件及其相關的檔案?</string>
   <string name="delete_successful">已刪除</string>
   <string name="delete_repo_title">刪除資料庫</string>
+  <string name="delete_wiki_title">刪除Wiki</string>
   <string name="delete_file_f">刪除文件</string>
   <string name="delete_local_file_sametime">是否要刪除本地端的相同檔案?</string>
   <string name="recover_library">是否要恢復這一個資料庫?</string>
@@ -42,6 +45,9 @@
   <string name="shared">分享</string>
   <string name="libraries">資料庫</string>
   <string name="my_libraries">我的資料庫</string>
+  <string name="my_wiki">我的Wiki</string>
+  <string name="my_wiki_of_shared">分享的Wiki</string>
+  <string name="my_wiki_of_old">舊版Wiki</string>
   <string name="cached">已緩存</string>
   <string name="activities">事件</string>
   <string name="pick_upload_type">上傳</string>
@@ -69,6 +75,7 @@
   <string name="err_login_failed">登錄失敗</string>
   <string name="err_wrong_user_or_passwd">郵箱或密碼錯誤</string>
   <string name="err_token_expired">認證已過期，請重新登錄</string>
+  <string name="upload_file">上傳文件</string>
   <string name="upload">上傳</string>
   <string name="uploaded">已上傳</string>
   <string name="re_upload">重新上傳</string>
@@ -100,6 +107,7 @@
   <string name="file_action_copy">複製</string>
   <string name="file_action_move">移動</string>
   <string name="file_action_open_as">打開為</string>
+  <string name="file_action_profile">文件信息</string>
   <string name="file_action_more">更多</string>
   <string name="file_action_more_title">選擇你喜歡的選項</string>
   <string-array name="file_action_more_array">
@@ -168,6 +176,7 @@
   </string-array>
   <string name="add_repo">新建資料庫</string>
   <string name="add_file">添加</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>新建文件</item>
     <item>新建文件夾</item>
@@ -186,6 +195,7 @@
   <string name="create_files">創建文件</string>
   <string name="create_new_dir">創建新文件夾</string>
   <string name="camera">拍照上傳</string>
+  <string name="take_photo">拍照</string>
   <string name="download">下載</string>
   <string name="open">打開</string>
   <string name="last_modified">最後更改</string>
@@ -208,6 +218,7 @@
   <string name="rename_repo">重命名資料庫</string>
   <string name="rename_file">重命名文件</string>
   <string name="rename_dir">重命名文件夾</string>
+  <string name="rename_wiki">重命名Wiki</string>
   <string name="rename_successful">重命名成功。</string>
   <string-array name="nav_array">
     <item>文件</item>
@@ -216,6 +227,7 @@
     <item>相冊備份</item>
   </string-array>
   <string name="navigate_to_directory">導航到文件夾</string>
+  <string name="go_up">返回上一層</string>
   <string name="no_starred_file">無星標文件</string>
   <string name="added_to_upload_tasks">開始上傳</string>
   <string name="added_photo_to_upload_tasks">圖片開始上傳</string>
@@ -223,6 +235,12 @@
   <string name="tabs_library">資料庫</string>
   <string name="tabs_activity">文件活動</string>
   <string name="tabs_starred">星標文件</string>
+  <string name="tabs_wiki">Wiki</string>
+  <string name="publish">發布</string>
+  <string name="unpublish">取消發布</string>
+  <string name="published">已發布</string>
+  <string name="publish_wiki">發布Wiki</string>
+  <string name="publish_wiki_custom_url">自訂鏈接</string>
   <string name="starred_repos">星標資料庫</string>
   <string name="starred_files">星標文件</string>
   <string name="starred_folder">星標文件夾</string>
@@ -272,6 +290,9 @@
   <string name="copied_successfully">複製成功</string>
   <string name="moved_successfully">移動成功</string>
   <string name="internal_server_error">伺服器出錯了</string>
+  <string name="current_library">當前資料庫</string>
+  <string name="other_libraries">其他資料庫</string>
+  <string name="recently_used">最近使用</string>
   <string name="copy_file_ing">正在複製文件</string>
   <string name="move_file_ing">正在移動文件</string>
   <string name="copy_file_from">正在從 %1$s \n 複製到 %2$s</string>
@@ -500,6 +521,10 @@
     <item quantity="other">正在下載%1$d個文件(%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">下載完成</string>
+  <string name="notification_background_file_monitor_channel">背景文件監控</string>
+  <string name="notification_background_file_monitor_desc">監控背景文件操作，如上傳、下載等</string>
+  <string name="notification_background_file_monitor_title">背景文件操作</string>
+  <string name="notification_background_file_monitor_content">背景文件操作完成</string>
   <!--Gallery-->
   <string name="gallery_load_photos_error">加載圖片錯誤</string>
   <string name="gallery_encrypted_repo_not_supported">不支持加密資料庫</string>
@@ -609,6 +634,9 @@
   <string name="folder_backup_select_repo_update">更新備份資料庫</string>
   <string name="UncaughtExceptionHandler_err">發生未捕獲異常</string>
   <string name="settings_file_backup_info_title">文件備份信息</string>
+  <!--backup config-->
+  <string name="backup_settings_title">備份設置</string>
+  <string name="backup_settings_background_backup_title">背景備份</string>
   <!--action-->
   <string name="pause">暫停</string>
   <string name="paused">暫停</string>
@@ -636,6 +664,8 @@
   <string name="follow_system">遵循系統設置</string>
   <string name="empty">空</string>
   <string name="empty_data">空數據</string>
+  <string name="turn_on">打開</string>
+  <string name="turn_off">關閉</string>
   <!--share link-->
   <string name="link_permission_set_permission">設置權限</string>
   <string name="link_permission_preview_and_download">預覽並下載</string>
@@ -667,6 +697,8 @@
   <string name="_tags">標籤</string>
   <string name="_location">位置</string>
   <string name="_owner">擁有者</string>
+  <string name="_rate">評分</string>
+  <string name="_expire_time">過期時間</string>
   <string name="mark_resolve">標記為已解決</string>
   <string name="delete_confirm">確認刪除</string>
   <string name="image_capture_time">拍攝時間</string>
@@ -686,4 +718,29 @@
   <string name="backup_failed">備份失敗</string>
   <string name="export_log_file_not_exists">日誌文件不存在</string>
   <string name="file_transfer_stopped">文件傳輸已停止</string>
+  <!--font-style-->
+  <string name="font_style_paragraph">段落</string>
+  <string name="font_style_title">標題</string>
+  <string name="font_style_subtitle">副標題</string>
+  <string name="font_style_heading1">標題1</string>
+  <string name="font_style_heading2">標題2</string>
+  <string name="font_style_heading3">標題3</string>
+  <string name="font_style_heading4">標題4</string>
+  <string name="font_style_heading5">標題5</string>
+  <string name="font_style_heading6">標題6</string>
+  <!--sdoc system event-->
+  <string name="sdoc_system_event_failed_to_execute_operation_on_server">在伺服器上執行操作失敗</string>
+  <string name="sdoc_system_event_failed_to_sync_with_server_operations">同步操作失敗</string>
+  <string name="sdoc_system_event_internal_server_exec_operations_error">內部伺服器執行操作失敗</string>
+  <string name="sdoc_system_event_token_expired_please_refresh_the_page">令牌已過期，請刷新頁面</string>
+  <string name="sdoc_system_event_pending_operations_exceed_limit">待處理操作超過限制</string>
+  <string name="sdoc_system_event_server_is_not_connected_operation_will_be_sent_to_server_later">伺服器未連接，操作將在稍後發送</string>
+  <string name="reconnecting">重新連接中</string>
+  <string name="reconnected">已重新接</string>
+  <string name="saving">保存中</string>
+  <string name="saved">已保存</string>
+  <string name="live">直播</string>
+  <!--Tips-->
+  <string name="tip_press_again_to_exit">再次按鍵退出</string>
+  <string name="tip_publish_wiki_desc">發布Wiki頁面</string>
 </resources>

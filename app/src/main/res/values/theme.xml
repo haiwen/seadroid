@@ -24,6 +24,8 @@
         </item>
 
 
+        <item name="checkboxStyle">@style/Widget.App.Checkbox</item>
+        <item name="radioButtonStyle">@style/Widget.App.RadioButton</item>
         <item name="actionModeStyle">@style/App.ActionMode.LightTheme</item>
         <item name="actionModeCloseDrawable">@drawable/baseline_close_24</item>
         <item name="textInputStyle">@style/App.Widget.TextInput</item>
@@ -46,6 +48,7 @@
         <!--        <item name="preferenceCategoryStyle">@style/Widget.PreferenceCategory</item>-->
 
         <item name="colorAccent">@color/fancy_orange</item>
+
         <!-- Primary -->
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>

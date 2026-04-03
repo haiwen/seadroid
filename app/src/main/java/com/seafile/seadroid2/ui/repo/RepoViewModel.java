@@ -12,6 +12,7 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
@@ -29,18 +30,19 @@ import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.search.SearchFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchFileWrapperModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.PreDownloadHelper;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.search.SearchService;
 import com.seafile.seadroid2.ui.star.StarredService;
@@ -817,4 +819,31 @@ public class RepoViewModel extends BaseViewModel {
 
     }
 
+
+
+    private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
+    public MutableLiveData<FileProfileConfigModel> getFileDetailLiveData() {
+        return _fileProfileConfigLiveData;
+    }
+
+    public void loadFileDetail(String repoId, String path) {
+        getSecondRefreshLiveData().setValue(true);
+
+        Single<FileProfileConfigModel> s = Objs.getLoadFileDetailSingle(repoId,path);
+
+        addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
+            @Override
+            public void accept(FileProfileConfigModel fileProfileConfigModel) throws Exception {
+                getSecondRefreshLiveData().setValue(false);
+                getFileDetailLiveData().setValue(fileProfileConfigModel);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) {
+                getSecondRefreshLiveData().setValue(false);
+                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                Toasts.show(seafException.getMessage());
+            }
+        });
+    }
 }

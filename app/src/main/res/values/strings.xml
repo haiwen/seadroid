@@ -113,6 +113,7 @@
     <string name="file_action_copy">Copy</string>
     <string name="file_action_move">Move</string>
     <string name="file_action_open_as">Open as</string>
+    <string name="file_action_profile">Profile</string>">
     <string name="file_action_more">More</string>
     <string name="file_action_more_title">Choose your preferred option</string>
     <string-array name="file_action_more_array">
@@ -762,6 +763,7 @@
     <string name="_location">Location</string>
     <string name="_owner">File owner</string>
     <string name="_rate">Rate</string>
+    <string name="_expire_time">Expire time</string>
 
     <string name="mark_resolve">Mark as resolved</string>
     <string name="delete_confirm">Are you sure you want to delete this item?</string>
@@ -818,4 +820,5 @@
     <!-- Tips -->
     <string name="tip_press_again_to_exit">Press again to exit</string>
     <string name="tip_publish_wiki_desc">The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.</string>
+
 </resources>

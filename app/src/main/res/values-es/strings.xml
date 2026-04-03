@@ -10,9 +10,12 @@
   <string name="delete_repo">¿Está seguro que desea eliminar esta biblioteca?</string>
   <string name="delete_file">¿Seguro que deseas eliminar este archivo o carpeta?</string>
   <string name="delete_records">¿Está seguro que desea eliminar estos registros?</string>
+  <string name="delete_wiki_tip">¿Seguro que quieres eliminar este wiki?</string>
+  <string name="unpublish_wiki_tip">¿Seguro que quieres despublicar este wiki?</string>
   <string name="delete_records_and_file">¿Está seguro que desea eliminar estos registros y este archivo o carpeta?</string>
   <string name="delete_successful">Eliminado con éxito</string>
   <string name="delete_repo_title">Eliminar biblioteca</string>
+  <string name="delete_wiki_title">Eliminar wiki</string>
   <string name="delete_file_f">Eliminar archivo</string>
   <string name="delete_local_file_sametime">¿Está seguro que desea eliminar este archivo local con el mismo nombre?</string>
   <string name="recover_library">Recuperar biblioteca</string>
@@ -42,6 +45,9 @@
   <string name="shared">Compartidas conmigo</string>
   <string name="libraries">Bibliotecas</string>
   <string name="my_libraries">Mis Bibliotecas</string>
+  <string name="my_wiki">Mis wikis</string>
+  <string name="my_wiki_of_shared">Wikis compartidos</string>
+  <string name="my_wiki_of_old">Wikis antiguos</string>
   <string name="cached">En Caché</string>
   <string name="activities">Actividades</string>
   <string name="pick_upload_type">Subir</string>
@@ -69,6 +75,7 @@
   <string name="err_login_failed">Ingreso fallido</string>
   <string name="err_wrong_user_or_passwd">Email o contraseña incorrecto</string>
   <string name="err_token_expired">La autenticación expiró, por favor ingrese nuevamente</string>
+  <string name="upload_file">Subir archivo</string>
   <string name="upload">Subir</string>
   <string name="uploaded">Subido</string>
   <string name="re_upload">Subir otra vez</string>
@@ -100,6 +107,7 @@
   <string name="file_action_copy">Copiar</string>
   <string name="file_action_move">Mover</string>
   <string name="file_action_open_as">Abrir como</string>
+  <string name="file_action_profile">Perfil de archivo</string>
   <string name="file_action_more">Mas</string>
   <string name="file_action_more_title">Escoja su opción preferida</string>
   <string-array name="file_action_more_array">
@@ -170,6 +178,7 @@
   </string-array>
   <string name="add_repo">Nueva Biblioteca</string>
   <string name="add_file">Agregar</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>Crear archivo</item>
     <item>Crear carpeta</item>
@@ -188,6 +197,7 @@
   <string name="create_files">Crear archivos</string>
   <string name="create_new_dir">Crear una nueva carpeta</string>
   <string name="camera">Tomar una foto aquí</string>
+  <string name="take_photo">Tomar foto</string>
   <string name="download">Descargar</string>
   <string name="open">Abrir</string>
   <string name="last_modified">última modificación</string>
@@ -210,6 +220,7 @@
   <string name="rename_repo">Renombrar biblioteca</string>
   <string name="rename_file">Renombrar archivo</string>
   <string name="rename_dir">Renombrar carpeta</string>
+  <string name="rename_wiki">Cambiar nombre al wiki</string>
   <string name="rename_successful">Renombrado con éxito.</string>
   <string-array name="nav_array">
     <item>Archivos</item>
@@ -218,6 +229,7 @@
     <item>Backup Fotos</item>
   </string-array>
   <string name="navigate_to_directory">Navegar a carpeta</string>
+  <string name="go_up">Subir</string>
   <string name="no_starred_file">Aún no hay archivos favoritos</string>
   <string name="added_to_upload_tasks">Subida iniciada</string>
   <string name="added_photo_to_upload_tasks">Subida de fotos iniciada</string>
@@ -225,6 +237,12 @@
   <string name="tabs_library">Bibliotecas</string>
   <string name="tabs_activity">Actividades</string>
   <string name="tabs_starred">Favoritos</string>
+  <string name="tabs_wiki">Pestañas wiki</string>
+  <string name="publish">Publicar</string>
+  <string name="unpublish">Despublicar</string>
+  <string name="published">Publicado</string>
+  <string name="publish_wiki">Publicar wiki</string>
+  <string name="publish_wiki_custom_url">URL personalizada del wiki</string>
   <string name="starred_repos">Bibliotecas favoritas</string>
   <string name="starred_files">Archivos favoritos</string>
   <string name="starred_folder">Carpetas favoritas</string>
@@ -276,6 +294,9 @@
   <string name="copied_successfully">Copiado con éxito</string>
   <string name="moved_successfully">Movido con éxito</string>
   <string name="internal_server_error">Error interno del Servidor</string>
+  <string name="current_library">Biblioteca actual</string>
+  <string name="other_libraries">Otras bibliotecas</string>
+  <string name="recently_used">Usados recientemente</string>
   <string name="copy_file_ing">Copiando archivo</string>
   <string name="move_file_ing">Moviendo archivo</string>
   <string name="copy_file_from">Copiando desde %1$s \n a %2$s</string>
@@ -518,6 +539,10 @@
     <item quantity="other">Descargando %1$d archivos (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Descarga finalizada</string>
+  <string name="notification_background_file_monitor_channel">Monitor de archivos en segundo plano</string>
+  <string name="notification_background_file_monitor_desc">Monitorea cambios en archivos en segundo plano</string>
+  <string name="notification_background_file_monitor_title">Monitor de archivos</string>
+  <string name="notification_background_file_monitor_content">Se están monitoreando archivos en segundo plano</string>
   <!--Gallery-->
   <string name="gallery_load_photos_error">Error al cargar fotos</string>
   <string name="gallery_encrypted_repo_not_supported">Bibliotecas encriptadas no están soportadas</string>
@@ -627,6 +652,9 @@
   <string name="folder_backup_select_repo_update">Actualizar biblioteca de respaldo</string>
   <string name="UncaughtExceptionHandler_err">Error no capturado</string>
   <string name="settings_file_backup_info_title">Respaldo de archivos</string>
+  <!--backup config-->
+  <string name="backup_settings_title">Configuración de copia de seguridad</string>
+  <string name="backup_settings_background_backup_title">Copia de seguridad en segundo plano</string>
   <!--action-->
   <string name="pause">Pausar</string>
   <string name="paused">Pausado</string>
@@ -654,6 +682,8 @@
   <string name="follow_system">Seguir sistema</string>
   <string name="empty">Vacío</string>
   <string name="empty_data">Datos vacíos</string>
+  <string name="turn_on">Encender</string>
+  <string name="turn_off">Apagar</string>
   <!--share link-->
   <string name="link_permission_set_permission">Establecer permiso</string>
   <string name="link_permission_preview_and_download">Previsualizar y descargar</string>
@@ -685,6 +715,8 @@
   <string name="_tags">Etiquetas</string>
   <string name="_location">Ubicación</string>
   <string name="_owner">Propietario</string>
+  <string name="_rate">Calificar</string>
+  <string name="_expire_time">Fecha de vencimiento</string>
   <string name="mark_resolve">Marcar como resuelto</string>
   <string name="delete_confirm">¿Está seguro de que desea eliminar este archivo?</string>
   <string name="image_capture_time">Fecha de captura de imagen</string>
@@ -704,4 +736,29 @@
   <string name="backup_failed">Fallo en el respaldo</string>
   <string name="export_log_file_not_exists">El archivo de registro no existe</string>
   <string name="file_transfer_stopped">Transferencia de archivos detenida</string>
+  <!--font-style-->
+  <string name="font_style_paragraph">Párrafo</string>
+  <string name="font_style_title">Título</string>
+  <string name="font_style_subtitle">Subtítulo</string>
+  <string name="font_style_heading1">Encabezado 1</string>
+  <string name="font_style_heading2">Encabezado 2</string>
+  <string name="font_style_heading3">Encabezado 3</string>
+  <string name="font_style_heading4">Encabezado 4</string>
+  <string name="font_style_heading5">Encabezado 5</string>
+  <string name="font_style_heading6">Encabezado 6</string>
+  <!--sdoc system event-->
+  <string name="sdoc_system_event_failed_to_execute_operation_on_server">Error al ejecutar la operación en el servidor</string>
+  <string name="sdoc_system_event_failed_to_sync_with_server_operations">Error al sincronizar operaciones con el servidor</string>
+  <string name="sdoc_system_event_internal_server_exec_operations_error">Error interno del servidor al ejecutar operaciones</string>
+  <string name="sdoc_system_event_token_expired_please_refresh_the_page">Token caducado. Actualiza la página</string>
+  <string name="sdoc_system_event_pending_operations_exceed_limit">Se ha superado el límite de operaciones pendientes</string>
+  <string name="sdoc_system_event_server_is_not_connected_operation_will_be_sent_to_server_later">Sin conexión al servidor. La operación se enviará más tarde</string>
+  <string name="reconnecting">Reconectando</string>
+  <string name="reconnected">Reconectado</string>
+  <string name="saving">Guardando</string>
+  <string name="saved">Guardado</string>
+  <string name="live">En vivo</string>
+  <!--Tips-->
+  <string name="tip_press_again_to_exit">Presiona de nuevo para salir</string>
+  <string name="tip_publish_wiki_desc">Al publicar, el wiki estará disponible para otros usuarios</string>
 </resources>

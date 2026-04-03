@@ -738,8 +738,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
 
         getViewModel().getFileDetailLiveData().observe(this, new Observer<FileProfileConfigModel>() {
             @Override
-            public void onChanged(FileProfileConfigModel fileProfileConfigModel) {
-                FileProfileDialog dialog = FileProfileDialog.newInstance(fileProfileConfigModel);
+            public void onChanged(FileProfileConfigModel configModel) {
+
+                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel);
                 dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
             }
         });

@@ -75,6 +75,7 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -97,6 +98,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.DeleteRepoDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
+import com.seafile.seadroid2.ui.file_profile.FileProfileDialog;
 import com.seafile.seadroid2.ui.main.MainViewModel;
 import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
@@ -626,6 +628,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void initAdapter() {
         adapter = new RepoQuickAdapter();
+        adapter.setServerUrl(getCurrentAccount().getServer());
 
         lastViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
         adapter.setFileViewType(lastViewType);
@@ -765,6 +768,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 notifyDataChanged(models);
 
                 restoreScrollPosition();
+            }
+        });
+
+        getViewModel().getFileDetailLiveData().observe(getViewLifecycleOwner(), new Observer<FileProfileConfigModel>() {
+            @Override
+            public void onChanged(FileProfileConfigModel configModel) {
+                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel);
+                dialog.show(getChildFragmentManager(), FileProfileDialog.class.getSimpleName());
             }
         });
 
@@ -945,6 +956,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             openWith(selectedList);
         } else if (item.getItemId() == R.id.save_as) {
             onSaveAs(selectedList);
+        } else if (item.getItemId() == R.id.profile) {
+            showFileProfileDialog(selectedList);
         }
     }
 
@@ -1609,6 +1622,24 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
+    private void showFileProfileDialog(List<BaseModel> models) {
+        if (CollectionUtils.isEmpty(models)) {
+            return;
+        }
+        if (models.size() > 1) {
+            return;
+        }
+
+        closeActionMode();
+
+        BaseModel model = models.get(0);
+        if (model instanceof DirentModel m) {
+            getViewModel().loadFileDetail(m.repo_id, m.full_path);
+        } else {
+
+        }
+    }
+
     // SearchModel supported
     private void onSaveAs(List<BaseModel> models) {
         if (CollectionUtils.isEmpty(models)) {
@@ -1707,7 +1738,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         if (fileName.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
             boolean canNotEdit = dirent.is_freezed || dirent.is_locked;
-            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name,canNotEdit);
+            SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name, canNotEdit);
             return;
         }
 

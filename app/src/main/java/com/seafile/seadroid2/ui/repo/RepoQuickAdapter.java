@@ -73,6 +73,13 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private FileViewType fileViewType = FileViewType.LIST;
     private ObjSelectType selectType = ObjSelectType.NOT_SELECTABLE;
 
+    // only for account now. 2026-03-23 15:46:00
+    private boolean isSingleSelect;
+
+    public void setSingleSelect(boolean singleSelect) {
+        isSingleSelect = singleSelect;
+    }
+
     public void setSelectType(ObjSelectType selectType) {
         this.selectType = selectType;
     }
@@ -301,8 +308,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     .into(holder.binding.listItemAccountIcon);
         }
 
-        if (selectType.ordinal() == ObjSelectType.ACCOUNT.ordinal()) {
+        if (selectType.ordinal() == ObjSelectType.ACCOUNT.ordinal() && !isSingleSelect) {
             holder.binding.itemSelectView.setVisibility(View.VISIBLE);
+
             if (model.is_checked) {
                 holder.binding.itemSelectView.setImageResource(R.drawable.ic_checkbox_checked);
             } else {
@@ -431,7 +439,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
+        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name) || StringUtils.isEmpty(model.encoded_thumbnail_src)) {
             GlideApp.with(getContext())
                     .load(model.getIcon())
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
@@ -525,7 +533,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemOutline.setVisibility(View.VISIBLE);
         }
 
-        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
+        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name) || StringUtils.isEmpty(model.encoded_thumbnail_src)) {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
             GlideApp.with(getContext())
                     .load(model.getIcon())
@@ -702,6 +710,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
     private String server_url;
     private final boolean isLogin = SupportAccountManager.getInstance().isLogin();
+
+    public void setServerUrl(String server_url) {
+        this.server_url = server_url;
+    }
 
     private String getServerUrl() {
         if (!TextUtils.isEmpty(server_url)) {

@@ -136,7 +136,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Preference cacheLocationPref;
 
     private TextSwitchPreference mBiometricLockSwitch;
-    private ListPreference mLockTimeoutPref;
+    private SimpleMenuPreference mLockTimeoutPref;
 
     public static TabSettings2Fragment newInstance() {
         return new TabSettings2Fragment();

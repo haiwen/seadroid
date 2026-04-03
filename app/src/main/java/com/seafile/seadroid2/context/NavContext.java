@@ -41,6 +41,10 @@ public class NavContext {
         return navStack.size() == 1;
     }
 
+    public boolean inRoot(){
+        return navStack.isEmpty();
+    }
+
     /**
      * @return true: it's in a repo, false: not
      */
@@ -252,6 +256,30 @@ public class NavContext {
             fullPath += "/";
         }
 
+        return fullPath;
+    }
+
+    public String getFullNavName() {
+        if (navStack.empty()) {
+            return null;
+        }
+
+        String fullPath = null;
+        RepoModel repoModel = getRepoModel();
+        if (repoModel != null) {
+            fullPath = repoModel.repo_name;
+        }
+
+        if (navStack.size() == 1) {
+            return fullPath;
+        }
+
+        DirentModel direntModel = getTopDirentModel();
+        if (direntModel == null) {
+            return fullPath;
+        }
+
+        fullPath = Utils.pathJoin(fullPath, direntModel.full_path);
         return fullPath;
     }
 

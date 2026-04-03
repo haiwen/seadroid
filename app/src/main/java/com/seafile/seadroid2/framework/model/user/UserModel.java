@@ -10,6 +10,16 @@ public class UserModel implements Parcelable {
     private String name;
     private String contact_email;
     private String avatar_url;
+    private boolean isSelected;
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
 
     public String getEmail() {
         return email;
@@ -66,6 +76,7 @@ public class UserModel implements Parcelable {
         dest.writeString(this.name);
         dest.writeString(this.contact_email);
         dest.writeString(this.avatar_url);
+        dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
     }
 
     public UserModel() {
@@ -76,6 +87,7 @@ public class UserModel implements Parcelable {
         this.name = in.readString();
         this.contact_email = in.readString();
         this.avatar_url = in.readString();
+        this.isSelected = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<UserModel> CREATOR = new Parcelable.Creator<UserModel>() {

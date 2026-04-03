@@ -1,24 +1,22 @@
 package com.seafile.seadroid2.ui.media.image;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,7 +25,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -37,7 +34,6 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
-import androidx.media3.ui.PlayerView;
 
 import com.adobe.internal.xmp.XMPException;
 import com.blankj.utilcode.util.BarUtils;
@@ -46,16 +42,13 @@ import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.blankj.utilcode.util.SpanUtils;
 import com.blankj.utilcode.util.TimeUtils;
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -72,10 +65,10 @@ import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
+import com.seafile.seadroid2.ui.file_profile.FileProfileEditorActivity;
 import com.seafile.seadroid2.ui.media.data_source.MotionPhotoDataSourceFactory;
 import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
@@ -93,7 +86,7 @@ import java.util.Locale;
 public class PhotoFragment extends BaseFragment {
     public static final String TAG = "PhotoFragment";
     private FragmentPhotoViewBinding binding;
-
+    private FileProfileConfigModel configModel;
     private String repoId, repoName, fullPath;
     private String imageUrl;
     private boolean isNightMode = false;
@@ -285,11 +278,21 @@ public class PhotoFragment extends BaseFragment {
             public void onChanged(FileProfileConfigModel configModel) {
                 binding.bottomProgressBar.setVisibility(GONE);
 
+                //
+                PhotoFragment.this.configModel = configModel;
+
                 DocProfileView detailView = new DocProfileView(requireContext());
                 detailView.parseData(configModel);
 
+                if (configModel.isMetadataEnabled()) {
+                    binding.profileActionbarContainer.setVisibility(VISIBLE);
+                } else {
+                    binding.profileActionbarContainer.setVisibility(INVISIBLE);
+                }
+
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
-                binding.bottomDetailsContainer.addView(detailView, 0, lp);
+                binding.bottomDetailsContainer.addView(detailView, 1, lp);
+
             }
         });
 
@@ -307,7 +310,17 @@ public class PhotoFragment extends BaseFragment {
     }
 
     private void initView() {
-
+        binding.edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (configModel == null){
+                    SLogs.d(TAG, "configModel is null, can not click.");
+                    return;
+                }
+                Intent intent = FileProfileEditorActivity.getIntent(requireContext(), repoId, configModel);
+                startActivity(intent);
+            }
+        });
         // live photo
         FrameLayout.LayoutParams fl = (FrameLayout.LayoutParams) binding.btnLivePhoto.getLayoutParams();
         fl.topMargin = BarUtils.getStatusBarHeight() + CarouselImagePreviewActivity.actionbarHeight + Constants.DP.DP_8;

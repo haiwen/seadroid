@@ -2,7 +2,7 @@ package com.seafile.seadroid2.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
@@ -28,34 +28,40 @@ public class CenterTextView extends AppCompatTextView {
     }
 
     private void init() {
-        // 强制单行
+        // Force single line
         setSingleLine(true);
         setMaxLines(1);
-        setIncludeFontPadding(false); // 去掉默认字体内边距
+        setIncludeFontPadding(false); // Remove default font padding
         setEllipsize(TextUtils.TruncateAt.END);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        // 字体公平垂直居中 + 水平居中
-        final Paint paint = getPaint();
-        final String text = getText().toString();
+        // True vertical centering for text
+        final TextPaint paint = getPaint();
+        String text = getText().toString();
 
-        // 水平测量
-        float textWidth = paint.measureText(text);
-        float x = (getWidth() - textWidth) / 2f;
+        // Use default x coordinate (considering padding)
+        float x = getCompoundPaddingLeft();
 
-        // 垂直测量
-        Paint.FontMetrics fm = paint.getFontMetrics();
+        // Calculate available width
+        float availableWidth = getWidth() - getCompoundPaddingLeft() - getCompoundPaddingRight();
+
+        // Handle ellipsize
+        if (!TextUtils.isEmpty(text)) {
+            float textWidth = paint.measureText(text);
+            if (textWidth > availableWidth) {
+                // Text exceeds available width, needs truncation
+                text = TextUtils.ellipsize(text, paint, availableWidth, TextUtils.TruncateAt.END).toString();
+            }
+        }
+
+        // Vertical measurement
+        TextPaint.FontMetrics fm = paint.getFontMetrics();
         float centerY = getHeight() / 2f;
-        // (ascent + descent) / 2 代表文本真实中点偏移
+        // (ascent + descent) / 2 represents the true center offset of the text
         float baselineOffset = (fm.ascent + fm.descent) / 2f;
         float y = centerY - baselineOffset;
-
-        // RTL 环境下自动翻转测量逻辑
-        if (getLayoutDirection() == LAYOUT_DIRECTION_RTL) {
-            x = (getWidth() + textWidth) / 2f - textWidth;
-        }
 
         paint.setColor(getCurrentTextColor());
         canvas.drawText(text, x, y, paint);

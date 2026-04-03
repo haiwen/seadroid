@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
@@ -28,7 +29,7 @@ import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.databinding.ActivityShareToSeafileBinding;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.ObjSelectType;
+import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -36,8 +37,11 @@ import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
-import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
+import com.seafile.seadroid2.ui.selector.AccountSelectorActivity;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,6 +55,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import kotlin.Triple;
 
 public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileViewModel> {
     public static final String TAG = "ShareToSeafileActivity";
@@ -61,12 +66,12 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
     private Account account;
     private Disposable disposable;
     private ActivityResultLauncher<Intent> objSelectorLauncher;
+    private ActivityResultLauncher<Intent> accountSelectorLauncher;
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        SLogs.d(TAG, "onDestroy");
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
@@ -157,7 +162,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     public void accept(Boolean aBoolean) throws Exception {
                         SLogs.d(TAG, "isSafeSharedUri: " + aBoolean);
                         if (aBoolean) {
-                            launchObjSelector();
+                            launchSelector();
                         } else {
                             Toasts.show(R.string.not_supported);
                             finish();
@@ -167,34 +172,72 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
 
     }
 
-    private void launchObjSelector() {
-        //launch obj selector activity
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("isFilterUnavailable", false);
-        bundle.putBoolean("isAddStarredGroup", true);
+    // launch Account or Obj selector
+    private void launchSelector() {
+        String lastPathStr = Settings.getCommonPreferences().getString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, "");
+        SLogs.d(TAG, "lastPathStr: " + lastPathStr);
 
-        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
-        if (CollectionUtils.isEmpty(accounts)) {
-            SLogs.d(TAG, "no accounts");
-            Toasts.show(R.string.err_token_expired);
+        if (StringUtils.isEmpty(lastPathStr)) {
+            launchAccountSelector();
             return;
         }
 
-        SLogs.d(TAG, "accounts size: " + accounts.size());
-
-        ObjSelectType t = ObjSelectType.ACCOUNT;
-        if (accounts.size() == 1) {
-            t = ObjSelectType.REPO;
+        // acount/repoId/path
+        Triple<String, String, String> triple = parseLastConfigStr(lastPathStr);
+        if (StringUtils.isEmpty(triple.component1())) {// account
+            launchAccountSelector();
+            return;
         }
 
-        Intent intent = ObjSelectorActivity.getIntent(this, t, ObjSelectType.DIR, bundle);
-        objSelectorLauncher.launch(intent);
+        account = SupportAccountManager.getInstance().getSpecialAccount(triple.component1());
+        if (account == null) {
+            launchAccountSelector();
+            return;
+        }
+
+        launchObjSelector(triple.component2(), triple.component3());
+    }
+
+    private Triple<String, String, String> parseLastConfigStr(String str) {
+        Triple<String, String, String> triple;
+        if (!str.contains("<->")) {
+            return new Triple<>("", "", "");
+        }
+
+        String[] s = str.split("<->");
+        if (s.length != 3) {
+            return new Triple<>("", "", "");
+        }
+
+        return new Triple<>(s[0], s[1], s[2]);
+    }
+
+    private void launchAccountSelector() {
+        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
+        if (CollectionUtils.isEmpty(accounts)) {
+            Toasts.show(R.string.no_account);
+            return;
+        }
+
+        if (accounts.size() == 1) {
+            account = accounts.get(0);
+
+            launchObjSelector("", "");
+        } else {
+            Intent intent = AccountSelectorActivity.getIntent(this, 1);
+            accountSelectorLauncher.launch(intent);
+        }
+    }
+
+
+
+    private void launchObjSelector(String repoId, String path) {
+        Intent pathSelector = VersatileShareToSeafileSelectorActivity.getSpecialAccountIntent(ShareToSeafileActivity.this, account.getSignature(), repoId, path, null, 2);
+        objSelectorLauncher.launch(pathSelector);
     }
 
     private void registerResultLauncher() {
-
-        objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-
+        accountSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult o) {
                 if (o.getResultCode() != Activity.RESULT_OK) {
@@ -209,15 +252,68 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                 }
 
                 account = intent.getParcelableExtra(ObjKey.ACCOUNT);
+                if (account == null) {
+                    finish();
+                    return;
+                }
+
+                launchObjSelector("", "");
+            }
+        });
+
+        objSelectorLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                if (o.getResultCode() != Activity.RESULT_OK) {
+                    continueObjCancelState();
+                    return;
+                }
+
+                Intent intent = o.getData();
+                if (intent == null) {
+                    continueObjCancelState();
+                    return;
+                }
+
+                account = intent.getParcelableExtra(ObjKey.ACCOUNT);
                 dstRepoId = intent.getStringExtra(ObjKey.REPO_ID);
                 dstRepoName = intent.getStringExtra(ObjKey.REPO_NAME);
                 dstDir = intent.getStringExtra(ObjKey.DIR);
 
                 SLogs.d(TAG, "account: " + account.getSignature(), "repoId: " + dstRepoId, "repoName: " + dstRepoName, "dir: " + dstDir);
+
+                //save
+                String lastPathStr = account.getSignature() + "<->" + dstRepoId + "<->" + dstDir;
+                Settings.getCommonPreferences()
+                        .edit().putString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, lastPathStr)
+                        .apply();
+
                 notifyFileOverwriting();
             }
         });
 
+    }
+    private void continueObjCancelState(){
+
+        List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
+        if (CollectionUtils.isEmpty(accounts)) {
+            finish();
+            return;
+        }
+
+        if (accounts.size() == 1) {
+            finish();
+            return;
+        }
+
+//        // remove last path
+//        Settings.getCommonPreferences()
+//                .edit()
+//                .remove(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE)
+//                .apply();
+
+        launchAccountSelector();
     }
 
     private void initWorkerBusObserver() {
@@ -345,7 +441,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     emitter.onSuccess(false);
                     return;
                 }
-
                 SLogs.d(TAG, "uri NULL check passed");
 
                 // 1. Reject non-content schemes (file://, http://, etc.)
@@ -355,7 +450,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     return;
                 }
                 SLogs.d(TAG, "content scheme check passed");
-
 
                 // 2. Verify system-granted read capability BEFORE any path checks
                 try {
@@ -375,7 +469,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                 }
                 SLogs.d(TAG, "read capability check passed");
 
-
                 // 3. Get real file path for additional validation (maybe null for content URIs)
                 String realPath = getSharedFilePath(uri);
                 SLogs.d(TAG, "realPath: " + realPath);
@@ -392,13 +485,12 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                 // 4. Check if path is in app's private directory
                 String packageName = getPackageName();
                 if (realPath.startsWith("/data/data/" + packageName) ||
-                    (realPath.startsWith("/data/user/") && realPath.contains("/" + packageName + "/"))) {
+                        (realPath.startsWith("/data/user/") && realPath.contains("/" + packageName + "/"))) {
                     SLogs.d(TAG, "Rejected uri in app private dir: " + uri);
                     emitter.onSuccess(false);
                     return;
                 }
                 SLogs.d(TAG, "path check passed");
-
 
                 // 5. Check for generic system data directories
                 if (realPath.startsWith("/data/data") || realPath.startsWith("/data/user")) {
@@ -406,7 +498,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                     emitter.onSuccess(false);
                     return;
                 }
-
                 SLogs.d(TAG, "All checks passed for uri: " + uri);
                 // All checks passed
                 emitter.onSuccess(true);
@@ -428,7 +519,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         }
         SLogs.d(TAG, "getSharedFilePath for uri: " + uri);
 
-
         // Handle file:// scheme (should already be rejected by isSafeSharedUri)
         if (Objects.equals(uri.getScheme(), "file")) {
             return uri.getPath();
@@ -438,7 +528,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         ContentResolver contentResolver = getContentResolver();
 
         // Only query the _data column if available
-        String[] projection = { MediaStore.Images.Media.DATA };
+        String[] projection = {MediaStore.Images.Media.DATA};
         String filePath = null;
 
         try (Cursor cursor = contentResolver.query(uri, projection, null, null, null)) {

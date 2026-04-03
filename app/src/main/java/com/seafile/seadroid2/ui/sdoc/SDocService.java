@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.sdoc;
 
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
@@ -7,8 +8,13 @@ import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
 import com.seafile.seadroid2.framework.model.user.ParticipantsWrapperModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 
+import java.util.Map;
+
 import io.reactivex.Single;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -31,4 +37,9 @@ public interface SDocService {
     @GET("api/v2.1/repos/{repo_id}/metadata/tags/?start=0&limit=1000")
     Single<FileTagWrapperModel> getTags(@Path("repo_id") String repoId);
 
+    @PUT("api/v2.1/repos/{repo_id}/metadata/record/")
+    Single<ResultModel> putRecord(@Path("repo_id") String repoId, @Body Map<String, Object> map);
+
+    @PUT("api/v2.1/repos/{repo_id}/metadata/file-tags/")
+    Single<ResultModel> putRecordTag(@Path("repo_id") String repoId, @Body Map<String, Object> map);
 }

@@ -1,11 +1,10 @@
 package com.seafile.seadroid2.ui.file_profile;
 
 
-import static com.seafile.seadroid2.config.Constants.DP.DP_4;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -18,9 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.SizeUtils;
-import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.seafile.seadroid2.R;
@@ -28,37 +25,36 @@ import com.seafile.seadroid2.config.ColumnType;
 import com.seafile.seadroid2.databinding.DialogFileProfileBinding;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
+import com.seafile.seadroid2.framework.transport.TransportHolder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Set;
 
 public class FileProfileDialog extends BottomSheetDialogFragment {
+    private DialogFileProfileBinding profileBinding;
+
     private FileProfileConfigModel configModel;
+    private String repoId;
 
     public static FileProfileDialog newInstance(FileProfileConfigModel configModel) {
-        Bundle args = new Bundle();
-        args.putParcelable("config_model", configModel);
-        FileProfileDialog fragment = new FileProfileDialog();
-        fragment.setArguments(args);
-        return fragment;
+        TransportHolder.get().put("config_model", configModel);
+        return new FileProfileDialog();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() == null || !getArguments().containsKey("config_model")) {
-            throw new IllegalArgumentException("configModel is null");
-        }
+        configModel = TransportHolder.get().get("config_model");
+        TransportHolder.get().remove("config_model");
 
-        configModel = getArguments().getParcelable("config_model");
         if (configModel == null) {
             throw new IllegalArgumentException("configModel is null");
         }
+        repoId = configModel.getRepoId();
     }
 
-    private DialogFileProfileBinding profileBinding;
 
     @Nullable
     @Override
@@ -80,26 +76,44 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
 
 //        profileBinding.title.setVisibility(View.VISIBLE);
 //        profileBinding.title.setText(configModel.getDetail().getName());
-
         setData(profileBinding.detailsContainer);
     }
 
     private void setData(LinearLayout parent) {
-        List<MetadataModel> metadataList = new ArrayList<>(configModel.getRecordMetaDataList());
-        for (MetadataModel metadata : metadataList) {
-            if ("_file_modifier".equals(metadata.key)) {
-                metadata.type = "collaborator";
-                metadata.value = CollectionUtils.newArrayList(getValueByKey(metadata.name));
-            } else {
-                Object v = getValueByKey(metadata.name);
-                metadata.value = v;
-            }
+        if (configModel == null) {
+            return;
         }
-        configModel.setRecordMetaDataList(metadataList);
 
-        for (MetadataModel metadata : configModel.getRecordMetaDataList()) {
-            if (metadata.key.startsWith("_")) {
-                if (_supportedField.contains(metadata.key)) {
+        if (configModel.isMetadataEnabled()) {
+            profileBinding.edit.setVisibility(View.VISIBLE);
+            profileBinding.edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                    Intent intent = FileProfileEditorActivity.getIntent(requireContext(), repoId, configModel);
+                    startActivity(intent);
+                }
+            });
+        }else {
+            profileBinding.edit.setVisibility(View.GONE);
+        }
+
+        HashMap<String, Boolean> detailsSettingsMap = configModel.getDetailsSettingsMap();
+        LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
+        Set<String> keys = recordMetaDataMap.keySet();
+        for (String key : keys) {
+            MetadataModel metadata = recordMetaDataMap.get(key);
+            if (metadata == null) {
+                continue;
+            }
+
+            Boolean isShown = detailsSettingsMap.get(key);
+            if (isShown == null || !isShown) {
+                continue;
+            }
+
+            if (key.startsWith("_")) {
+                if (MetadataViewUtils.getSupportedFieldMap().containsKey(key)) {
                     addMetadataView(parent, metadata);
                 }
             } else {
@@ -112,20 +126,6 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         parseViewByType(getContext(), parent, metadata);
     }
 
-    //not support: _tags
-    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_owner", "_description", "_collaborators", "_reviewer", "_status", "_location", "_tags", "_rate");
-
-    private Object getValueByKey(String key) {
-        Map<String, Object> model = configModel.getRecordResultList().get(0);
-        return model.get(key);
-    }
-
-    private FlexboxLayout.LayoutParams getFlexParams() {
-        FlexboxLayout.LayoutParams flexLayoutParams = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        flexLayoutParams.bottomMargin = DP_4;
-        flexLayoutParams.rightMargin = DP_4;
-        return flexLayoutParams;
-    }
 
     public void parseViewByType(Context context, LinearLayout parent, MetadataModel metadata) {
         final String type = metadata.type;
@@ -175,7 +175,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         } else if (TextUtils.equals(ColumnType.RATE, type)) {
             MetadataViewUtils.parseRate(requireContext(), kvView, metadata);
         } else if (TextUtils.equals(ColumnType.GEOLOCATION, type)) {
-            MetadataViewUtils.parseGeoLocation(requireContext(), kvView, metadata);
+            MetadataViewUtils.parseGeoLocation(requireContext(), kvView, metadata, configModel);
         } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
             MetadataViewUtils.parseCheckbox(requireContext(), kvView, metadata);
         } else if (TextUtils.equals(ColumnType.LINK, type)) {

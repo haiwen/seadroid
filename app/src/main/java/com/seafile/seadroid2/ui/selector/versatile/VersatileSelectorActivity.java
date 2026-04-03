@@ -216,8 +216,8 @@ public class VersatileSelectorActivity extends BaseActivity {
 
     private void initViewPager() {
         fragments.clear();
-        fragments.add(VersatileRepoSelectorFragment.newInstance(startRepoId, startPath));
-        fragments.add(VersatileRepoSelectorFragment.newInstance());
+        fragments.add(VersatileRepoSelectorFragment.newInstance(mAccount.getSignature(), startRepoId, startPath));
+        fragments.add(VersatileRepoSelectorFragment.newInstance(mAccount.getSignature()));
         fragments.add(RecentlyUsedFragment.newInstance());
 
         ViewPager2Adapter viewPager2Adapter = new ViewPager2Adapter(this);

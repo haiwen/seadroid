@@ -340,14 +340,19 @@
             app:iconSpaceReserved="false"
             app:radiusPosition="top" />
 
-        <ListPreference
-            android:defaultValue="0"
+        <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
+            android:defaultValue="@string/pref_default_value_lock_timeout"
             android:entries="@array/lock_timeout_entries"
             android:entryValues="@array/lock_timeout_values"
             android:key="@string/pref_key_settings_lock_timeout"
             android:title="@string/lock_timeout_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false" />
+            app:isPreferenceVisible="false"
+            app:radiusPosition="none"
+            app:useSimpleSummaryProvider="true" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_security_clear_password"

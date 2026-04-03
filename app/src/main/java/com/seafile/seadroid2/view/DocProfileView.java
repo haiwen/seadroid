@@ -21,9 +21,14 @@ import com.seafile.seadroid2.framework.model.sdoc.MetadataModel;
 import com.seafile.seadroid2.ui.file_profile.ColumnTypeUtils;
 import com.seafile.seadroid2.ui.file_profile.MetadataViewUtils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DocProfileView extends LinearLayout {
     public DocProfileView(Context context) {
@@ -59,32 +64,30 @@ public class DocProfileView extends LinearLayout {
             throw new IllegalArgumentException("configModel is null");
         }
 
-        if (configModel.getDetail() == null) {
+        if (configModel.getFileDetail() == null) {
             throw new IllegalArgumentException("detail is null");
         }
-
-        convert();
 
         addView();
     }
 
-    private void convert() {
-        List<MetadataModel> metadataList = new ArrayList<>(configModel.getRecordMetaDataList());
-        for (MetadataModel metadata : metadataList) {
-            if ("_file_modifier".equals(metadata.key)) {
-                metadata.type = "collaborator";
-                metadata.value = CollectionUtils.newArrayList(getValueByKey(metadata.name));
-            } else {
-                metadata.value = getValueByKey(metadata.name);
-            }
-        }
-        configModel.setRecordMetaDataList(metadataList);
-    }
-
     private void addView() {
-        for (MetadataModel metadata : configModel.getRecordMetaDataList()) {
-            if (metadata.key.startsWith("_")) {
-                if (_supportedField.contains(metadata.key)) {
+        HashMap<String,Boolean> detailsSettingsMap = configModel.getDetailsSettingsMap();
+        LinkedHashMap<String, MetadataModel> recordMetaDataMap = configModel.getRecordMetaDataMap();
+        Set<String> keys = recordMetaDataMap.keySet();
+        for (String key : keys) {
+            MetadataModel metadata = recordMetaDataMap.get(key);
+            if (metadata == null) {
+                continue;
+            }
+
+            Boolean isShown = detailsSettingsMap.get(key);
+            if (isShown == null || !isShown) {
+                continue;
+            }
+
+            if (key.startsWith("_")) {
+                if (MetadataViewUtils.getSupportedFieldMap().containsKey(key)) {
                     addMetadataView(metadata);
                 }
             } else {
@@ -93,23 +96,7 @@ public class DocProfileView extends LinearLayout {
         }
     }
 
-    private void addMetadataView(MetadataModel metadata) {
-        parseViewByType(metadata);
-    }
-
-    private final List<String> _supportedField = List.of("_size", "_file_modifier", "_file_mtime", "_description", "_collaborators", "_owner", "_reviewer", "_status", "_tags", "_location", "_rate");
-
-    private Object getValueByKey(String key) {
-        if (configModel.getRecordResultList().isEmpty()) {
-            return null;
-        }
-
-        Map<String, Object> model = configModel.getRecordResultList().get(0);
-        return model.get(key);
-    }
-
-
-    public void parseViewByType(MetadataModel metadata) {
+    public void addMetadataView(MetadataModel metadata) {
         final String type = metadata.type;
         LinearLayout view = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_details_keyview_valuecontainer, null);
 
@@ -153,23 +140,15 @@ public class DocProfileView extends LinearLayout {
         } else if (TextUtils.equals(ColumnType.RATE, type)) {
             MetadataViewUtils.parseRate(getContext(), view, metadata);
         } else if (TextUtils.equals(ColumnType.GEOLOCATION, type)) {
-            MetadataViewUtils.parseGeoLocation(getContext(), view, metadata);
+            MetadataViewUtils.parseGeoLocation(getContext(), view, metadata,configModel);
         } else if (TextUtils.equals(ColumnType.LINK, type)) {
 
             //tag
             if (TextUtils.equals("_tags", metadata.key)) {
                 MetadataViewUtils.parseTag(getContext(), view, configModel, metadata);
-            } else {
-                MetadataViewUtils.parseLink(getContext(), view, metadata);
             }
-        } else if (TextUtils.equals(ColumnType.IMAGE, type)) {
-            MetadataViewUtils.parseImage(getContext(), view, metadata);
-        } else if (TextUtils.equals(ColumnType.FILE, type)) {
-            MetadataViewUtils.parseFile(getContext(), view, metadata);
         } else if (TextUtils.equals(ColumnType.CHECKBOX, type)) {
             MetadataViewUtils.parseCheckbox(getContext(), view, metadata);
-        } else if (TextUtils.equals(ColumnType.DIGITAL_SIGN, type)) {
-            MetadataViewUtils.parseDigitalSign(getContext(), view, metadata);
         }
 
         addViewToThis(view);

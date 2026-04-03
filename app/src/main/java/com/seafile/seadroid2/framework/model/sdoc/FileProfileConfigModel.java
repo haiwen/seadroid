@@ -1,11 +1,10 @@
 package com.seafile.seadroid2.framework.model.sdoc;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.config.ColumnType;
+import com.seafile.seadroid2.framework.model.profile.DetailsSettingsKeyModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -13,42 +12,85 @@ import com.seafile.seadroid2.ui.media.image.PhotoFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
-public class FileProfileConfigModel implements Parcelable {
+/**
+ * There is no serialization.
+ * If you need to pass or receive this type of parameter, use the TransportHolder
+ */
+public class FileProfileConfigModel {
+    public final String TAG = "FileProfileConfigModel";
+    private String repoId;
     private FileDetailModel detail;
     private MetadataConfigModel metadataConfig;
+    private final List<UserModel> relatedUserList = new ArrayList<>();
+    private final LinkedHashMap<String, MetadataModel> recordMetaDataMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Object> recordResultMap = new LinkedHashMap<>();
+    private final Map<String, OptionTagModel> tagsMap = new HashMap<>();
 
-    private List<UserModel> relatedUserList = new ArrayList<>();
-    private List<MetadataModel> recordMetaData = new ArrayList<>();
-    private List<Map<String, Object>> recordResults = new ArrayList<>();
-    private Map<String, SDocTagModel> tagsMap = new HashMap<>();
+    public void setRepoId(String repoId) {
+        this.repoId = repoId;
+    }
+
+    public String getRepoId() {
+        return repoId;
+    }
 
     public void setMetadataConfigModel(MetadataConfigModel metadataConfigModel) {
         this.metadataConfig = metadataConfigModel;
     }
 
-    public boolean getMetaEnabled() {
+    public HashMap<String, Boolean> getDetailsSettingsMap() {
+        if (metadataConfig == null) {
+            throw new RuntimeException("please first call setMetadataConfigModel()");
+        }
+
+        HashMap<String, Boolean> map = new HashMap<>();
+
+        // default fields
+        map.put("_size", true);
+        map.put("_file_modifier", true);
+        map.put("_file_mtime", true);
+
+        if (isMetadataEnabled()) {
+            map.put("_location", true);
+            map.put("_description", true);
+            map.put("_tags", true);
+        }
+
+        List<DetailsSettingsKeyModel> list = metadataConfig.getDetailsSettingsList();
+        if (CollectionUtils.isEmpty(list)) {
+            return map;
+        }
+
+        for (DetailsSettingsKeyModel model : list) {
+            map.put(model.key, model.shown);
+        }
+
+        return map;
+    }
+
+    public boolean isMetadataEnabled() {
         if (metadataConfig == null) {
             throw new RuntimeException("please first call setMetadataConfigModel()");
         }
         return metadataConfig.enabled;
     }
 
-    public boolean getTagsEnabled() {
+    public boolean isTagsEnabled() {
         if (metadataConfig == null) {
             throw new RuntimeException("please first call setMetadataConfigModel()");
         }
         return metadataConfig.tags_enabled;
     }
 
-    public void setDetail(FileDetailModel detail) {
+    public void setFileDetail(FileDetailModel detail) {
         this.detail = detail;
     }
 
-    public FileDetailModel getDetail() {
+    public FileDetailModel getFileDetail() {
         return detail;
     }
 
@@ -80,25 +122,25 @@ public class FileProfileConfigModel implements Parcelable {
         recordWrapperModel.metadata.add(mTimeMetadataModel);
 
         Map<String, Object> m = new HashMap<>();
-        m.put("_size", getDetail().getSize());
-        m.put("_file_modifier", getDetail().getLastModifierEmail());
-        m.put("_file_mtime", getDetail().getLastModified());
+        m.put("_size", getFileDetail().size);
+        m.put("_file_modifier", getFileDetail().lastModifierEmail);
+        m.put("_file_mtime", getFileDetail().lastModified);
         recordWrapperModel.results.add(m);
 
-        addRecordWrapperModel(recordWrapperModel);
+        setRecordWrapperModel(recordWrapperModel);
 
         //add a default user with last modifier user info
         UserWrapperModel wrapperModel = new UserWrapperModel();
         wrapperModel.user_list = new ArrayList<>();
         UserModel r = new UserModel();
-        r.setName(getDetail().getLastModifierName());
-        r.setAvatarUrl(getDetail().getLastModifierAvatar());
-        r.setEmail(getDetail().getLastModifierEmail());
-        r.setContactEmail(getDetail().getLastModifierContactEmail());
+        r.setName(getFileDetail().lastModifierName);
+        r.setAvatarUrl(getFileDetail().lastModifierAvatar);
+        r.setEmail(getFileDetail().lastModifierEmail);
+        r.setContactEmail(getFileDetail().lastModifierContactEmail);
         wrapperModel.user_list.add(r);
         setRelatedUserList(wrapperModel);
 
-        SLogs.d(PhotoFragment.TAG, "initDefaultIfMetaNotEnable()", "detail = " + detail.getName());
+        SLogs.d(TAG, "initDefaultIfMetaNotEnable()", "detail = " + detail.name);
     }
 
     public void setRelatedUserWrapperModel(UserWrapperModel relatedUserWrapperModel) {
@@ -115,11 +157,33 @@ public class FileProfileConfigModel implements Parcelable {
         return relatedUserList;
     }
 
-    public void addRecordWrapperModel(FileRecordWrapperModel recordWrapperModel) {
-        this.recordResults.addAll(recordWrapperModel.results);
+    public LinkedHashMap<String, MetadataModel> getRecordMetaDataMap() {
+        return recordMetaDataMap;
+    }
 
-        List<MetadataModel> metadata = swapSizePosition(recordWrapperModel.metadata);
-        this.recordMetaData.addAll(metadata);
+    public LinkedHashMap<String, Object> getRecordResultMap() {
+        return recordResultMap;
+    }
+
+    public void setRecordWrapperModel(FileRecordWrapperModel recordWrapperModel) {
+        if (CollectionUtils.isNotEmpty(recordWrapperModel.results)) {
+            this.recordResultMap.putAll(recordWrapperModel.results.get(0));
+        }
+
+        recordMetaDataMap.clear();
+
+        List<MetadataModel> metadataList = swapSizePosition(recordWrapperModel.metadata);
+        for (MetadataModel metadataModel : metadataList) {
+            Object value = recordResultMap.get(metadataModel.name);
+            if ("_file_modifier".equals(metadataModel.key)) {
+                metadataModel.type = "collaborator";
+                metadataModel.value = CollectionUtils.newArrayList(value);
+            } else {
+                metadataModel.value = value;
+            }
+
+            recordMetaDataMap.put(metadataModel.key, metadataModel);
+        }
     }
 
     private List<MetadataModel> swapSizePosition(List<MetadataModel> metadata) {
@@ -154,86 +218,23 @@ public class FileProfileConfigModel implements Parcelable {
             return;
         }
 
-        tagWrapperModel.results.forEach(new Consumer<FileTagResultModel>() {
-            @Override
-            public void accept(FileTagResultModel model) {
-                SDocTagModel tagModel = new SDocTagModel();
-                tagModel.id = model._id;
-                tagModel.name = model._tag_name;
-                tagModel.color = model._tag_color;
-                tagsMap.put(tagModel.id, tagModel);
-            }
-        });
-    }
-
-    public List<Map<String, Object>> getRecordResultList() {
-        return recordResults;
-    }
-
-    public List<MetadataModel> getRecordMetaDataList() {
-        if (CollectionUtils.isEmpty(getRecordResultList())) {
-            throw new RuntimeException("please first call build()");
+        for (FileTagResultModel model : tagWrapperModel.results) {
+            OptionTagModel tagModel = new OptionTagModel();
+            tagModel.type = "tag";
+            tagModel.id = model._id;
+            tagModel.name = model._tag_name;
+            tagModel.color = model._tag_color;
+            tagsMap.put(tagModel.id, tagModel);
         }
-        return recordMetaData;
     }
 
-    public void setRecordMetaDataList(List<MetadataModel> list) {
-        this.recordMetaData.clear();
-        this.recordMetaData.addAll(list);
-    }
 
-    public Map<String, SDocTagModel> getTagMap() {
+    public Map<String, OptionTagModel> getTagMap() {
         return tagsMap;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public List<OptionTagModel> getTagList() {
+        return new ArrayList<>(tagsMap.values());
     }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(this.detail, flags);
-        dest.writeParcelable(this.metadataConfig, flags);
-        dest.writeTypedList(this.relatedUserList);
-        dest.writeTypedList(this.recordMetaData);
-        dest.writeList(this.recordResults);
-        dest.writeInt(this.tagsMap.size());
-        for (Map.Entry<String, SDocTagModel> entry : this.tagsMap.entrySet()) {
-            dest.writeString(entry.getKey());
-            dest.writeParcelable(entry.getValue(), flags);
-        }
-    }
-
-    public FileProfileConfigModel() {
-    }
-
-    protected FileProfileConfigModel(Parcel in) {
-        this.detail = in.readParcelable(FileDetailModel.class.getClassLoader());
-        this.metadataConfig = in.readParcelable(MetadataConfigModel.class.getClassLoader());
-        this.relatedUserList = in.createTypedArrayList(UserModel.CREATOR);
-        this.recordMetaData = in.createTypedArrayList(MetadataModel.CREATOR);
-        this.recordResults = new ArrayList<Map<String, Object>>();
-        in.readList(this.recordResults, Map.class.getClassLoader());
-        int tagsMapSize = in.readInt();
-        this.tagsMap = new HashMap<String, SDocTagModel>(tagsMapSize);
-        for (int i = 0; i < tagsMapSize; i++) {
-            String key = in.readString();
-            SDocTagModel value = in.readParcelable(SDocTagModel.class.getClassLoader());
-            this.tagsMap.put(key, value);
-        }
-    }
-
-    public static final Parcelable.Creator<FileProfileConfigModel> CREATOR = new Parcelable.Creator<FileProfileConfigModel>() {
-        @Override
-        public FileProfileConfigModel createFromParcel(Parcel source) {
-            return new FileProfileConfigModel(source);
-        }
-
-        @Override
-        public FileProfileConfigModel[] newArray(int size) {
-            return new FileProfileConfigModel[size];
-        }
-    };
 }
 

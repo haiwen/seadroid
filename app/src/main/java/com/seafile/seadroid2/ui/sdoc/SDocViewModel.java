@@ -7,41 +7,57 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.GsonUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.model.sdoc.FileDetailModel;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileRecordWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.FileTagWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocOutlineWrapperModel;
 import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
-import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
+import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
+import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.ui.docs_comment.DocsCommentService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 
 public class SDocViewModel extends BaseViewModel {
+    private final MutableLiveData<Pair<String, List<UserModel>>> _onUserSelectedLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Pair<String, List<OptionTagModel>>> _onTagSelectedLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> _onSaveLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<Boolean> getOnSaveLiveData() {
+        return _onSaveLiveData;
+    }
+
+    public MutableLiveData<Pair<String, List<UserModel>>> getOnUserSelectedLiveData() {
+        return _onUserSelectedLiveData;
+    }
+
+    public MutableLiveData<Pair<String, List<OptionTagModel>>> getOnTagSelectedLiveData() {
+        return _onTagSelectedLiveData;
+    }
 
     private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<OutlineItemModel>> _sdocElementListLiveData = new MutableLiveData<>();
@@ -112,93 +128,7 @@ public class SDocViewModel extends BaseViewModel {
     public void loadFileDetail(String repoId, String path) {
         getSecondRefreshLiveData().setValue(true);
 
-        //Even if isMetadataEnable is enabled, you still need to check whether the enable field of MetadataConfigModel is available
-        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId).onErrorReturnItem(new MetadataConfigModel());
-        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getFileDetail(repoId, path);
-
-        Single<FileProfileConfigModel> s = Single.zip(metadataSingle, detailSingle, new BiFunction<MetadataConfigModel, FileDetailModel, FileProfileConfigModel>() {
-            @Override
-            public FileProfileConfigModel apply(MetadataConfigModel metadataConfigModel, FileDetailModel fileDetailModel) {
-
-                FileProfileConfigModel configModel = new FileProfileConfigModel();
-                configModel.setMetadataConfigModel(metadataConfigModel);
-                configModel.setDetail(fileDetailModel);
-                return configModel;
-            }
-        }).flatMap(new io.reactivex.functions.Function<FileProfileConfigModel, SingleSource<FileProfileConfigModel>>() {
-            @Override
-            public SingleSource<FileProfileConfigModel> apply(FileProfileConfigModel configModel) throws Exception {
-                List<Single<?>> singles = new ArrayList<>();
-
-                if (configModel.getMetaEnabled()) {
-
-                    String parent_dir;
-                    String name;
-
-                    // 1. /a/b/c/t.txt
-                    // 2. /a/t.txt
-                    // 3. /t.txt
-                    // 4. t.txt
-                    // 5. /
-                    if (path.contains("/")) {
-                        parent_dir = path.substring(0, path.lastIndexOf("/"));
-                        name = path.substring(path.lastIndexOf("/") + 1);
-                    } else {
-                        parent_dir = null;
-                        name = path;
-                    }
-
-                    if (TextUtils.isEmpty(parent_dir)) {
-                        parent_dir = "/";
-                    }
-                    Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
-                    singles.add(userSingle);
-
-                    Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
-                    singles.add(recordSingle);
-                }
-
-                if (configModel.getTagsEnabled()) {
-                    Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getTags(repoId);
-                    singles.add(tagSingle);
-                }
-
-                if (singles.isEmpty()) {
-                    configModel.initDefaultIfMetaNotEnable();
-                    return Single.just(configModel);
-                }
-
-                return Single.zip(singles, new io.reactivex.functions.Function<Object[], FileProfileConfigModel>() {
-                    @Override
-                    public FileProfileConfigModel apply(Object[] results) throws Exception {
-                        if (configModel.getMetaEnabled()) {
-                            UserWrapperModel u = (UserWrapperModel) results[0];
-                            configModel.setRelatedUserWrapperModel(u);
-
-                            FileRecordWrapperModel r = (FileRecordWrapperModel) results[1];
-                            if (r.results.isEmpty()) {
-                                configModel.initDefaultIfMetaNotEnable();
-                            } else {
-                                configModel.addRecordWrapperModel(r);
-                            }
-                        } else {
-                            configModel.initDefaultIfMetaNotEnable();
-                        }
-
-                        if (configModel.getMetaEnabled() && configModel.getTagsEnabled()) {
-                            FileTagWrapperModel t = (FileTagWrapperModel) results[2];
-                            configModel.setTagWrapperModel(t);
-                        } else if (configModel.getTagsEnabled()) {
-                            FileTagWrapperModel t = (FileTagWrapperModel) results[0];
-                            configModel.setTagWrapperModel(t);
-                        }
-
-                        return configModel;
-                    }
-                });
-            }
-        }).delay(200, TimeUnit.MILLISECONDS);
-
+        Single<FileProfileConfigModel> s = Objs.getLoadFileDetailSingle(repoId,path);
 
         addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
             @Override
@@ -288,6 +218,67 @@ public class SDocViewModel extends BaseViewModel {
             public void accept(Throwable throwable) throws Exception {
                 SLogs.e(throwable);
                 getRefreshLiveData().setValue(false);
+            }
+        });
+    }
+
+    public void putRecord(String repoId, String recordId, Map<String, Object> data, List<String> tagIds) {
+        List<Single<ResultModel>> singleList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(tagIds)) {
+            List<Map<String, Object>> fileTags = new ArrayList<>();
+            Map<String, Object> tagParams = new HashMap<>();
+            tagParams.put("record_id", recordId);
+            tagParams.put("tags", tagIds);
+            fileTags.add(tagParams);
+
+            Map<String, Object> t = new HashMap<>();
+            t.put("file_tags_data", fileTags);
+            SLogs.d("标签请求参数：");
+            SLogs.d(GsonUtils.toJson(t));
+
+            Single<ResultModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).putRecordTag(repoId, t);
+            singleList.add(tagSingle);
+        }
+
+        if (data != null && !data.isEmpty()) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("data", data);
+            params.put("record_id", recordId);
+            SLogs.d("Data请求参数：");
+            SLogs.d(GsonUtils.toJson(params));
+            Single<ResultModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).putRecord(repoId, params);
+            singleList.add(recordSingle);
+        }
+
+        if (singleList.isEmpty()){
+            return;
+        }
+
+        getSecondRefreshLiveData().setValue(true);
+
+        Single<List<ResultModel>> zipSingle = Single.zip(singleList, new io.reactivex.functions.Function<Object[], List<ResultModel>>() {
+            @Override
+            public List<ResultModel> apply(Object[] objects) throws Exception {
+                List<ResultModel> results = new ArrayList<>();
+                for (Object obj : objects) {
+                    results.add((ResultModel) obj);
+                }
+                return results;
+            }
+        });
+
+        addSingleDisposable(zipSingle, new Consumer<List<ResultModel>>() {
+            @Override
+            public void accept(List<ResultModel> resultModels) throws Exception {
+                getSecondRefreshLiveData().setValue(false);
+                getOnSaveLiveData().setValue(true);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
+                getSecondRefreshLiveData().setValue(false);
             }
         });
     }

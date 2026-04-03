@@ -10,9 +10,12 @@
   <string name="delete_repo">정말로 이 라이브러리를 삭제할까요?</string>
   <string name="delete_file">정말로 이 파일 또는 폴더를 삭제할까요?</string>
   <string name="delete_records">정말로 기록을 삭제할까요?</string>
+  <string name="delete_wiki_tip">정말로 이 위키를 삭제할까요?</string>
+  <string name="unpublish_wiki_tip">정말로 이 위키를 비공개로 만들까요?</string>
   <string name="delete_records_and_file">정말로 기록과 로컬에 다운로드한 파일을 삭제할까요?</string>
   <string name="delete_successful">성공적으로 삭제했습니다</string>
   <string name="delete_repo_title">라이브러리 삭제</string>
+  <string name="delete_wiki_title">위키 삭제</string>
   <string name="delete_file_f">파일 삭제</string>
   <string name="delete_local_file_sametime">로컬 파일을 동시에 삭제</string>
   <string name="recover_library">라이브러리 복구</string>
@@ -42,6 +45,9 @@
   <string name="shared">공유함</string>
   <string name="libraries">라이브러리</string>
   <string name="my_libraries">내 라이브러리</string>
+  <string name="my_wiki">내 위키</string>
+  <string name="my_wiki_of_shared">공유된 위키</string>
+  <string name="my_wiki_of_old">구전 위키</string>
   <string name="cached">캐시함</string>
   <string name="activities">활동</string>
   <string name="pick_upload_type">업로드</string>
@@ -69,6 +75,7 @@
   <string name="err_login_failed">로그인에 실패했습니다</string>
   <string name="err_wrong_user_or_passwd">전자메일 또는 암호 오류</string>
   <string name="err_token_expired">인증 유효시간이 지났습니다. 다시 로그인하세요</string>
+  <string name="upload_file">파일 업로드</string>
   <string name="upload">업로드</string>
   <string name="uploaded">업로드함</string>
   <string name="re_upload">다시 업로드</string>
@@ -100,6 +107,7 @@
   <string name="file_action_copy">복사</string>
   <string name="file_action_move">이동</string>
   <string name="file_action_open_as">다른 앱에서 열기</string>
+  <string name="file_action_profile">프로필</string>
   <string name="file_action_more">더 보기</string>
   <string name="file_action_more_title">원하는 설정 항목을 선택하세요</string>
   <string-array name="file_action_more_array">
@@ -168,6 +176,7 @@
   </string-array>
   <string name="add_repo">새 라이브러리</string>
   <string name="add_file">추가</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>파일 만들기</item>
     <item>폴더 만들기</item>
@@ -186,6 +195,7 @@
   <string name="create_files">파일 만들기</string>
   <string name="create_new_dir">새 폴더 만들기</string>
   <string name="camera">여기에 사진 넣기</string>
+  <string name="take_photo">사진 촬영</string>
   <string name="download">다운로드</string>
   <string name="open">열기</string>
   <string name="last_modified">최근 수정</string>
@@ -208,6 +218,7 @@
   <string name="rename_repo">라이브러리 이름 바꾸기</string>
   <string name="rename_file">파일 이름 바꾸기</string>
   <string name="rename_dir">폴더 이름 바꾸기</string>
+  <string name="rename_wiki">위키 이름 바꾸기</string>
   <string name="rename_successful">이름 바꾸기에 성공했습니다.</string>
   <string-array name="nav_array">
     <item>파일</item>
@@ -224,6 +235,12 @@
   <string name="tabs_library">라이브러리</string>
   <string name="tabs_activity">활동</string>
   <string name="tabs_starred">별표 표시</string>
+  <string name="tabs_wiki">위키</string>
+  <string name="publish">공개</string>
+  <string name="unpublish">비공개</string>
+  <string name="published">공개됨</string>
+  <string name="publish_wiki">위키 공개</string>
+  <string name="publish_wiki_custom_url">위키 공개 URL</string>
   <string name="starred_repos">별표 표시한 라이브러리</string>
   <string name="starred_files">별표 표시한 파일</string>
   <string name="starred_folder">별표 표시한 폴더</string>
@@ -694,6 +711,7 @@
   <string name="_location">위치</string>
   <string name="_owner">소유자</string>
   <string name="_rate">전송율</string>
+  <string name="_expire_time">만료 시간</string>
   <string name="mark_resolve">해결 항목으로 표시</string>
   <string name="delete_confirm">이 항목을 정말로 삭제할까요?</string>
   <string name="image_capture_time">캡쳐 시각</string>
@@ -735,4 +753,7 @@
   <string name="saving">저장중</string>
   <string name="saved">저장완료</string>
   <string name="live">LIVE</string>
+  <!--Tips-->
+  <string name="tip_press_again_to_exit">다시 한번 눌러서 종료하세요</string>
+  <string name="tip_publish_wiki_desc">위키를 공개하세요</string>
 </resources>

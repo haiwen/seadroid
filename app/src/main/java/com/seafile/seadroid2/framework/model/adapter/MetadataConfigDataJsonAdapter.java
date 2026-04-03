@@ -14,7 +14,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.framework.model.sdoc.MetadataConfigDataModel;
-import com.seafile.seadroid2.framework.model.sdoc.OptionsTagModel;
+import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -34,10 +34,23 @@ public class MetadataConfigDataJsonAdapter implements JsonDeserializer<List<Meta
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("format", src.format);
             jsonObject.addProperty("geo_format", src.geo_format);
+            jsonObject.addProperty("rate_style_color", src.rate_style_color);
+            jsonObject.addProperty("rate_max_number", src.rate_max_number);
+            jsonObject.addProperty("enable_precision", src.enable_precision);
+            jsonObject.addProperty("precision", src.precision);
+            jsonObject.addProperty("currency_symbol", src.currency_symbol);
+            jsonObject.addProperty("currency_symbol_position", src.currency_symbol_position);
+
+
+            jsonObject.addProperty("display_column_key", src.display_column_key);
+            jsonObject.addProperty("link_id", src.link_id);
+            jsonObject.addProperty("other_table_id", src.other_table_id);
+            jsonObject.addProperty("table_id", src.table_id);
+
 
             if (!CollectionUtils.isEmpty(src.options)) {
                 JsonArray optionsJsonArray = new JsonArray();
-                for (OptionsTagModel option : src.options) {
+                for (OptionTagModel option : src.options) {
                     JsonObject jsonObject1 = new JsonObject();
                     jsonObject1.addProperty("borderColor", option.borderColor);
                     jsonObject1.addProperty("color", option.color);

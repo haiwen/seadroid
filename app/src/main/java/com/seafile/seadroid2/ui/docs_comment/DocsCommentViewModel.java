@@ -27,12 +27,10 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
-import com.seafile.seadroid2.ui.sdoc.DocsCommentService;
 import com.seafile.seadroid2.ui.sdoc.SDocService;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;

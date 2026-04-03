@@ -31,10 +31,11 @@
     <!--<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />-->
 
     <!-- Used for Android 12 and -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
@@ -140,8 +141,8 @@
 
         <activity
             android:name=".ui.editor.EditorActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/AppTheme.Editor" />
+            android:theme="@style/AppTheme.Editor"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity android:name=".ui.folder_backup.FolderBackupSelectedPathActivity" />
 
@@ -164,8 +165,15 @@
         <activity android:name=".ui.media.image.OnlyImagePreviewActivity" />
         <activity android:name=".ui.selector.folder_selector.FolderSelectorActivity" />
         <activity android:name=".ui.selector.versatile.VersatileSelectorActivity" />
+        <activity android:name=".ui.selector.AccountSelectorActivity" />
+        <activity android:name=".ui.selector.DateSelectorActivity" />
+        <activity android:name=".ui.selector.LongTextSelectorActivity" />
         <activity android:name=".ui.office_doc.OfficeDocumentWebActivity" />
-        <activity android:name=".ui.share.VersatileShareToSeafileActivity" />
+        <activity android:name=".ui.share.VersatileShareToSeafileSelectorActivity" />
+        <activity
+            android:name=".ui.file_profile.FileProfileEditorActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
 
         <provider
             android:name=".provider.SeafileProvider"

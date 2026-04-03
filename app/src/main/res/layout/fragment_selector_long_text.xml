@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_actionbar_for_selector" />
+
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bar_background_color"
+        android:hint="@string/empty"
+        android:importantForAutofill="no"
+        android:textSize="16sp"
+        android:padding="24dp"
+        android:textColor="@color/item_title_color" />
+</LinearLayout>
