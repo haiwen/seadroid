@@ -7,16 +7,16 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.star.StarredService;
 
@@ -100,7 +100,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
                     return Single.just(pair);
                 }
 
-                Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance()
+                Single<DirentFileModel> detailSingle = HttpManager.getCurrentHttp()
                         .execute(FileService.class)
                         .getFileDetail(repoId, fullPath)
                         .onErrorReturnItem(new DirentFileModel("an error occurred"));
@@ -164,7 +164,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
         requestDataMap.put("path", path);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<Dirent2Model> single = HttpIO.getCurrentInstance()
+        Single<Dirent2Model> single = HttpManager.getCurrentHttp()
                 .execute(StarredService.class)
                 .star(bodyMap)
                 .delay(200, TimeUnit.MILLISECONDS);
@@ -189,7 +189,7 @@ public class ImagePreviewViewModel extends BaseViewModel {
     public void unStar(String repoId, String path) {
         getRefreshLiveData().setValue(true);
 
-        Single<ResultModel> single = HttpIO.getCurrentInstance()
+        Single<ResultModel> single = HttpManager.getCurrentHttp()
                 .execute(StarredService.class)
                 .unStar(repoId, path)
                 .delay(200, TimeUnit.MILLISECONDS);

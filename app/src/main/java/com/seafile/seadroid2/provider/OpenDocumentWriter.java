@@ -12,7 +12,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -54,7 +54,7 @@ public class OpenDocumentWriter {
         String uploadUrl;
         try {
             //check exists in remote
-            Call<DirentFileModel> detailCall = HttpIO.getInstanceByAccount(account)
+            Call<DirentFileModel> detailCall = HttpManager.getHttpWithAccount(account)
                     .execute(FileService.class)
                     .getFileDetailCall(repoId, fullPath);
             Response<DirentFileModel> detailRes = detailCall.execute();
@@ -76,7 +76,7 @@ public class OpenDocumentWriter {
             SLogs.d(TAG, "is exists in remote？: " + isExists);
 
             //get upload url
-            Response<String> uploadUrlRes = HttpIO.getInstanceByAccount(account)
+            Response<String> uploadUrlRes = HttpManager.getHttpWithAccount(account)
                     .execute(FileService.class)
                     .getFileUploadLink(repoId, "/")
                     .execute();
@@ -154,7 +154,7 @@ public class OpenDocumentWriter {
                     .post(buildRequestBody)
                     .build();
 
-            okhttp3.Call call = HttpIO.getInstanceByAccount(account)
+            okhttp3.Call call = HttpManager.getHttpWithAccount(account)
                     .getSafeClient()
                     .getOkClient()
                     .newCall(request);

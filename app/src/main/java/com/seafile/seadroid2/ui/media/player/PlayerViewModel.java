@@ -7,10 +7,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import java.io.File;
@@ -67,7 +67,7 @@ public class PlayerViewModel extends BaseViewModel {
             return;
         }
 
-        Single<String> urlSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDownloadLinkAsync(repoId, p, isReUsed ? 1 : 0);
+        Single<String> urlSingle = HttpManager.getCurrentHttp().execute(FileService.class).getFileDownloadLinkAsync(repoId, p, isReUsed ? 1 : 0);
         addSingleDisposable(urlSingle, new Consumer<String>() {
             @Override
             public void accept(String dlink) {

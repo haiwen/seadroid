@@ -4,16 +4,29 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
+import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
+
 import java.io.IOException;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class HeaderInterceptor implements Interceptor {
+public class TokenInterceptor implements Interceptor {
     private String authToken = null;
 
-    public HeaderInterceptor(String authToken) {
+    /**
+     * user default account token
+     * */
+    public TokenInterceptor() {
+
+    }
+
+    /**
+     * user custom account token
+     * */
+    public TokenInterceptor(String authToken) {
         this.authToken = authToken;
     }
 
@@ -29,8 +42,13 @@ public class HeaderInterceptor implements Interceptor {
         builder.addHeader("charset", "utf-8");
         builder.addHeader("timestamp", String.valueOf(System.currentTimeMillis()));
 
+        //
+        if (TextUtils.isEmpty(authToken)) {
+            authToken = HttpManager.getCurrentHttp().getCurrentToken();
+        }
+
         if (!TextUtils.isEmpty(authToken)) {
-            builder.addHeader("Authorization",  "Token " + authToken);
+            builder.addHeader("Authorization", "Token " + authToken);
         }
 
         return builder;

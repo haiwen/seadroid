@@ -14,6 +14,7 @@ import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -45,8 +46,8 @@ public class SettingsFragmentViewModel extends BaseViewModel {
     public void getAccountInfo() {
         getRefreshLiveData().setValue(true);
 
-        Single<ServerInfoModel> serverInfoSingle = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
-        Single<AccountInfo> accountInfoSingle = HttpIO.getCurrentInstance().execute(AccountService.class).getAccountInfo();
+        Single<ServerInfoModel> serverInfoSingle = HttpManager.getCurrentHttp().execute(MainService.class).getServerInfo();
+        Single<AccountInfo> accountInfoSingle = HttpManager.getCurrentHttp().execute(AccountService.class).getAccountInfo();
 
         Single<AccountInfo> single = Single.zip(serverInfoSingle, accountInfoSingle, new BiFunction<ServerInfoModel, AccountInfo, AccountInfo>() {
             @Override
@@ -57,7 +58,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
                     return accountInfo;
                 }
 
-                accountInfo.setServer(HttpIO.getCurrentInstance().getServerUrl());
+                accountInfo.setServer(HttpManager.getCurrentHttp().getCurrentServer());
 
                 ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfoModel.version, serverInfoModel.getFeaturesString(), serverInfoModel.encrypted_library_version);
                 SupportAccountManager.getInstance().setServerInfo(account, serverInfo1);

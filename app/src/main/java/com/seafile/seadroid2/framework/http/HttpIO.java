@@ -6,7 +6,6 @@ import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.http.converter.ConverterFactory;
-import com.seafile.seadroid2.framework.util.TokenManager;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,14 +15,14 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 public class HttpIO {
-    private static volatile HttpIO INSTANCE;
-
     private final Account account;
+    private final String token;
+    private final String server;
+    private final String email;
+
     private SafeOkHttpClient safeOkHttpClient;
 
-    private static final ConcurrentMap<String, HttpIO> IO_MAP = new ConcurrentHashMap<>();
-
-    private HttpIO(Account account) {
+    protected HttpIO(Account account) {
         if (account == null) {
             throw new IllegalArgumentException("IO constructor(): account is null.");
         }
@@ -37,83 +36,34 @@ public class HttpIO {
         }
 
         this.account = account;
+        this.token = account.token;
+        this.server = account.server;
+        this.email = account.email;
     }
 
-    /**
-     * Logged in
-     */
-    public static HttpIO getCurrentInstance() {
-        if (INSTANCE != null) {
-            return INSTANCE;
-        }
 
-        // singleton and map
-        synchronized (HttpIO.class) {
-            if (INSTANCE == null) {
-
-                Account curAccount = SupportAccountManager.getInstance().getCurrentAccount();
-                if (curAccount == null) {
-                    throw new IllegalStateException("IO instance(): No current account");
-                }
-
-                //
-                INSTANCE = new HttpIO(curAccount);
-
-                //
-                TokenManager.getInstance().setToken(curAccount.token);
-            }
-        }
-
-        return INSTANCE;
+    public Account getAccount() {
+        return account;
     }
 
-    public static void removeInstanceByAccount(Account account) {
-        if (account == null) {
-            return;
-        }
-
-        IO_MAP.remove(account.getSignature());
+    public String getCurrentToken() {
+        return token;
     }
+
+    public String getCurrentEmail() {
+        return email;
+    }
+
+    public String getCurrentServer() {
+        return server;
+    }
+
 
     /**
      * Not logged in/Log in to another server
      */
     public static HttpIO getInstanceByAccount(Account account) {
-        if (account == null) {
-            return null;
-        }
-
-        if (IO_MAP.containsKey(account.getSignature())) {
-            HttpIO httpIo = IO_MAP.get(account.getSignature());
-            if (httpIo == null) {
-                return getAndRemoveIO(account);
-            }
-
-            if (!Objects.equals(httpIo.account, account)) {
-                return getAndRemoveIO(account);
-            }
-
-            return httpIo;
-        }
-
-        return getAndRemoveIO(account);
-    }
-
-    private static HttpIO getAndRemoveIO(Account account) {
-        Account newAccount = CloneUtils.deepClone(account, Account.class);
-        HttpIO httpIo = new HttpIO(newAccount);
-
-        IO_MAP.remove(newAccount.getSignature());
-        IO_MAP.put(newAccount.getSignature(), httpIo);
-
-        return httpIo;
-    }
-
-    /**
-     * get server url
-     */
-    public String getServerUrl() {
-        return account.getServer();
+        return HttpManager.getHttpWithAccount(account);
     }
 
     /**
@@ -132,8 +82,7 @@ public class HttpIO {
      * <p><b>because it's a SINGLETON, unless kill the APP!<b/></p>
      */
     public static void resetLoggedInInstance() {
-        INSTANCE = null;
-        IO_MAP.clear();
+        HttpManager.reset();
     }
 
 
@@ -151,7 +100,7 @@ public class HttpIO {
 
         Retrofit.Builder rBuilder = new Retrofit.Builder();
 
-        rBuilder.baseUrl(getServerUrl());
+        rBuilder.baseUrl(getCurrentServer());
         rBuilder.addConverterFactory(ConverterFactory.create());
         rBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
 

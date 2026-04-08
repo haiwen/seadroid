@@ -37,22 +37,6 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         _interceptors.addAll(getInterceptors());
     }
 
-    public SafeOkHttpClient(Account account, boolean isCustomToken) {
-        super(account);
-
-        if (isCustomToken) {
-            _interceptors.addAll(getInterceptorsWithoutToken());
-        } else {
-            _interceptors.addAll(getInterceptors());
-        }
-    }
-
-    public void addInterceptors(List<Interceptor> s) {
-        if (s != null) {
-            _interceptors.addAll(s);
-        }
-    }
-
     public static TrustManager[] getTrustManagers() {
         try {
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -105,10 +89,10 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
         //https
-        if (account.getServer().startsWith("https://")) {
+        if (specialAccount.getServer().startsWith("https://")) {
             //ssl
-            SSLSocketFactory factory = SSLTrustManager.instance().getSSLSocketFactory(account);
-            TrustManager[] trustManagers = SSLTrustManager.instance().getTrustManagers(account);
+            SSLSocketFactory factory = SSLTrustManager.instance().getSSLSocketFactory(specialAccount);
+            TrustManager[] trustManagers = SSLTrustManager.instance().getTrustManagers(specialAccount);
             X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
 
             builder.sslSocketFactory(factory, trustManager);

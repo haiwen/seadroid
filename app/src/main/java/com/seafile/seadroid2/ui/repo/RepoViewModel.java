@@ -24,7 +24,7 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
@@ -211,7 +211,7 @@ public class RepoViewModel extends BaseViewModel {
         requestDataMap.put("password", password);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<ResultModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).setPassword(repoId, bodyMap);
+        Single<ResultModel> netSingle = HttpManager.getCurrentHttp().execute(DialogService.class).setPassword(repoId, bodyMap);
 
         return netSingle.flatMap(new Function<ResultModel, SingleSource<ResultModel>>() {
             @Override
@@ -645,11 +645,11 @@ public class RepoViewModel extends BaseViewModel {
             requestDataMap.put("path", path);
 
             Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
-            Single<Dirent2Model> single = HttpIO.getCurrentInstance().execute(StarredService.class).star(bodyMap);
+            Single<Dirent2Model> single = HttpManager.getCurrentHttp().execute(StarredService.class).star(bodyMap);
 
             return single.toFlowable();
         } else {
-            Single<ResultModel> single1 = HttpIO.getCurrentInstance().execute(StarredService.class).unStar(repoId, path);
+            Single<ResultModel> single1 = HttpManager.getCurrentHttp().execute(StarredService.class).unStar(repoId, path);
             return single1.toFlowable();
         }
     }
@@ -680,7 +680,7 @@ public class RepoViewModel extends BaseViewModel {
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         String typeOrRepoId = TextUtils.isEmpty(repoId) ? "all" : repoId;
-        Single<SearchWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).search(typeOrRepoId, q, "all", pageNo, pageSize);
+        Single<SearchWrapperModel> single = HttpManager.getCurrentHttp().execute(SearchService.class).search(typeOrRepoId, q, "all", pageNo, pageSize);
 
         addSingleDisposable(single, new Consumer<SearchWrapperModel>() {
             @Override
@@ -729,7 +729,7 @@ public class RepoViewModel extends BaseViewModel {
         getRefreshLiveData().setValue(true);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        Single<SearchFileWrapperModel> single = HttpIO.getCurrentInstance().execute(SearchService.class).searchFile(repoId, q);
+        Single<SearchFileWrapperModel> single = HttpManager.getCurrentHttp().execute(SearchService.class).searchFile(repoId, q);
 
         addSingleDisposable(single, new Consumer<SearchFileWrapperModel>() {
             @Override
