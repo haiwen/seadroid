@@ -24,6 +24,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
@@ -40,8 +41,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -89,14 +88,14 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
     public OkHttpClient getPrimaryHttpClient(Account account) {
         if (primaryHttpClient == null) {
-            primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
+            primaryHttpClient = HttpManager.getHttpWithAccount(account).getSafeClient().getOkClient();
         }
         return primaryHttpClient;
     }
 
     public OkHttpClient getFallbackHttpClient(Account account) {
         if (fallbackHttpClient == null) {
-            fallbackHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient(true);
+            fallbackHttpClient = HttpManager.getHttpWithAccount(account).getSafeClient().getOkClient(true);
         }
         return fallbackHttpClient;
     }
@@ -206,7 +205,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     private Pair<String, String> getDownloadLink(boolean isReUsed) throws SeafException {
         retrofit2.Response<String> res;
         try {
-            res = HttpIO.getCurrentInstance()
+            res = HttpManager.getCurrentHttp()
                     .execute(FileService.class)
                     .getFileDownloadLinkSync(currentTransferModel.repo_id, currentTransferModel.full_path, isReUsed ? 1 : 0)
                     .execute();
@@ -499,7 +498,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("password", password);
 
-        retrofit2.Call<ResultModel> setPasswordCall = HttpIO.getCurrentInstance().execute(DialogService.class).setPasswordSync(repoId, requestDataMap);
+        retrofit2.Call<ResultModel> setPasswordCall = HttpManager.getCurrentHttp().execute(DialogService.class).setPasswordSync(repoId, requestDataMap);
         retrofit2.Response<ResultModel> res = setPasswordCall.execute();
         if (res.isSuccessful()) {
             ResultModel resultModel = res.body();

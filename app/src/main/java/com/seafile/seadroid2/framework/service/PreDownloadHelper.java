@@ -7,7 +7,7 @@ import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -91,7 +91,7 @@ public class PreDownloadHelper {
      * get recursive files from server
      */
     public static List<DirentRecursiveFileModel> fetchRecursiveFiles(DirentModel direntModel) throws IOException {
-        retrofit2.Response<List<DirentRecursiveFileModel>> res = HttpIO.getCurrentInstance().execute(FileService.class).getDirRecursiveFileCall(direntModel.repo_id, direntModel.full_path).execute();
+        retrofit2.Response<List<DirentRecursiveFileModel>> res = HttpManager.getCurrentHttp().execute(FileService.class).getDirRecursiveFileCall(direntModel.repo_id, direntModel.full_path).execute();
         if (!res.isSuccessful()) {
             return Collections.emptyList();
         }

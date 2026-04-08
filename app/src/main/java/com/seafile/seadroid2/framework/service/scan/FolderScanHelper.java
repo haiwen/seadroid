@@ -16,6 +16,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -61,7 +62,7 @@ public class FolderScanHelper {
         //get parent dirent list from remote
         Response<List<DirentRecursiveFileModel>> res;
         try {
-            Call<List<DirentRecursiveFileModel>> direntWrapperModelCall = HttpIO.getCurrentInstance().execute(RepoService.class).getDirRecursiveFileCall(repoId, parentPath);
+            Call<List<DirentRecursiveFileModel>> direntWrapperModelCall = HttpManager.getCurrentHttp().execute(RepoService.class).getDirRecursiveFileCall(repoId, parentPath);
             res = direntWrapperModelCall.execute();
         } catch (IOException ioException) {
             SafeLogs.e(TAG, "getDirentWrapper(): " + ioException.getMessage());

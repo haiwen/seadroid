@@ -42,6 +42,7 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -480,7 +481,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             return null;
         }
 
-        server_url = HttpIO.getCurrentInstance().getServerUrl();
+        server_url = HttpManager.getCurrentHttp().getCurrentServer();
         return server_url;
     }
 

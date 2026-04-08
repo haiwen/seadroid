@@ -27,11 +27,13 @@ public class UnsafeOkHttpClient extends BaseOkHttpClient {
     public UnsafeOkHttpClient() {
         super(null);
 
+        _interceptors.clear();
         _interceptors.addAll(getInterceptors());
     }
     public UnsafeOkHttpClient(Account account) {
         super(account);
 
+        _interceptors.clear();
         _interceptors.addAll(getInterceptors());
     }
 

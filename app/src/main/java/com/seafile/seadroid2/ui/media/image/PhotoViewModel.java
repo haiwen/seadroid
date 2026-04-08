@@ -15,7 +15,7 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.Objs;
@@ -125,7 +125,7 @@ public class PhotoViewModel extends BaseViewModel {
     private final FileTransferProgressListener fileTransferProgressListener = new FileTransferProgressListener();
 
     public void download(DirentModel direntModel) {
-        Single<String> downloadUrlSingle = HttpIO.getCurrentInstance()
+        Single<String> downloadUrlSingle = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
                 .getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path, 1);
 
@@ -189,7 +189,7 @@ public class PhotoViewModel extends BaseViewModel {
                         .get()
                         .build();
 
-                Call newCall = HttpIO.getCurrentInstance().getSafeClient().getOkClient().newCall(request);
+                Call newCall = HttpManager.getCurrentHttp().getSafeClient().getOkClient().newCall(request);
 
                 try (Response response = newCall.execute()) {
                     if (!response.isSuccessful()) {

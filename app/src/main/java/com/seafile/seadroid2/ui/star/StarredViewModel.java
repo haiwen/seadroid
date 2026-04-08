@@ -8,26 +8,22 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.http.HttpManager;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.framework.model.star.StarredWrapperModel;
 import com.seafile.seadroid2.framework.util.Objs;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.model.ResultModel;
-import com.seafile.seadroid2.framework.db.entities.StarredModel;
-import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +96,7 @@ public class StarredViewModel extends BaseViewModel {
         requestDataMap.put("password", password);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<ResultModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).setPassword(repoId, bodyMap);
+        Single<ResultModel> netSingle = HttpManager.getCurrentHttp().execute(DialogService.class).setPassword(repoId, bodyMap);
         Single<ResultModel> single = netSingle.flatMap(new Function<ResultModel, SingleSource<ResultModel>>() {
             @Override
             public SingleSource<ResultModel> apply(ResultModel resultModel) throws Exception {
@@ -138,7 +134,7 @@ public class StarredViewModel extends BaseViewModel {
 
     public void checkRemoteAndOpen(String repo_id, String path, Consumer<String> consumer) {
         getSecondRefreshLiveData().setValue(true);
-        Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetail(repo_id, path);
+        Single<DirentFileModel> detailSingle = HttpManager.getCurrentHttp().execute(FileService.class).getFileDetail(repo_id, path);
 
         Single<List<FileCacheStatusEntity>> cacheDbSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repo_id, path);
         Single<String> fileIdSingle = cacheDbSingle.flatMap(new Function<List<FileCacheStatusEntity>, SingleSource<String>>() {
@@ -225,7 +221,7 @@ public class StarredViewModel extends BaseViewModel {
     }
 
     public void unStarItem(String repoId, String path) {
-        Single<ResultModel> flowable = HttpIO.getCurrentInstance().execute(StarredService.class).unStar(repoId, path);
+        Single<ResultModel> flowable = HttpManager.getCurrentHttp().execute(StarredService.class).unStar(repoId, path);
         addSingleDisposable(flowable, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

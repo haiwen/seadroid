@@ -10,20 +10,20 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
-import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
-import com.seafile.seadroid2.enums.OpType;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityWrapperModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -115,7 +115,7 @@ public class ActivityViewModel extends BaseViewModel {
         requestDataMap.put("password", password);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<ResultModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).setPassword(repoId, bodyMap);
+        Single<ResultModel> netSingle = HttpManager.getCurrentHttp().execute(DialogService.class).setPassword(repoId, bodyMap);
         Single<ResultModel> single = netSingle.flatMap(new Function<ResultModel, SingleSource<ResultModel>>() {
             @Override
             public SingleSource<ResultModel> apply(ResultModel resultModel) throws Exception {
@@ -155,7 +155,7 @@ public class ActivityViewModel extends BaseViewModel {
     public void checkRemoteAndOpen(String repo_id, String path, Consumer<String> consumer) {
         getSecondRefreshLiveData().setValue(true);
 
-        Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetail(repo_id, path);
+        Single<DirentFileModel> detailSingle = HttpManager.getCurrentHttp().execute(FileService.class).getFileDetail(repo_id, path);
         Single<List<FileCacheStatusEntity>> cacheDbSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repo_id, path);
 
         Single<String> fileIdSingle = cacheDbSingle.flatMap(new Function<List<FileCacheStatusEntity>, SingleSource<String>>() {
@@ -221,7 +221,7 @@ public class ActivityViewModel extends BaseViewModel {
     public void loadAllData(int page) {
         getRefreshLiveData().setValue(true);
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        Single<ActivityWrapperModel> flowable = HttpIO.getCurrentInstance().execute(ActivityService.class).getActivities(page);
+        Single<ActivityWrapperModel> flowable = HttpManager.getCurrentHttp().execute(ActivityService.class).getActivities(page);
         addSingleDisposable(flowable, new Consumer<ActivityWrapperModel>() {
             @Override
             public void accept(ActivityWrapperModel wrapperModel) throws Exception {

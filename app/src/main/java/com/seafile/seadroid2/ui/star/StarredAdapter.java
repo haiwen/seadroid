@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
+import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;

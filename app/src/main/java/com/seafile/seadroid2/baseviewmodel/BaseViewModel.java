@@ -13,6 +13,7 @@ import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.annotation.Todo;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -77,7 +78,7 @@ public class BaseViewModel extends ViewModel {
     }
 
     public void completeRemoteWipe() {
-        Single<Object> single = HttpIO.getCurrentInstance().execute(AccountService.class).deviceWiped();
+        Single<Object> single = HttpManager.getCurrentHttp().execute(AccountService.class).deviceWiped();
         addSingleDisposable(single, new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {

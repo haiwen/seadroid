@@ -16,6 +16,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
@@ -164,7 +165,7 @@ public class SDocViewModel extends BaseViewModel {
         partialAccount.setToken(pageOptionsModel.seadocAccessToken);
         partialAccount.setServer(sdocServerUrl);
 
-        Single<SDocOutlineWrapperModel> single = HttpIO.getInstanceByAccount(partialAccount).execute(DocsCommentService.class).getElements(pageOptionsModel.docUuid);
+        Single<SDocOutlineWrapperModel> single = HttpManager.getHttpWithAccount(partialAccount).execute(DocsCommentService.class).getElements(pageOptionsModel.docUuid);
         addSingleDisposable(single, new Consumer<SDocOutlineWrapperModel>() {
             @Override
             public void accept(SDocOutlineWrapperModel wrapperModel) throws Exception {
@@ -236,7 +237,7 @@ public class SDocViewModel extends BaseViewModel {
             SLogs.d("标签请求参数：");
             SLogs.d(GsonUtils.toJson(t));
 
-            Single<ResultModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).putRecordTag(repoId, t);
+            Single<ResultModel> tagSingle = HttpManager.getCurrentHttp().execute(SDocService.class).putRecordTag(repoId, t);
             singleList.add(tagSingle);
         }
 
@@ -246,7 +247,7 @@ public class SDocViewModel extends BaseViewModel {
             params.put("record_id", recordId);
             SLogs.d("Data请求参数：");
             SLogs.d(GsonUtils.toJson(params));
-            Single<ResultModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).putRecord(repoId, params);
+            Single<ResultModel> recordSingle = HttpManager.getCurrentHttp().execute(SDocService.class).putRecord(repoId, params);
             singleList.add(recordSingle);
         }
 

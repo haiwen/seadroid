@@ -5,15 +5,15 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.db.AppDatabase;
-import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.http.HttpManager;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
-import com.seafile.seadroid2.framework.model.ResultModel;
-import com.seafile.seadroid2.framework.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import java.io.File;
@@ -52,7 +52,7 @@ public class CopyMoveViewModel extends BaseViewModel {
         requestDataMap.put("src_repo_id", srcRepoId);
         requestDataMap.put("src_dirents", nameList);
 
-        Single<ResultModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).moveDirents(requestDataMap);
+        Single<ResultModel> netSingle = HttpManager.getCurrentHttp().execute(DialogService.class).moveDirents(requestDataMap);
         Single<ResultModel> moveSingle = Single.create(new SingleOnSubscribe<ResultModel>() {
             @Override
             public void subscribe(SingleEmitter<ResultModel> emitter) throws Exception {
@@ -169,7 +169,7 @@ public class CopyMoveViewModel extends BaseViewModel {
         requestDataMap.put("src_repo_id", srcRepoId);
         requestDataMap.put("src_dirents", nameList);
 
-        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(DialogService.class).copyDirents(requestDataMap);
+        Single<ResultModel> single = HttpManager.getCurrentHttp().execute(DialogService.class).copyDirents(requestDataMap);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {

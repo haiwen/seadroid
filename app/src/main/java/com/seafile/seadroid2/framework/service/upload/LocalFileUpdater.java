@@ -15,9 +15,9 @@ import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.service.ITransferNotification;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -197,7 +197,7 @@ public class LocalFileUpdater extends ParentEventUploader {
         retrofit2.Response<DirentFileModel> res;
         try {
             //get parent dirent list from remote
-            Call<DirentFileModel> call = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetailCall(repoId, path);
+            Call<DirentFileModel> call = HttpManager.getCurrentHttp().execute(FileService.class).getFileDetailCall(repoId, path);
             res = call.execute();
         } catch (IOException e) {
             throw SeafException.NETWORK_EXCEPTION;

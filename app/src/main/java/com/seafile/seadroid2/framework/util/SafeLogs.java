@@ -44,6 +44,18 @@ public class SafeLogs {
         }
     }
 
+    public static void i(String... logs) {
+        if (logs == null || logs.length == 0) {
+            return;
+        }
+
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            safeD(logs);
+        } else {
+            mainHandler.post(() -> safeI(logs));
+        }
+    }
+
     private static void safeD(String... logs) {
         try {
             SLogs.d(logs);
@@ -61,6 +73,13 @@ public class SafeLogs {
     private static void safeE(Exception e) {
         try {
             SLogs.e(e);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void safeI(String... logs) {
+        try {
+            SLogs.i(logs);
         } catch (Throwable ignored) {
         }
     }
