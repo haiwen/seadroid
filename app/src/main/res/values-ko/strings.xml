@@ -319,6 +319,7 @@
   <string name="gesture_lock">제스처 잠금</string>
   <string name="gesture_lock_on">제스처 잠금 켬</string>
   <string name="gesture_lock_off">제스처 잠금 끔</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">제스처 잠금 패턴을 그리세요</string>
   <string name="lockscreen_access_pattern_start">그리기 시작</string>
   <string name="lockscreen_access_pattern_cleared">패턴 지움</string>
@@ -434,7 +435,7 @@
         </p>
         <h5>기여하기</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2026 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">고급 기능</string>

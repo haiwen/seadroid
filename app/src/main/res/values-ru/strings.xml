@@ -325,6 +325,18 @@
   <string name="gesture_lock">Защита жестом</string>
   <string name="gesture_lock_on">Защита жестом включена</string>
   <string name="gesture_lock_off">Защита жестом выключена</string>
+  <!--Biometric lock-->
+  <string name="biometric_lock">Блокировка приложения</string>
+  <string name="biometric_lock_on">Разблокируйте с помощью отпечатка пальца, лица или PIN-кода устройства</string>
+  <string name="biometric_lock_off">Приложение не защищено</string>
+  <string name="biometric_prompt_title">Разблокировать Seafile</string>
+  <string name="biometric_prompt_subtitle">Подтвердите свою личность, чтобы продолжить</string>
+  <string name="lock_timeout_title">Блокировать после</string>
+  <string name="lock_timeout_immediately">Немедленно</string>
+  <string name="lock_timeout_1_min">1 минута</string>
+  <string name="lock_timeout_5_min">5 минут</string>
+  <string name="lock_timeout_15_min">15 минут</string>
+  <string name="lock_timeout_30_min">30 минут</string>
   <string name="lockscreen_access_pattern_hint">Пожалуйста, нарисуйте графический ключ</string>
   <string name="lockscreen_access_pattern_start">Начать рисовать</string>
   <string name="lockscreen_access_pattern_cleared">Графический ключ очищен</string>
@@ -449,7 +461,7 @@
         </p>
         <h5>Внести свой вклад</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Авторское право ©2013-2023 Seafile Ltd.</h5>
+        <h5>Авторское право ©2013-2026 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>

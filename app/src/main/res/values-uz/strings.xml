@@ -319,6 +319,7 @@
   <string name="gesture_lock">Imo-ishora qulfi</string>
   <string name="gesture_lock_on">Imo-ishora qulfini yoqish</string>
   <string name="gesture_lock_off">Imo-ishora qulfini o\'chirish</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Iltimos, imo-ishora naqshini chizing</string>
   <string name="lockscreen_access_pattern_start">Chizishni boshlash</string>
   <string name="lockscreen_access_pattern_cleared">Naqsh tozalandi</string>
@@ -434,7 +435,7 @@
         </p>
         <h5>Hissalar</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2026 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">KENGAYTIRILGAN XUSUSIYATLAR</string>

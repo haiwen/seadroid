@@ -323,6 +323,7 @@
   <string name="gesture_lock">Geste de verrouillage</string>
   <string name="gesture_lock_on">Geste de verrouillage activé</string>
   <string name="gesture_lock_off">Geste de verrouillage désactivé</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Dessinez le modèle de geste de verrouillage</string>
   <string name="lockscreen_access_pattern_start">Commencez à dessiner</string>
   <string name="lockscreen_access_pattern_cleared">Modèle effacé</string>
@@ -444,7 +445,7 @@ E-mail : support@seafile.com<br>
 </p>
 <h5>Contributions</h5>
 <p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+<h5>Copyright ©2013-2026 Seafile Ltd.</h5>
 ]]>
 </string>
   <string name="settings_advance_feature_title">Fonctionnalités avancées</string>

@@ -159,6 +159,7 @@ Zum Aktualisieren einmal antippen</string>
   </string-array>
   <string name="add_repo">Neue Bibliothek</string>
   <string name="add_file">Hinzufügen</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>Datei erstellen</item>
     <item>Ordner erstellen</item>
@@ -284,6 +285,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="gesture_lock">Bewegungssperre</string>
   <string name="gesture_lock_on">Bewegungssperre an</string>
   <string name="gesture_lock_off">Bewegungssperre aus</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Bitte ein Entsperrmuster zeichnen</string>
   <string name="lockscreen_access_pattern_start">Beginnen Sie zu zeichnen</string>
   <string name="lockscreen_access_pattern_cleared">Muster gelöscht</string>
@@ -401,7 +403,7 @@ Zum Aktualisieren einmal antippen</string>
         </p>
         <h5>Mitwirkende</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2023 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2026 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
@@ -578,6 +580,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_folder_backup_library">Ziel-Bibliothek</string>
   <string name="folder_backup_mode">WLAN und mobile Daten</string>
   <string name="folder_backup_select_repo_hint">Bibliothek auswählen</string>
+  <!--backup config-->
   <!--action-->
   <string name="select_all">Alle auswählen</string>
   <string name="off">Aus</string>
@@ -607,4 +610,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="next">Weiter</string>
   <string name="backup_completed">Backup abgeschlossen</string>
   <string name="backup_failed">Backup fehlgeschlagen</string>
+  <!--font-style-->
+  <!--sdoc system event-->
+  <!--Tips-->
 </resources>
