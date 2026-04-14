@@ -220,6 +220,36 @@
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
+    <com.seafile.seadroid2.widget.CheckableForegroundLinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <com.seafile.seadroid2.widget.CheckableForegroundLinearLayout
+            android:id="@+id/editor_local_image_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_checkable_linearlayout"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/editor_local_image_icon"
+                android:layout_width="@dimen/editor_icon_size"
+                android:layout_height="@dimen/editor_icon_size"
+                android:foreground="?android:selectableItemBackground"
+                android:padding="@dimen/editor_icon_padding"
+                android:src="@drawable/icon_editor_image"
+                app:tint="@color/primary_icon_tint_color" />
+
+        </com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>
+
+    </com.seafile.seadroid2.widget.CheckableForegroundLinearLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="1dp"
         android:layout_height="match_parent"

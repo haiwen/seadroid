@@ -7,7 +7,7 @@ import com.seafile.seadroid2.framework.model.sdoc.TextTypeModel;
 public enum TextTypeEnum {
     undo, redo, paragraph, title, subtitle,
     header1, header2, header3, header4, header5, header6,
-    unordered_list, ordered_list, check_list_item;
+    unordered_list, ordered_list, check_list_item,local_image;
 
     public static boolean isTextType(TextTypeModel typeModel) {
         if (TextUtils.equals(TextTypeEnum.title.name(), typeModel.type)) {

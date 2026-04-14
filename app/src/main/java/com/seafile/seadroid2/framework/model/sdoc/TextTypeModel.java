@@ -8,6 +8,7 @@ public class TextTypeModel {
      * unordered-list
      * ordered-list
      * checkbox
+     * local-image: insert image into sdoc
      */
     public String type;
 

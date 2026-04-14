@@ -65,11 +65,7 @@ public abstract class BaseOkHttpClient {
                 SafeLogs.i(s);
             }
         });
-        if (BuildConfig.DEBUG) {
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
-        } else {
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
-        }
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
         interceptors.add(loggingInterceptor);
         return interceptors;
     }

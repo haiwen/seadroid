@@ -347,6 +347,12 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
                 triggerJsSdocEditorMenu(TextTypeEnum.check_list_item);
             }
         });
+        editorBarBinding.editorLocalImageIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                triggerJsSdocEditorMenu(TextTypeEnum.local_image);
+            }
+        });
         editorBarBinding.editorTextStyleContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -561,12 +567,14 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         editorBarBinding.editorTextStyle.setEnabled(isEnable);
         editorBarBinding.editorUnorderedListIcon.setEnabled(isEnable);
         editorBarBinding.editorOrderedListIcon.setEnabled(isEnable);
+        editorBarBinding.editorLocalImageIcon.setEnabled(isEnable);
 
         ColorStateList stateList = ColorStateList.valueOf(color);
 
         editorBarBinding.editorTextStyle.setImageTintList(stateList);
         editorBarBinding.editorUnorderedListIcon.setImageTintList(stateList);
         editorBarBinding.editorOrderedListIcon.setImageTintList(stateList);
+        editorBarBinding.editorLocalImageIcon.setImageTintList(stateList);
 //        editorBarBinding.editorTextArrowDown.setImageTintList(stateList);
     }
 
@@ -588,7 +596,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             }
         });
     }
-
 
     private void updateUndoRepoEditorView() {
         execUndoRedoListJs(new Consumer<UndoRedoModel>() {
