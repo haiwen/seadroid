@@ -38,6 +38,7 @@ import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FolderBackupMonitorEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.DatabaseHelper;
 import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.monitor.MonitorDBHelper;
@@ -133,7 +134,7 @@ public class DataMigrationActivity extends BaseActivity {
                 continue;
             }
 
-            Call<AccountInfo> accountInfoCall = HttpIO.getInstanceByAccount(account).execute(AccountService.class).getAccountInfoCall();
+            Call<AccountInfo> accountInfoCall = HttpManager.getHttpWithAccount(account).execute(AccountService.class).getAccountInfoCall();
             Response<AccountInfo> accountRes = accountInfoCall.execute();
             if (accountRes.isSuccessful()) {
                 AccountInfo accountInfo = accountRes.body();
@@ -145,7 +146,7 @@ public class DataMigrationActivity extends BaseActivity {
             }
 
 
-            Response<RepoWrapperModel> response = HttpIO.getInstanceByAccount(account)
+            Response<RepoWrapperModel> response = HttpManager.getHttpWithAccount(account)
                     .execute(RepoService.class)
                     .getReposSync()
                     .execute();

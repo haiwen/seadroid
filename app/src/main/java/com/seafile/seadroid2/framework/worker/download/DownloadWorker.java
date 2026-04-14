@@ -26,7 +26,7 @@ import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.notification.DownloadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.BaseNotification;
@@ -250,7 +250,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     private Pair<String, String> getDownloadLink(boolean isReUsed) throws SeafException, IOException {
-        retrofit2.Response<String> res = HttpIO.getCurrentInstance()
+        retrofit2.Response<String> res = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
                 .getFileDownloadLinkSync(currentTransferModel.repo_id, currentTransferModel.full_path, isReUsed ? 1 : 0)
                 .execute();
@@ -296,7 +296,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                 .build();
 
         if (okHttpClient == null) {
-            okHttpClient = HttpIO.getCurrentInstance().getSafeClient().getOkClient();
+            okHttpClient = HttpManager.getCurrentHttp().getSafeClient().getOkClient();
         }
 
         Call newCall = okHttpClient.newCall(request);
@@ -451,7 +451,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("password", password);
 
-        retrofit2.Call<ResultModel> setPasswordCall = HttpIO.getCurrentInstance().execute(DialogService.class).setPasswordSync(repoId, requestDataMap);
+        retrofit2.Call<ResultModel> setPasswordCall = HttpManager.getCurrentHttp().execute(DialogService.class).setPasswordSync(repoId, requestDataMap);
         retrofit2.Response<ResultModel> res = setPasswordCall.execute();
         if (res.isSuccessful()) {
             ResultModel resultModel = res.body();

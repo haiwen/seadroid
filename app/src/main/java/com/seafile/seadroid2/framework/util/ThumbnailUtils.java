@@ -15,10 +15,10 @@ public class ThumbnailUtils {
             return null;
         }
 
-        if (!StringUtils.isEmpty(direntModel.encoded_thumbnail_src)) {
-            long sec = TimeUtils.getNowMills() / 1000;
-            return Utils.pathJoin(serverUrl, direntModel.encoded_thumbnail_src) + "?mtime=" + sec;
-        }
+//        if (!StringUtils.isEmpty(direntModel.encoded_thumbnail_src)) {
+//            long sec = TimeUtils.getNowMills() / 1000;
+//            return Utils.pathJoin(serverUrl, direntModel.encoded_thumbnail_src) + "?mtime=" + sec;
+//        }
 
         return ThumbnailUtils.convertThumbnailUrl(serverUrl, direntModel.repo_id, direntModel.full_path);
     }

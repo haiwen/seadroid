@@ -7,18 +7,18 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.http.callback.ProgressCallback;
 import com.seafile.seadroid2.framework.http.download.BinaryFileDownloader;
 import com.seafile.seadroid2.framework.http.download.BinaryFileWriter;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 
 import org.reactivestreams.Publisher;
 
@@ -55,7 +55,7 @@ public class FileViewModel extends BaseViewModel {
     public void loadFileDetail(String repoId, String path, Consumer<DirentFileModel> consumer) {
 
         // get file detail
-        Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetail(repoId, path);
+        Single<DirentFileModel> detailSingle = HttpManager.getCurrentHttp().execute(FileService.class).getFileDetail(repoId, path);
         addSingleDisposable(detailSingle, consumer, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
@@ -71,7 +71,7 @@ public class FileViewModel extends BaseViewModel {
     public void download(Account account, DirentModel direntModel, File destinationFile) {
         try {
             File tempFile = DataManager.createTempFile();
-            Single<String> urlSingle = HttpIO.getCurrentInstance().execute(FileService.class).getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path, 1);
+            Single<String> urlSingle = HttpManager.getCurrentHttp().execute(FileService.class).getFileDownloadLinkAsync(direntModel.repo_id, direntModel.full_path, 1);
             Flowable<String> urlFlowable = urlSingle.toFlowable();
             Flowable<Long[]> flowable = urlFlowable.flatMap(new Function<String, Publisher<Long[]>>() {
                 @Override
@@ -121,7 +121,7 @@ public class FileViewModel extends BaseViewModel {
                     return;
                 }
 
-                OkHttpClient client = HttpIO.getCurrentInstance().getSafeClient().getOkClient();
+                OkHttpClient client = HttpManager.getCurrentHttp().getSafeClient().getOkClient();
 
                 try (OutputStream outputStream = Files.newOutputStream(destinationFile.toPath())) {
                     BinaryFileWriter fileWriter = new BinaryFileWriter(outputStream, new ProgressCallback() {

@@ -22,6 +22,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
@@ -127,7 +128,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     public OkHttpClient getPrimaryHttpClient(Account account) {
         if (primaryHttpClient == null) {
-            primaryHttpClient = HttpIO.getInstanceByAccount(account).getSafeClient().getOkClient();
+            primaryHttpClient = HttpManager.getHttpWithAccount(account).getSafeClient().getOkClient();
         }
         return primaryHttpClient;
     }
@@ -463,12 +464,12 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         retrofit2.Response<String> res;
         try {
             if (isUpdate) {
-                res = HttpIO.getInstanceByAccount(account)
+                res = HttpManager.getHttpWithAccount(account)
                         .execute(FileService.class)
                         .getFileUpdateLink(repoId)
                         .execute();
             } else {
-                res = HttpIO.getInstanceByAccount(account)
+                res = HttpManager.getHttpWithAccount(account)
                         .execute(FileService.class)
                         .getFileUploadLink(repoId, "/")
                         .execute();

@@ -11,6 +11,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -76,7 +77,7 @@ public class OpenDocumentReader {
         String url = requestDownloadUrl(account, repoId, path);
         SLogs.d(TAG, "download url: " + url);
 
-        HttpIO httpIo = HttpIO.getInstanceByAccount(account);
+        HttpIO httpIo = HttpManager.getHttpWithAccount(account);
         if (httpIo == null) {
             throw new FileNotFoundException();
         }
@@ -128,7 +129,7 @@ public class OpenDocumentReader {
     private static String requestDownloadUrl(Account account, String repoId, String path) throws FileNotFoundException {
 
         try {
-            HttpIO httpIo = HttpIO.getInstanceByAccount(account);
+            HttpIO httpIo = HttpManager.getHttpWithAccount(account);
             if (httpIo == null) {
                 throw new FileNotFoundException();
             }

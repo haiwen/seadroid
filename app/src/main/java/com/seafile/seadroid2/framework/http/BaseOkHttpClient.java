@@ -2,11 +2,14 @@ package com.seafile.seadroid2.framework.http;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.http.interceptor.HeaderInterceptor;
+import com.seafile.seadroid2.framework.http.interceptor.TokenInterceptor;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,7 +18,6 @@ import java.util.List;
 import okhttp3.Cache;
 import okhttp3.CacheControl;
 import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -32,33 +34,45 @@ public abstract class BaseOkHttpClient {
     //cache path
     final File httpCacheDirectory = new File(cachePath, "cache");
 
-    protected Account account;
+    protected Account specialAccount;
 
-    public BaseOkHttpClient(Account account) {
-        this.account = account;
+    public BaseOkHttpClient(Account specialAccount) {
+        this.specialAccount = specialAccount;
         this.cache = new Cache(httpCacheDirectory, MAX_CACHE_SIZE);
     }
 
     protected List<Interceptor> getInterceptors() {
+        List<Interceptor> interceptors = new ArrayList<>();
 
-        List<Interceptor> interceptors = getInterceptorsWithoutToken();
-        if (account != null && !TextUtils.isEmpty(account.token)) {
-            interceptors.add(new HeaderInterceptor(account.token));
+        if (specialAccount != null && !TextUtils.isEmpty(specialAccount.token)) {
+            interceptors.add(new TokenInterceptor(specialAccount.token));
+        } else {
+            interceptors.add(new TokenInterceptor());
         }
+
+        interceptors.addAll(getDefaultInterceptors());
 
         return interceptors;
     }
 
-    protected List<Interceptor> getInterceptorsWithoutToken() {
+    protected List<Interceptor> getDefaultInterceptors() {
         List<Interceptor> interceptors = new ArrayList<>();
 
         //print log
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+            @Override
+            public void log(@NonNull String s) {
+                SafeLogs.i(s);
+            }
+        });
+        if (BuildConfig.DEBUG) {
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        } else {
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        }
         interceptors.add(loggingInterceptor);
         return interceptors;
     }
-
 
     //No longer used. The caching policy is determined by the server-side response header
     @Deprecated

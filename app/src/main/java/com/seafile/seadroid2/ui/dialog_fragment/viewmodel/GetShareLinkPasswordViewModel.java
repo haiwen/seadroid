@@ -7,11 +7,11 @@ import androidx.lifecycle.MutableLiveData;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.config.DateFormatType;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentPermissionModel;
 import com.seafile.seadroid2.framework.model.objs.DirentShareLinkModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
     public void getFirstShareLink(String repoId, String path) {
         getRefreshLiveData().setValue(true);
 
-        Single<List<DirentShareLinkModel>> single = HttpIO.getCurrentInstance().execute(DialogService.class).listAllShareLink(repoId, path);
+        Single<List<DirentShareLinkModel>> single = HttpManager.getCurrentHttp().execute(DialogService.class).listAllShareLink(repoId, path);
         addSingleDisposable(single, new Consumer<List<DirentShareLinkModel>>() {
             @Override
             public void accept(List<DirentShareLinkModel> models) {
@@ -79,8 +79,8 @@ public class GetShareLinkPasswordViewModel extends BaseViewModel {
             requestDataMap.put("permissions", permissions);
         }
 
-        single = HttpIO.getCurrentInstance().execute(DialogService.class).createMultiShareLink(requestDataMap);
-//            single = HttpIO.getCurrentInstance().execute(DialogService.class).createShareLink(requestDataMap);
+        single = HttpManager.getCurrentHttp().execute(DialogService.class).createMultiShareLink(requestDataMap);
+//            single = HttpManager.getCurrentHttp().execute(DialogService.class).createShareLink(requestDataMap);
 
         addSingleDisposable(single, new Consumer<DirentShareLinkModel>() {
             @Override

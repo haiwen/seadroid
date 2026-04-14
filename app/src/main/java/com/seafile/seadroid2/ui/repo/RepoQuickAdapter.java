@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.SizeUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -39,7 +38,7 @@ import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
@@ -700,7 +699,6 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
-
         GlideApp.with(getContext())
                 .load(thumbnailUrl)
                 .signature(new ObjectKey(thumbKey))
@@ -724,7 +722,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             return null;
         }
 
-        server_url = HttpIO.getCurrentInstance().getServerUrl();
+        server_url = HttpManager.getCurrentHttp().getCurrentServer();
         return server_url;
     }
 

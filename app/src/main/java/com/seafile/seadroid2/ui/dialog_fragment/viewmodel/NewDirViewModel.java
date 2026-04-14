@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
@@ -42,7 +43,7 @@ public class NewDirViewModel extends BaseViewModel {
         requestDataMap.put("operation", "mkdir");
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<String> single = HttpIO.getInstanceByAccount(account).execute(DialogService.class).createDirWithApi2(repo_id, p, bodyMap);
+        Single<String> single = HttpManager.getHttpWithAccount(account).execute(DialogService.class).createDirWithApi2(repo_id, p, bodyMap);
         addSingleDisposable(single, new Consumer<String>() {
             @Override
             public void accept(String resultModel) throws Exception {
@@ -80,7 +81,7 @@ public class NewDirViewModel extends BaseViewModel {
 
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<FileCreateModel> single = HttpIO.getInstanceByAccount(account).execute(DialogService.class).createFile(repo_id, filePathName, bodyMap);
+        Single<FileCreateModel> single = HttpManager.getHttpWithAccount(account).execute(DialogService.class).createFile(repo_id, filePathName, bodyMap);
         addSingleDisposable(single, new Consumer<FileCreateModel>() {
             @Override
             public void accept(FileCreateModel resultModel) throws Exception {

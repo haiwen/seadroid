@@ -19,11 +19,10 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.notification.FileUploadNotificationHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupNotificationHelper;
@@ -232,7 +231,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
 
     private DirentFileModel getDirentDetail(String repoId, String path) throws IOException {
         //get parent dirent list from remote
-        Call<DirentFileModel> fileDetailCall = HttpIO.getCurrentInstance().execute(FileService.class).getFileDetailCall(repoId, path);
+        Call<DirentFileModel> fileDetailCall = HttpManager.getCurrentHttp().execute(FileService.class).getFileDetailCall(repoId, path);
         retrofit2.Response<DirentFileModel> res = fileDetailCall.execute();
         if (!res.isSuccessful()) {
             SLogs.d(TAG, "request dirents failed");

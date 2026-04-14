@@ -14,6 +14,7 @@ import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
@@ -81,7 +82,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
         getRefreshLiveData().setValue(true);
 
-        Single<RepoWrapperModel> single = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
+        Single<RepoWrapperModel> single = HttpManager.getHttpWithAccount(account).execute(RepoService.class).getReposAsync();
         addSingleDisposable(single, new Consumer<RepoWrapperModel>() {
             @Override
             public void accept(RepoWrapperModel repoWrapperModel) throws Exception {
@@ -122,7 +123,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
         String repoId = context.getRepoModel().repo_id;
         String parentDir = context.getNavPath();
 
-        Single<DirentWrapperModel> singleNet = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsAsync(repoId, parentDir);
+        Single<DirentWrapperModel> singleNet = HttpManager.getHttpWithAccount(account).execute(RepoService.class).getDirentsAsync(repoId, parentDir);
         addSingleDisposable(singleNet, new Consumer<DirentWrapperModel>() {
             @Override
             public void accept(DirentWrapperModel direntWrapperModel) throws Exception {
@@ -206,7 +207,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
 
     private Single<PermissionEntity> getLoadRepoPermissionFromRemoteSingle(String repoId, int pNum) {
-        Single<PermissionWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissionById(repoId, pNum);
+        Single<PermissionWrapperModel> single = HttpManager.getCurrentHttp().execute(RepoService.class).getCustomSharePermissionById(repoId, pNum);
         return single.flatMap(new Function<PermissionWrapperModel, SingleSource<PermissionEntity>>() {
             @Override
             public SingleSource<PermissionEntity> apply(PermissionWrapperModel wrapperModel) throws Exception {

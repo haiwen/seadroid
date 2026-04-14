@@ -9,15 +9,15 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
-import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import java.io.File;
@@ -55,7 +55,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         requestDataMap.put("repo_name", newRepoName);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameRepo(repoId, bodyMap);
+        Single<String> single = HttpManager.getCurrentHttp().execute(DialogService.class).renameRepo(repoId, bodyMap);
         Single<String> single2 = single.flatMap(new Function<String, SingleSource<String>>() {
             @Override
             public SingleSource<String> apply(String result) throws Exception {
@@ -115,7 +115,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         requestDataMap.put("newname", newName);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<String> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameDir(repoId, oldFolderFullPath, bodyMap);
+        Single<String> single = HttpManager.getCurrentHttp().execute(DialogService.class).renameDir(repoId, oldFolderFullPath, bodyMap);
         Single<String> single2 = single.flatMap(new Function<String, SingleSource<String>>() {
             @Override
             public SingleSource<String> apply(String result) throws Exception {
@@ -230,7 +230,7 @@ public class RenameRepoViewModel extends BaseViewModel {
         requestDataMap.put("newname", newName);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<FileCreateModel> single = HttpIO.getCurrentInstance().execute(DialogService.class).renameFile(repoId, oldFullPath, bodyMap);
+        Single<FileCreateModel> single = HttpManager.getCurrentHttp().execute(DialogService.class).renameFile(repoId, oldFullPath, bodyMap);
         Single<FileCreateModel> single2 = single.flatMap(new Function<FileCreateModel, SingleSource<FileCreateModel>>() {
             @Override
             public SingleSource<FileCreateModel> apply(FileCreateModel fileCreateModel) throws Exception {

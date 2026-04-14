@@ -2,23 +2,17 @@ package com.seafile.seadroid2.framework.worker;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
-import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -74,7 +68,7 @@ public abstract class TransferWorker extends BaseWorker {
 
         Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(requestDataMap);
 
-        Response<String> response = HttpIO.getCurrentInstance()
+        Response<String> response = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
                 .mkDirCall(repoId, path, requestBodyMap)
                 .execute();

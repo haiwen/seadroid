@@ -9,6 +9,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.model.sso.SSOLinkModel;
 import com.seafile.seadroid2.framework.model.sso.SSOStatusModel;
@@ -51,7 +52,7 @@ public class SingleSignOnViewModel extends BaseViewModel {
         tempAccount.server = host;
         tempAccount.email = EncryptUtils.encryptMD5ToString(host);
 
-        Single<ServerInfoModel> serverInfoSingle = HttpIO.getInstanceByAccount(tempAccount).execute(MainService.class).getServerInfo();
+        Single<ServerInfoModel> serverInfoSingle = HttpManager.getHttpWithAccount(tempAccount).execute(MainService.class).getServerInfo();
         addSingleDisposable(serverInfoSingle, new Consumer<ServerInfoModel>() {
             @Override
             public void accept(ServerInfoModel serverInfoModel) throws Exception {
@@ -83,7 +84,7 @@ public class SingleSignOnViewModel extends BaseViewModel {
         tempAccount.server = host;
         tempAccount.email = EncryptUtils.encryptMD5ToString(host);
 
-        Single<SSOLinkModel> serverSingle = HttpIO.getInstanceByAccount(tempAccount).execute(AccountService.class).getSsoLink();
+        Single<SSOLinkModel> serverSingle = HttpManager.getHttpWithAccount(tempAccount).execute(AccountService.class).getSsoLink();
         addSingleDisposable(serverSingle, new Consumer<SSOLinkModel>() {
             @Override
             public void accept(SSOLinkModel ssoLinkModel) throws Exception {
@@ -105,7 +106,7 @@ public class SingleSignOnViewModel extends BaseViewModel {
         tempAccount.server = host;
         tempAccount.email = EncryptUtils.encryptMD5ToString(host);
 
-        Single<SSOStatusModel> serverSingle = HttpIO.getInstanceByAccount(tempAccount).execute(AccountService.class).getSsoStatus(token);
+        Single<SSOStatusModel> serverSingle = HttpManager.getHttpWithAccount(tempAccount).execute(AccountService.class).getSsoStatus(token);
         addSingleDisposable(serverSingle, new Consumer<SSOStatusModel>() {
             @Override
             public void accept(SSOStatusModel model) throws Exception {
@@ -129,7 +130,7 @@ public class SingleSignOnViewModel extends BaseViewModel {
 
     public void loadAccountInfo(Account loginAccount) {
 
-        Single<AccountInfo> single = HttpIO.getInstanceByAccount(loginAccount).execute(AccountService.class).getAccountInfo();
+        Single<AccountInfo> single = HttpManager.getHttpWithAccount(loginAccount).execute(AccountService.class).getAccountInfo();
         addSingleDisposable(single, new Consumer<AccountInfo>() {
             @Override
             public void accept(AccountInfo accountInfo) throws Exception {

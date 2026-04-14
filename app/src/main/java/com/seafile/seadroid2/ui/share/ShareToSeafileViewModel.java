@@ -13,6 +13,7 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
@@ -54,7 +55,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
                     return;
                 }
 
-                Call<DirentWrapperModel> call = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsSync(repoId, parentDir);
+                Call<DirentWrapperModel> call = HttpManager.getHttpWithAccount(account).execute(RepoService.class).getDirentsSync(repoId, parentDir);
                 Response<DirentWrapperModel> res = call.execute();
                 if (!res.isSuccessful()) {
                     emitter.onError(SeafException.NETWORK_EXCEPTION);

@@ -58,6 +58,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.glide.GlideImage;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -817,7 +818,7 @@ public class SeafileProvider extends DocumentsProvider {
             Map<String, String> requestDataMap = new HashMap<>();
             requestDataMap.put("operation", "mkdir");
 
-            String result = HttpIO.getInstanceByAccount(account).execute(DialogService.class).createDirSync(repoId, parentPath, requestDataMap);
+            String result = HttpManager.getHttpWithAccount(account).execute(DialogService.class).createDirSync(repoId, parentPath, requestDataMap);
             if (TextUtils.equals("success", result)) {
                 SLogs.d(TAG, "createDocument()", "create dir success");
             }

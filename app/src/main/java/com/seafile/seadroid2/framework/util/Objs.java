@@ -17,6 +17,7 @@ import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
@@ -60,7 +61,7 @@ public class Objs {
     /// ///////////////////////////////starred////////////////////////////
 
     public static Single<List<StarredModel>> getStarredSingleFromServer(Account account) {
-        Single<StarredWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(StarredService.class).getStarItems();
+        Single<StarredWrapperModel> netSingle = HttpManager.getHttpWithAccount(account).execute(StarredService.class).getStarItems();
         Completable completable = AppDatabase.getInstance().starredDirentDAO().deleteAllByAccount(account.getSignature());
         Single<Integer> deleteSingle = completable.toSingleDefault(0);
         return Single.zip(netSingle, deleteSingle, new BiFunction<StarredWrapperModel, Integer, List<StarredModel>>() {
@@ -89,7 +90,7 @@ public class Objs {
     /// ///////////////////////////////repo////////////////////////////
 
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
-        Single<RepoWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getReposAsync();
+        Single<RepoWrapperModel> netSingle = HttpManager.getHttpWithAccount(account).execute(RepoService.class).getReposAsync();
 
         return netSingle.flatMap(new Function<RepoWrapperModel, SingleSource<List<RepoModel>>>() {
             @Override
@@ -172,7 +173,7 @@ public class Objs {
     }
 
     private static Single<PermissionEntity> getSingleForLoadRepoPermissionFromRemote(String repoId, int pNum) {
-        Single<PermissionWrapperModel> single = HttpIO.getCurrentInstance().execute(RepoService.class).getCustomSharePermissionById(repoId, pNum);
+        Single<PermissionWrapperModel> single = HttpManager.getCurrentHttp().execute(RepoService.class).getCustomSharePermissionById(repoId, pNum);
         return single.flatMap(new Function<PermissionWrapperModel, SingleSource<PermissionEntity>>() {
             @Override
             public SingleSource<PermissionEntity> apply(PermissionWrapperModel wrapperModel) throws Exception {
@@ -357,7 +358,7 @@ public class Objs {
     /// ///////////////////////////////dirent////////////////////////////
     public static Single<List<DirentModel>> getDirentsSingleFromServer(Account account, String repoId, String repoName, String parentDir) {
 
-        Single<DirentWrapperModel> netSingle = HttpIO.getInstanceByAccount(account).execute(RepoService.class).getDirentsAsync(repoId, parentDir);
+        Single<DirentWrapperModel> netSingle = HttpManager.getHttpWithAccount(account).execute(RepoService.class).getDirentsAsync(repoId, parentDir);
         return netSingle.flatMap(new Function<DirentWrapperModel, SingleSource<List<DirentModel>>>() {
             @Override
             public SingleSource<List<DirentModel>> apply(DirentWrapperModel direntWrapperModel) throws Exception {
@@ -621,8 +622,8 @@ public class Objs {
 
     public static Single<FileProfileConfigModel> getLoadFileDetailSingle(String repoId, String path) {
         //Even if isMetadataEnable is enabled, you still need to check whether the enable field of MetadataConfigModel is available
-        Single<MetadataConfigModel> metadataSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getMetadata(repoId).onErrorReturnItem(new MetadataConfigModel());
-        Single<FileDetailModel> detailSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getFileDetail(repoId, path);
+        Single<MetadataConfigModel> metadataSingle = HttpManager.getCurrentHttp().execute(SDocService.class).getMetadata(repoId).onErrorReturnItem(new MetadataConfigModel());
+        Single<FileDetailModel> detailSingle = HttpManager.getCurrentHttp().execute(SDocService.class).getFileDetail(repoId, path);
 
         return Single.zip(metadataSingle, detailSingle, new BiFunction<MetadataConfigModel, FileDetailModel, FileProfileConfigModel>() {
             @Override
@@ -660,15 +661,15 @@ public class Objs {
                     if (TextUtils.isEmpty(parent_dir)) {
                         parent_dir = "/";
                     }
-                    Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
+                    Single<UserWrapperModel> userSingle = HttpManager.getCurrentHttp().execute(SDocService.class).getRelatedUsers(repoId);
                     singles.add(userSingle);
 
-                    Single<FileRecordWrapperModel> recordSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
+                    Single<FileRecordWrapperModel> recordSingle = HttpManager.getCurrentHttp().execute(SDocService.class).getRecords(repoId, parent_dir, name, name);
                     singles.add(recordSingle);
                 }
 
                 if (configModel.isTagsEnabled()) {
-                    Single<FileTagWrapperModel> tagSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getTags(repoId);
+                    Single<FileTagWrapperModel> tagSingle = HttpManager.getCurrentHttp().execute(SDocService.class).getTags(repoId);
                     singles.add(tagSingle);
                 }
 

@@ -11,6 +11,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.TokenModel;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
@@ -60,7 +61,7 @@ public class AccountViewModel extends BaseViewModel {
         getRefreshLiveData().setValue(true);
 
         loginAccount.token = authToken;
-        Single<AccountInfo> single = HttpIO.getInstanceByAccount(loginAccount).execute(AccountService.class).getAccountInfo();
+        Single<AccountInfo> single = HttpManager.getHttpWithAccount(loginAccount).execute(AccountService.class).getAccountInfo();
         addSingleDisposable(single, new Consumer<AccountInfo>() {
             @Override
             public void accept(AccountInfo accountInfo) throws Exception {
@@ -112,8 +113,7 @@ public class AccountViewModel extends BaseViewModel {
                 }
 
                 //
-                retrofit2.Response<AccountInfo> accountInfoResponse = HttpIO
-                        .getInstanceByAccount(tempAccount) //Still use it that way
+                retrofit2.Response<AccountInfo> accountInfoResponse = HttpManager.getHttpWithAccount(tempAccount) //Still use it that way
                         .execute(AccountService.class)
                         .getAccountInfoCall()
                         .execute();
@@ -186,13 +186,13 @@ public class AccountViewModel extends BaseViewModel {
 
         Map<String, RequestBody> requestBody = genRequestBody(body);
 
-        return HttpIO.getInstanceByAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
+        return HttpManager.getHttpWithAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
     }
 
     public void getServerInfo() {
         getRefreshLiveData().setValue(true);
 
-        Single<ServerInfoModel> serverInfoSingle = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
+        Single<ServerInfoModel> serverInfoSingle = HttpManager.getCurrentHttp().execute(MainService.class).getServerInfo();
         addSingleDisposable(serverInfoSingle, new Consumer<ServerInfoModel>() {
             @Override
             public void accept(ServerInfoModel serverInfoModel) {
@@ -225,7 +225,7 @@ public class AccountViewModel extends BaseViewModel {
             //
             AccountUtils.logout(account);
         } else {
-            HttpIO.removeInstanceByAccount(account);
+            HttpManager.removeHttpWithAccount(account);
             CertsManager.instance().deleteCertForAccount(account);
         }
 

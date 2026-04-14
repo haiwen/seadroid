@@ -9,14 +9,14 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
-import com.seafile.seadroid2.framework.model.repo.RepoInfoModel;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
+import com.seafile.seadroid2.framework.model.repo.RepoInfoModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.repo.RepoService;
 
@@ -56,11 +56,11 @@ public class NewRepoViewModel extends BaseViewModel {
         }
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
-        Single<RepoModel> netSingle = HttpIO.getCurrentInstance().execute(DialogService.class).createRepo(bodyMap);
+        Single<RepoModel> netSingle = HttpManager.getCurrentHttp().execute(DialogService.class).createRepo(bodyMap);
         Single<RepoModel> r = netSingle.flatMap(new Function<RepoModel, SingleSource<RepoModel>>() {
             @Override
             public SingleSource<RepoModel> apply(RepoModel createdRepoModel) throws Exception {
-                return HttpIO.getCurrentInstance().execute(RepoService.class).getRepoInfo(createdRepoModel.repo_id)
+                return HttpManager.getCurrentHttp().execute(RepoService.class).getRepoInfo(createdRepoModel.repo_id)
                         .flatMap(new Function<RepoInfoModel, SingleSource<RepoModel>>() {
                             @Override
                             public SingleSource<RepoModel> apply(RepoInfoModel repoInfoModel) throws Exception {

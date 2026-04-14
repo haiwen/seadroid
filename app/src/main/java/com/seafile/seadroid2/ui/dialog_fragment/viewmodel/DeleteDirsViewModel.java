@@ -3,12 +3,12 @@ package com.seafile.seadroid2.ui.dialog_fragment.viewmodel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DeleteDirentModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class DeleteDirsViewModel extends BaseViewModel {
                 .flatMapSingle(new Function<DirentModel, SingleSource<DeleteDirentModel>>() {
                     @Override
                     public SingleSource<DeleteDirentModel> apply(DirentModel dirent) throws Exception {
-                        return HttpIO.getCurrentInstance().execute(DialogService.class).deleteDirent(dirent.repo_id, dirent.type, dirent.full_path);
+                        return HttpManager.getCurrentHttp().execute(DialogService.class).deleteDirent(dirent.repo_id, dirent.type, dirent.full_path);
                     }
                 });
 

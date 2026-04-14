@@ -22,7 +22,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.HttpUtils;
@@ -30,7 +30,6 @@ import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
-import com.seafile.seadroid2.framework.worker.queue.TransferQueue;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -502,7 +501,7 @@ public class AlbumScanHelper {
         //get parent dirent list from remote
         retrofit2.Response<DirentWrapperModel> res;
         try {
-            Call<DirentWrapperModel> call = HttpIO.getCurrentInstance()
+            Call<DirentWrapperModel> call = HttpManager.getCurrentHttp()
                     .execute(RepoService.class)
                     .getDirentsSync(repoId, parentPath);
             res = call.execute();
@@ -540,7 +539,7 @@ public class AlbumScanHelper {
         retrofit2.Response<String> res;
 
         try {
-            Call<String> call = HttpIO.getCurrentInstance()
+            Call<String> call = HttpManager.getCurrentHttp()
                     .execute(FileService.class)
                     .mkDirCall(repoId, path, requestBodyMap);
             res = call.execute();
@@ -568,7 +567,7 @@ public class AlbumScanHelper {
         retrofit2.Response<String> res;
 
         try {
-            Call<String> call = HttpIO.getCurrentInstance()
+            Call<String> call = HttpManager.getCurrentHttp()
                     .execute(FileService.class)
                     .renameFileCall(repoId, fullPath, requestBodyMap);
             res = call.execute();

@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
@@ -87,7 +88,7 @@ public class MainViewModel extends BaseViewModel {
 
 
     public void getServerInfo() {
-        Single<ServerInfoModel> serverInfoSingle = HttpIO.getCurrentInstance().execute(MainService.class).getServerInfo();
+        Single<ServerInfoModel> serverInfoSingle = HttpManager.getCurrentHttp().execute(MainService.class).getServerInfo();
         addSingleDisposable(serverInfoSingle, new Consumer<ServerInfoModel>() {
             @Override
             public void accept(ServerInfoModel serverInfo) throws Exception {
@@ -141,7 +142,7 @@ public class MainViewModel extends BaseViewModel {
             return;
         }
 
-        Single<DirentWrapperModel> detailSingle = HttpIO.getCurrentInstance()
+        Single<DirentWrapperModel> detailSingle = HttpManager.getCurrentHttp()
                 .execute(RepoService.class)
                 .getDirentsAsync(repoId, parentDir);
 
@@ -194,7 +195,7 @@ public class MainViewModel extends BaseViewModel {
     }
 
     public void checkRemoteDirent(String repoId, String fullPath, java.util.function.Consumer<DirentFileModel> consumer) {
-        Single<DirentFileModel> detailSingle = HttpIO.getCurrentInstance()
+        Single<DirentFileModel> detailSingle = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
                 .getFileDetail(repoId, fullPath);
         addSingleDisposable(detailSingle, new Consumer<DirentFileModel>() {
@@ -221,12 +222,12 @@ public class MainViewModel extends BaseViewModel {
         }
 
 
-        Single<DirentFileModel> detailSingle1 = HttpIO.getCurrentInstance()
+        Single<DirentFileModel> detailSingle1 = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
                 .getFileDetail(repoId, destinationPath1)
                 .onErrorResumeNext(Single.never());
 
-        Single<DirentFileModel> detailSingle2 = HttpIO.getCurrentInstance()
+        Single<DirentFileModel> detailSingle2 = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
                 .getFileDetail(repoId, destinationPath2)
                 .onErrorResumeNext(Single.never());

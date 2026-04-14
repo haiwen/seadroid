@@ -12,13 +12,15 @@ import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.model.ResultModel;
-import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentWrapperModel;
-import com.seafile.seadroid2.framework.model.docs_comment.DocsUploadResultModel;
-import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
-import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentsWrapperModel;
-import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
+import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentModel;
+import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentWrapperModel;
+import com.seafile.seadroid2.framework.model.docs_comment.DocsCommentsWrapperModel;
+import com.seafile.seadroid2.framework.model.docs_comment.DocsUploadResultModel;
+import com.seafile.seadroid2.framework.model.sdoc.SDocPageOptionsModel;
 import com.seafile.seadroid2.framework.model.user.ParticipantsWrapperModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
@@ -26,7 +28,6 @@ import com.seafile.seadroid2.framework.util.ContentResolvers;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.sdoc.SDocService;
 import com.seafile.seadroid2.view.rich_edittext.RichEditText;
 
@@ -72,8 +73,8 @@ public class DocsCommentViewModel extends BaseViewModel {
     }
 
     public void getRelatedUsers(String repoId, String docUuid, String filterUserMail, String sortUserMail) {
-        Single<UserWrapperModel> userSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getRelatedUsers(repoId);
-        Single<ParticipantsWrapperModel> participantsSingle = HttpIO.getCurrentInstance().execute(SDocService.class).getParticipants(docUuid);
+        Single<UserWrapperModel> userSingle = HttpManager.getCurrentHttp().execute(SDocService.class).getRelatedUsers(repoId);
+        Single<ParticipantsWrapperModel> participantsSingle = HttpManager.getCurrentHttp().execute(SDocService.class).getParticipants(docUuid);
 
         Single<List<UserModel>> userListSingle = Single.zip(userSingle, participantsSingle, new BiFunction<UserWrapperModel, ParticipantsWrapperModel, List<UserModel>>() {
             @Override
@@ -136,7 +137,7 @@ public class DocsCommentViewModel extends BaseViewModel {
         partialAccount.setToken(pageOptionsModel.seadocAccessToken);
         partialAccount.setServer(sdocServerUrl);
 
-        Single<DocsCommentsWrapperModel> commentSingle = HttpIO.getInstanceByAccount(partialAccount).execute(DocsCommentService.class).getComments(pageOptionsModel.docUuid);
+        Single<DocsCommentsWrapperModel> commentSingle = HttpManager.getHttpWithAccount(partialAccount).execute(DocsCommentService.class).getComments(pageOptionsModel.docUuid);
         addSingleDisposable(commentSingle, new Consumer<DocsCommentsWrapperModel>() {
             @Override
             public void accept(DocsCommentsWrapperModel docsCommentsWrapperModel) throws Exception {
@@ -296,7 +297,7 @@ public class DocsCommentViewModel extends BaseViewModel {
         Map<String, Object> params = new HashMap<>();
         params.put("resolved", true);
 
-        Single<ResultModel> resolvedSingle = HttpIO.getInstanceByAccount(partialAccount).execute(DocsCommentService.class).markResolved(sdocUid, commentId, params);
+        Single<ResultModel> resolvedSingle = HttpManager.getHttpWithAccount(partialAccount).execute(DocsCommentService.class).markResolved(sdocUid, commentId, params);
         addSingleDisposable(resolvedSingle, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {
@@ -325,7 +326,7 @@ public class DocsCommentViewModel extends BaseViewModel {
         partialAccount.setServer(sdocServerUrl);
         partialAccount.setToken(token);
 
-        Single<ResultModel> resolvedSingle = HttpIO.getInstanceByAccount(partialAccount)
+        Single<ResultModel> resolvedSingle = HttpManager.getHttpWithAccount(partialAccount)
                 .execute(DocsCommentService.class)
                 .delete(sdocUid, commentId);
         addSingleDisposable(resolvedSingle, new Consumer<ResultModel>() {
@@ -357,7 +358,7 @@ public class DocsCommentViewModel extends BaseViewModel {
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         account.token = token;
-        Flowable<DocsUploadResultModel> uploadFile = HttpIO.getInstanceByAccount(account).execute(DocsCommentService.class).upload(docUid, filePart, partMap);
+        Flowable<DocsUploadResultModel> uploadFile = HttpManager.getHttpWithAccount(account).execute(DocsCommentService.class).upload(docUid, filePart, partMap);
 
         addFlowableDisposable(uploadFile, new Consumer<DocsUploadResultModel>() {
             @Override
@@ -365,7 +366,7 @@ public class DocsCommentViewModel extends BaseViewModel {
                 if (consumer != null) {
 
                     String sName = resultModel.relative_path.get(0);
-                    String sUrl = HttpIO.getCurrentInstance().getServerUrl();
+                    String sUrl = HttpManager.getCurrentHttp().getCurrentServer();
                     String absUrl = Utils.pathJoin(sUrl, "api", "v2.1", "seadoc", "download-image", docUid, sName);
 
                     consumer.accept(absUrl);
@@ -413,7 +414,7 @@ public class DocsCommentViewModel extends BaseViewModel {
         params.put("updated_at", TimeUtils.getNowString());
 
 
-        Single<DocsCommentWrapperModel> single = HttpIO.getInstanceByAccount(partialAccount).execute(DocsCommentService.class).postComment(pageOptionsModel.docUuid, params);
+        Single<DocsCommentWrapperModel> single = HttpManager.getHttpWithAccount(partialAccount).execute(DocsCommentService.class).postComment(pageOptionsModel.docUuid, params);
         addSingleDisposable(single, new Consumer<DocsCommentWrapperModel>() {
             @Override
             public void accept(DocsCommentWrapperModel docsCommentWrapperModel) throws Exception {

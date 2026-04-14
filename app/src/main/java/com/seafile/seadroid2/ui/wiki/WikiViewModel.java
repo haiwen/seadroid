@@ -9,7 +9,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.config.WikiType;
-import com.seafile.seadroid2.framework.http.HttpIO;
+import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.wiki.GroupWikiModel;
@@ -40,8 +40,8 @@ public class WikiViewModel extends BaseViewModel {
     public void loadWikis() {
         getRefreshLiveData().setValue(true);
 
-        Single<Wiki1Model> w1Single = HttpIO.getCurrentInstance().execute(WikiService.class).getWikis();
-        Single<Wiki2Model> w2Single = HttpIO.getCurrentInstance().execute(WikiService.class).getWikis2();
+        Single<Wiki1Model> w1Single = HttpManager.getCurrentHttp().execute(WikiService.class).getWikis();
+        Single<Wiki2Model> w2Single = HttpManager.getCurrentHttp().execute(WikiService.class).getWikis2();
 
         Single<List<BaseModel>> single = Single.zip(w1Single, w2Single, new BiFunction<Wiki1Model, Wiki2Model, List<BaseModel>>() {
             @Override
@@ -193,7 +193,7 @@ public class WikiViewModel extends BaseViewModel {
         Map<String, Object> map = new HashMap<>();
         map.put("publish_url", publishUrl);
 
-        Single<WikiInfoModel> single = HttpIO.getCurrentInstance().execute(WikiService.class).publishWiki(wikiId, map);
+        Single<WikiInfoModel> single = HttpManager.getCurrentHttp().execute(WikiService.class).publishWiki(wikiId, map);
         addSingleDisposable(single, new Consumer<WikiInfoModel>() {
             @Override
             public void accept(WikiInfoModel wikiInfoModel) throws Exception {
@@ -208,7 +208,7 @@ public class WikiViewModel extends BaseViewModel {
     public void cancelPublishWiki(String wikiId) {
         getRefreshLiveData().setValue(true);
 
-        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(WikiService.class).cancelPublishWiki(wikiId);
+        Single<ResultModel> single = HttpManager.getCurrentHttp().execute(WikiService.class).cancelPublishWiki(wikiId);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {
@@ -227,7 +227,7 @@ public class WikiViewModel extends BaseViewModel {
         Map<String, Object> map = new HashMap<>();
         map.put("wiki_name", wiki_name);
 
-        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(WikiService.class).renameWiki(wikiId, map);
+        Single<ResultModel> single = HttpManager.getCurrentHttp().execute(WikiService.class).renameWiki(wikiId, map);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel resultModel) throws Exception {
@@ -243,7 +243,7 @@ public class WikiViewModel extends BaseViewModel {
     public void deleteWiki(String wikiId) {
         getRefreshLiveData().setValue(true);
 
-        Single<ResultModel> single = HttpIO.getCurrentInstance().execute(WikiService.class).deleteWiki(wikiId);
+        Single<ResultModel> single = HttpManager.getCurrentHttp().execute(WikiService.class).deleteWiki(wikiId);
         addSingleDisposable(single, new Consumer<ResultModel>() {
             @Override
             public void accept(ResultModel result) throws Exception {

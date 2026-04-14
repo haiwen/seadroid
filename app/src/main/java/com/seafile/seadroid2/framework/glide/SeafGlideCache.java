@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.blankj.utilcode.util.PathUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.Registry;
@@ -15,7 +14,6 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.AppGlideModule;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.http.UnsafeOkHttpClient;
-import com.seafile.seadroid2.framework.http.interceptor.CurrentTokenInterceptor;
 import com.seafile.seadroid2.framework.util.SLogs;
 
 import java.io.File;
@@ -48,7 +46,7 @@ public class SeafGlideCache extends AppGlideModule {
             registry.append(GlideImage.class, InputStream.class, new GlideImageModelLoaderFactory());
 
         } catch (IllegalStateException e) {
-            SLogs.d("SeaGlideCache", "No current account?");
+            SLogs.e("SeaGlideCache", "No current account?");
         }
     }
 
@@ -57,7 +55,6 @@ public class SeafGlideCache extends AppGlideModule {
         UnsafeOkHttpClient unsafeOkHttpClient = new UnsafeOkHttpClient();
         OkHttpClient.Builder builder = unsafeOkHttpClient.getBuilder();
         builder.followRedirects(true);
-        builder.addInterceptor(new CurrentTokenInterceptor());
         return builder.build();
     }
 }
