@@ -205,47 +205,89 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
 
+        //read create time/file size
+        long createdTime = -1;
+        File uploadFile = null;
+        Uri uploadUri = null;
+        boolean uploadFromUri = false;
+
+        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+        if (currentTransferModel.hasExtraMotionPhoto()) {
+            File heicFile = new File(currentTransferModel.motion_photo_path);
+            String fileName = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";
+            currentTransferModel.original_name = currentTransferModel.file_name;
+            currentTransferModel.file_name = fileName;
+            currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
+            uploadFile = heicFile;
+        } else if (currentTransferModel.full_path.startsWith("content://")) {
+            uploadUri = Uri.parse(currentTransferModel.full_path);
+            uploadFromUri = true;
+            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), uploadUri);
+            if (!isHasPermission) {
+                throw SeafException.PERMISSION_EXCEPTION;
+            }
+        } else {
+            uploadFile = new File(currentTransferModel.full_path);
+            if (!uploadFile.exists()) {
+                throw SeafException.NOT_FOUND_EXCEPTION;
+            }
+        }
+
+        if (currentTransferModel.full_path.startsWith("content://")) {
+            Uri fileUri = Uri.parse(currentTransferModel.full_path);
+            currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), fileUri);
+            createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
+        } else {
+            File originalFile = new File(currentTransferModel.full_path);
+            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), originalFile);
+        }
+
+        //update
+        currentTransferModel.transferred_size = 0;
+        currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
+        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
+        
+        _fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
+        sendProgressEvent(getFeatureDataSource(), currentTransferModel);
+        notifyProgress(currentTransferModel.file_name, 0);
+
+        long fileSize = currentTransferModel.file_size;
+        long CHUNK_SIZE = 10 * 1024 * 1024L; // 10MB chunk size
+        boolean hasKnownLength = fileSize > 0;
+        boolean useChunkedUpload = hasKnownLength && fileSize > 1024 * 1024 * 1024L; // > 1GB and known length
+
+        if (useChunkedUpload) {
+            int totalChunks = (int) Math.ceil((double) fileSize / CHUNK_SIZE);
+            SafeLogs.d(TAG, "transferFile()", "using chunked upload, total chunks: " + totalChunks);
+            for (int i = 0; i < totalChunks; i++) {
+                if (isStop) {
+                    throw SeafException.USER_CANCELLED_EXCEPTION;
+                }
+                long offset = i * CHUNK_SIZE;
+                long currentChunkSize = Math.min(CHUNK_SIZE, fileSize - offset);
+                boolean isLastChunk = i == totalChunks - 1;
+                uploadSingleChunk(account, createdTime, offset, currentChunkSize, fileSize, true, isLastChunk, uploadFile, uploadUri, uploadFromUri);
+            }
+        } else {
+            uploadSingleChunk(account, createdTime, 0, fileSize, fileSize, false, true, uploadFile, uploadUri, uploadFromUri);
+        }
+    }
+
+    private void uploadSingleChunk(Account account, long createdTime, long offset, long chunkSize, long totalSize,
+                                   boolean chunkedMode, boolean markSuccess, @Nullable File uploadFile,
+                                   @Nullable Uri uploadUri, boolean uploadFromUri) throws SeafException {
         //net
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
 
-
-        //
-        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
-
-        //
-        if (currentTransferModel.hasExtraMotionPhoto()) {
-            //upload heic motion photo
-            File heicFile = new File(currentTransferModel.motion_photo_path);
-            String fileName = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";// convert to new name.
-            currentTransferModel.original_name = currentTransferModel.file_name;
-            currentTransferModel.file_name = fileName;
-
-            fileRequestBody = new ProgressRequestBody(heicFile, _fileTransferProgressListener);
-            builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
-
-            //
-            currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
-
-        } else if (currentTransferModel.full_path.startsWith("content://")) {
-            //uri: content://
-            Uri fileUri = Uri.parse(currentTransferModel.full_path);
-            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), fileUri);
-            if (!isHasPermission) {
-                throw SeafException.PERMISSION_EXCEPTION;
-            }
-
-            uriRequestBody = new ProgressUriRequestBody(getContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
+        if (uploadFromUri && uploadUri != null) {
+            uriRequestBody = new ProgressUriRequestBody(getContext(), uploadUri, offset, chunkSize, totalSize, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
-
         } else {
-            //file
-            File originalFile = new File(currentTransferModel.full_path);
-            if (!originalFile.exists()) {
+            if (uploadFile == null || !uploadFile.exists()) {
                 throw SeafException.NOT_FOUND_EXCEPTION;
             }
-
-            fileRequestBody = new ProgressRequestBody(originalFile, _fileTransferProgressListener);
+            fileRequestBody = new ProgressRequestBody(uploadFile, offset, chunkSize, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
         }
 
@@ -264,30 +306,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             builder.addFormDataPart("relative_path", dir);
         }
 
-        //
-        _fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
-
-        //notify first
-        sendProgressEvent(getFeatureDataSource(), currentTransferModel);
-
-        notifyProgress(currentTransferModel.file_name, 0);
-        SafeLogs.d(TAG, "transferFile()", "start transfer, remote path: " + currentTransferModel.target_path);
-
-        //update
-        currentTransferModel.transferred_size = 0;
-        currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
-        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
-
-        //read create time/file size
-        long createdTime = -1;
-        if (currentTransferModel.full_path.startsWith("content://")) {
-            Uri fileUri = Uri.parse(currentTransferModel.full_path);
-            currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), fileUri);
-            createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
-        } else {
-            File originalFile = new File(currentTransferModel.full_path);
-            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), originalFile);
-        }
+        SafeLogs.d(TAG, "uploadSingleChunk()", "start transfer chunk, offset: " + offset + " remote path: " + currentTransferModel.target_path);
 
         if (createdTime != -1) {
             String cTime = Times.convertLong2Time(createdTime);
@@ -299,12 +318,17 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         //get upload link
         String uploadUrl = getFileUploadUrl(account, currentTransferModel.repo_id, currentTransferModel.getParentPath(), currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
 
-        Request request = new Request.Builder()
+        Request.Builder requestBuilder = new Request.Builder()
                 .url(uploadUrl)
                 .post(requestBody)
                 .addHeader("Connection", "keep-alive")
-                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
-                .build();
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA);
+
+        if (chunkedMode && chunkSize > 0 && totalSize > 0) {
+            requestBuilder.addHeader("Content-Range", "bytes " + offset + "-" + (offset + chunkSize - 1) + "/" + totalSize);
+        }
+
+        Request request = requestBuilder.build();
 
         // log Content-Type
         SafeLogs.d(TAG, "upload content-Type: " + requestBody.contentType());
@@ -316,8 +340,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
-
-            onRes(response);
+            String fileId = parseUploadResponse(response);
+            if (markSuccess) {
+                updateToSuccess(fileId);
+            }
         } catch (Exception e) {
             SafeLogs.e(TAG, "upload file failed.");
             SafeLogs.e(e);
@@ -332,7 +358,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
 
 //            //
-            if (currentTransferModel.hasExtraMotionPhoto()) {
+            if (currentTransferModel.hasExtraMotionPhoto() && markSuccess) {
                 com.blankj.utilcode.util.FileUtils.delete(currentTransferModel.motion_photo_path);
             }
         }
@@ -409,7 +435,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         return -1;
     }
 
-    private void onRes(Response response) throws SeafException, IOException {
+    private String parseUploadResponse(Response response) throws SeafException, IOException {
         //req headers log
         Headers reqHeaders = response.request().headers();
         for (int i = 0; i < reqHeaders.size(); i++) {
@@ -428,27 +454,21 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 SafeLogs.d(TAG, "transferFile()", "body is null");
 
                 if (response.isSuccessful()) {
-                    // if the returned data is abnormal due to some reason,
-                    // it is set to null and uploaded when the next scan arrives
-                    updateToSuccess(null);
+                    return null;
                 } else {
                     throw ExceptionUtils.parseHttpException(code, null);
                 }
-
-                return;
             }
 
             String bodyStr = body.string();
             if (response.isSuccessful()) {
                 if (TextUtils.isEmpty(bodyStr)) {
-                    // if the returned data is abnormal due to some reason,
-                    // it is set to null and uploaded when the next scan arrives
-                    updateToSuccess(null);
+                    return null;
                 } else {
                     String fileId = bodyStr.replace("\"", "");
 
                     SafeLogs.d(TAG, "transferFile()", "result，file ID：" + bodyStr);
-                    updateToSuccess(fileId);
+                    return fileId;
                 }
             } else {
                 throw ExceptionUtils.parseHttpException(code, bodyStr);
