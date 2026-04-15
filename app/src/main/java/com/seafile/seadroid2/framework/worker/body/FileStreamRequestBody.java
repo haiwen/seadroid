@@ -2,50 +2,32 @@ package com.seafile.seadroid2.framework.worker.body;
 
 import androidx.annotation.NonNull;
 
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 
 import java.io.File;
 import java.io.IOException;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.Okio;
 import okio.Source;
 
-public class ProgressRequestBody extends RequestBody {
+public class FileStreamRequestBody extends BaseRequestBody {
 
     private final File file;
-    private final MediaType mediaType;
-    private final FileTransferProgressListener fileTransferProgressListener;
     private final long offset;
     private final long chunkSize;
-    private boolean isStop = false;// Flag to stop the upload
 
-    public ProgressRequestBody(File file, FileTransferProgressListener fileTransferProgressListener) {
+    public FileStreamRequestBody(File file, FileTransferProgressListener fileTransferProgressListener) {
         this(file, 0, file.length(), fileTransferProgressListener);
     }
 
-    public ProgressRequestBody(File file, long offset, long chunkSize, FileTransferProgressListener fileTransferProgressListener) {
+    public FileStreamRequestBody(File file, long offset, long chunkSize, FileTransferProgressListener fileTransferProgressListener) {
+        super(fileTransferProgressListener);
         this.file = file;
         this.offset = offset;
         this.chunkSize = chunkSize;
-
-        //Hardcoded MediaType to "application/octet-stream"
-        this.mediaType = MediaType.parse("application/octet-stream");
-        this.fileTransferProgressListener = fileTransferProgressListener;
-    }
-
-    public void setStop(boolean stop) {
-        isStop = stop;
-    }
-
-    @Override
-    public MediaType contentType() {
-        return mediaType;
     }
 
     @Override
@@ -66,16 +48,14 @@ public class ProgressRequestBody extends RequestBody {
                 long totalReadForChunk = 0;
 
                 while (totalReadForChunk < chunkSize) {
-                    if (Thread.currentThread().isInterrupted()) {
-                        SLogs.e(new InterruptedException("Upload canceled"));
-                        return;
-                    }
-
-                    if (isStop) {
+                    if (shouldStopUpload()) {
                         return;
                     }
 
                     long toRead = Math.min(TransferWorker.SEGMENT_SIZE, chunkSize - totalReadForChunk);
+                    if (toRead <= 0) {
+                        break;
+                    }
                     long readCount = source.read(buffer, toRead);
                     if (readCount == -1) break; // End of file
 
@@ -84,22 +64,16 @@ public class ProgressRequestBody extends RequestBody {
                     totalReadForChunk += readCount;
                     // Throttle progress updates
                     long now = System.currentTimeMillis();
-                    if (now - lastUpdateTime >= ProgressUriRequestBody.UPDATE_INTERVAL_MS) {
-                        updateProgress(offset + totalReadForChunk, fileLength);
+                    if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
+                        dispatchProgress(offset + totalReadForChunk, fileLength);
                         lastUpdateTime = now;
                     }
                 }
 
                 // Final update for completion to ensure 100% is reported
                 // if the loop finishes before an interval update.
-                updateProgress(offset + totalReadForChunk, fileLength);
+                dispatchProgress(offset + totalReadForChunk, fileLength);
             }
-        }
-    }
-
-    private void updateProgress(long current, long total) {
-        if (fileTransferProgressListener != null) {
-            fileTransferProgressListener.onProgressNotify(current, total);
         }
     }
 }

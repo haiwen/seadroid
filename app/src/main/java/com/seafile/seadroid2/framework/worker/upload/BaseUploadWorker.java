@@ -20,7 +20,6 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.notification.base.BaseTransferNotificationHelper;
 import com.seafile.seadroid2.framework.service.FileUploadUtils;
@@ -32,8 +31,8 @@ import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
-import com.seafile.seadroid2.framework.worker.body.ProgressRequestBody;
-import com.seafile.seadroid2.framework.worker.body.ProgressUriRequestBody;
+import com.seafile.seadroid2.framework.worker.body.FileStreamRequestBody;
+import com.seafile.seadroid2.framework.worker.body.UriStreamRequestBody;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -87,8 +86,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
     private Call newCall;
 
-    private ProgressUriRequestBody uriRequestBody;
-    private ProgressRequestBody fileRequestBody;
+    private UriStreamRequestBody uriRequestBody;
+    private FileStreamRequestBody fileRequestBody;
 
     private boolean isStop = false;
     private OkHttpClient primaryHttpClient;
@@ -241,7 +240,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
             currentTransferModel.file_size = FileUploadUtils.resolveSize(getApplicationContext(), Uri.parse(currentTransferModel.full_path));
 
-            uriRequestBody = new ProgressUriRequestBody(getApplicationContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
+            uriRequestBody = new UriStreamRequestBody(getApplicationContext(), Uri.parse(currentTransferModel.full_path), currentTransferModel.file_size, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, uriRequestBody);
 
             createdTime = FileUtils.getCreatedTimeFromUri(getApplicationContext(), uri);
@@ -251,7 +250,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 throw SeafException.NOT_FOUND_EXCEPTION;
             }
 
-            fileRequestBody = new ProgressRequestBody(file, _fileTransferProgressListener);
+            fileRequestBody = new FileStreamRequestBody(file, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
             createdTime = FileUtils.getCreatedTimeFromPath(getApplicationContext(), file);
         }

@@ -23,7 +23,6 @@ import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
@@ -193,11 +192,12 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     }
 
     private void transferFile(Account account) throws SeafException {
-
         Pair<String, String> pair = getDownloadLink(false);
+        if (pair == null) {
+            throw SeafException.NETWORK_EXCEPTION;
+        }
         String dlink = pair.first;
         String fileId = pair.second;
-
         download(account, dlink, fileId);
     }
 
@@ -236,18 +236,6 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
 
         dlink = StringUtils.replace(dlink, "\"", "");
-        int i = dlink.lastIndexOf('/');
-        if (i == -1) {
-            // Handle invalid dlink appropriately
-            return null;
-        }
-
-//        try {
-//            dlink = dlink.substring(0, i) + "/" + URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
-//        } catch (UnsupportedEncodingException e) {
-//            SafeLogs.e(TAG, e.getMessage());
-//            throw SeafException.NETWORK_EXCEPTION;
-//        }
 
         // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
         if (dlink.startsWith("http") && fileId != null) {
@@ -258,35 +246,12 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     }
 
     private void download(Account account, String dlink, String fileId) throws SeafException {
-        transferProgressListener.setCurrentTransferModel(currentTransferModel);
-
-        //
-        sendProgressEvent(getFeatureDataSource(), currentTransferModel);
-
-        //
-        notifyProgress(currentTransferModel.file_name, 0);
-
-        //update status
-        currentTransferModel.transferred_size = 0;
-        currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
-        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
+        markDownloadStarted();
 
         SafeLogs.d(TAG, "download()", "download start：" + currentTransferModel.full_path);
 
-        Request request = new Request.Builder()
-                .url(dlink)
-                .addHeader("Connection", "keep-alive")
-                .addHeader("Accept", "*/*")
-                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
-                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_DOWNLOAD_UA)
-                .get()
-                .build();
-
-        //
-        if (newCall != null && newCall.isExecuted()) {
-            SafeLogs.d(TAG, "transferFile()", "newCall has executed(), cancel it");
-            newCall.cancel();
-        }
+        Request request = buildDownloadRequest(dlink);
+        cancelCurrentCallIfExecuted("download()");
 
         newCall = getPrimaryHttpClient(account).newCall(request);
 
@@ -308,6 +273,34 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
     }
 
+    private void markDownloadStarted() {
+        transferProgressListener.setCurrentTransferModel(currentTransferModel);
+        sendProgressEvent(getFeatureDataSource(), currentTransferModel);
+        notifyProgress(currentTransferModel.file_name, 0);
+        currentTransferModel.transferred_size = 0;
+        currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
+        GlobalTransferCacheList.updateTransferModel(currentTransferModel);
+    }
+
+    @NonNull
+    private Request buildDownloadRequest(@NonNull String dlink) {
+        return new Request.Builder()
+                .url(dlink)
+                .addHeader("Connection", "keep-alive")
+                .addHeader("Accept", "*/*")
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_DOWNLOAD_UA)
+                .get()
+                .build();
+    }
+
+    private void cancelCurrentCallIfExecuted(@NonNull String from) {
+        if (newCall != null && newCall.isExecuted()) {
+            SafeLogs.d(TAG, from, "newCall has executed(), cancel it");
+            newCall.cancel();
+        }
+    }
+
     private boolean checkProtocol(Protocol protocol) {
         if (protocol == null) {
             return false;
@@ -326,12 +319,9 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     }
 
     private void onFallback(Account account, Request request, String fileId) throws SeafException {
-        if (newCall != null && newCall.isExecuted()) {
-            SafeLogs.d(TAG, "onFallbackUpload()", "newCall has executed(), cancel it");
-            newCall.cancel();
-        }
+        cancelCurrentCallIfExecuted("onFallbackDownload()");
 
-        SafeLogs.d(TAG, "onFallbackUpload()", "use fallback client to download file");
+        SafeLogs.d(TAG, "onFallbackDownload()", "use fallback client to download file");
 
         newCall = getFallbackHttpClient(account).newCall(request);
         try (Response response = newCall.execute()) {
@@ -363,56 +353,63 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
                 throw SeafException.NETWORK_EXCEPTION;
             }
 
-            File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id, currentTransferModel.repo_name, currentTransferModel.full_path);
-
-            long fileSize = responseBody.contentLength();
-            if (fileSize == -1) {
-                SafeLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
-                fileSize = currentTransferModel.file_size;
-            }
-
-            //todo 检查剩余空间
+            File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id,
+                    currentTransferModel.repo_name, currentTransferModel.full_path);
+            long fileSize = resolveDownloadSize(responseBody, localFile);
 
             File tempFile = DataManager.createTempFile();
-            try (InputStream inputStream = responseBody.byteStream();
-                 FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
+            boolean completed = writeResponseToTempFile(responseBody, tempFile, fileSize);
+            if (!completed) {
+                return;
+            }
 
-                long totalBytesRead = 0;
+            moveTempFileAndMarkSuccess(tempFile, localFile, fileId);
+        }
+    }
 
-                int bytesRead;
-                byte[] buffer = new byte[SEGMENT_SIZE];
-                while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
-                    if (isStop) {
-                        SafeLogs.d(TAG, "download()", "download is stop, break");
-                        return;
-                    }
+    private long resolveDownloadSize(@NonNull ResponseBody responseBody, @NonNull File localFile) {
+        long fileSize = responseBody.contentLength();
+        if (fileSize == -1) {
+            SafeLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
+            fileSize = currentTransferModel.file_size;
+        }
+        return fileSize;
+    }
 
-                    fileOutputStream.write(buffer, 0, bytesRead);
-                    totalBytesRead += bytesRead;
+    private boolean writeResponseToTempFile(@NonNull ResponseBody responseBody, @NonNull File tempFile, long fileSize) throws IOException {
+        try (InputStream inputStream = responseBody.byteStream();
+             FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
 
-                    //notify Notification and update DB
-                    transferProgressListener.onProgressNotify(totalBytesRead, fileSize);
+            long totalBytesRead = 0;
+            int bytesRead;
+            byte[] buffer = new byte[SEGMENT_SIZE];
+            while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
+                if (isStop) {
+                    SafeLogs.d(TAG, "download()", "download is stop, break");
+                    return false;
                 }
 
-                //notify complete
-                transferProgressListener.onProgressNotify(fileSize, fileSize);
+                fileOutputStream.write(buffer, 0, bytesRead);
+                totalBytesRead += bytesRead;
+                transferProgressListener.onProgressNotify(totalBytesRead, fileSize);
             }
 
-            //important
-            Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            boolean isSuccess = path.toFile().exists();
-            if (isSuccess) {
-                java.nio.file.Files.deleteIfExists(tempFile.toPath());
-                updateToSuccess(fileId, localFile);
-            }
+            transferProgressListener.onProgressNotify(fileSize, fileSize);
+            return true;
+        }
+    }
+
+    private void moveTempFileAndMarkSuccess(@NonNull File tempFile, @NonNull File localFile, @NonNull String fileId) throws IOException {
+        Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        boolean isSuccess = path.toFile().exists();
+        if (isSuccess) {
+            java.nio.file.Files.deleteIfExists(tempFile.toPath());
+            updateToSuccess(fileId, localFile);
         }
     }
 
     public boolean isRetry(SeafException result) {
-        if (result.equals(SeafException.INVALID_PASSWORD)) {
-            return true;
-        }
-        return false;
+        return result.equals(SeafException.INVALID_PASSWORD);
     }
 
     public boolean isInterrupt(SeafException result) {
