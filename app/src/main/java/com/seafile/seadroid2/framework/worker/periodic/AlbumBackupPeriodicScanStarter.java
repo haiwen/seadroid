@@ -77,7 +77,6 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
     @Override
     public Result doWork() {
         SLogs.d(TAG, "doWork()", "started execution");
-        Toasts.show("album trigger");
         if (!canExc()) {
             SafeLogs.e(TAG, "doWork()", "The album scan task was not started, because the album backup thread is running");
             return Result.success();

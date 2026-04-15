@@ -1097,8 +1097,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             // start periodic album backup scan worker
 //            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
         } else {
+
+            // call "stopAlbumBackupPeriodicScan()" anyway, as older versions may already have periodic scan tasks
             // stop periodic album backup scan worker
-//            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan();
+            BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan();
 
             //
             BackupThreadExecutor.getInstance().stopAlbumBackup();
@@ -1191,8 +1193,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         } else {
 
+            // Perform "stopFolderBackupPeriodicScan()" anyway, as older versions may already have periodic scan tasks
             // stop periodic folder backup service
-//            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan();
+            BackgroundJobManagerImpl.getInstance().stopFolderBackupPeriodicScan();
             //
             BackupThreadExecutor.getInstance().stopFolderBackup();
         }
