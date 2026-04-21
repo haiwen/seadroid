@@ -28,6 +28,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,15 +222,19 @@ public class ActivityViewModel extends BaseViewModel {
     public void loadAllData(int page) {
         getRefreshLiveData().setValue(true);
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        Single<ActivityWrapperModel> flowable = HttpManager.getCurrentHttp().execute(ActivityService.class).getActivities(page);
-        addSingleDisposable(flowable, new Consumer<ActivityWrapperModel>() {
+        Single<ActivityWrapperModel> single = HttpManager.getCurrentHttp().execute(ActivityService.class).getActivities(page);
+        Single<List<ActivityModel>> listSingle = single.flatMap(new Function<ActivityWrapperModel, SingleSource<List<ActivityModel>>>() {
             @Override
-            public void accept(ActivityWrapperModel wrapperModel) throws Exception {
-                getRefreshLiveData().setValue(false);
-
+            public SingleSource<List<ActivityModel>> apply(ActivityWrapperModel wrapperModel) throws Exception {
+                List<ActivityModel> newList = new ArrayList<>();
                 if (wrapperModel == null) {
-                    return;
+                    return Single.just(newList);
                 }
+
+                if (CollectionUtils.isEmpty(wrapperModel.events)) {
+                    return Single.just(newList);
+                }
+
                 for (ActivityModel event : wrapperModel.events) {
                     event.related_account = account.getSignature();
                     switch (event.op_type) {
@@ -256,11 +261,29 @@ public class ActivityViewModel extends BaseViewModel {
                             event.opType = OpType.UPDATE;
                             break;
                         case "public":
+                        case "publish":
                             event.opType = OpType.PUBLISH;
                             break;
+                        case "batch_create":
+                            event.opType = OpType.BATCH_CREATE;
+                            break;
+                        case "batch_delete":
+                            event.opType = OpType.BATCH_DELETE;
+                            break;
                     }
+
+                    newList.add(event);
                 }
-                getListLiveData().setValue(wrapperModel.events);
+
+                return Single.just(newList);
+            }
+        });
+
+        addSingleDisposable(listSingle, new Consumer<List<ActivityModel>>() {
+            @Override
+            public void accept(List<ActivityModel> activityModels) throws Exception {
+                getRefreshLiveData().setValue(false);
+                getListLiveData().setValue(activityModels);
             }
         }, new Consumer<Throwable>() {
             @Override

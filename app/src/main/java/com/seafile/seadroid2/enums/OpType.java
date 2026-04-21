@@ -10,4 +10,6 @@ public enum OpType {
     MOVE,
     UPDATE,
     PUBLISH,
+    BATCH_CREATE,
+    BATCH_DELETE
 }
