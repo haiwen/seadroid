@@ -7,6 +7,8 @@ import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
 
+import java.util.List;
+
 public class ActivityModel extends BaseModel {
     public String op_type;
     public String related_account;
@@ -26,6 +28,8 @@ public class ActivityModel extends BaseModel {
 
     private long mTimeLong;
     public OpType opType;
+    public int count = 1;
+    public List<ActivityDetailModel> details;
 
     public String getTime() {
         if (mTimeLong == 0) {

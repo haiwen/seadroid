@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.SpanUtils;
+import com.google.android.gms.common.util.CollectionUtils;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
@@ -18,8 +19,10 @@ import com.seafile.seadroid2.databinding.ItemActivityBinding;
 import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
+import com.seafile.seadroid2.framework.model.activities.ActivityDetailModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 
@@ -69,7 +72,7 @@ public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemNickName.setText(model.author_name);
         holder.binding.itemTime.setText(model.getTime());
 
-        String desc = SystemSwitchUtils.obj_type(getContext(), model.obj_type, model.op_type);
+        String desc = SystemSwitchUtils.obj_type(getContext(), model.obj_type, model.op_type, model.count);
         holder.binding.itemDesc.setText(desc);
 
         if (model.obj_type.equals("repo")) {
@@ -85,13 +88,49 @@ public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
                         .append(model.name)
                         .setForegroundColor(ContextCompat.getColor(getContext(), R.color.fancy_orange))
                         .create();
+            }
+            if (CollectionUtils.isEmpty(model.details)) {
+                if (model.op_type.equals("delete") || model.op_type.equals("batch_delete")) {
+                    holder.binding.itemDetail.setText(model.name);
+                    holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
+                } else {
+                    // create/update
+                    holder.binding.itemDetail.setText(model.name);
+                    holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.fancy_orange));
+                }
+            } else if (model.details.size() == 1) {
+                holder.binding.itemDetail.setText(model.name);
 
-            } else if (model.op_type.equals("delete")) {
-                holder.binding.itemDetail.setText(model.name);
-                holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
+                if (model.op_type.equals("delete")) {
+                    holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
+                } else {
+                    // create/update/edit
+                    holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.fancy_orange));
+                }
             } else {
-                holder.binding.itemDetail.setText(model.name);
-                holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.fancy_orange));
+                // batch
+
+                String otherStr;
+                if (model.obj_type.equals("dir")) {
+                    otherStr = getContext().getString(R.string.and_other_folders, model.count);
+                } else {
+                    otherStr = getContext().getString(R.string.and_other_files, model.count);
+                }
+
+                int detailColor;
+                if (model.op_type.equals("delete") || model.op_type.equals("batch_delete")) {
+                    detailColor = ContextCompat.getColor(getContext(), R.color.item_subtitle_color);
+                } else {
+                    detailColor = ContextCompat.getColor(getContext(), R.color.fancy_orange);
+                }
+
+                SpanUtils.with(holder.binding.itemDetail)
+                        .append(model.name)
+                        .setForegroundColor(detailColor)
+                        .append(" ")
+                        .append(otherStr)
+                        .setForegroundColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color))
+                        .create();
             }
         }
 
