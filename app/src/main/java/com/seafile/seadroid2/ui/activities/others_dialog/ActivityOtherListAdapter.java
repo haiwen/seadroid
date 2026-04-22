@@ -1,24 +1,29 @@
 package com.seafile.seadroid2.ui.activities.others_dialog;
 
-import static com.seafile.seadroid2.config.Constants.DP.DP_8;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.ItemActivityOtherItemBinding;
-import com.seafile.seadroid2.databinding.ItemSdocOutlineBinding;
 import com.seafile.seadroid2.framework.model.activities.ActivityDetailModel;
-import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
+import com.seafile.seadroid2.framework.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 
-public class ActivityOtherListAdapter extends BaseAdapter<ActivityDetailModel, ActivityOtherListAdapter.ActivityOtherListHolder> {
+import org.apache.commons.lang3.StringUtils;
 
-    private final int _paddingStart = DP_8;
+public class ActivityOtherListAdapter extends BaseAdapter<ActivityDetailModel, ActivityOtherListAdapter.ActivityOtherListHolder> {
+    private ActivityModel activityModel;
+
+    public void setActivityModel(ActivityModel activityModel) {
+        this.activityModel = activityModel;
+    }
 
     @NonNull
     @Override
@@ -28,22 +33,23 @@ public class ActivityOtherListAdapter extends BaseAdapter<ActivityDetailModel, A
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull ActivityOtherListHolder holder, int i, @Nullable OutlineItemModel outlineItemModel) {
-        if (outlineItemModel == null) {
+    protected void onBindViewHolder(@NonNull ActivityOtherListHolder holder, int i, @Nullable ActivityDetailModel detailModel) {
+        if (detailModel == null) {
             return;
         }
 
-        int padding = 0;
-        if ("header1".equals(outlineItemModel.type)) {
-            padding = _paddingStart;
-        } else if ("header2".equals(outlineItemModel.type)) {
-            padding = _paddingStart * 3;
-        } else if ("header3".equals(outlineItemModel.type)) {
-            padding = _paddingStart * 6;
+        holder.binding.itemTitle.setText(Utils.getFileNameFromPath(detailModel.path));
+        holder.binding.itemTime.setText(detailModel.getTime());
+
+        if (activityModel == null) {
+            throw new IllegalArgumentException("ActivityModel param must not be null");
         }
 
-        holder.binding.title.setPadding(padding, 0, 0, 0);
-        holder.binding.title.setText(outlineItemModel.text);
+        if (StringUtils.equals(activityModel.op_type, "delete") || StringUtils.equals(activityModel.op_type, "batch_delete")) {
+            holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
+        } else {
+            holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.fancy_orange));
+        }
     }
 
 

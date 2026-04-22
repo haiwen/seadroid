@@ -21,6 +21,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
+import com.seafile.seadroid2.framework.model.activities.ActivityDetailModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityWrapperModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
@@ -236,42 +237,13 @@ public class ActivityViewModel extends BaseViewModel {
                 }
 
                 for (ActivityModel event : wrapperModel.events) {
-                    event.related_account = account.getSignature();
-                    switch (event.op_type) {
-                        case "create":
-                            event.opType = OpType.CREATE;
-                            break;
-                        case "edit":
-                            event.opType = OpType.EDIT;
-                            break;
-                        case "rename":
-                            event.opType = OpType.RENAME;
-                            break;
-                        case "delete":
-                            event.opType = OpType.DELETE;
-                            break;
-                        case "recover":
-                        case "restore":
-                            event.opType = OpType.RESTORE;
-                            break;
-                        case "move":
-                            event.opType = OpType.MOVE;
-                            break;
-                        case "update":
-                            event.opType = OpType.UPDATE;
-                            break;
-                        case "public":
-                        case "publish":
-                            event.opType = OpType.PUBLISH;
-                            break;
-                        case "batch_create":
-                            event.opType = OpType.BATCH_CREATE;
-                            break;
-                        case "batch_delete":
-                            event.opType = OpType.BATCH_DELETE;
-                            break;
+                    if (CollectionUtils.isNotEmpty(event.details)){
+                        for (ActivityDetailModel detail : event.details) {
+                            detail.time = event.time;
+                        }
                     }
 
+                    event.related_account = account.getSignature();
                     newList.add(event);
                 }
 

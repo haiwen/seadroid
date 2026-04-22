@@ -3,55 +3,46 @@ package com.seafile.seadroid2.ui.activities.others_dialog;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.GsonUtils;
 import com.chad.library.adapter4.BaseQuickAdapter;
-import com.chad.library.adapter4.QuickAdapterHelper;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.gson.reflect.TypeToken;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.DialogSdocDirectoryBinding;
-import com.seafile.seadroid2.framework.model.sdoc.OutlineItemModel;
-import com.seafile.seadroid2.framework.util.StringUtils;
+import com.seafile.seadroid2.framework.model.activities.ActivityDetailModel;
+import com.seafile.seadroid2.framework.model.activities.ActivityModel;
+import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.listener.OnItemClickListener;
-import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
+import com.seafile.seadroid2.listener.OnItemClickListener2;
 
-import java.lang.reflect.Type;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ActivityOtherListDialog extends BottomSheetDialogFragment {
-
+    private final static String PARAMS_KEY = "activity_other_data_list";
     private DialogSdocDirectoryBinding binding;
     private ActivityOtherListAdapter adapter;
-    private List<OutlineItemModel> outlineItemList;
-    private OnItemClickListener<OutlineItemModel> onItemClickListener;
+    private OnItemClickListener2<ActivityModel, ActivityDetailModel> onItemClickListener;
+    private ActivityModel activityModel;
 
-
-    private SDocViewModel sDocViewModel;
-
-    public void setOnItemClickListener(OnItemClickListener<OutlineItemModel> onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListener2<ActivityModel, ActivityDetailModel> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
-    public static ActivityOtherListDialog newInstance(String outlineStr) {
+    public static ActivityOtherListDialog newInstance(ActivityModel activityModel) {
         Bundle args = new Bundle();
-//        args.putString("outline_value", outlineStr);
         ActivityOtherListDialog fragment = new ActivityOtherListDialog();
         fragment.setArguments(args);
+
+        TransportHolder.get().put(PARAMS_KEY, activityModel);
+
         return fragment;
     }
 
@@ -59,18 +50,13 @@ public class ActivityOtherListDialog extends BottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        if (getArguments() == null || !getArguments().containsKey("outline_value")) {
-//            throw new IllegalArgumentException("outline_value is null");
-//        }
 
-        sDocViewModel = new ViewModelProvider(requireActivity()).get(SDocViewModel.class);
+        activityModel = TransportHolder.get().get(PARAMS_KEY);
+        TransportHolder.get().remove(PARAMS_KEY);
 
-//        String value = getArguments().getString("outline_value");
-//
-//        Type listType = new TypeToken<List<OutlineItemModel>>() {
-//        }.getType();
-//
-//        outlineItemList = GsonUtils.fromJson(value, listType);
+        if (activityModel == null) {
+            throw new IllegalArgumentException("ActivityModel param must not be null");
+        }
     }
 
 
@@ -88,86 +74,39 @@ public class ActivityOtherListDialog extends BottomSheetDialogFragment {
         return new BottomSheetDialog(requireContext());
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String value = sDocViewModel.getOutlineValueLiveData().getValue();
-
-        Type listType = new TypeToken<List<OutlineItemModel>>() {
-        }.getType();
-        outlineItemList = GsonUtils.fromJson(value, listType);
-
-
         binding.rv.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         adapter = new ActivityOtherListAdapter();
+        adapter.setActivityModel(activityModel);
+
         adapter.setAnimationEnable(true);
         adapter.setStateViewLayout(requireContext(), R.layout.layout_empty);
         adapter.setStateViewEnable(false);
-        adapter.addOnItemChildClickListener(R.id.text_container, new BaseQuickAdapter.OnItemChildClickListener<OutlineItemModel>() {
+        adapter.addOnItemChildClickListener(R.id.text_container, new BaseQuickAdapter.OnItemChildClickListener<ActivityDetailModel>() {
             @Override
-            public void onItemClick(@NonNull BaseQuickAdapter<OutlineItemModel, ?> baseQuickAdapter, @NonNull View view, int i) {
-                OutlineItemModel outlineItemModel = adapter.getItems().get(i);
-                if (onItemClickListener != null)
-                    onItemClickListener.onItemClick(outlineItemModel, i);
-
+            public void onItemClick(@NonNull BaseQuickAdapter<ActivityDetailModel, ?> baseQuickAdapter, @NonNull View view, int i) {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(activityModel, adapter.getItems().get(i));
+                }
                 dismiss();
             }
         });
 
-
-        QuickAdapterHelper helper = new QuickAdapterHelper.Builder(adapter).build();
-        binding.rv.setAdapter(helper.getAdapter());
+        binding.rv.setAdapter(adapter);
 
         load();
     }
 
-    public static final List<String> _AllowedElementTypes = List.of("header1", "header2", "header3");
-
     private void load() {
-        if (CollectionUtils.isEmpty(outlineItemList)) {
+        if (CollectionUtils.isEmpty(activityModel.details)) {
             adapter.setStateViewEnable(true);
-            return;
+        } else {
+            adapter.submitList(activityModel.details);
         }
-
-        List<OutlineItemModel> newList = outlineItemList.stream().filter(new Predicate<OutlineItemModel>() {
-            @Override
-            public boolean test(OutlineItemModel sDocModel) {
-                if (!_AllowedElementTypes.contains(sDocModel.type)) {
-                    return false;
-                }
-
-                if (TextUtils.isEmpty(sDocModel.text) && CollectionUtils.isEmpty(sDocModel.children)) {
-                    return false;
-                }
-
-                return true;
-            }
-        }).map(new Function<OutlineItemModel, OutlineItemModel>() {
-            @Override
-            public OutlineItemModel apply(OutlineItemModel sDocModel) {
-                if (!TextUtils.isEmpty(sDocModel.text)) {
-                    return sDocModel;
-                }
-
-                if (CollectionUtils.isEmpty(sDocModel.children)) {
-                    return sDocModel;
-                }
-
-                String text = "";
-                for (OutlineItemModel child : sDocModel.children) {
-                    if (!TextUtils.isEmpty(child.text)) {
-                        String nt = StringUtils.trim(child.text, "\n").trim();
-                        text = text.concat(nt);
-                    }
-                }
-                sDocModel.text = text;
-                return sDocModel;
-            }
-        }).collect(Collectors.toList());
-
-        adapter.setStateViewEnable(true);
-        adapter.submitList(newList);
     }
 }
