@@ -11,11 +11,11 @@
 
     <TextView
         android:id="@+id/item_title"
+        style="@style/TextAppearance.Material3.TitleSmall"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+        android:text="@string/app_name" />
 
     <TextView
         android:id="@+id/item_time"
