@@ -28,6 +28,8 @@
     <!-- Add/Remove/Update Seafile accounts -->
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
 
+    <!-- We don't need to use this permission too much, and it also protects the privacy and security of the user.
+     When the user clicks on the downloaded APK, we open the download directory and the user can install it manually -->
     <!--<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />-->
 
     <!-- Used for Android 12 and -->
@@ -171,8 +173,8 @@
         <activity android:name=".ui.share.VersatileShareToSeafileSelectorActivity" />
         <activity
             android:name=".ui.file_profile.FileProfileEditorActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <provider
             android:name=".provider.SeafileProvider"
