@@ -199,8 +199,8 @@
   <string name="create_files">创建多个文件</string>
   <string name="create_new_dir">创建新文件夹</string>
   <string name="create_some_dirs">创建了 %d 个目录</string>
-  <string name="and_other_folders">及其它 %d 个目录</string>
-  <string name="and_other_files">及其它 %d 个文件</string>
+  <string name="and_other_folders">及 %d 个其它目录</string>
+  <string name="and_other_files">及 %d 个其它文件</string>
   <string name="camera">拍照上传</string>
   <string name="take_photo">拍照</string>
   <string name="download">下载</string>
