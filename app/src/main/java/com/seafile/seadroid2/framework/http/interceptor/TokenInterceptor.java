@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
 
@@ -43,6 +44,7 @@ public class TokenInterceptor implements Interceptor {
         builder.addHeader("Accept", "application/json");
         builder.addHeader("charset", "utf-8");
         builder.addHeader("timestamp", String.valueOf(System.currentTimeMillis()));
+        builder.addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA);
 
         //
         if (TextUtils.isEmpty(authToken)) {

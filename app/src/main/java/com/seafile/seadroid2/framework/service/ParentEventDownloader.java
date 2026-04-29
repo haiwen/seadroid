@@ -287,10 +287,6 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     private Request buildDownloadRequest(@NonNull String dlink) {
         return new Request.Builder()
                 .url(dlink)
-                .addHeader("Connection", "keep-alive")
-                .addHeader("Accept", "*/*")
-                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
-                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_DOWNLOAD_UA)
                 .get()
                 .build();
     }
