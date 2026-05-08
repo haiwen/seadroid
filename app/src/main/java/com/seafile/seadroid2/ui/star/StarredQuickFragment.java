@@ -114,6 +114,10 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFrameSwipeRvBinding.inflate(inflater, container, false);
+        binding.swipeRefreshLayout.setSaveEnabled(false);
+        binding.swipeRefreshLayout.setSaveFromParentEnabled(false);
+        binding.rv.setSaveEnabled(false);
+        binding.rv.setSaveFromParentEnabled(false);
         binding.swipeRefreshLayout.setOnRefreshListener(this::reload);
         return binding.getRoot();
     }
@@ -517,4 +521,3 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
 }
-

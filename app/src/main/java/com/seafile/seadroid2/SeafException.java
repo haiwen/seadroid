@@ -112,7 +112,7 @@ public class SeafException extends Exception {
     public static final SeafException REQUEST_URL_EXCEPTION = new SeafException(2015, "Request url failed");
     public static final SeafException USER_CANCELLED_EXCEPTION = new SeafException(2017, "The operation was canceled by the user");
     public static final SeafException READ_FILE_EXCEPTION = new SeafException(2018, "Read file failed");
-    public static final SeafException NO_FILENAME_EXCEPTION = new SeafException(2020, "Read file failed");
+    public static final SeafException NO_FILENAME_EXCEPTION = new SeafException(2019, "No filename given");
 
 
     //network
