@@ -883,4 +883,60 @@ public class Utils {
 
         return String.format("%s%d°%d'%.0f\"", direction, degrees, minutes, seconds);
     }
+
+    /**
+     * Compare two server versions.
+     *
+     * @return 0: equal, -1: version1 < version2, 1: version1 > version2
+     */
+    public static int compareVersion(@Nullable String version1, @Nullable String version2) {
+        if (TextUtils.equals(version1, version2)) {
+            return 0;
+        }
+        if (TextUtils.isEmpty(version1)) {
+            return TextUtils.isEmpty(version2) ? 0 : -1;
+        }
+        if (TextUtils.isEmpty(version2)) {
+            return 1;
+        }
+
+        String[] v1Parts = version1.split("\\.");
+        String[] v2Parts = version2.split("\\.");
+        int maxLen = Math.max(v1Parts.length, v2Parts.length);
+        for (int i = 0; i < maxLen; i++) {
+            int p1 = parseVersionPart(v1Parts, i);
+            int p2 = parseVersionPart(v2Parts, i);
+            if (p1 < p2) {
+                return -1;
+            }
+            if (p1 > p2) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    private static int parseVersionPart(String[] parts, int index) {
+        if (index >= parts.length) {
+            return 0;
+        }
+        String part = parts[index];
+        if (TextUtils.isEmpty(part)) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(part);
+        } catch (NumberFormatException e) {
+            String numericPart = part.replaceAll("[^0-9]", "");
+            if (TextUtils.isEmpty(numericPart)) {
+                return 0;
+            }
+            try {
+                return Integer.parseInt(numericPart);
+            } catch (NumberFormatException ignored) {
+                return 0;
+            }
+        }
+    }
+
 }
