@@ -3,12 +3,15 @@ package com.seafile.seadroid2.framework.service;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
@@ -18,11 +21,15 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
@@ -40,6 +47,7 @@ import com.seafile.seadroid2.framework.worker.body.UriChunkRequestBody;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
+import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +60,9 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -240,12 +250,114 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             SeafException seafException = e instanceof SeafException
                     ? (SeafException) e
                     : ExceptionUtils.parseByThrowable(e);
+
+            if (seafException == SeafException.INVALID_PASSWORD) {
+                try {
+                    boolean refreshed = tryRemoteVerifyWithCachedPassword(account, currentTransferModel.repo_id);
+                    if (refreshed) {
+                        try {
+                            transferFile(account);
+                            sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
+                            return;
+                        } catch (Exception retryError) {
+                            seafException = retryError instanceof SeafException
+                                    ? (SeafException) retryError
+                                    : ExceptionUtils.parseByThrowable(retryError);
+                        }
+                    }
+                } catch (SeafException refreshError) {
+                    seafException = refreshError;
+                }
+            }
+
             // update db
             updateToFailed(seafException.getMessage());
 
             //send an event, update transfer entity first.
             sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
             throw seafException;
+        }
+    }
+
+    /**
+     * Try to refresh server-side repo password cache by local encrypted cache.
+     */
+    private boolean tryRemoteVerifyWithCachedPassword(Account account, String repoId) throws SeafException {
+        try {
+            List<EncKeyCacheEntity> entities = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdSync(repoId);
+            if (CollectionUtils.isEmpty(entities)) {
+                return false;
+            }
+
+            EncKeyCacheEntity entity = entities.get(0);
+            if (TextUtils.isEmpty(entity.enc_key) || TextUtils.isEmpty(entity.enc_iv)) {
+                return false;
+            }
+
+            String cachedPassword = SecurePasswordManager.decryptPassword(entity.enc_key, entity.enc_iv);
+            if (TextUtils.isEmpty(cachedPassword)) {
+                return false;
+            }
+
+            setPassword(account, repoId, cachedPassword);
+            // Do not interrupt upload once remote verification succeeds.
+            updateLocalPasswordCache(repoId, cachedPassword);
+            return true;
+        } catch (Exception e) {
+            throw ExceptionUtils.parseByThrowable(e);
+        }
+    }
+
+    private void setPassword(Account account, String repoId, String password) throws IOException, SeafException {
+        Map<String, String> requestDataMap = new HashMap<>();
+        requestDataMap.put("password", password);
+
+        retrofit2.Call<ResultModel> setPasswordCall = HttpManager.getHttpWithAccount(account)
+                .execute(DialogService.class)
+                .setPasswordSync(repoId, requestDataMap);
+        retrofit2.Response<ResultModel> res = setPasswordCall.execute();
+        if (res.isSuccessful()) {
+            ResultModel resultModel = res.body();
+            if (resultModel == null) {
+                throw SeafException.ILL_FORMAT_EXCEPTION;
+            }
+            if (resultModel != null && !resultModel.success) {
+                throw SeafException.INVALID_PASSWORD;
+            }
+            SafeLogs.d(TAG, "setPassword()", "set password success");
+            return;
+        }
+
+        int code = res.code();
+        SafeLogs.d(TAG, "setPassword()", "set password failed: " + code);
+        try (ResponseBody responseBody = res.errorBody()) {
+            if (responseBody != null) {
+                throw ExceptionUtils.parseHttpException(code, responseBody.string());
+            } else {
+                throw ExceptionUtils.parseHttpException(code, null);
+            }
+        }
+    }
+
+    private void updateLocalPasswordCache(String repoId, String password) {
+        try {
+            EncKeyCacheEntity encEntity = new EncKeyCacheEntity();
+            encEntity.v = 2;
+            encEntity.repo_id = repoId;
+
+            Pair<String, String> p = SecurePasswordManager.encryptPassword(password);
+            if (p == null) {
+                return;
+            }
+
+            encEntity.enc_key = p.first;
+            encEntity.enc_iv = p.second;
+
+            long expire = TimeUtils.getNowMills() + SettingsManager.DECRYPTION_EXPIRATION_TIME;
+            encEntity.expire_time_long = expire;
+            AppDatabase.getInstance().encKeyCacheDAO().insertSync(encEntity);
+        } catch (Exception e) {
+            SafeLogs.e(TAG, "updateLocalPasswordCache()", e.getMessage());
         }
     }
 
@@ -303,11 +415,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
         if (currentTransferModel.hasExtraMotionPhoto()) {
             File heicFile = new File(currentTransferModel.motion_photo_path);
+            if (!heicFile.exists() || heicFile.length() <= 0) {
+                throw SeafException.NOT_FOUND_EXCEPTION;
+            }
             String fileName = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";
             currentTransferModel.original_name = currentTransferModel.file_name;
             currentTransferModel.file_name = fileName;
             currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
             uploadFile = heicFile;
+            currentTransferModel.file_size = heicFile.length();
         } else if (currentTransferModel.full_path.startsWith("content://")) {
             uploadUri = Uri.parse(currentTransferModel.full_path);
             uploadFromUri = true;
@@ -322,9 +438,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
         }
 
-        if (currentTransferModel.full_path.startsWith("content://")) {
+        if (currentTransferModel.full_path.startsWith("content://") && !currentTransferModel.hasExtraMotionPhoto()) {
             Uri fileUri = Uri.parse(currentTransferModel.full_path);
             currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), fileUri);
+            createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
+        } else if (!currentTransferModel.hasExtraMotionPhoto()) {
+            File originalFile = new File(currentTransferModel.full_path);
+            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), originalFile);
+        } else if (currentTransferModel.full_path.startsWith("content://")) {
+            Uri fileUri = Uri.parse(currentTransferModel.full_path);
             createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
         } else {
             File originalFile = new File(currentTransferModel.full_path);
@@ -595,6 +717,9 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
      */
     @Nullable
     private String convertJpegToHeicIfMotionPhoto() throws SeafException {
+        File tempHeicFile = null;
+        String tempJpegPath = null;
+        boolean converted = false;
         try {
             boolean isJpeg = Utils.isJpeg(currentTransferModel.file_name);
             if (!isJpeg) {
@@ -607,6 +732,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
                 if (descriptor.isMotionPhoto()) {
                     currentTransferModel.motion_photo_path = descriptor.tempJpegPath;
+                    tempJpegPath = descriptor.tempJpegPath;
                 }
             } else {
                 descriptor = MotionPhotoDetector.parseJpegXmpWithFile(currentTransferModel.full_path);
@@ -623,7 +749,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
 
 
-            File tempFile = DataManager.createTempFile("tmp-hmp-", ".heic");
+            tempHeicFile = DataManager.createTempFile("tmp-hmp-", ".heic");
 
             // it is an error data
             if (descriptor.items.size() == 1) {
@@ -638,15 +764,23 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 return null;
             }
 
-            String outHeicPath = HeicNative.ConvertJpeg2Heic(currentTransferModel.motion_photo_path, tempFile.getAbsolutePath());
+            String outHeicPath = HeicNative.ConvertJpeg2Heic(currentTransferModel.motion_photo_path, tempHeicFile.getAbsolutePath());
             if (TextUtils.isEmpty(outHeicPath)) {
                 SafeLogs.e(TAG, "convertJpegToHeicIfMotionPhoto()", "convertJpegToHeicIfMotionPhoto failed");
                 return null;
             }
+            converted = true;
             return outHeicPath;
         } catch (Exception e) {
             SafeLogs.e(e);
             throw ExceptionUtils.parseByThrowable(e);
+        } finally {
+            if (tempJpegPath != null && !TextUtils.isEmpty(tempJpegPath)) {
+                com.blankj.utilcode.util.FileUtils.delete(tempJpegPath);
+            }
+            if (tempHeicFile != null && !converted) {
+                com.blankj.utilcode.util.FileUtils.delete(tempHeicFile);
+            }
         }
     }
 
@@ -665,13 +799,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         //req headers log
         Headers reqHeaders = response.request().headers();
         for (int i = 0; i < reqHeaders.size(); i++) {
-            SafeLogs.d(TAG, "req-header: " + reqHeaders.name(i) + ": " + reqHeaders.value(i));
+            SafeLogs.d(TAG, "req-header: " + sanitizeHeader(reqHeaders.name(i), reqHeaders.value(i)));
         }
 
         //res headers log
         Headers resHeaders = response.headers();
         for (int i = 0; i < resHeaders.size(); i++) {
-            SafeLogs.d(TAG, "res-header: " + resHeaders.name(i) + ": " + resHeaders.value(i));
+            SafeLogs.d(TAG, "res-header: " + sanitizeHeader(resHeaders.name(i), resHeaders.value(i)));
         }
 
         int code = response.code();
@@ -746,7 +880,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             } else {
                 res = HttpManager.getHttpWithAccount(account)
                         .execute(FileService.class)
-                        .getFileUploadLink(repoId, "/")
+                        .getFileUploadLink(repoId, target_dir)
                         .execute();
             }
         } catch (Exception e) {
@@ -764,6 +898,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             } catch (IOException e) {
                 throw ExceptionUtils.parseHttpException(res.code(), null);
             }
+            throw ExceptionUtils.parseHttpException(res.code(), null);
         }
 
         String urlStr = res.body();
@@ -775,6 +910,18 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
 
         return urlStr;
+    }
+
+    @NonNull
+    private String sanitizeHeader(@NonNull String name, @Nullable String value) {
+        String lowerName = name.toLowerCase();
+        if ("authorization".equals(lowerName)
+                || "cookie".equals(lowerName)
+                || "set-cookie".equals(lowerName)
+                || "proxy-authorization".equals(lowerName)) {
+            return name + ": [REDACTED]";
+        }
+        return name + ": " + value;
     }
 
     public void updateToFailed(String transferResult) {

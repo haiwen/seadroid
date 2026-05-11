@@ -11,11 +11,11 @@ public class HeicNative {
     private static final String TAG = "HeicNative";
 
     /**
-     * Motion Photo 类型枚举值
+     * Motion Photo type constants.
      */
-    public static final int MOTION_PHOTO_TYPE_JPEG = 0;  // JPEG 格式的动态照片
-    public static final int MOTION_PHOTO_TYPE_HEIC = 1;  // HEIC 格式的动态照片
-    public static final int MOTION_PHOTO_TYPE_NONE = 2;  // 非动态照片
+    public static final int MOTION_PHOTO_TYPE_JPEG = 0;  // JPEG motion photo
+    public static final int MOTION_PHOTO_TYPE_HEIC = 1;  // HEIC motion photo
+    public static final int MOTION_PHOTO_TYPE_NONE = 2;  // Not a motion photo
 
     static {
         System.loadLibrary("heicgen");
@@ -24,16 +24,16 @@ public class HeicNative {
     // ==================== Native methods ====================
 
     /**
-     * 获取 libheif 版本号
+     * Returns the libheif version.
      */
     public static native String GetLibVersion();
 
     /**
-     * 生成静态 HEIC 图片
+     * Generates a still HEIC image.
      *
-     * @param primaryImage 主图 JPEG 数据
-     * @param outputPath   输出文件路径
-     * @return 是否成功
+     * @param primaryImage JPEG data for the primary image
+     * @param outputPath output file path
+     * @return whether the operation succeeded
      */
     public static native boolean GenStillHeicSeq(byte[] primaryImage, String outputPath);
 
@@ -52,58 +52,58 @@ public class HeicNative {
 
 
     /**
-     * 生成 Google Motion Photo 格式的 HEIC 动态照片
+     * Generates a Google Motion Photo HEIC file.
      *
-     * @param primaryImage 主图 JPEG 数据
-     * @param mp4Video     视频 MP4 数据
-     * @param outputPath   输出文件路径
-     * @return 结果字符串 (success:... 或 error:...)
+     * @param primaryImage JPEG data for the primary image
+     * @param mp4Video MP4 video data
+     * @param outputPath output file path
+     * @return result string (success:... or error:...)
      */
-    public static native String GenHeicMotionPhoto(byte[] primaryImage, byte[] hdrDatas, byte[] exifDatas,byte[] xmpBytes, byte[] mp4Video,long presentationTimestampUs, String outputPath);
+    public static native String GenHeicMotionPhoto(byte[] primaryImage, byte[] hdrDatas, byte[] exifDatas, byte[] xmpBytes, byte[] mp4Video, long presentationTimestampUs, String outputPath);
 
     /**
-     * 从 HEIC Motion Photo 文件中提取 MP4 视频数据
-     * (适用于 mpvd box 格式的 HEIC 动态照片)
+     * Extracts MP4 video data from a HEIC Motion Photo file.
+     * This applies to HEIC motion photos stored in mpvd box format.
      *
-     * @param inputFilePath HEIC Motion Photo 文件路径
-     * @return MP4 视频数据的字节数组，失败返回 null
+     * @param inputFilePath HEIC Motion Photo file path
+     * @return MP4 video bytes, or null on failure
      */
     public static native byte[] ExtractHeicVideo(String inputFilePath);
 
     public static native String ExtractHeicXMP(String inputFilePath);
 
     /**
-     * 从 JPEG Motion Photo 文件中提取 MP4 视频数据
-     * (适用于 Google 相机拍摄的 JPEG 格式动态照片)
+     * Extracts MP4 video data from a JPEG Motion Photo file.
+     * This applies to JPEG motion photos captured by Google Camera.
      * <p>
-     * JPEG Motion Photo 结构：JPEG 图片 + MP4 视频直接追加
+     * JPEG Motion Photo structure: JPEG image plus appended MP4 video.
      *
-     * @param inputFilePath JPEG Motion Photo 文件路径
-     * @return MP4 视频数据的字节数组，失败返回 null
+     * @param inputFilePath JPEG Motion Photo file path
+     * @return MP4 video bytes, or null on failure
      */
     public static native byte[] ExtractJpegVideo(String inputFilePath);
 
     /**
-     * 检查图片是否为 Motion Photo，并返回类型
+     * Checks whether the image is a Motion Photo and returns its type.
      * <p>
-     * 检测逻辑：
-     * 1. 通过文件头判断是 JPEG 还是 HEIC 格式
-     * 2. 检查 XMP 元数据中的 GCamera:MotionPhoto 标识
-     * 3. 搜索嵌入的 MP4 视频数据 (ftyp/mpvd)
+     * Detection steps:
+     * 1. Determine whether the file is JPEG or HEIC from the file header
+     * 2. Check the GCamera:MotionPhoto flag in XMP metadata
+     * 3. Search for embedded MP4 video data (ftyp/mpvd)
      *
-     * @param inputFilePath 图片文件路径
-     * @return Motion Photo 类型:
-     * - {@link #MOTION_PHOTO_TYPE_JPEG} (0): JPEG 格式的动态照片
-     * - {@link #MOTION_PHOTO_TYPE_HEIC} (1): HEIC 格式的动态照片
-     * - {@link #MOTION_PHOTO_TYPE_NONE} (2): 非动态照片
+     * @param inputFilePath image file path
+     * @return Motion Photo type:
+     * - {@link #MOTION_PHOTO_TYPE_JPEG} (0): JPEG motion photo
+     * - {@link #MOTION_PHOTO_TYPE_HEIC} (1): HEIC motion photo
+     * - {@link #MOTION_PHOTO_TYPE_NONE} (2): not a motion photo
      */
     public static native int CheckMotionPhotoType(String inputFilePath);
 
     /**
-     * 检查图片是否为 Motion Photo
+     * Checks whether the image is a Motion Photo.
      *
-     * @param inputFilePath 图片文件路径
-     * @return 是否为动态照片
+     * @param inputFilePath image file path
+     * @return whether the file is a motion photo
      */
     public static boolean isMotionPhoto(String inputFilePath) {
         int type = CheckMotionPhotoType(inputFilePath);
@@ -111,10 +111,10 @@ public class HeicNative {
     }
 
     /**
-     * 根据文件路径自动提取 Motion Photo 中的视频数据
+     * Automatically extracts video data from a Motion Photo by file path.
      *
-     * @param inputFilePath 图片文件路径
-     * @return MP4 视频数据的字节数组，失败或非动态照片返回 null
+     * @param inputFilePath image file path
+     * @return MP4 video bytes, or null on failure or if not a motion photo
      */
     public static byte[] extractMotionPhotoVideo(String inputFilePath) {
         int type = CheckMotionPhotoType(inputFilePath);
