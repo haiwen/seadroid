@@ -7,8 +7,6 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 
 import com.blankj.utilcode.util.CloneUtils;
-import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -17,22 +15,17 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
-import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
-import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
-import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,9 +35,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -146,57 +136,45 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             SafeLogs.d(TAG, "transferFile()", "download complete：" + currentTransferModel.full_path);
         } catch (Exception e) {
             SafeLogs.d(TAG, "transferFile()", "download file failed -> " + currentTransferModel.full_path);
-            SeafException seafException = ExceptionUtils.parseByThrowable(e);
+            SeafException seafException = e instanceof SeafException
+                    ? (SeafException) e
+                    : ExceptionUtils.parseByThrowable(e);
             SafeLogs.e(TAG, seafException.getMessage());
-            checkInterrupt(account, seafException);
+            try {
+                checkInterrupt(account, seafException);
+            } finally {
+                sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
+            }
         }
     }
 
     private void checkInterrupt(Account account, SeafException seafException) throws SeafException {
-        if (isRetry(seafException)) {
-            if (currentTransferModel.retry_times >= retryMaxCount) {
-                //no interrupt
-                updateToFailed(seafException.getMessage());
+        SeafException finalException = seafException;
+        if (currentTransferModel.retry_times < retryMaxCount) {
+            SeafException retryError = retryAfterPasswordRefresh(
+                    account,
+                    currentTransferModel.repo_id,
+                    seafException,
+                    () -> {
+                        currentTransferModel.retry_times = currentTransferModel.retry_times + 1;
+                        transferFile(account);
+                    }
+            );
+            if (retryError == null) {
+                SafeLogs.d(TAG, "transferFile()", "download complete after retry：" + currentTransferModel.full_path);
                 return;
             }
+            finalException = retryError;
+        }
 
-            currentTransferModel.retry_times = currentTransferModel.retry_times + 1;
-            if (seafException == SeafException.INVALID_PASSWORD) {
-                boolean decryptResult = decryptRepo(currentTransferModel.repo_id);
-                if (decryptResult) {
-                    transferFile(account);
-                } else {
-
-                    //
-                    // An error occurred while verifying the password with the local password,
-                    // and the local password may be invalid/empty/incorrect.
-                    // The user needs to re-enter the password again on the home page.
-                    //
-                    updateToFailed(seafException.getMessage());
-                    //interrupt
-                    throw seafException;
-                }
-            } else {
-                transferFile(account);
-            }
-        } else if (isInterrupt(seafException)) {
-
-            updateToFailed(seafException.getMessage());
-
-            //interrupt
-            throw seafException;
-        } else {
-
-            //no interrupt
-            updateToFailed(seafException.getMessage());
+        updateToFailed(finalException.getMessage());
+        if (isInterrupt(finalException)) {
+            throw finalException;
         }
     }
 
     private void transferFile(Account account) throws SeafException {
         Pair<String, String> pair = getDownloadLink(false);
-        if (pair == null) {
-            throw SeafException.NETWORK_EXCEPTION;
-        }
         String dlink = pair.first;
         String fileId = pair.second;
         download(account, dlink, fileId);
@@ -287,6 +265,9 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     private Request buildDownloadRequest(@NonNull String dlink) {
         return new Request.Builder()
                 .url(dlink)
+                .addHeader("Connection", "keep-alive")
+                .addHeader("Accept", "*/*")
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
                 .get()
                 .build();
     }
@@ -405,10 +386,6 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
     }
 
-    public boolean isRetry(SeafException result) {
-        return result.equals(SeafException.INVALID_PASSWORD);
-    }
-
     public boolean isInterrupt(SeafException result) {
         return result.equals(SeafException.INVALID_PASSWORD) ||
                 result.equals(SeafException.NETWORK_SSL_EXCEPTION) ||
@@ -460,70 +437,4 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         return generalNotificationHelper;
     }
 
-    public boolean decryptRepo(String repoId) {
-        List<EncKeyCacheEntity> encList = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdSync(repoId);
-        if (CollectionUtils.isEmpty(encList)) {
-            return false;
-        }
-
-        EncKeyCacheEntity encKeyCacheEntity = encList.get(0);
-        if (TextUtils.isEmpty(encKeyCacheEntity.enc_key) || TextUtils.isEmpty(encKeyCacheEntity.enc_iv)) {
-            return false;
-        }
-
-        String decryptPassword = SecurePasswordManager.decryptPassword(encKeyCacheEntity.enc_key, encKeyCacheEntity.enc_iv);
-        try {
-
-            //
-            setPassword(repoId, decryptPassword);
-
-            //
-            insert(repoId, decryptPassword);
-
-            return true;
-        } catch (IOException | SeafException e) {
-            SafeLogs.e(TAG, e.getMessage());
-            return false;
-        }
-    }
-
-
-    public void setPassword(String repoId, String password) throws IOException, SeafException {
-        Map<String, String> requestDataMap = new HashMap<>();
-        requestDataMap.put("password", password);
-
-        retrofit2.Call<ResultModel> setPasswordCall = HttpManager.getCurrentHttp().execute(DialogService.class).setPasswordSync(repoId, requestDataMap);
-        retrofit2.Response<ResultModel> res = setPasswordCall.execute();
-        if (res.isSuccessful()) {
-            ResultModel resultModel = res.body();
-            SafeLogs.d(TAG, "setPassword()", "set password success");
-        } else {
-            int code = res.code();
-            SafeLogs.d(TAG, "setPassword()", "set password failed: " + code);
-            try (ResponseBody responseBody = res.errorBody()) {
-                if (responseBody != null) {
-                    throw ExceptionUtils.parseHttpException(code, responseBody.string());
-                } else {
-                    throw ExceptionUtils.parseHttpException(code, null);
-                }
-            }
-        }
-    }
-
-    private void insert(String repoId, String password) {
-        EncKeyCacheEntity encEntity = new EncKeyCacheEntity();
-        encEntity.v = 2;
-        encEntity.repo_id = repoId;
-
-        Pair<String, String> p = SecurePasswordManager.encryptPassword(password);
-        if (p != null) {
-            encEntity.enc_key = p.first;
-            encEntity.enc_iv = p.second;
-
-            long expire = TimeUtils.getNowMills();
-            expire += SettingsManager.DECRYPTION_EXPIRATION_TIME;
-            encEntity.expire_time_long = expire;
-            AppDatabase.getInstance().encKeyCacheDAO().insert(encEntity);
-        }
-    }
 }

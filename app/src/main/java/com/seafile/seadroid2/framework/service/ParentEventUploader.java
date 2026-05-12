@@ -3,6 +3,7 @@ package com.seafile.seadroid2.framework.service;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,7 +53,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -240,6 +240,19 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             SeafException seafException = e instanceof SeafException
                     ? (SeafException) e
                     : ExceptionUtils.parseByThrowable(e);
+
+            SeafException retryError = retryAfterPasswordRefresh(
+                    account,
+                    currentTransferModel.repo_id,
+                    seafException,
+                    () -> transferFile(account)
+            );
+            if (retryError == null) {
+                sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
+                return;
+            }
+            seafException = retryError;
+
             // update db
             updateToFailed(seafException.getMessage());
 
@@ -248,7 +261,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             throw seafException;
         }
     }
-
 
     private void transferFile(Account account) throws SeafException {
         if (account == null) {
@@ -303,11 +315,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
         if (currentTransferModel.hasExtraMotionPhoto()) {
             File heicFile = new File(currentTransferModel.motion_photo_path);
+            if (!heicFile.exists() || heicFile.length() <= 0) {
+                throw SeafException.NOT_FOUND_EXCEPTION;
+            }
             String fileName = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";
             currentTransferModel.original_name = currentTransferModel.file_name;
             currentTransferModel.file_name = fileName;
             currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
             uploadFile = heicFile;
+            currentTransferModel.file_size = heicFile.length();
         } else if (currentTransferModel.full_path.startsWith("content://")) {
             uploadUri = Uri.parse(currentTransferModel.full_path);
             uploadFromUri = true;
@@ -322,9 +338,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
         }
 
-        if (currentTransferModel.full_path.startsWith("content://")) {
+        if (currentTransferModel.full_path.startsWith("content://") && !currentTransferModel.hasExtraMotionPhoto()) {
             Uri fileUri = Uri.parse(currentTransferModel.full_path);
             currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), fileUri);
+            createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
+        } else if (!currentTransferModel.hasExtraMotionPhoto()) {
+            File originalFile = new File(currentTransferModel.full_path);
+            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), originalFile);
+        } else if (currentTransferModel.full_path.startsWith("content://")) {
+            Uri fileUri = Uri.parse(currentTransferModel.full_path);
             createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
         } else {
             File originalFile = new File(currentTransferModel.full_path);
@@ -594,6 +616,9 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
      */
     @Nullable
     private String convertJpegToHeicIfMotionPhoto() throws SeafException {
+        File tempHeicFile = null;
+        String tempJpegPath = null;
+        boolean converted = false;
         try {
             boolean isJpeg = Utils.isJpeg(currentTransferModel.file_name);
             if (!isJpeg) {
@@ -606,6 +631,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
                 if (descriptor.isMotionPhoto()) {
                     currentTransferModel.motion_photo_path = descriptor.tempJpegPath;
+                    tempJpegPath = descriptor.tempJpegPath;
                 }
             } else {
                 descriptor = MotionPhotoDetector.parseJpegXmpWithFile(currentTransferModel.full_path);
@@ -622,7 +648,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
 
 
-            File tempFile = DataManager.createTempFile("tmp-hmp-", ".heic");
+            tempHeicFile = DataManager.createTempFile("tmp-hmp-", ".heic");
 
             // it is an error data
             if (descriptor.items.size() == 1) {
@@ -637,15 +663,23 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 return null;
             }
 
-            String outHeicPath = HeicNative.ConvertJpeg2Heic(currentTransferModel.motion_photo_path, tempFile.getAbsolutePath());
+            String outHeicPath = HeicNative.ConvertJpeg2Heic(currentTransferModel.motion_photo_path, tempHeicFile.getAbsolutePath());
             if (TextUtils.isEmpty(outHeicPath)) {
                 SafeLogs.e(TAG, "convertJpegToHeicIfMotionPhoto()", "convertJpegToHeicIfMotionPhoto failed");
                 return null;
             }
+            converted = true;
             return outHeicPath;
         } catch (Exception e) {
             SafeLogs.e(e);
             throw ExceptionUtils.parseByThrowable(e);
+        } finally {
+            if (tempJpegPath != null && !TextUtils.isEmpty(tempJpegPath)) {
+                com.blankj.utilcode.util.FileUtils.delete(tempJpegPath);
+            }
+            if (tempHeicFile != null && !converted) {
+                com.blankj.utilcode.util.FileUtils.delete(tempHeicFile);
+            }
         }
     }
 
@@ -664,13 +698,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         //req headers log
         Headers reqHeaders = response.request().headers();
         for (int i = 0; i < reqHeaders.size(); i++) {
-            SafeLogs.d(TAG, "req-header: " + reqHeaders.name(i) + ": " + reqHeaders.value(i));
+            SafeLogs.d(TAG, "req-header: " + sanitizeHeader(reqHeaders.name(i), reqHeaders.value(i)));
         }
 
         //res headers log
         Headers resHeaders = response.headers();
         for (int i = 0; i < resHeaders.size(); i++) {
-            SafeLogs.d(TAG, "res-header: " + resHeaders.name(i) + ": " + resHeaders.value(i));
+            SafeLogs.d(TAG, "res-header: " + sanitizeHeader(resHeaders.name(i), resHeaders.value(i)));
         }
 
         int code = response.code();
@@ -745,7 +779,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             } else {
                 res = HttpManager.getHttpWithAccount(account)
                         .execute(FileService.class)
-                        .getFileUploadLink(repoId, "/")
+                        .getFileUploadLink(repoId, target_dir)
                         .execute();
             }
         } catch (Exception e) {
@@ -763,6 +797,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             } catch (IOException e) {
                 throw ExceptionUtils.parseHttpException(res.code(), null);
             }
+            throw ExceptionUtils.parseHttpException(res.code(), null);
         }
 
         String urlStr = res.body();
@@ -774,6 +809,18 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
 
         return urlStr;
+    }
+
+    @NonNull
+    private String sanitizeHeader(@NonNull String name, @Nullable String value) {
+        String lowerName = name.toLowerCase();
+        if ("authorization".equals(lowerName)
+                || "cookie".equals(lowerName)
+                || "set-cookie".equals(lowerName)
+                || "proxy-authorization".equals(lowerName)) {
+            return name + ": [REDACTED]";
+        }
+        return name + ": " + value;
     }
 
     public void updateToFailed(String transferResult) {
