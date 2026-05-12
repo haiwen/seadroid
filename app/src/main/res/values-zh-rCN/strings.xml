@@ -17,6 +17,7 @@
   <string name="delete_repo_title">删除资料库</string>
   <string name="delete_wiki_title">删除知识库</string>
   <string name="delete_file_f">删除文件</string>
+  <string name="deleted_some_files">删除了 %d 个文件</string>
   <string name="delete_local_file_sametime">同时删除本地文件</string>
   <string name="recover_library">恢复资料库</string>
   <string name="recover_file">恢复文件</string>
@@ -25,6 +26,7 @@
   <string name="recover_folder">恢复文件夹</string>
   <string name="move_folder">移动文件夹</string>
   <string name="delete_dir">删除文件夹</string>
+  <string name="delete_some_dirs">删除了 %d 个目录</string>
   <string name="name_hint">名称</string>
   <string name="server">服务器</string>
   <string name="server_hint">云盘网址</string>
@@ -193,8 +195,12 @@
   <string name="create_new_folder_success">文件夹%s创建成功</string>
   <string name="create_new_file_success">文件%s创建成功</string>
   <string name="create_new_file">创建新文件</string>
+  <string name="create_some_files">创建了 %d 个文件</string>
   <string name="create_files">创建多个文件</string>
   <string name="create_new_dir">创建新文件夹</string>
+  <string name="create_some_dirs">创建了 %d 个目录</string>
+  <string name="and_other_folders">及其它 %d 个目录</string>
+  <string name="and_other_files">及其它 %d 个文件</string>
   <string name="camera">拍照上传</string>
   <string name="take_photo">拍照</string>
   <string name="download">下载</string>

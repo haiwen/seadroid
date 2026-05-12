@@ -359,7 +359,7 @@ public class MainActivity extends BaseActivity {
         List<Fragment> fragments = mainViewModel.getFragments();
         getPagerAdapter().addFragments(fragments);
 
-        binding.pager.setOffscreenPageLimit(fragments.size());
+        binding.pager.setOffscreenPageLimit(1);
         binding.pager.setAdapter(getPagerAdapter());
         binding.pager.setUserInputEnabled(false);
     }

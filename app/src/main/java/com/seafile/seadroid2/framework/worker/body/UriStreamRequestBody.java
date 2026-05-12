@@ -54,7 +54,6 @@ public class UriStreamRequestBody extends BaseRequestBody {
             try (Source source = Okio.source(inputStream); Buffer buffer = new Buffer()) {
                 long lastUpdateTime = System.currentTimeMillis();
                 long totalWritten = 0;
-                boolean unknownTotal = estimationFileLength <= 0;
 
                 while (true) {
                     if (shouldStopUpload()) {
@@ -70,25 +69,17 @@ public class UriStreamRequestBody extends BaseRequestBody {
                     // Throttle progress updates
                     long now = System.currentTimeMillis();
                     if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
-                        dispatchProgress(totalWritten, getProgressTotal(totalWritten, unknownTotal));
+                        dispatchProgress(totalWritten, safeTotal(estimationFileLength, totalWritten));
                         lastUpdateTime = now;
                     }
                 }
 
                 // Final update for completion to ensure 100% is reported.
-                dispatchProgress(totalWritten, getProgressTotal(totalWritten, unknownTotal));
+                dispatchProgress(totalWritten, safeTotal(estimationFileLength, totalWritten));
             }
         } catch (IOException e) {
             SLogs.e(e);
             throw e;
         }
-    }
-
-    private long getProgressTotal(long current, boolean unknownTotal) {
-        if (!unknownTotal) {
-            return estimationFileLength;
-        }
-        // Unknown total size: keep progress below 100% until task completion event arrives.
-        return current + 1;
     }
 }

@@ -21,6 +21,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
+import com.seafile.seadroid2.framework.model.activities.ActivityDetailModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityWrapperModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
@@ -28,6 +29,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,46 +223,39 @@ public class ActivityViewModel extends BaseViewModel {
     public void loadAllData(int page) {
         getRefreshLiveData().setValue(true);
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        Single<ActivityWrapperModel> flowable = HttpManager.getCurrentHttp().execute(ActivityService.class).getActivities(page);
-        addSingleDisposable(flowable, new Consumer<ActivityWrapperModel>() {
+        Single<ActivityWrapperModel> single = HttpManager.getCurrentHttp().execute(ActivityService.class).getActivities(page);
+        Single<List<ActivityModel>> listSingle = single.flatMap(new Function<ActivityWrapperModel, SingleSource<List<ActivityModel>>>() {
             @Override
-            public void accept(ActivityWrapperModel wrapperModel) throws Exception {
-                getRefreshLiveData().setValue(false);
-
+            public SingleSource<List<ActivityModel>> apply(ActivityWrapperModel wrapperModel) throws Exception {
+                List<ActivityModel> newList = new ArrayList<>();
                 if (wrapperModel == null) {
-                    return;
+                    return Single.just(newList);
                 }
+
+                if (CollectionUtils.isEmpty(wrapperModel.events)) {
+                    return Single.just(newList);
+                }
+
                 for (ActivityModel event : wrapperModel.events) {
-                    event.related_account = account.getSignature();
-                    switch (event.op_type) {
-                        case "create":
-                            event.opType = OpType.CREATE;
-                            break;
-                        case "edit":
-                            event.opType = OpType.EDIT;
-                            break;
-                        case "rename":
-                            event.opType = OpType.RENAME;
-                            break;
-                        case "delete":
-                            event.opType = OpType.DELETE;
-                            break;
-                        case "recover":
-                        case "restore":
-                            event.opType = OpType.RESTORE;
-                            break;
-                        case "move":
-                            event.opType = OpType.MOVE;
-                            break;
-                        case "update":
-                            event.opType = OpType.UPDATE;
-                            break;
-                        case "public":
-                            event.opType = OpType.PUBLISH;
-                            break;
+                    if (CollectionUtils.isNotEmpty(event.details)){
+                        for (ActivityDetailModel detail : event.details) {
+                            detail.time = event.time;
+                        }
                     }
+
+                    event.related_account = account.getSignature();
+                    newList.add(event);
                 }
-                getListLiveData().setValue(wrapperModel.events);
+
+                return Single.just(newList);
+            }
+        });
+
+        addSingleDisposable(listSingle, new Consumer<List<ActivityModel>>() {
+            @Override
+            public void accept(List<ActivityModel> activityModels) throws Exception {
+                getRefreshLiveData().setValue(false);
+                getListLiveData().setValue(activityModels);
             }
         }, new Consumer<Throwable>() {
             @Override

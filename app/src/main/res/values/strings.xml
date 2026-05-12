@@ -20,6 +20,7 @@
     <string name="delete_repo_title">Delete library</string>
     <string name="delete_wiki_title">Delete Wiki</string>
     <string name="delete_file_f">Delete file</string>
+    <string name="deleted_some_files">Deleted %d files</string>
     <string name="delete_local_file_sametime">Delete local files at the same time</string>
     <string name="recover_library">Recover library</string>
     <string name="recover_file">Recover file</string>
@@ -28,6 +29,7 @@
     <string name="recover_folder">Recover folder</string>
     <string name="move_folder">Move folder</string>
     <string name="delete_dir">Delete folder</string>
+    <string name="delete_some_dirs">Deleted %d folders</string>
     <string name="name_hint">Name</string>
     <string name="server">Server</string>
     <string name="server_hint">Server address</string>
@@ -209,8 +211,12 @@
     <string name="create_new_folder_success">Successfully created folder %s</string>
     <string name="create_new_file_success">Successfully created file %s</string>
     <string name="create_new_file">Create a new file</string>
+    <string name="create_some_files">Created %d files</string>
     <string name="create_files">Create files</string>
     <string name="create_new_dir">Create a new folder</string>
+    <string name="create_some_dirs">Created %d folders</string>
+    <string name="and_other_folders">and %d other folders</string>
+    <string name="and_other_files">and %d other files</string>
     <string name="camera">Take a photo here</string>
     <string name="take_photo">Take photo</string>
     <string name="download">Download</string>

@@ -49,7 +49,7 @@
         <item name="navigationIconTint">@color/toolbar_editor_title_color</item>
     </style>
 
-    <style name="App.Widget.SearchView" parent="Widget.Material3.SearchView">
+    <style name="App.Widget.SearchView" parent="Widget.AppCompat.SearchView">
         <item name="searchIcon">@null</item>
         <item name="searchHintIcon">@null</item>
         <item name="closeIcon">@drawable/baseline_close_24</item>

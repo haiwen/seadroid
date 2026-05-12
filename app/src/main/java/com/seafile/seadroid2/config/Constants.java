@@ -15,10 +15,7 @@ public class Constants {
             throw new IllegalStateException("Don't instantiate this class");
         }
 
-        public static final String SEAFILE_UA = "Seafile/3.0";
         public static final String SEAFILE_ANDROID_UA = "Seafile Android/3.0";
-        public static final String SEAFILE_ANDROID_DOWNLOAD_UA = "Seafile Android Downloader/3.0";
-        public static final String SEAFILE_ANDROID_UPLOAD_UA = "Seafile Android Uploader/3.0";
     }
 
 

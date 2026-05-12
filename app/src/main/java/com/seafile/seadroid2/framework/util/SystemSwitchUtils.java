@@ -87,7 +87,7 @@ public class SystemSwitchUtils {
         }
     }
 
-    public static String obj_type(Context ct, String obj_type, String op_type) {
+    public static String obj_type(Context ct, String obj_type, String op_type, int count) {
         if (obj_type.equals("repo")) {
             if (op_type.equals("create")) {
                 return ct.getString(R.string.create_new_repo);
@@ -105,11 +105,17 @@ public class SystemSwitchUtils {
                 return "";
             }
         } else if (obj_type.equals("dir")) {
-            if (op_type.equals("create")) {
+            if (op_type.equals("create") || op_type.equals("batch_create")) {
+                if (count > 1) {
+                    return ct.getString(R.string.create_some_dirs, count);
+                }
                 return ct.getString(R.string.create_new_dir);
             } else if (op_type.equals("rename")) {
                 return ct.getString(R.string.rename_dir);
-            } else if (op_type.equals("delete")) {
+            } else if (op_type.equals("delete") || op_type.equals("batch_delete")) {
+                if (count > 1) {
+                    return ct.getString(R.string.delete_some_dirs, count);
+                }
                 return ct.getString(R.string.delete_dir);
             } else if (op_type.equals("restore")) {
                 return ct.getString(R.string.recover_folder);
@@ -123,11 +129,17 @@ public class SystemSwitchUtils {
                 return "";
             }
         } else if (obj_type.equals("file")) {
-            if (op_type.equals("create")) {
+            if (op_type.equals("create") || op_type.equals("batch_create")) {
+                if (count > 1) {
+                    return ct.getString(R.string.create_some_files, count);
+                }
                 return ct.getString(R.string.create_new_file);
             } else if (op_type.equals("rename")) {
                 return ct.getString(R.string.rename_file);
-            } else if (op_type.equals("delete")) {
+            } else if (op_type.equals("delete") || op_type.equals("batch_delete")) {
+                if (count > 1) {
+                    return ct.getString(R.string.deleted_some_files, count);
+                }
                 return ct.getString(R.string.delete_file_f);
             } else if (op_type.equals("restore")) {
                 return ct.getString(R.string.recover_file);

@@ -45,12 +45,18 @@ public class RecentlyUsedListAdapter extends BaseAdapter<RecentlyUsedModel, Rece
             holder.binding.itemTitle.setText(null);
             holder.binding.itemSubtitle.setText(null);
             holder.binding.itemSubtitle.setVisibility(View.GONE);
-        } else if (TextUtils.equals("/", model.path)) {
-            holder.binding.itemTitle.setText(model.repoName);
+            holder.binding.itemIcon.setImageResource(R.drawable.baseline_folder_24);
+            return;
+        }
 
+        if (TextUtils.equals("/", model.path)) {
+            holder.binding.itemTitle.setText(model.repoName);
             holder.binding.itemSubtitle.setText(null);
             holder.binding.itemSubtitle.setVisibility(View.GONE);
+            holder.binding.itemIcon.setImageResource(R.drawable.baseline_repo_24);
         } else {
+            holder.binding.itemIcon.setImageResource(R.drawable.baseline_folder_24);
+
             if (!TextUtils.equals("/", model.path) && model.path.endsWith("/")) {
                 model.path = model.path.substring(0, model.path.length() - 1);
             }
