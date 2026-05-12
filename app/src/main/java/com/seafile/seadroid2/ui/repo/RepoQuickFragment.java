@@ -1491,7 +1491,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     public void closeActionMode() {
-        if (adapter.isOnActionMode()) {
+        if (adapter != null && adapter.isOnActionMode()) {
             adapter.setOnActionMode(false);
         }
 

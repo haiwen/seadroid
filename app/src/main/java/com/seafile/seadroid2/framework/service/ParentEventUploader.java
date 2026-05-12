@@ -8,10 +8,8 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.EncryptUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
@@ -21,15 +19,11 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.datastore.DataManager;
-import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
-import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
-import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
@@ -47,7 +41,6 @@ import com.seafile.seadroid2.framework.worker.body.UriChunkRequestBody;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
-import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,9 +53,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -251,24 +241,17 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                     ? (SeafException) e
                     : ExceptionUtils.parseByThrowable(e);
 
-            if (seafException == SeafException.INVALID_PASSWORD) {
-                try {
-                    boolean refreshed = tryRemoteVerifyWithCachedPassword(account, currentTransferModel.repo_id);
-                    if (refreshed) {
-                        try {
-                            transferFile(account);
-                            sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
-                            return;
-                        } catch (Exception retryError) {
-                            seafException = retryError instanceof SeafException
-                                    ? (SeafException) retryError
-                                    : ExceptionUtils.parseByThrowable(retryError);
-                        }
-                    }
-                } catch (SeafException refreshError) {
-                    seafException = refreshError;
-                }
+            SeafException retryError = retryAfterPasswordRefresh(
+                    account,
+                    currentTransferModel.repo_id,
+                    seafException,
+                    () -> transferFile(account)
+            );
+            if (retryError == null) {
+                sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
+                return;
             }
+            seafException = retryError;
 
             // update db
             updateToFailed(seafException.getMessage());
@@ -278,89 +261,6 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             throw seafException;
         }
     }
-
-    /**
-     * Try to refresh server-side repo password cache by local encrypted cache.
-     */
-    private boolean tryRemoteVerifyWithCachedPassword(Account account, String repoId) throws SeafException {
-        try {
-            List<EncKeyCacheEntity> entities = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdSync(repoId);
-            if (CollectionUtils.isEmpty(entities)) {
-                return false;
-            }
-
-            EncKeyCacheEntity entity = entities.get(0);
-            if (TextUtils.isEmpty(entity.enc_key) || TextUtils.isEmpty(entity.enc_iv)) {
-                return false;
-            }
-
-            String cachedPassword = SecurePasswordManager.decryptPassword(entity.enc_key, entity.enc_iv);
-            if (TextUtils.isEmpty(cachedPassword)) {
-                return false;
-            }
-
-            setPassword(account, repoId, cachedPassword);
-            // Do not interrupt upload once remote verification succeeds.
-            updateLocalPasswordCache(repoId, cachedPassword);
-            return true;
-        } catch (Exception e) {
-            throw ExceptionUtils.parseByThrowable(e);
-        }
-    }
-
-    private void setPassword(Account account, String repoId, String password) throws IOException, SeafException {
-        Map<String, String> requestDataMap = new HashMap<>();
-        requestDataMap.put("password", password);
-
-        retrofit2.Call<ResultModel> setPasswordCall = HttpManager.getHttpWithAccount(account)
-                .execute(DialogService.class)
-                .setPasswordSync(repoId, requestDataMap);
-        retrofit2.Response<ResultModel> res = setPasswordCall.execute();
-        if (res.isSuccessful()) {
-            ResultModel resultModel = res.body();
-            if (resultModel == null) {
-                throw SeafException.ILL_FORMAT_EXCEPTION;
-            }
-            if (resultModel != null && !resultModel.success) {
-                throw SeafException.INVALID_PASSWORD;
-            }
-            SafeLogs.d(TAG, "setPassword()", "set password success");
-            return;
-        }
-
-        int code = res.code();
-        SafeLogs.d(TAG, "setPassword()", "set password failed: " + code);
-        try (ResponseBody responseBody = res.errorBody()) {
-            if (responseBody != null) {
-                throw ExceptionUtils.parseHttpException(code, responseBody.string());
-            } else {
-                throw ExceptionUtils.parseHttpException(code, null);
-            }
-        }
-    }
-
-    private void updateLocalPasswordCache(String repoId, String password) {
-        try {
-            EncKeyCacheEntity encEntity = new EncKeyCacheEntity();
-            encEntity.v = 2;
-            encEntity.repo_id = repoId;
-
-            Pair<String, String> p = SecurePasswordManager.encryptPassword(password);
-            if (p == null) {
-                return;
-            }
-
-            encEntity.enc_key = p.first;
-            encEntity.enc_iv = p.second;
-
-            long expire = TimeUtils.getNowMills() + SettingsManager.DECRYPTION_EXPIRATION_TIME;
-            encEntity.expire_time_long = expire;
-            AppDatabase.getInstance().encKeyCacheDAO().insertSync(encEntity);
-        } catch (Exception e) {
-            SafeLogs.e(TAG, "updateLocalPasswordCache()", e.getMessage());
-        }
-    }
-
 
     private void transferFile(Account account) throws SeafException {
         if (account == null) {
