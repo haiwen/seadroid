@@ -538,8 +538,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         Request.Builder requestBuilder = new Request.Builder()
                 .url(uploadUrl)
                 .post(requestBody)
-                .addHeader("Connection", "keep-alive")
-                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA);
+                .addHeader("Connection", "keep-alive");
 
         if (chunkedMode) {
             String safeFilename = buildSafeFilename(currentTransferModel.file_name);

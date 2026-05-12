@@ -10,12 +10,13 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.SpanUtils;
-import com.seafile.seadroid2.framework.glide.GlideApp;
+import com.google.android.gms.common.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemActivityBinding;
 import com.seafile.seadroid2.databinding.ItemGroupItemBinding;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.GroupItemModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
@@ -27,7 +28,19 @@ import java.util.List;
 
 public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
 
+    int defaultColor;
+    int fancyColor;
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+
+        defaultColor = ContextCompat.getColor(getContext(), R.color.item_subtitle_color);
+        fancyColor = ContextCompat.getColor(getContext(), R.color.fancy_orange);
+    }
+
     public ActivityAdapter() {
+
         addItemType(AbsLayoutItemType.GROUP_ITEM, new OnMultiItem<BaseModel, RecyclerView.ViewHolder>() {
             @NonNull
             @Override
@@ -66,38 +79,111 @@ public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
     }
 
     private void onBindActivity(ActivityViewHolder holder, ActivityModel model) {
+        //
         holder.binding.itemNickName.setText(model.author_name);
         holder.binding.itemTime.setText(model.getTime());
 
-        String desc = SystemSwitchUtils.obj_type(getContext(), model.obj_type, model.op_type);
+        // item desc
+        String desc = SystemSwitchUtils.obj_type(getContext(), model.obj_type, model.op_type, model.count);
         holder.binding.itemDesc.setText(desc);
 
-        if (model.obj_type.equals("repo")) {
-            holder.binding.itemRepoName.setText("");
-            holder.binding.itemDetail.setText(model.repo_name);
-        } else {
-            holder.binding.itemRepoName.setText(model.repo_name);
-
-            if (model.op_type.equals("rename")) {
-                SpanUtils.with(holder.binding.itemDetail)
-                        .append(model.old_name)
-                        .append(" => ")
-                        .append(model.name)
-                        .setForegroundColor(ContextCompat.getColor(getContext(), R.color.fancy_orange))
-                        .create();
-
-            } else if (model.op_type.equals("delete")) {
-                holder.binding.itemDetail.setText(model.name);
-                holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
-            } else {
-                holder.binding.itemDetail.setText(model.name);
-                holder.binding.itemDetail.setTextColor(ContextCompat.getColor(getContext(), R.color.fancy_orange));
-            }
-        }
-
+        // load avatar
         GlideApp.with(getContext())
                 .load(model.avatar_url)
                 .apply(GlideLoadConfig.getAvatarOptions())
                 .into(holder.binding.itemAvatar);
+
+
+        SpanUtils spanUtils = SpanUtils.with(holder.binding.itemDetail);
+
+        //
+        if (model.obj_type.equals("repo")) {
+            spanUtils.append(model.repo_name);
+            holder.binding.itemRepoName.setText("");
+        } else {
+            holder.binding.itemRepoName.setText(model.repo_name);
+        }
+
+
+        if (model.op_type.equals("rename")) {
+            spanUtils.append(model.old_name);
+            spanUtils.append(" => ");
+            spanUtils.append(model.name);
+            spanUtils.setForegroundColor(fancyColor);
+        } else if (CollectionUtils.isEmpty(model.details)) {// old version field
+            if (model.op_type.equals("delete")) {
+                spanUtils.append(model.name);
+                spanUtils.setForegroundColor(defaultColor);
+            } else {
+                // create/update/rename/...
+                spanUtils.append(model.name);
+                spanUtils.setForegroundColor(fancyColor);
+            }
+        } else if (model.details.size() == 1) {// new version fields
+            spanUtils.append(model.name);
+
+            if (model.op_type.equals("delete")) {
+                spanUtils.setForegroundColor(defaultColor);
+            } else {
+                // create/update/edit
+                spanUtils.setForegroundColor(fancyColor);
+            }
+        } else {
+            // batch
+
+            String otherStr;
+            int c = model.count - 1;
+            if (c < 1) {
+                c = 1;
+            }
+            if (model.obj_type.equals("dir")) {
+                otherStr = getContext().getString(R.string.and_other_folders, c);
+            } else {
+                otherStr = getContext().getString(R.string.and_other_files, c);
+            }
+
+            int detailColor;
+            if (model.op_type.equals("delete") || model.op_type.equals("batch_delete")) {
+                detailColor = ContextCompat.getColor(getContext(), R.color.item_subtitle_color);
+            } else {
+                detailColor = ContextCompat.getColor(getContext(), R.color.fancy_orange);
+            }
+
+            spanUtils.append(model.name);
+            spanUtils.setForegroundColor(detailColor);
+            spanUtils.append(" ");
+            spanUtils.append(otherStr);
+            spanUtils.setForegroundColor(defaultColor);
+        }
+
+        spanUtils.create();
+
     }
+
+
+//    switch (event.op_type) {
+//        case "create":
+//            break;
+//        case "edit":
+//            break;
+//        case "rename":
+//            break;
+//        case "delete":
+//            break;
+//        case "recover":
+//        case "restore":
+//            event.opType = OpType.RESTORE;
+//            break;
+//        case "move":
+//            break;
+//        case "update":
+//            break;
+//        case "public":
+//        case "publish":
+//            break;
+//        case "batch_create":
+//            break;
+//        case "batch_delete":
+//            break;
+//    }
 }

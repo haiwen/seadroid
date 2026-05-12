@@ -214,6 +214,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFastRvBinding.inflate(inflater, container, false);
+        binding.swipeRefreshLayout.setSaveEnabled(false);
+        binding.swipeRefreshLayout.setSaveFromParentEnabled(false);
 
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
             removeScrolledPosition();
@@ -281,6 +283,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void initRv() {
+        binding.rv.setSaveEnabled(false);
+        binding.rv.setSaveFromParentEnabled(false);
         binding.rv.addItemDecoration(getDecoration());
 
         binding.rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -351,6 +355,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             } else if (serverInfoOp.get().isProEdition() && serverInfoOp.get().isSearchEnabled()) {
                 //search view
                 final SearchView searchView = new SearchView(requireContext());
+                searchView.setSaveEnabled(false);
+                searchView.setSaveFromParentEnabled(false);
                 searchView.setSubmitButtonEnabled(false);
                 if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                     searchView.setQueryHint(getString(R.string.search_in_this_library));
@@ -377,6 +383,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 searchMenuItem.collapseActionView();
                 searchMenuItem.setActionView(searchView);
+                if (searchMenuItem.getActionView() != null) {
+                    searchMenuItem.getActionView().setSaveEnabled(false);
+                    searchMenuItem.getActionView().setSaveFromParentEnabled(false);
+                }
                 searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                     @Override
                     public boolean onMenuItemActionExpand(@NonNull MenuItem item) {
@@ -393,6 +403,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             } else if (!serverInfoOp.get().isProEdition()) {
                 if (GlobalNavContext.getCurrentNavContext().inRepo()) {
                     final SearchView searchView = new SearchView(requireContext());
+                    searchView.setSaveEnabled(false);
+                    searchView.setSaveFromParentEnabled(false);
                     searchView.setSubmitButtonEnabled(false);
                     searchView.setQueryHint(getString(R.string.search_in_this_library));
                     searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -416,6 +428,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     searchMenuItem.setVisible(true);
                     searchMenuItem.collapseActionView();
                     searchMenuItem.setActionView(searchView);
+                    if (searchMenuItem.getActionView() != null) {
+                        searchMenuItem.getActionView().setSaveEnabled(false);
+                        searchMenuItem.getActionView().setSaveFromParentEnabled(false);
+                    }
                     searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
                         @Override
                         public boolean onMenuItemActionExpand(@NonNull MenuItem item) {

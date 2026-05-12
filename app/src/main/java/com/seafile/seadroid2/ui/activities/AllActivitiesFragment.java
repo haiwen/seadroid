@@ -19,6 +19,7 @@ import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
 import androidx.media3.common.util.UnstableApi;
 
+import com.blankj.utilcode.util.CloneUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.chad.library.adapter4.loadState.LoadState;
 import com.chad.library.adapter4.loadState.trailing.TrailingLoadStateAdapter;
@@ -34,10 +35,14 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
+import com.seafile.seadroid2.framework.model.activities.ActivityDetailModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.listener.OnItemClickListener;
+import com.seafile.seadroid2.listener.OnItemClickListener2;
 import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.activities.others_dialog.ActivityOtherListDialog;
 import com.seafile.seadroid2.ui.base.adapter.LogicLoadMoreAdapter;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
@@ -80,17 +85,22 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (savedInstanceState != null) {
             page = savedInstanceState.getInt("page");
         }
-        registerLauncher();
 
+        registerLauncher();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = LayoutFrameSwipeRvBinding.inflate(inflater, container, false);
+        binding.swipeRefreshLayout.setSaveEnabled(false);
+        binding.swipeRefreshLayout.setSaveFromParentEnabled(false);
+        binding.rv.setSaveEnabled(false);
+        binding.rv.setSaveFromParentEnabled(false);
         binding.swipeRefreshLayout.setOnRefreshListener(this::reload);
         return binding.getRoot();
     }
@@ -277,6 +287,37 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         loadNext();
     }
 
+
+    private void showBatchDialog(ActivityModel model) {
+        ActivityModel m = CloneUtils.deepClone(model,ActivityModel.class);
+        ActivityOtherListDialog dialog = ActivityOtherListDialog.newInstance(m);
+
+        dialog.setOnItemClickListener(new OnItemClickListener2<ActivityModel, ActivityDetailModel>() {
+            @Override
+            public void onItemClick(ActivityModel activityModel, ActivityDetailModel detailModel) {
+                //
+
+                activityModel.path = detailModel.path;
+                activityModel.name = Utils.getFileNameFromPath(detailModel.path);
+
+                if ("batch_delete".equals(activityModel.op_type)) {
+                    activityModel.op_type = "delete";
+                } else if ("batch_create".equals(activityModel.op_type)) {
+                    activityModel.op_type = "create";
+                }
+
+                checkAndOpen(activityModel);
+            }
+        });
+        dialog.show(getChildFragmentManager(), "ActivityOtherListDialog");
+    }
+
+    private void showPasswordDialogCallback(String repo_id, String repo_name, OnResultListener<RepoModel> resultListener) {
+        BottomSheetPasswordDialogFragment dialogFragment = BottomSheetPasswordDialogFragment.newInstance(repo_id, repo_name);
+        dialogFragment.setResultListener(resultListener);
+        dialogFragment.show(getChildFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
+    }
+
     private void checkAndOpen(ActivityModel model) {
         if ("delete".equals(model.op_type)) {
             if ("repo".equals(model.obj_type)) {
@@ -288,6 +329,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             }
             return;
         }
+
 
         getViewModel().getRepoModelFromLocal(model.repo_id, new Consumer<RepoModel>() {
             @Override
@@ -325,6 +367,10 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                 case "edit":
                     MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, true);
                     break;
+                case "batch_create":
+                case "batch_delete":
+                    showBatchDialog(model);
+                    break;
                 default:
                     Toasts.show(R.string.not_supported);
                     break;
@@ -338,17 +384,15 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
                 case "move":
                     decryptRepo(repoModel, model);
                     break;
+                case "batch_create":
+                case "batch_delete":
+                    showBatchDialog(model);
+                    break;
                 default:
                     Toasts.show(R.string.not_supported);
                     break;
             }
         }
-    }
-
-    private void showPasswordDialogCallback(String repo_id, String repo_name, OnResultListener<RepoModel> resultListener) {
-        BottomSheetPasswordDialogFragment dialogFragment = BottomSheetPasswordDialogFragment.newInstance(repo_id, repo_name);
-        dialogFragment.setResultListener(resultListener);
-        dialogFragment.show(getChildFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
     }
 
     private void decryptRepo(RepoModel repoModel, ActivityModel model) {
@@ -397,7 +441,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
     @OptIn(markerClass = UnstableApi.class)
     private void open(ActivityModel activityModel) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        if (account == null){
+        if (account == null) {
             return;
         }
         ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
@@ -408,7 +452,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (activityModel.name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name,false);
+            SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name, false);
 
         } else if (Utils.isOnlyOfficeFile(activityModel.name) && serverInfo.isEnableOnlyOffice()) {
             OfficeDocumentWebActivity.openDocument(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
