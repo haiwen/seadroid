@@ -3,7 +3,6 @@ package com.seafile.seadroid2.framework.service;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,8 +35,8 @@ import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.body.FileChunkRequestBody;
 import com.seafile.seadroid2.framework.worker.body.FileStreamRequestBody;
-import com.seafile.seadroid2.framework.worker.body.UriStreamRequestBody;
 import com.seafile.seadroid2.framework.worker.body.UriChunkRequestBody;
+import com.seafile.seadroid2.framework.worker.body.UriStreamRequestBody;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
@@ -51,8 +50,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -537,8 +536,9 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                                        long offset, long chunkSize, long totalSize) throws SeafException {
         Request.Builder requestBuilder = new Request.Builder()
                 .url(uploadUrl)
-                .post(requestBody)
-                .addHeader("Connection", "keep-alive");
+                .addHeader("Connection", "keep-alive")
+                .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
+                .post(requestBody);
 
         if (chunkedMode) {
             String safeFilename = buildSafeFilename(currentTransferModel.file_name);
@@ -779,7 +779,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             } else {
                 res = HttpManager.getHttpWithAccount(account)
                         .execute(FileService.class)
-                        .getFileUploadLink(repoId, target_dir)
+                        .getFileUploadLink(repoId, "/")
                         .execute();
             }
         } catch (Exception e) {

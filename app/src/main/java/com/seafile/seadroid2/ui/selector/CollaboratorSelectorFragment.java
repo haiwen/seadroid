@@ -182,8 +182,8 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
             holder.binding.userName.setText(model.getName());
 
             Glide.with(getContext())
-                    .load(GlideLoadConfig.getGlideUrl(model.getAvatarUrl()))
-                    .apply(GlideLoadConfig.getOptions())
+                    .load(model.getAvatarUrl())
+                    .apply(GlideLoadConfig.getCustomDrawableOptions(R.drawable.default_avatar))
                     .into(holder.binding.userAvatar);
 
             holder.binding.userSelected.setVisibility(model.isSelected() ? View.VISIBLE : View.GONE);

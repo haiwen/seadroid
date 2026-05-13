@@ -195,9 +195,12 @@ public abstract class TransferListFragment extends BaseFragment {
             public void onClick(DialogInterface dialog, int which) {
 
                 try {
-                    Toasts.show(R.string.deleted);
+                    //
                     doDelete(model, booleans[0]);
+                    //
                     removeSpecialEntity(model.getId());
+
+                    Toasts.show(R.string.deleted);
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -219,9 +222,12 @@ public abstract class TransferListFragment extends BaseFragment {
             public void onClick(DialogInterface dialog, int which) {
 
                 try {
-                    Toasts.show(R.string.deleted);
+                    //
                     doDelete(model, false);
+                    //
                     removeSpecialEntity(model.getId());
+                    //
+                    Toasts.show(R.string.deleted);
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 } finally {
@@ -238,6 +244,9 @@ public abstract class TransferListFragment extends BaseFragment {
     private void doDelete(TransferModel transferModel, boolean isDeleteLocalFile) throws ExecutionException, InterruptedException {
         // stop transfer
         BackupThreadExecutor.getInstance().stopSpecialTransmitter(transferModel.getId(), transferModel.data_source);
+
+        //
+        GlobalTransferCacheList.removeTransferModel(transferModel);
 
         if (FeatureDataSource.DOWNLOAD == transferModel.data_source) {
             if (isDeleteLocalFile) {

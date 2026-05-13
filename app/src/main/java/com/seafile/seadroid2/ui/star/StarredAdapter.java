@@ -20,6 +20,7 @@ import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemStarredBinding;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
+import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 
@@ -73,10 +74,9 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
         holder.binding.expandableToggleButton.setVisibility(View.VISIBLE);
 
         //set item_icon
-        if (model.deleted || TextUtils.isEmpty(model.encoded_thumbnail_src) || !Utils.isViewableImage(model.obj_name) || model.repo_encrypted || model.is_dir) {
+        if (model.deleted || !Utils.isViewableImage(model.obj_name) || model.repo_encrypted || model.is_dir) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
-//            String url = Utils.pathJoin(SERVER, model.encoded_thumbnail_src);
             String url = convertThumbnailUrl(model.repo_id, model.path);
             String thumbKey = EncryptUtils.encryptMD5ToString(url);
 
@@ -158,10 +158,7 @@ public class StarredAdapter extends BaseAdapter<StarredModel, StarredViewHolder>
     }
 
     private String convertThumbnailUrl(String repoId, String filePath) {
-        if (TextUtils.isEmpty(serverUrl) || TextUtils.isEmpty(repoId) || TextUtils.isEmpty(filePath)) {
-            return null;
-        }
-        return String.format(Locale.ROOT, "%sapi2/repos/%s/thumbnail/?p=%s&size=%d", serverUrl, repoId, filePath, 128);
+        return ThumbnailUtils.convertThumbnailUrl(serverUrl, repoId, filePath);
     }
 
     public void notifyDataChanged(List<StarredModel> list) {
