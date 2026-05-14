@@ -84,7 +84,7 @@
   <string name="updated">已更新</string>
   <string name="download_failed">下载失败</string>
   <string name="download_waiting">等待下载</string>
-  <string name="download_finished">下载完成</string>
+  <string name="download_finished">下载结束</string>
   <string name="download_completed">下载完成</string>
   <string name="download_cancelled">下载取消</string>
   <string name="task_cancel">取消</string>
@@ -738,6 +738,7 @@ Email: support@seafile.com<br>
   <string name="image_dimensions">尺寸</string>
   <string name="image_color_space_uncalibrated">未校准</string>
   <string name="image_color_space_undefined">未定义</string>
+  <string name="not_found">未找到</string>
   <string name="canceled">已取消</string>
   <string name="offline">离线</string>
   <string name="start">开始</string>
@@ -776,4 +777,5 @@ Email: support@seafile.com<br>
   <!--Tips-->
   <string name="tip_press_again_to_exit">再按一次退出应用</string>
   <string name="tip_publish_wiki_desc">URL 的自定义部分长度必须在5到30个字符之间，并且只能包含字母（a-z），数字和连字符。</string>
+  <string name="tip_stop_transfer_when_switch_or_logout">文件传输中，是否仍要切换或退出？</string>
 </resources>

@@ -6,16 +6,16 @@ import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.account.AccountUtils;
+import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.ui.base.fragment.CustomDialogFragment;
 
-public class SignOutDialogFragment extends CustomDialogFragment {
-    public static SignOutDialogFragment newInstance() {
+public class CheckTransferringTaskDialogFragment extends CustomDialogFragment {
+    public static CheckTransferringTaskDialogFragment newInstance() {
 
         Bundle args = new Bundle();
 
-        SignOutDialogFragment fragment = new SignOutDialogFragment();
+        CheckTransferringTaskDialogFragment fragment = new CheckTransferringTaskDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -27,15 +27,11 @@ public class SignOutDialogFragment extends CustomDialogFragment {
 
     @Override
     public int getDialogTitleRes() {
-        return R.string.settings_account_sign_out_title;
+        return R.string.channel_name_transfer;
     }
 
     @Override
     protected void onPositiveClick() {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-
-        AccountUtils.logout(account);
-
         if (onRefreshDataListener != null) {
             onRefreshDataListener.onActionStatus(true);
         }
@@ -47,7 +43,7 @@ public class SignOutDialogFragment extends CustomDialogFragment {
 
         //set message
         TextView textView = containerView.findViewById(R.id.message_view);
-        textView.setText(R.string.settings_account_sign_out_confirm);
+        textView.setText(R.string.tip_stop_transfer_when_switch_or_logout);
     }
 
 }

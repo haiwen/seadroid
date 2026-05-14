@@ -17,6 +17,7 @@
   <string name="delete_repo_title">Poista kirjasto</string>
   <string name="delete_wiki_title">Poista wiki</string>
   <string name="delete_file_f">Poista tiedosto</string>
+  <string name="deleted_some_files">Poistettu tiedostoa</string>
   <string name="delete_local_file_sametime">Poista myös paikallinen tiedosto</string>
   <string name="recover_library">Palauta kirjasto</string>
   <string name="recover_file">Palauta tiedosto</string>
@@ -25,6 +26,7 @@
   <string name="recover_folder">Palauta kansio</string>
   <string name="move_folder">Siirrä kansio</string>
   <string name="delete_dir">Poista kansio</string>
+  <string name="delete_some_dirs">Poista kansioita</string>
   <string name="name_hint">Nimi</string>
   <string name="server">Palvelin</string>
   <string name="server_hint">Palvelimen osoite</string>
@@ -161,6 +163,7 @@
   <string name="not_supported">Ei tuettu</string>
   <string name="not_supported_share">Tämän tyyppistä jakoa ei tueta</string>
   <string name="not_supported_feature">Ei tuettu ominaisuus</string>
+  <string name="operation_timeout">Toimitus aikaa</string>
   <string name="edit">Muokkaa</string>
   <string name="select">Valitse</string>
   <string name="create_draft">Luo luonnos</string>
@@ -193,8 +196,12 @@
   <string name="create_new_folder_success">Onnistuneesti luotiin kansio %s </string>
   <string name="create_new_file_success">Onnistuneesti luotiin tiedosto %s</string>
   <string name="create_new_file">Luo uusi tiedosto</string>
+  <string name="create_some_files">Luo tiedostot</string>
   <string name="create_files">Luo tiedostot</string>
   <string name="create_new_dir">Luo uusi kansio</string>
+  <string name="create_some_dirs">Luo kansiot</string>
+  <string name="and_other_folders">Muita kansioita</string>
+  <string name="and_other_files">Muita tiedostoa</string>
   <string name="camera">Ota valokuva täältä</string>
   <string name="take_photo">Ota valokuva</string>
   <string name="download">Lataa</string>
@@ -321,6 +328,18 @@
   <string name="gesture_lock">Elelukitus</string>
   <string name="gesture_lock_on">Elelukitus päällä</string>
   <string name="gesture_lock_off">Elelukitus pois päältä</string>
+  <!--Biometric lock-->
+  <string name="biometric_lock">Elelukitus</string>
+  <string name="biometric_lock_on">Elelukitus päällä</string>
+  <string name="biometric_lock_off">Elelukitus pois päältä</string>
+  <string name="biometric_prompt_title">Elelukitus</string>
+  <string name="biometric_prompt_subtitle">Elelukitusteksti</string>
+  <string name="lock_timeout_title">Elelukitus aikaa</string>
+  <string name="lock_timeout_immediately">Huomaa</string>
+  <string name="lock_timeout_1_min">1 min</string>
+  <string name="lock_timeout_5_min">5 min</string>
+  <string name="lock_timeout_15_min">15 min</string>
+  <string name="lock_timeout_30_min">30 min</string>
   <string name="lockscreen_access_pattern_hint">Ole Hyvä ja Piirrä Elelukitus Kuvio</string>
   <string name="lockscreen_access_pattern_start">Aloita piirtäminen</string>
   <string name="lockscreen_access_pattern_cleared">Kuvio tyhjennetty</string>

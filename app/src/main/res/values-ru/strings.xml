@@ -17,6 +17,7 @@
   <string name="delete_repo_title">Удалить библиотеку</string>
   <string name="delete_wiki_title">Удалить Wiki</string>
   <string name="delete_file_f">Удалить файл</string>
+  <string name="deleted_some_files">Удалено %d файлов</string>
   <string name="delete_local_file_sametime">Удалить локальные файлы одновременно</string>
   <string name="recover_library">Восстановить библиотеку</string>
   <string name="recover_file">Восстановить файл</string>
@@ -25,6 +26,7 @@
   <string name="recover_folder">Восстановить папку</string>
   <string name="move_folder">Переместить папку</string>
   <string name="delete_dir">Удалить папку</string>
+  <string name="delete_some_dirs">Удалено %d папок</string>
   <string name="name_hint">Имя</string>
   <string name="server">Сервер</string>
   <string name="server_hint">Адрес сервера</string>
@@ -163,6 +165,7 @@
   <string name="not_supported">В настоящее время не поддерживается</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
   <string name="not_supported_feature">Эта функция не поддерживается, обновите версию сервера</string>
+  <string name="operation_timeout">Время операции истекло</string>
   <string name="edit">Изменить</string>
   <string name="select">Выбрать</string>
   <string name="create_draft">Создать черновик</string>
@@ -195,8 +198,12 @@
   <string name="create_new_folder_success">Успешно создана папка %s</string>
   <string name="create_new_file_success">Успешно создан файл %s</string>
   <string name="create_new_file">Создать новый файл</string>
+  <string name="create_some_files">Создано %d файлов</string>
   <string name="create_files">Создать файлы</string>
   <string name="create_new_dir">Создать новую папку</string>
+  <string name="create_some_dirs">Создано %d папок</string>
+  <string name="and_other_folders">и %d других папок</string>
+  <string name="and_other_files">и %d других файлов</string>
   <string name="camera">Сделать фотографию</string>
   <string name="take_photo">Сделать фото</string>
   <string name="download">Скачать</string>

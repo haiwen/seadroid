@@ -13,7 +13,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -29,7 +28,6 @@ import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
-import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.selector.versatile.VersatileRepoSelectorFragment;

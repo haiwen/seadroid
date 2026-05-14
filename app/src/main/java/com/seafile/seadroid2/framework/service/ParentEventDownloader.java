@@ -244,6 +244,11 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
             SafeLogs.e(e);
+
+            if (isStop) {
+                throw SeafException.USER_CANCELLED_EXCEPTION;
+            }
+
             if (canFallback) {
                 onFallback(account, request, fileId);
             } else {
@@ -307,6 +312,11 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
             SafeLogs.e(e);
+
+            if (isStop) {
+                throw SeafException.USER_CANCELLED_EXCEPTION;
+            }
+
             throw SeafException.NETWORK_EXCEPTION;
         }
     }
@@ -336,11 +346,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             long fileSize = resolveDownloadSize(responseBody, localFile);
 
             File tempFile = DataManager.createTempFile();
-            boolean completed = writeResponseToTempFile(responseBody, tempFile, fileSize);
-            if (!completed) {
-                return;
-            }
-
+            writeResponseToTempFile(responseBody, tempFile, fileSize);
             moveTempFileAndMarkSuccess(tempFile, localFile, fileId);
         }
     }
@@ -354,7 +360,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         return fileSize;
     }
 
-    private boolean writeResponseToTempFile(@NonNull ResponseBody responseBody, @NonNull File tempFile, long fileSize) throws IOException {
+    private void writeResponseToTempFile(@NonNull ResponseBody responseBody, @NonNull File tempFile, long fileSize) throws IOException, SeafException {
         try (InputStream inputStream = responseBody.byteStream();
              FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
 
@@ -363,8 +369,8 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             byte[] buffer = new byte[SEGMENT_SIZE];
             while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
                 if (isStop) {
-                    SafeLogs.d(TAG, "download()", "download is stop, break");
-                    return false;
+                    SafeLogs.d(TAG, "download()", "download is stopped by user");
+                    break;
                 }
 
                 fileOutputStream.write(buffer, 0, bytesRead);
@@ -372,8 +378,14 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
                 transferProgressListener.onProgressNotify(totalBytesRead, fileSize);
             }
 
-            transferProgressListener.onProgressNotify(fileSize, fileSize);
-            return true;
+            if (!isStop) {
+                transferProgressListener.onProgressNotify(fileSize, fileSize);
+            }
+        }
+
+        if (isStop) {
+            java.nio.file.Files.deleteIfExists(tempFile.toPath());
+            throw SeafException.USER_CANCELLED_EXCEPTION;
         }
     }
 

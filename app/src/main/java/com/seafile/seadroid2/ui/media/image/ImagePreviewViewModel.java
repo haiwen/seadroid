@@ -15,6 +15,7 @@ import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
+import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -103,7 +104,13 @@ public class ImagePreviewViewModel extends BaseViewModel {
                 Single<DirentFileModel> detailSingle = HttpManager.getCurrentHttp()
                         .execute(FileService.class)
                         .getFileDetail(repoId, fullPath)
-                        .onErrorReturnItem(new DirentFileModel("an error occurred"));
+                        .onErrorResumeNext(new Function<Throwable, SingleSource<? extends DirentFileModel>>() {
+                            @Override
+                            public SingleSource<? extends DirentFileModel> apply(Throwable throwable) throws Exception {
+                                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                                return Single.error(seafException);
+                            }
+                        });
                 return detailSingle.flatMap(new Function<DirentFileModel, SingleSource<Pair<RepoModel, List<DirentModel>>>>() {
                     @Override
                     public SingleSource<Pair<RepoModel, List<DirentModel>>> apply(DirentFileModel direntFileModel) throws Exception {

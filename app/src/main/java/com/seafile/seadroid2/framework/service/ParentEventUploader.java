@@ -568,6 +568,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         } catch (Exception e) {
             SafeLogs.e(TAG, "upload file failed.");
             SafeLogs.e(e);
+
+            if (isStop) {
+                throw SeafException.USER_CANCELLED_EXCEPTION;
+            }
+
             throw ExceptionUtils.parseByThrowable(e);
         } finally {
             if (newCall != null) {

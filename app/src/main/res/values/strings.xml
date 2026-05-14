@@ -783,7 +783,7 @@
     <string name="image_color_space_undefined">Undefined</string>
 
     <string name="transfer_default_state" translatable="false">0</string>
-
+    <string name="not_found">Not found</string>
     <string name="canceled">Canceled</string>
     <string name="offline">Offline</string>
     <string name="start">Start</string>
@@ -827,5 +827,6 @@
     <!-- Tips -->
     <string name="tip_press_again_to_exit">Press again to exit</string>
     <string name="tip_publish_wiki_desc">The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.</string>
+    <string name="tip_stop_transfer_when_switch_or_logout">Files are transferring, do you still want to switch/exit?</string>
 
 </resources>

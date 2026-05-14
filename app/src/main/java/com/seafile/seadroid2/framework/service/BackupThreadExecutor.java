@@ -113,6 +113,10 @@ public class BackupThreadExecutor {
         return fileDownloadFuture != null && !fileDownloadFuture.isDone();
     }
 
+    public boolean isTransferring() {
+        return isUploading() || isDownloading();
+    }
+
     public void stopAll() {
         MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
         if (mediaBackupUploader != null) {

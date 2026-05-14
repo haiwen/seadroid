@@ -438,7 +438,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name) || StringUtils.isEmpty(model.encoded_thumbnail_src)) {
+        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
             GlideApp.with(getContext())
                     .load(model.getIcon())
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
