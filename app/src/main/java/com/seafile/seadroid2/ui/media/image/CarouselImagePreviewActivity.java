@@ -755,6 +755,9 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private void deleteFile() {
         DirentModel direntModel = getSelectedDirent();
+        if (direntModel == null) {
+            return;
+        }
 
         DeleteFileDialogFragment dialogFragment = DeleteFileDialogFragment.newInstance(CollectionUtils.newArrayList(direntModel.uid));
         dialogFragment.setRefreshListener(new OnRefreshDataListener() {
@@ -800,6 +803,10 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private void shareFile() {
         DirentModel direntModel = getSelectedDirent();
+        if (direntModel == null) {
+            return;
+        }
+
         WidgetUtils.showCreateShareLinkDialog(this, getSupportFragmentManager(), direntModel, false);
     }
 
