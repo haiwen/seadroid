@@ -116,6 +116,10 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         if (mode == Configuration.UI_MODE_NIGHT_YES) {
             css.addRule("body", new String[]{"line-height: 1.6", "padding: 0px", "background-color: #222;"});
             css.addRule("body", "color: white");
+            css.addRule("table tr", "background-color: #222; color: white; border-top-color: #444");
+            css.addRule("table tr:nth-child(2n)", "background-color: #2c2c2c");
+            css.addRule("table th, table td", "border-color: #444");
+            css.addRule("code, pre", "background-color: #2c2c2c; color: white");
         } else {
             css.addRule("body", new String[]{"line-height: 1.6", "padding: 0px"});
         }
