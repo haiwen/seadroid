@@ -88,7 +88,7 @@ public class SeafException extends Exception {
     public static final SeafException BAD_REQUEST_EXCEPTION = new SeafException(HTTP_400_BAD_REQUEST, "request failed");
     public static final SeafException UNAUTHORIZED_EXCEPTION = new SeafException(HTTP_401_UNAUTHORIZED, "Not logged in");
     public static final SeafException PERMISSION_EXCEPTION = new SeafException(HTTP_403_FORBIDDEN, SeadroidApplication.getAppString(R.string.share_link_no_permission));
-    public static final SeafException NOT_FOUND_EXCEPTION = new SeafException(HTTP_404_NOT_FOUND, "Not found");
+    public static final SeafException NOT_FOUND_EXCEPTION = new SeafException(HTTP_404_NOT_FOUND, SeadroidApplication.getAppString(R.string.not_found));
     public static final SeafException OUT_OF_QUOTA = new SeafException(HTTP_443_OUT_OF_QUOTA, SeadroidApplication.getAppString(R.string.above_quota));
     public static final SeafException SERVER_INTERNAL_ERROR = new SeafException(HTTP_500_INTERNAL_SERVER_ERROR, SeadroidApplication.getAppString(R.string.internal_server_error));
 

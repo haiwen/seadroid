@@ -108,17 +108,35 @@ public class BackupThreadExecutor {
                 || (folderBackupFuture != null && !folderBackupFuture.isDone())
                 || (albumBackupFuture != null && !albumBackupFuture.isDone());
     }
-    public boolean isDownloading(){
+
+    public boolean isDownloading() {
         return fileDownloadFuture != null && !fileDownloadFuture.isDone();
     }
 
+    public boolean isTransferring() {
+        return isUploading() || isDownloading();
+    }
+
     public void stopAll() {
-        stopAlbumBackup();
-        stopFolderBackup();
-        stopManualFileUpload();
-        stopLocalFileUpdate();
-        stopShareToSeafileUpload();
-        stopDownload();
+        MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
+        if (mediaBackupUploader != null) {
+            mediaBackupUploader.stop();
+        }
+
+        FolderBackupUploader folderBackupUploader = getTransmitter(FeatureDataSource.FOLDER_BACKUP);
+        if (folderBackupUploader != null) {
+            folderBackupUploader.stop();
+        }
+
+        FileUploader fileUploader = getTransmitter(FeatureDataSource.MANUAL_FILE_UPLOAD);
+        if (fileUploader != null) {
+            fileUploader.stop();
+        }
+
+        FileDownloader fileDownloader = getTransmitter(FeatureDataSource.DOWNLOAD);
+        if (fileDownloader != null) {
+            fileDownloader.stop();
+        }
 
         // clear all notification
         notificationDispatcher.clearDelay();

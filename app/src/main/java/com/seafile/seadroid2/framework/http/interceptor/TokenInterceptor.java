@@ -46,16 +46,16 @@ public class TokenInterceptor implements Interceptor {
         builder.addHeader("timestamp", String.valueOf(System.currentTimeMillis()));
         builder.addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA);
 
-        //
-        if (TextUtils.isEmpty(authToken)) {
+        String token = authToken;
+        if (TextUtils.isEmpty(token)) {
             HttpIO httpIO = HttpManager.getCurrentLoggedHttp();
             if (httpIO != null) {
-                authToken = httpIO.getCurrentToken();
+                token = httpIO.getCurrentToken();
             }
         }
 
-        if (!TextUtils.isEmpty(authToken)) {
-            builder.addHeader("Authorization", "Token " + authToken);
+        if (!TextUtils.isEmpty(token)) {
+            builder.addHeader("Authorization", "Token " + token);
         }
 
         return builder;

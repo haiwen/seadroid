@@ -17,6 +17,7 @@
   <string name="delete_repo_title">刪除資料庫</string>
   <string name="delete_wiki_title">刪除Wiki</string>
   <string name="delete_file_f">刪除文件</string>
+  <string name="deleted_some_files">已刪除檔案或文件夾</string>
   <string name="delete_local_file_sametime">是否要刪除本地端的相同檔案?</string>
   <string name="recover_library">是否要恢復這一個資料庫?</string>
   <string name="recover_file">是否要恢復這一個檔案或文件夾?</string>
@@ -25,6 +26,7 @@
   <string name="recover_folder">是否要恢復這一個文件夾?</string>
   <string name="move_folder">是否要將這一個文件夾移動到其他位置?</string>
   <string name="delete_dir">刪除文件夾</string>
+  <string name="delete_some_dirs">已刪除文件夾</string>
   <string name="name_hint">名稱</string>
   <string name="server">伺服器</string>
   <string name="server_hint">Seafile伺服器位址</string>
@@ -82,7 +84,7 @@
   <string name="updated">已更新</string>
   <string name="download_failed">下載失敗</string>
   <string name="download_waiting">等待下載</string>
-  <string name="download_finished">下載完成</string>
+  <string name="download_finished">下載結束</string>
   <string name="download_completed">下載完成</string>
   <string name="download_cancelled">下載取消</string>
   <string name="task_cancel">取消</string>
@@ -160,6 +162,7 @@
   <string name="not_supported">不支持此操作</string>
   <string name="not_supported_share">不支持此類分享</string>
   <string name="not_supported_feature">不支持此功能</string>
+  <string name="operation_timeout">操作超時</string>
   <string name="edit">編輯</string>
   <string name="select">選擇</string>
   <string name="create_draft">創建草稿</string>
@@ -192,8 +195,12 @@
   <string name="create_new_folder_success">文件夾%s創建成功</string>
   <string name="create_new_file_success">文件%s創建成功</string>
   <string name="create_new_file">創建新文件</string>
+  <string name="create_some_files">創建文件或文件夾</string>
   <string name="create_files">創建文件</string>
   <string name="create_new_dir">創建新文件夾</string>
+  <string name="create_some_dirs">創建文件夾</string>
+  <string name="and_other_folders">及其他文件夾</string>
+  <string name="and_other_files">及其他文件</string>
   <string name="camera">拍照上傳</string>
   <string name="take_photo">拍照</string>
   <string name="download">下載</string>
@@ -319,6 +326,18 @@
   <string name="gesture_lock">手勢密碼鎖</string>
   <string name="gesture_lock_on">手勢鎖開啓</string>
   <string name="gesture_lock_off">手勢鎖關閉</string>
+  <!--Biometric lock-->
+  <string name="biometric_lock">生物識別鎖</string>
+  <string name="biometric_lock_on">生物識別鎖開啓</string>
+  <string name="biometric_lock_off">生物識別鎖關閉</string>
+  <string name="biometric_prompt_title">生物識別鎖提示</string>
+  <string name="biometric_prompt_subtitle">請使用生物識別鎖解鎖</string>
+  <string name="lock_timeout_title">鎖屏超時</string>
+  <string name="lock_timeout_immediately">立即鎖屏</string>
+  <string name="lock_timeout_1_min">1分鐘後鎖屏</string>
+  <string name="lock_timeout_5_min">5分鐘後鎖屏</string>
+  <string name="lock_timeout_15_min">15分鐘後鎖屏</string>
+  <string name="lock_timeout_30_min">30分鐘後鎖屏</string>
   <string name="lockscreen_access_pattern_hint">請繪制手勢密碼</string>
   <string name="lockscreen_access_pattern_start">開始繪製圖案</string>
   <string name="lockscreen_access_pattern_cleared">圖案已清除</string>
@@ -705,6 +724,7 @@
   <string name="image_dimensions">尺寸</string>
   <string name="image_color_space_uncalibrated">未校準的顏色空間</string>
   <string name="image_color_space_undefined">未定義的顏色空間</string>
+  <string name="not_found">未找到</string>
   <string name="canceled">已取消</string>
   <string name="offline">離線</string>
   <string name="start">開始</string>
@@ -743,4 +763,5 @@
   <!--Tips-->
   <string name="tip_press_again_to_exit">再次按鍵退出</string>
   <string name="tip_publish_wiki_desc">發布Wiki頁面</string>
+  <string name="tip_stop_transfer_when_switch_or_logout">文件傳輸中，是否仍要切換或退出？</string>
 </resources>

@@ -37,14 +37,12 @@ import android.provider.DocumentsProvider;
 import android.text.TextUtils;
 
 import androidx.annotation.StringRes;
-import androidx.media3.common.util.Log;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.seafile.seadroid2.BuildConfig;
-import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
@@ -56,13 +54,13 @@ import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.glide.GlideImage;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
@@ -76,7 +74,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -733,8 +730,7 @@ public class SeafileProvider extends DocumentsProvider {
                 @Override
                 public void run() {
                     try (FileOutputStream fileStream = new FileOutputStream(writeFd.getFileDescriptor())) {
-                        String pathEnc = URLEncoder.encode(path, "UTF-8");
-                        String urlPath = account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoId, pathEnc, sizeHint.x);
+                        String urlPath = ThumbnailUtils.convertThumbnailUrl(account.getServer(),repoId,path);
 
                         SLogs.d(TAG, "openDocumentThumbnail()", "urlPath = " + urlPath);
 

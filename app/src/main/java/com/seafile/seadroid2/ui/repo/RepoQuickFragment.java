@@ -61,7 +61,6 @@ import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.LayoutFastRvBinding;
 import com.seafile.seadroid2.enums.ActionModeCallbackType;
-import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.OpType;
@@ -901,11 +900,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         } else if (TextUtils.equals(statusEvent, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED)) {
 
-            if (FeatureDataSource.ALBUM_BACKUP.name().equals(dataSource) || FeatureDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
-                Toasts.show(R.string.upload_cancelled);
-            } else if (FeatureDataSource.DOWNLOAD.name().equals(dataSource)) {
-                Toasts.show(R.string.download_cancelled);
-            }
+//            if (FeatureDataSource.ALBUM_BACKUP.name().equals(dataSource) || FeatureDataSource.FOLDER_BACKUP.name().equals(dataSource)) {
+//                Toasts.show(R.string.upload_cancelled);
+//            } else if (FeatureDataSource.DOWNLOAD.name().equals(dataSource)) {
+//                Toasts.show(R.string.download_cancelled);
+//            }
 
             loadData(RefreshStatusEnum.ONLY_REMOTE, false);
         }

@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.base.fragment;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -20,20 +19,10 @@ import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 
 public abstract class CustomDialogFragment extends DialogFragment {
     // Use this instance of the interface to deliver action events
-    private OnRefreshDataListener mListener;
+    protected OnRefreshDataListener onRefreshDataListener;
 
-    public OnRefreshDataListener getRefreshListener() {
-        return mListener;
-    }
-
-    public void setRefreshListener(OnRefreshDataListener mListener) {
-        this.mListener = mListener;
-    }
-
-    public void refreshData() {
-        if (mListener != null) {
-            mListener.onActionStatus(true);
-        }
+    public void setOnRefreshDataListener(OnRefreshDataListener onRefreshDataListener) {
+        this.onRefreshDataListener = onRefreshDataListener;
     }
 
     protected abstract int getLayoutId();
@@ -89,7 +78,9 @@ public abstract class CustomDialogFragment extends DialogFragment {
         loadingBar = rootView.findViewById(R.id.progress_bar);
 
         if (positiveView != null) {
-            positiveView.setOnClickListener(v -> onPositiveClick());
+            positiveView.setOnClickListener(v -> {
+                onPositiveClick();
+            });
         }
 
         if (negativeView != null) {

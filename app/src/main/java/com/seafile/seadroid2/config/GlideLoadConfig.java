@@ -27,12 +27,6 @@ public class GlideLoadConfig {
                 .addHeader("Authorization", "Token " + token)
                 .build());
     }
-//
-//    public static GlideUrl getGlideUrl(String url, String token) {
-//        return new GlideUrl(url, new LazyHeaders.Builder()
-//                .addHeader("Authorization", "Token " + token)
-//                .build());
-//    }
 
     public static RequestOptions getAvatarOptions() {
         return new RequestOptions()

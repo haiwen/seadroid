@@ -12,13 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
-import android.widget.ListView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.ActivityUtils;
@@ -28,15 +24,18 @@ import com.seafile.seadroid2.databinding.StartBinding;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.account.AccountUtils;
+import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.listener.OnCallback;
 import com.seafile.seadroid2.ui.SplashActivity;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
+import com.seafile.seadroid2.ui.dialog_fragment.CheckTransferringTaskDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.PolicyDialogFragment;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.ui.account.adapter.AccountAdapter;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.main.MainActivity;
 
 import java.util.List;
@@ -122,7 +121,7 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         }
     }
 
-    private void initUI(){
+    private void initUI() {
 
         View footerView = getLayoutInflater().inflate(R.layout.account_list_footer, null, false);
 
@@ -188,14 +187,21 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
 
     private void onListItemClick(int position) {
         Account clickedAccount = accounts.get(position);
-
         Account loggedAccount = SupportAccountManager.getInstance().getCurrentAccount();
-
         if (clickedAccount.is_checked && loggedAccount != null) {
             finish();
             return;
         }
 
+        boolean isTransferring = BackupThreadExecutor.getInstance().isTransferring();
+        if (isTransferring) {
+            showTransferringDialog(clickedAccount);
+        } else {
+            switchAccount(clickedAccount);
+        }
+    }
+
+    private void switchAccount(Account clickedAccount) {
         if (!clickedAccount.hasValidToken()) {
             // user already signed out, input password first
             startEditAccountActivity(clickedAccount);
@@ -209,6 +215,17 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
 
             startFilesActivity();
         }
+    }
+
+    private void showTransferringDialog(Account clickedAccount) {
+        CheckTransferringTaskDialogFragment dialogFragment = CheckTransferringTaskDialogFragment.newInstance();
+        dialogFragment.setOnRefreshDataListener(new OnRefreshDataListener() {
+            @Override
+            public void onActionStatus(boolean isDone) {
+                switchAccount(clickedAccount);
+            }
+        });
+        dialogFragment.show(getSupportFragmentManager(), CheckTransferringTaskDialogFragment.class.getSimpleName());
     }
 
     @Override

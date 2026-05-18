@@ -286,10 +286,10 @@ public class MetadataViewUtils {
             if (option.isPresent()) {
                 OptionTagModel t = option.get();
                 int r = ColumnTypeUtils.getResNameByKey(t.name);
-                if (r == Resources.ID_NULL) {
-                    textView.setText(t.name);
-                } else {
+                if (r != 0) {
                     textView.setText(r);
+                } else {
+                    textView.setText(t.name);
                 }
 
                 textView.setTextColor(Color.parseColor(t.getTextColor()));

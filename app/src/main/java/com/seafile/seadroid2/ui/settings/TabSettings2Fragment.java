@@ -42,6 +42,7 @@ import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.annotation.Todo;
@@ -74,6 +75,7 @@ import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
+import com.seafile.seadroid2.ui.dialog_fragment.CheckTransferringTaskDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.ClearCacheDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.ClearPasswordDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.SignOutDialogFragment;
@@ -615,10 +617,18 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
     }
 
-
     private void onPreferenceSignOutClicked() {
+        boolean isTransferring = BackupThreadExecutor.getInstance().isTransferring();
+        if (isTransferring) {
+            showTransferringDialog();
+        } else {
+            showSignOutDialog();
+        }
+    }
+
+    private void showSignOutDialog() {
         SignOutDialogFragment dialogFragment = new SignOutDialogFragment();
-        dialogFragment.setRefreshListener(isDone -> {
+        dialogFragment.setOnRefreshDataListener(isDone -> {
             if (isDone) {
                 Intent intent = new Intent(requireActivity(), SplashActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -628,6 +638,24 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         });
         dialogFragment.show(getChildFragmentManager(), SignOutDialogFragment.class.getSimpleName());
     }
+
+    private void showTransferringDialog() {
+        CheckTransferringTaskDialogFragment dialogFragment = CheckTransferringTaskDialogFragment.newInstance();
+        dialogFragment.setOnRefreshDataListener(new OnRefreshDataListener() {
+            @Override
+            public void onActionStatus(boolean isDone) {
+                Account account = SupportAccountManager.getInstance().getCurrentAccount();
+                AccountUtils.logout(account);
+
+                Intent intent = new Intent(requireActivity(), SplashActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                requireActivity().finish();
+            }
+        });
+        dialogFragment.show(getChildFragmentManager(), CheckTransferringTaskDialogFragment.class.getSimpleName());
+    }
+
 
     private void initPrefLiveData() {
         //////////////////
@@ -870,8 +898,13 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void refreshPendingCount(String dataSource, String statusEvent, boolean isFinish, String result) {
+
         if (!TextUtils.isEmpty(result)) {
-            mTransferUploadState.setSummary(result);
+            if (FeatureDataSource.DOWNLOAD.name().equals(dataSource)) {
+                mTransferDownloadState.setSummary(result);
+            } else {
+                mTransferUploadState.setSummary(result);
+            }
             return;
         }
 

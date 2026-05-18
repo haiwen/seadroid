@@ -145,8 +145,13 @@ public class SupportMetadataRadioGroup extends RadioGroup {
         textView.setEllipsize(TextUtils.TruncateAt.END);
 
         if (StringUtils.equals("_status", key)) {
-            textView.setText(ColumnTypeUtils.getResNameByKey(optionsModel.name));
-        }else{
+            int rid = ColumnTypeUtils.getResNameByKey(optionsModel.name);
+            if (rid != 0) {
+                textView.setText(rid);
+            } else {
+                textView.setText(optionsModel.name);
+            }
+        } else {
             textView.setText(optionsModel.name);
         }
 

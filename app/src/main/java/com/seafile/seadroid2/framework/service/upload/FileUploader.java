@@ -8,6 +8,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -28,6 +29,20 @@ public class FileUploader extends ParentEventUploader {
         return FeatureDataSource.MANUAL_FILE_UPLOAD;
     }
 
+
+    public void stop() {
+        SafeLogs.d(TAG, "stop()");
+
+        //clear
+        GlobalTransferCacheList.FILE_UPLOAD_QUEUE.clear();
+
+        //stop
+        stopThis();
+
+        send(FeatureDataSource.MANUAL_FILE_UPLOAD, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED);
+
+    }
+
     public void stopById(String modelId) {
         SafeLogs.d(TAG, "stopById()", "stop download by id: " + modelId);
 
@@ -41,8 +56,10 @@ public class FileUploader extends ParentEventUploader {
             return;
         }
 
-        //stop
-        stopThis();
+        if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
+            stopThis();
+        }
+
     }
 
     public SeafException upload() {
