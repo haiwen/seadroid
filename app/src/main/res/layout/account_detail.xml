@@ -47,8 +47,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/app_widget_top_margin_small"
             android:hint="@string/email_hint"
-            app:endIconDrawable="@drawable/clear_text"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:endIconDrawable="@drawable/baseline_close_24"
+            app:endIconTint="@color/bar_title_color">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email_address"
@@ -68,7 +69,9 @@
             android:layout_marginTop="@dimen/app_widget_top_margin_small"
             android:hint="@string/passwd_hint"
             android:orientation="horizontal"
-            app:passwordToggleDrawable="@drawable/selector_password_toggle"
+            app:endIconDrawable="@drawable/selector_password_toggle"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/bar_title_color"
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -134,8 +137,8 @@
         android:layout_marginStart="@dimen/app_padding_horizontal"
         android:layout_marginTop="@dimen/app_widget_top_margin_middle"
         android:layout_marginEnd="@dimen/app_padding_horizontal"
-        android:visibility="gone"
         android:text="@string/seahub_url_hint"
-        android:textSize="@dimen/tv_txt_size" />
+        android:textSize="@dimen/tv_txt_size"
+        android:visibility="gone" />
 
 </LinearLayout>

@@ -41,7 +41,7 @@
             android:layout_gravity="center"
             android:padding="2dp"
             android:scaleType="centerInside"
-            android:src="@drawable/icon_sdoc_info"
+            android:src="@drawable/baseline_properties"
             app:tint="@color/primary_icon_tint_color" />
 
     </FrameLayout>

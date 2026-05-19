@@ -63,7 +63,7 @@
             android:layout_width="@dimen/lv_multi_select_width"
             android:layout_height="@dimen/lv_multi_select_height"
             android:contentDescription="@string/file_action_more"
-            android:foreground="@drawable/ripple_icon_little"
+            android:foreground="@drawable/ripple_icon_small"
             android:padding="8dp"
             android:src="@drawable/baseline_more_vert_24"
             android:visibility="visible"

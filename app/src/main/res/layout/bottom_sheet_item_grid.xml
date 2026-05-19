@@ -13,7 +13,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:importantForAccessibility="no"
-        android:padding="12dp"
+        android:padding="14dp"
         app:tint="@color/bar_icon_tint_color"
         tools:src="@drawable/ic_launcher_foreground" />
 

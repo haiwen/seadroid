@@ -463,7 +463,7 @@ public class MetadataViewUtils {
             ColorStateList stateList = ColorStateList.valueOf(t);
 
             ltr.setImageTintList(stateList);
-            ltr.setImageResource(R.drawable.ic_star_32);
+            ltr.setImageResource(R.drawable.baseline_fav_filled);
 
             view.<FlexboxLayout>findViewById(R.id.flex_box).addView(ltr, flexLayoutParams);
         }
@@ -1620,7 +1620,7 @@ public class MetadataViewUtils {
         seaRatingBar.setStarPadding(DP_8);
         seaRatingBar.setRatingStatus(RatingStatus.Enable);
 
-        int drawRes = R.drawable.icon_starred;
+        int drawRes = R.drawable.baseline_fav_filled;
         //set empty
         Drawable emptyDrawable = ContextCompat.getDrawable(context, drawRes);
         if (emptyDrawable != null) {

@@ -6,6 +6,6 @@
         android:title="@string/mark_resolve" />
     <item
         android:id="@+id/delete"
-        android:icon="@drawable/baseline_delete_24"
+        android:icon="@drawable/baseline_delete"
         android:title="@string/delete" />
 </menu>
