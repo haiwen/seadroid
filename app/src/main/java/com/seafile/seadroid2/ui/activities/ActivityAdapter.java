@@ -9,8 +9,8 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.SpanUtils;
-import com.google.android.gms.common.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
 import com.seafile.seadroid2.config.GlideLoadConfig;
