@@ -7,7 +7,7 @@
 
     <item
         android:id="@+id/tabs_starred"
-        android:icon="@drawable/icon_favorites"
+        android:icon="@drawable/baseline_fav_filled"
         android:title="@string/tabs_starred" />
 
     <item

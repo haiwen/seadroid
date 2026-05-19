@@ -132,7 +132,7 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
 
     private void onBindLocalList(TransferItemViewHolder holder, TransferModel model) {
         holder.binding.itemMultiSelect.setVisibility(View.GONE);
-        holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+        holder.binding.itemMultiSelect.setImageResource(R.drawable.icon_editor_check_circle_stroked);
 
         //target path
         if (!TextUtils.isEmpty(model.repo_name)) {
@@ -253,7 +253,7 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
 
     private void onBindDbList(TransferItemViewHolder holder, FileBackupStatusEntity entity) {
         holder.binding.itemMultiSelect.setVisibility(View.GONE);
-        holder.binding.itemMultiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
+        holder.binding.itemMultiSelect.setImageResource(R.drawable.icon_editor_check_circle_stroked);
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
 
         //icon

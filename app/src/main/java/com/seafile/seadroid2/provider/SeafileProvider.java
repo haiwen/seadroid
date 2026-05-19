@@ -937,7 +937,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_DOCUMENT_ID, docMagicId);
 
         row.add(Document.COLUMN_DISPLAY_NAME, SeadroidApplication.getAppString(R.string.tabs_starred));
-        row.add(Document.COLUMN_ICON, R.drawable.star_normal);
+        row.add(Document.COLUMN_ICON, R.drawable.baseline_fav_filled);
         row.add(Document.COLUMN_FLAGS, 0);
 
         row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);

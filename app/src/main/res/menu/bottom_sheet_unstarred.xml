@@ -11,7 +11,7 @@
     <item
         android:id="@+id/unstar"
         app:iconTint="#8a8a8a"
-        android:icon="@drawable/baseline_starred_outline_24"
+        android:icon="@drawable/baseline_fav_outline"
         android:title="@string/unstar" />
 
 </menu>
