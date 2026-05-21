@@ -69,7 +69,6 @@
     <!-- icon tint -->
     <color name="navigation_bar_icon_tint_color">#000000</color>
     <color name="primary_icon_tint_color">@color/grey</color>
-    <color name="tip_icon_tint_color">#999999</color>
 
     <!-- bottom sheet popup view -->
     <color name="bottom_sheet_pop_enable_color">@color/material_grey_666</color>
@@ -123,11 +122,13 @@
 
     <color name="item_selector_user_background">#e9e9e9</color>
     <color name="item_selector_tag_background">#FFFFFF</color>
-    <color name="profile_editor_title">#666666</color>
-    <color name="profile_editor_divider">#E0E5EC</color>
-    <color name="profile_tag_stroke">#DBDBDB</color>
-    <color name="profile_editor_editable">@color/white</color>
-    <color name="profile_editor_no_editable">#f8f8f8</color>
-    <color name="profile_editor_checked_color">#ff9700</color>
-    <color name="profile_editor_unchecked_color">#999999</color>
+
+    <!-- property -->
+    <color name="property_editor_title">#666666</color>
+    <color name="property_editor_divider">#E0E5EC</color>
+    <color name="property_tag_stroke">#DBDBDB</color>
+    <color name="property_editor_editable">@color/white</color>
+    <color name="property_editor_no_editable">#f8f8f8</color>
+    <color name="property_editor_checked_color">#ff9700</color>
+    <color name="property_editor_unchecked_color">#999999</color>
 </resources>

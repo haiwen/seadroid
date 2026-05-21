@@ -54,7 +54,7 @@
                 android:background="@drawable/ripple_icon_middle"
                 android:padding="12dp"
                 android:src="@drawable/icon_editor_image"
-                app:tint="@color/tip_icon_tint_color" />
+                app:tint="@color/primary_icon_tint_color" />
 
             <LinearLayout
                 android:layout_width="0dp"
