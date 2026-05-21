@@ -13,7 +13,7 @@
     app:contentPaddingLeft="5dp"
     app:contentPaddingRight="8dp"
     app:contentPaddingTop="3dp"
-    app:strokeColor="@color/profile_tag_stroke"
+    app:strokeColor="@color/property_tag_stroke"
     app:strokeWidth="1dp">
 
     <LinearLayout
