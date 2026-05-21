@@ -64,7 +64,10 @@
     <color name="bar_icon_tint_color">@color/material_grey_900</color>
     <color name="swipe_refresh_background_color">@color/material_grey_109</color>
     <color name="child_activity_background_color">@color/white</color>
+    <color name="popup_window_background_color">@color/white</color>
 
+    <!-- icon tint -->
+    <color name="navigation_bar_icon_tint_color">#000000</color>
     <color name="primary_icon_tint_color">@color/grey</color>
     <color name="tip_icon_tint_color">#999999</color>
 

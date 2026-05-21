@@ -60,6 +60,12 @@
     <color name="bar_icon_tint_color">@color/material_grey_200</color>
     <color name="swipe_refresh_background_color">@color/material_grey_700</color>
     <color name="child_activity_background_color">@color/black</color>
+    <color name="popup_window_background_color">#262626</color>
+
+    <!-- icon tint -->
+    <color name="navigation_bar_icon_tint_color">@color/white</color>
+    <color name="primary_icon_tint_color">@color/grey</color>
+    <color name="tip_icon_tint_color">#999999</color>
 
     <!-- bottom sheet popup view -->
     <color name="bottom_sheet_pop_enable_color">@color/bar_title_color</color>

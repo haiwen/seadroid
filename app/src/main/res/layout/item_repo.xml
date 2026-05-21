@@ -85,5 +85,6 @@
         android:visibility="visible"
         app:dividerColor="@color/divider_color"
         app:dividerInsetStart="16dp"
+        app:dividerInsetEnd="16dp"
         app:layout_constraintBottom_toBottomOf="parent" />
 </com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout>

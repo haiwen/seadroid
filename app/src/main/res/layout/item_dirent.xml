@@ -136,6 +136,7 @@
         android:layout_height="wrap_content"
         android:visibility="visible"
         app:dividerColor="@color/divider_color"
+        app:dividerInsetEnd="16dp"
         app:dividerInsetStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent" />
 </com.seafile.seadroid2.widget.CheckableForegroundConstraintLayout>

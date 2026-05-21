@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/tabs_library"
         android:icon="@drawable/icon_libraries"
@@ -14,6 +15,7 @@
         android:id="@+id/tabs_wiki"
         android:icon="@drawable/icon_wikis"
         android:title="@string/tabs_wiki" />
+
     <item
         android:id="@+id/tabs_activity"
         android:icon="@drawable/icon_activities"

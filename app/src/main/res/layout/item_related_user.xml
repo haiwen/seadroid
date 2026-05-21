@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
     android:foreground="?android:selectableItemBackground"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +20,6 @@
             android:id="@+id/list_item_account_icon"
             android:layout_width="@dimen/lv_act_icon_size"
             android:layout_height="@dimen/lv_act_icon_size"
-            android:layout_marginStart="16dp"
             android:layout_marginEnd="@dimen/lv_act_icon_margin_right"
             android:src="@drawable/default_avatar"
             app:shapeAppearance="@style/ShapeCircleStyle" />
@@ -63,6 +62,5 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:dividerColor="@color/divider_color"
-        app:dividerInsetStart="16dp" />
+        app:dividerColor="@color/divider_color" />
 </LinearLayout>

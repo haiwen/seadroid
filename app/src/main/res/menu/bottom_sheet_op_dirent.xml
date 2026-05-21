@@ -1,67 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/star"
         android:icon="@drawable/baseline_fav_filled"
-        android:title="@string/file_action_star" />
+        android:title="@string/file_action_star"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/unstar"
         android:icon="@drawable/baseline_fav_outline"
-        android:title="@string/unstar" />
+        android:title="@string/unstar"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/share"
         android:icon="@drawable/baseline_share"
-        android:title="@string/file_share" />
+        android:title="@string/file_share"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/export"
-        android:icon="@drawable/action_export"
-        android:title="@string/file_action_export" />
+        android:icon="@drawable/baseline_export"
+        android:title="@string/file_action_export"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/rename"
         android:icon="@drawable/baseline_edit_rename"
-        android:title="@string/file_action_rename" />
+        android:title="@string/file_action_rename"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/delete"
         android:icon="@drawable/baseline_delete"
-        android:title="@string/file_action_delete" />
+        android:title="@string/file_action_delete"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/copy"
         android:icon="@drawable/baseline_copy"
-        android:title="@string/file_action_copy" />
+        android:title="@string/file_action_copy"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/move"
         android:icon="@drawable/baseline_move"
-        android:title="@string/file_action_move" />
+        android:title="@string/file_action_move"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/upload"
         android:icon="@drawable/baseline_upload"
-        android:title="@string/file_action_update" />
+        android:title="@string/file_action_update"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/download"
         android:icon="@drawable/baseline_download"
-        android:title="@string/file_action_download" />
+        android:title="@string/file_action_download"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/open_with"
-        android:icon="@drawable/action_open"
-        android:title="@string/file_action_open" />
+        android:icon="@drawable/baseline_open_with"
+        android:title="@string/file_action_open"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/save_as"
-        android:icon="@drawable/baseline_save_as_24"
-        android:title="@string/file_action_save_as" />
+        android:icon="@drawable/baseline_save_as"
+        android:title="@string/file_action_save_as"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/profile"
         android:icon="@drawable/baseline_properties"
-        android:title="@string/file_action_profile" />
+        android:title="@string/file_action_profile"
+        app:iconTint="@color/primary_icon_tint_color" />
 </menu>
