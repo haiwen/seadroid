@@ -61,6 +61,7 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
@@ -781,6 +782,8 @@ public class SeafileProvider extends DocumentsProvider {
     public String createDocument(String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
         SLogs.d(TAG, "createDocument()", "parentDocumentId: " + parentDocumentId, "mimeType: " + mimeType, "displayName: " + displayName);
 
+        displayName = UnicodePathUtils.normalize(displayName);
+
         if (TextUtils.isEmpty(parentDocumentId) || TextUtils.isEmpty(mimeType) || TextUtils.isEmpty(displayName)) {
             throw throwFileNotFoundException(R.string.saf_bad_mime_type);
         }
@@ -906,7 +909,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
-        row.add(Document.COLUMN_DISPLAY_NAME, repoModel.repo_name);
+        row.add(Document.COLUMN_DISPLAY_NAME, UnicodePathUtils.normalize(repoModel.repo_name));
         row.add(Document.COLUMN_LAST_MODIFIED, repoModel.last_modified_long);
         row.add(Document.COLUMN_FLAGS, flags);
         row.add(Document.COLUMN_ICON, repoModel.getIcon());
@@ -955,7 +958,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
-        row.add(Document.COLUMN_DISPLAY_NAME, entry.name);
+        row.add(Document.COLUMN_DISPLAY_NAME, UnicodePathUtils.normalize(entry.name));
         row.add(Document.COLUMN_SIZE, entry.size);
         row.add(Document.COLUMN_SUMMARY, null);
         row.add(Document.COLUMN_LAST_MODIFIED, entry.mtime * 1000);
@@ -999,7 +1002,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         String displayName;
         if (starredModel.isRepo()) {
-            displayName = starredModel.repo_name;
+            displayName = UnicodePathUtils.normalize(starredModel.repo_name);
 
             if (starredModel.repo_encrypted) {
                 row.add(Document.COLUMN_ICON, R.drawable.baseline_repo_encrypted_24);
@@ -1007,7 +1010,7 @@ public class SeafileProvider extends DocumentsProvider {
                 row.add(Document.COLUMN_ICON, R.drawable.baseline_repo_24);
             }
         } else {
-            displayName = starredModel.obj_name;
+            displayName = UnicodePathUtils.normalize(starredModel.obj_name);
         }
 
         if (starredModel.deleted) {

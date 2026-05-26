@@ -17,6 +17,7 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 
@@ -44,15 +45,17 @@ public class RenameRepoViewModel extends BaseViewModel {
     }
 
     public void renameRepo(Account account, String oldRepoName, String newRepoName, String repoId) {
+        final String normalizedOldRepoName = UnicodePathUtils.normalize(oldRepoName);
+        final String normalizedNewRepoName = UnicodePathUtils.normalize(newRepoName);
 
-        if (TextUtils.equals(oldRepoName, newRepoName)) {
+        if (TextUtils.equals(normalizedOldRepoName, normalizedNewRepoName)) {
             return;
         }
 
         getRefreshLiveData().setValue(true);
 
         Map<String, String> requestDataMap = new HashMap<>();
-        requestDataMap.put("repo_name", newRepoName);
+        requestDataMap.put("repo_name", normalizedNewRepoName);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
         Single<String> single = HttpManager.getCurrentHttp().execute(DialogService.class).renameRepo(repoId, bodyMap);
@@ -66,19 +69,19 @@ public class RenameRepoViewModel extends BaseViewModel {
                             return;
                         }
 
-                        File oldRepoFolder = DataManager.getLocalRepoDir(account, repoId, oldRepoName);
+                        File oldRepoFolder = DataManager.getLocalRepoDir(account, repoId, normalizedOldRepoName);
 
                         if (oldRepoFolder.exists()) {
-                            File newRepoFolder = DataManager.getLocalRepoDir(account, repoId, newRepoName);
+                            File newRepoFolder = DataManager.getLocalRepoDir(account, repoId, normalizedNewRepoName);
                             Files.move(oldRepoFolder.toPath(), newRepoFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         }
 
                         //update db
-                        AppDatabase.getInstance().fileCacheStatusDAO().updateRepoNameByRepoId(repoId, newRepoName);
-                        AppDatabase.getInstance().fileTransferDAO().updateRepoNameByRepoId(repoId, newRepoName);
-                        AppDatabase.getInstance().repoDao().updateRepoNameByRepoId(repoId, newRepoName);
-                        AppDatabase.getInstance().direntDao().updateRepoNameByRepoId(repoId, newRepoName);
-                        AppDatabase.getInstance().starredDirentDAO().updateRepoNameByRepoId(repoId, newRepoName);
+                        AppDatabase.getInstance().fileCacheStatusDAO().updateRepoNameByRepoId(repoId, normalizedNewRepoName);
+                        AppDatabase.getInstance().fileTransferDAO().updateRepoNameByRepoId(repoId, normalizedNewRepoName);
+                        AppDatabase.getInstance().repoDao().updateRepoNameByRepoId(repoId, normalizedNewRepoName);
+                        AppDatabase.getInstance().direntDao().updateRepoNameByRepoId(repoId, normalizedNewRepoName);
+                        AppDatabase.getInstance().starredDirentDAO().updateRepoNameByRepoId(repoId, normalizedNewRepoName);
 
                         emitter.onSuccess(result);
                     }
@@ -104,7 +107,12 @@ public class RenameRepoViewModel extends BaseViewModel {
     }
 
     public void renameDir(Account account, String repoId, String repoName, String oldFolderFullPath, String oldName, String newName) {
-        if (TextUtils.equals(oldName, newName)) {
+        final String normalizedRepoName = UnicodePathUtils.normalize(repoName);
+        final String normalizedOldFolderFullPath = UnicodePathUtils.normalize(oldFolderFullPath);
+        final String normalizedOldName = UnicodePathUtils.normalize(oldName);
+        final String normalizedNewName = UnicodePathUtils.normalize(newName);
+
+        if (TextUtils.equals(normalizedOldName, normalizedNewName)) {
             return;
         }
 
@@ -112,10 +120,10 @@ public class RenameRepoViewModel extends BaseViewModel {
 
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("operation", "rename");
-        requestDataMap.put("newname", newName);
+        requestDataMap.put("newname", normalizedNewName);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<String> single = HttpManager.getCurrentHttp().execute(DialogService.class).renameDir(repoId, oldFolderFullPath, bodyMap);
+        Single<String> single = HttpManager.getCurrentHttp().execute(DialogService.class).renameDir(repoId, normalizedOldFolderFullPath, bodyMap);
         Single<String> single2 = single.flatMap(new Function<String, SingleSource<String>>() {
             @Override
             public SingleSource<String> apply(String result) throws Exception {
@@ -126,18 +134,18 @@ public class RenameRepoViewModel extends BaseViewModel {
                             return;
                         }
 
-                        String parentPath = Utils.getParentPath(oldFolderFullPath);
-                        String newFolderFullPath = Utils.pathJoin(parentPath, newName);
+                        String parentPath = Utils.getParentPath(normalizedOldFolderFullPath);
+                        String newFolderFullPath = Utils.pathJoin(parentPath, normalizedNewName);
 
-                        File srcFile = DataManager.getLocalFileCachePath(account, repoId, repoName, oldFolderFullPath);
-                        File dstFile = DataManager.getLocalFileCachePath(account, repoId, repoName, newFolderFullPath);
+                        File srcFile = DataManager.getLocalFileCachePath(account, repoId, normalizedRepoName, normalizedOldFolderFullPath);
+                        File dstFile = DataManager.getLocalFileCachePath(account, repoId, normalizedRepoName, newFolderFullPath);
                         Path srcPath = srcFile.toPath();
                         if (srcFile.exists()) {
                             boolean r = srcFile.renameTo(dstFile);
-                            SLogs.e("rename " + oldName + " to " + newName + ": result: " + r);
+                            SLogs.e("rename " + normalizedOldName + " to " + normalizedNewName + ": result: " + r);
                         }
 
-                        String o = oldFolderFullPath;
+                        String o = normalizedOldFolderFullPath;
                         if (o.endsWith("/")) {
                             o = o.substring(0, o.length() - 1);
                         }
@@ -153,13 +161,13 @@ public class RenameRepoViewModel extends BaseViewModel {
                                 n = o.substring(0, o.length() - 1);
                             }
                             direntModel.full_path = n;
-                            direntModel.name = newName;
+                            direntModel.name = normalizedNewName;
                             direntModel.uid = direntModel.getUID();
 
                             AppDatabase.getInstance().direntDao().insert(direntModel);
                         }
 
-                        String oo = oldFolderFullPath;
+                        String oo = normalizedOldFolderFullPath;
                         if (!oo.endsWith("/")) {
                             oo = oo + "/";
                         }
@@ -186,7 +194,7 @@ public class RenameRepoViewModel extends BaseViewModel {
                                 //insert
                                 cacheEntity.modified_at = System.currentTimeMillis();
                                 cacheEntity.setParent_path(newFolderFullPath);
-                                cacheEntity.target_path = cacheEntity.target_path.replace(oldFolderFullPath, newFolderFullPath);
+                                cacheEntity.target_path = cacheEntity.target_path.replace(normalizedOldFolderFullPath, newFolderFullPath);
                                 cacheEntity.full_path = Utils.pathJoin(newFolderFullPath, cacheEntity.file_name);
                                 cacheEntity.uid = cacheEntity.genUID();
                                 AppDatabase.getInstance().fileCacheStatusDAO().insert(cacheEntity);
@@ -218,8 +226,12 @@ public class RenameRepoViewModel extends BaseViewModel {
     }
 
     public void renameFile(Account account, String repoId, String repoName, String oldFullPath, String oldName, String newName) {
+        final String normalizedRepoName = UnicodePathUtils.normalize(repoName);
+        final String normalizedOldFullPath = UnicodePathUtils.normalize(oldFullPath);
+        final String normalizedOldName = UnicodePathUtils.normalize(oldName);
+        final String normalizedNewName = UnicodePathUtils.normalize(newName);
 
-        if (TextUtils.equals(oldName, newName)) {
+        if (TextUtils.equals(normalizedOldName, normalizedNewName)) {
             return;
         }
 
@@ -227,10 +239,10 @@ public class RenameRepoViewModel extends BaseViewModel {
 
         Map<String, String> requestDataMap = new HashMap<>();
         requestDataMap.put("operation", "rename");
-        requestDataMap.put("newname", newName);
+        requestDataMap.put("newname", normalizedNewName);
         Map<String, RequestBody> bodyMap = genRequestBody(requestDataMap);
 
-        Single<FileCreateModel> single = HttpManager.getCurrentHttp().execute(DialogService.class).renameFile(repoId, oldFullPath, bodyMap);
+        Single<FileCreateModel> single = HttpManager.getCurrentHttp().execute(DialogService.class).renameFile(repoId, normalizedOldFullPath, bodyMap);
         Single<FileCreateModel> single2 = single.flatMap(new Function<FileCreateModel, SingleSource<FileCreateModel>>() {
             @Override
             public SingleSource<FileCreateModel> apply(FileCreateModel fileCreateModel) throws Exception {
@@ -241,18 +253,18 @@ public class RenameRepoViewModel extends BaseViewModel {
                             return;
                         }
 
-                        String parentPath = oldFullPath.replace(oldName, "");
+                        String parentPath = normalizedOldFullPath.replace(normalizedOldName, "");
                         if (TextUtils.isEmpty(parentPath)) {
                             parentPath = "/";
                         }
 
-                        String newFullPath = Utils.pathJoin(parentPath, newName);
+                        String newFullPath = Utils.pathJoin(parentPath, normalizedNewName);
 
-                        File srcFile = DataManager.getLocalFileCachePath(account, repoId, repoName, oldFullPath);
-                        File dstFile = DataManager.getLocalFileCachePath(account, repoId, repoName, newFullPath);
+                        File srcFile = DataManager.getLocalFileCachePath(account, repoId, normalizedRepoName, normalizedOldFullPath);
+                        File dstFile = DataManager.getLocalFileCachePath(account, repoId, normalizedRepoName, newFullPath);
                         Path srcPath = srcFile.toPath();
                         if (srcFile.exists()) {
-                            java.nio.file.Files.move(srcPath, srcPath.resolveSibling(newName), StandardCopyOption.REPLACE_EXISTING);
+                            java.nio.file.Files.move(srcPath, srcPath.resolveSibling(normalizedNewName), StandardCopyOption.REPLACE_EXISTING);
                         }
 
                         //no update "dirents" db here. because dirent list on the page will refresh automatically.
@@ -267,7 +279,7 @@ public class RenameRepoViewModel extends BaseViewModel {
 
                             //insert
                             cacheEntity.modified_at = System.currentTimeMillis();
-                            cacheEntity.file_name = newName;
+                            cacheEntity.file_name = normalizedNewName;
                             cacheEntity.target_path = dstFile.getAbsolutePath();
                             cacheEntity.full_path = newFullPath;
                             cacheEntity.file_format = FileUtils.getFileExtension(dstFile);

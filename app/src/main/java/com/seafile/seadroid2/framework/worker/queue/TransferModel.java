@@ -9,6 +9,7 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
@@ -152,9 +153,10 @@ public class TransferModel implements Comparable<TransferModel> {
         entity.full_path = file.getAbsolutePath();
 
         // remote path: /My Photos/{bucketName}/{fileName}
-        entity.target_path = Utils.pathJoin(p, file.getName());
+        String fileName = UnicodePathUtils.normalize(file.getName());
+        entity.target_path = Utils.pathJoin(p, fileName);
         entity.setParentPath(p);
-        entity.file_name = file.getName();
+        entity.file_name = fileName;
         entity.file_size = file.length();
         entity.transferred_size = 0;
         entity.transfer_status = TransferStatus.WAITING;
@@ -171,10 +173,10 @@ public class TransferModel implements Comparable<TransferModel> {
         entity.full_path = file.getAbsolutePath();
 
         String t = entity.full_path;
-        entity.target_path = StringUtils.removeStart(t, backupParent);
+        entity.target_path = UnicodePathUtils.normalize(StringUtils.removeStart(t, backupParent));
         entity.setParentPath(Utils.getParentPath(entity.target_path));
 
-        entity.file_name = file.getName();
+        entity.file_name = UnicodePathUtils.normalize(file.getName());
         entity.file_size = file.length();
         entity.transferred_size = 0;
         entity.transfer_status = TransferStatus.WAITING;

@@ -17,6 +17,7 @@ import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.repo.RepoInfoModel;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.repo.RepoService;
 
@@ -39,6 +40,7 @@ public class NewRepoViewModel extends BaseViewModel {
     }
 
     public void createNewRepo(String repoName, String description, String password) {
+        repoName = UnicodePathUtils.normalize(repoName);
         if (TextUtils.isEmpty(repoName)) {
             return;
         }

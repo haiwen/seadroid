@@ -43,6 +43,7 @@ import com.seafile.seadroid2.framework.model.DatabaseHelper;
 import com.seafile.seadroid2.framework.model.repo.RepoWrapperModel;
 import com.seafile.seadroid2.framework.monitor.MonitorDBHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ssl.CertsDBHelper;
@@ -373,7 +374,7 @@ public class DataMigrationActivity extends BaseActivity {
 
                 transferEntity.full_path = filePath;
                 transferEntity.setParent_path(Utils.getParentPath(filePath));
-                transferEntity.file_name = FileUtils.getFileName(filePath);
+                transferEntity.file_name = UnicodePathUtils.normalize(FileUtils.getFileName(filePath));
                 transferEntity.file_size = FileUtils.getFileLength(filePath);
                 transferEntity.file_format = FileUtils.getFileExtension(filePath);
                 transferEntity.mime_type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(transferEntity.file_format);
@@ -461,7 +462,7 @@ public class DataMigrationActivity extends BaseActivity {
                 transferEntity.setParent_path(c.getString(parentFolderIndex));
 
 
-                transferEntity.file_name = c.getString(fileNameIndex);
+                transferEntity.file_name = UnicodePathUtils.normalize(c.getString(fileNameIndex));
                 transferEntity.target_path = transferEntity.getParent_path() + transferEntity.file_name;
 
 
@@ -679,7 +680,7 @@ public class DataMigrationActivity extends BaseActivity {
                 }
 
                 transferEntity.setParent_path(Utils.getParentPath(transferEntity.full_path));
-                transferEntity.file_name = FileUtils.getFileName(transferEntity.full_path);
+                transferEntity.file_name = UnicodePathUtils.normalize(FileUtils.getFileName(transferEntity.full_path));
 
                 if (TransferDataSource.DOWNLOAD == transferEntity.data_source) {
                     String mediaPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();

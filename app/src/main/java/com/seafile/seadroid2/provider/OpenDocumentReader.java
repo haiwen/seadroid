@@ -13,6 +13,7 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.file.FileService;
 
@@ -54,6 +55,7 @@ public class OpenDocumentReader {
             @Nullable ProgressListener listener
     ) throws FileNotFoundException {
         try {
+            remoteFullPath = UnicodePathUtils.normalize(remoteFullPath);
             downloadFile(account, repoId, repoName, remoteFullPath, teeOut, signal);
 
             saveIntoLocalDb(repoId, repoName, account.getSignature(), remoteFullPath, destinationFile, fileId);
@@ -160,13 +162,13 @@ public class OpenDocumentReader {
         FileCacheStatusEntity entity = new FileCacheStatusEntity();
         entity.v = 2;//new version
         entity.repo_id = repoId;
-        entity.repo_name = repoName;
+        entity.repo_name = UnicodePathUtils.normalize(repoName);
         entity.related_account = relatedAccount;
-        entity.file_name = destinationFile.getName();
+        entity.file_name = UnicodePathUtils.normalize(destinationFile.getName());
         entity.file_id = fileId;
 
-        entity.target_path = destinationFile.getAbsolutePath();
-        entity.full_path = remoteFullPath;
+        entity.target_path = UnicodePathUtils.normalize(destinationFile.getAbsolutePath());
+        entity.full_path = UnicodePathUtils.normalize(remoteFullPath);
         entity.setParent_path(Utils.getParentPath(remoteFullPath));
 
         entity.file_size = destinationFile.length();

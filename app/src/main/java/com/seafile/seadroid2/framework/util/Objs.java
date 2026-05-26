@@ -69,6 +69,9 @@ public class Objs {
             public List<StarredModel> apply(StarredWrapperModel starredWrapperModel, Integer integer) throws Exception {
                 for (StarredModel starredModel : starredWrapperModel.starred_item_list) {
                     starredModel.related_account = account.getSignature();
+                    starredModel.repo_name = UnicodePathUtils.normalize(starredModel.repo_name);
+                    starredModel.path = UnicodePathUtils.normalize(starredModel.path);
+                    starredModel.obj_name = UnicodePathUtils.normalize(starredModel.obj_name);
                     if (!TextUtils.isEmpty(starredModel.mtime)) {
                         starredModel.mtime_long = Times.convertMtime2Long(starredModel.mtime);
                     }
@@ -102,6 +105,7 @@ public class Objs {
 
                 for (RepoModel repoModel : repoWrapperModel.repos) {
                     repoModel.related_account = account.getSignature();
+                    repoModel.repo_name = UnicodePathUtils.normalize(repoModel.repo_name);
                     repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
                 }
 
@@ -520,8 +524,10 @@ public class Objs {
                 dirModels.get(i).dir_id = dir_id;
                 dirModels.get(i).related_account = related_account;
                 dirModels.get(i).repo_id = repo_id;
-                dirModels.get(i).repo_name = repo_name;
-                dirModels.get(i).full_path = dirModels.get(i).parent_dir + dirModels.get(i).name;
+                dirModels.get(i).repo_name = UnicodePathUtils.normalize(repo_name);
+                dirModels.get(i).parent_dir = UnicodePathUtils.normalize(dirModels.get(i).parent_dir);
+                dirModels.get(i).name = UnicodePathUtils.normalize(dirModels.get(i).name);
+                dirModels.get(i).full_path = Utils.pathJoin(dirModels.get(i).parent_dir, dirModels.get(i).name);
                 dirModels.get(i).uid = dirModels.get(i).getUID();
             }
             dirList = sortDirents(dirModels);
@@ -531,11 +537,13 @@ public class Objs {
             for (int i = 0; i < fileModels.size(); i++) {
                 //
                 fileModels.get(i).repo_id = repo_id;
-                fileModels.get(i).repo_name = repo_name;
+                fileModels.get(i).repo_name = UnicodePathUtils.normalize(repo_name);
                 fileModels.get(i).last_modified_at = fileModels.get(i).mtime * 1000;
                 fileModels.get(i).dir_id = dir_id;
                 fileModels.get(i).related_account = related_account;
-                fileModels.get(i).full_path = fileModels.get(i).parent_dir + fileModels.get(i).name;
+                fileModels.get(i).parent_dir = UnicodePathUtils.normalize(fileModels.get(i).parent_dir);
+                fileModels.get(i).name = UnicodePathUtils.normalize(fileModels.get(i).name);
+                fileModels.get(i).full_path = Utils.pathJoin(fileModels.get(i).parent_dir, fileModels.get(i).name);
                 fileModels.get(i).uid = fileModels.get(i).getUID();
             }
             fileList = sortDirents(fileModels);

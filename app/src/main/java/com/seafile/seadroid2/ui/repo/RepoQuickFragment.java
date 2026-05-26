@@ -80,6 +80,7 @@ import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -461,7 +462,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     showCustomMenuView(v);
                 });
             }
-
         }
 
         @Override
@@ -1677,7 +1677,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(mime);
-        intent.putExtra(Intent.EXTRA_TITLE, destinationFile.getName());
+        intent.putExtra(Intent.EXTRA_TITLE, UnicodePathUtils.normalize(destinationFile.getName()));
         intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
 
         //temp

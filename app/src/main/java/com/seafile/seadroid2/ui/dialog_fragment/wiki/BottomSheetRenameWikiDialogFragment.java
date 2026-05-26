@@ -14,6 +14,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.wiki.WikiViewModel;
 
@@ -73,6 +74,7 @@ public class BottomSheetRenameWikiDialogFragment extends RequestBottomSheetDialo
         EditText editText = getDialogView().findViewById(R.id.edit_name);
         String newName = editText.getText().toString();
         newName = StringUtils.trimEnd(newName, " ");
+        newName = UnicodePathUtils.normalize(newName);
 
         getViewModel().renameWiki(wikiId, newName);
     }

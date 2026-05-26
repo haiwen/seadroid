@@ -15,6 +15,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.RenameRepoViewModel;
 
@@ -100,6 +101,7 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         EditText editText = getDialogView().findViewById(R.id.new_file_name);
         String newName = editText.getText().toString();
         newName = StringUtils.trimEnd(newName, " ");
+        newName = UnicodePathUtils.normalize(newName);
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (TextUtils.equals("repo", type)) {
@@ -163,7 +165,7 @@ public class RenameDialogFragment extends RequestCustomDialogFragmentWithVM<Rena
         }
 
         String newName = editable.toString();
-        newName = StringUtils.trim(newName, " ");
+        newName = UnicodePathUtils.normalize(StringUtils.trim(newName, " "));
         if (TextUtils.equals(curName, newName)) {
             return false;
         }
