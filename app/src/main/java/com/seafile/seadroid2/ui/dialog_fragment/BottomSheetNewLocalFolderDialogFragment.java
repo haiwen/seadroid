@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
@@ -58,7 +59,7 @@ public class BottomSheetNewLocalFolderDialogFragment extends RequestBottomSheetD
         }
 
         EditText edit = getDialogView().findViewById(R.id.edit_name);
-        String folderName = edit.getText().toString();
+        String folderName = UnicodePathUtils.normalize(edit.getText().toString());
 
         boolean success = FileUtils.createOrExistsDir(Utils.pathJoin(parentDir,folderName));
         if (success) {

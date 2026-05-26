@@ -24,6 +24,7 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
@@ -347,7 +348,7 @@ public class FileSyncService extends Service {
 
     private void onAppCacheFileChanged(File file) {
         TransferModel transferModel = new TransferModel();
-        transferModel.file_name = file.getName();
+        transferModel.file_name = UnicodePathUtils.normalize(file.getName());
         transferModel.file_size = file.length();
         transferModel.full_path = file.getAbsolutePath();
         transferModel.data_source = FeatureDataSource.AUTO_UPDATE_LOCAL_FILE;

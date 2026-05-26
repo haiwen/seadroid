@@ -3,6 +3,7 @@ package com.seafile.seadroid2.framework.datastore;
 import android.text.TextUtils;
 
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 
 import java.io.File;
@@ -111,7 +112,7 @@ public class DataManager {
         }
 
         String accountDir = DataManager.getAccountMediaDir(account);
-        String repoDirName = String.format("%s_%s", repo_name, repo_id.substring(0, 4));
+        String repoDirName = String.format("%s_%s", UnicodePathUtils.normalize(repo_name), repo_id.substring(0, 4));
         return new File(accountDir, repoDirName);
     }
 
@@ -125,7 +126,7 @@ public class DataManager {
         String localPath = Utils.pathJoin(filePath, path);
 
         //build valid file path and name
-        localPath = com.seafile.seadroid2.framework.util.FileUtils.buildValidFilePathName(localPath);
+        localPath = UnicodePathUtils.normalize(com.seafile.seadroid2.framework.util.FileUtils.buildValidFilePathName(localPath));
 
         File parentDir = new File(Utils.getParentPath(localPath));
         if (!parentDir.exists()) {

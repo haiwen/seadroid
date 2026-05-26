@@ -21,7 +21,7 @@ public class ContentResolvers {
             }
         }
 
-        return fileName;
+        return UnicodePathUtils.normalize(fileName);
     }
 
     // 获取文件内容的方法

@@ -20,6 +20,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.FileCreateModel;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewDirViewModel;
@@ -107,6 +108,7 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
 
         EditText name = getDialogView().findViewById(R.id.edit_name);
         String pathName = name.getText().toString();
+        pathName = UnicodePathUtils.normalize(pathName);
         pathName = Utils.pathJoin(parentDir, pathName).trim();
 
         if (isDir) {
@@ -157,7 +159,7 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
                     } else {
 
                         EditText name = getDialogView().findViewById(R.id.edit_name);
-                        String pathName = name.getText().toString();
+                        String pathName = UnicodePathUtils.normalize(name.getText().toString());
 
                         Toasts.show(getString(R.string.create_new_folder_success, pathName));
 
@@ -175,7 +177,7 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
                         Toasts.show(fileCreateModel.error_msg);
                     } else {
                         EditText name = getDialogView().findViewById(R.id.edit_name);
-                        String pathName = name.getText().toString();
+                        String pathName = UnicodePathUtils.normalize(name.getText().toString());
 
                         Toasts.show(getString(R.string.create_new_file_success, pathName));
 
@@ -203,7 +205,7 @@ public class BottomSheetNewDirFileDialogFragment extends RequestBottomSheetDialo
             return false;
         }
 
-        String t = editable.toString().trim();
+        String t = UnicodePathUtils.normalize(editable.toString().trim());
         if (TextUtils.isEmpty(t)) {
             if (isDir) {
                 Toasts.show(R.string.dir_name_empty);

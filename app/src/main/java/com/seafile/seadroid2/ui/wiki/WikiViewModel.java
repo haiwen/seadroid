@@ -19,6 +19,7 @@ import com.seafile.seadroid2.framework.model.wiki.Wiki2Model;
 import com.seafile.seadroid2.framework.model.wiki.WikiGroupModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiInfoModel;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -189,6 +190,7 @@ public class WikiViewModel extends BaseViewModel {
 
     public void publishWiki(String wikiId, String publishUrl) {
         getRefreshLiveData().setValue(true);
+        publishUrl = UnicodePathUtils.normalize(publishUrl);
 
         Map<String, Object> map = new HashMap<>();
         map.put("publish_url", publishUrl);
@@ -223,6 +225,7 @@ public class WikiViewModel extends BaseViewModel {
 
     public void renameWiki(String wikiId, String wiki_name) {
         getRefreshLiveData().setValue(true);
+        wiki_name = UnicodePathUtils.normalize(wiki_name);
 
         Map<String, Object> map = new HashMap<>();
         map.put("wiki_name", wiki_name);

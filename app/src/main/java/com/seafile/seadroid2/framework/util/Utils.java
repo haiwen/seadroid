@@ -97,20 +97,6 @@ public class Utils {
         };
     }
 
-    public static JSONObject parseJsonObject(String json) {
-        if (json == null) {
-            // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonObject");
-            return null;
-        }
-
-        try {
-            return (JSONObject) new JSONTokener(json).nextValue();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     /**
      * <pre>
      * /a/b/c.txt -> /a/b/c/
@@ -139,27 +125,6 @@ public class Utils {
             return "/";
         } else
             return parent;
-    }
-
-    public static String getParentPathName(String p) {
-        String path = getParentPath(p);
-
-        if (path == null) {
-            // the caller should not give null
-            Log.w(DEBUG_TAG, "path is null");
-            return null;
-        }
-
-        if (!path.contains("/")) {
-            return path;
-        }
-
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.lastIndexOf("/"));
-        }
-
-        path = path.substring(path.lastIndexOf("/") + 1);
-        return path;
     }
 
     public static String getParentPath(String path) {
@@ -195,7 +160,7 @@ public class Utils {
             return null;
         }
 
-        return FilenameUtils.getName(path);
+        return UnicodePathUtils.normalize(FilenameUtils.getName(path));
     }
 
     public static final String[] _units = new String[]{"B", "KB", "MB", "GB", "TB"};
@@ -439,7 +404,7 @@ public class Utils {
             }
         }
 
-        return result.toString();
+        return UnicodePathUtils.normalize(result.toString());
     }
 
     public static String removeLastPathSeparator(String path) {
@@ -554,7 +519,7 @@ public class Utils {
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             displayName = uri.getPath().replaceAll(".*/", "");
         } else displayName = "unknown filename";
-        return displayName;
+        return UnicodePathUtils.normalize(displayName);
     }
 
     @NotSupport

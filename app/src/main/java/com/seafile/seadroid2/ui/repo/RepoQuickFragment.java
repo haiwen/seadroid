@@ -80,6 +80,7 @@ import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -105,6 +106,7 @@ import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
+import com.seafile.seadroid2.ui.repo.sort.SortPopupWindow;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
@@ -455,9 +457,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             //sort pop view
             sortMenuItem = menu.findItem(R.id.menu_action_sort);
             sortMenuItem.setActionView(R.layout.menu_view_sort);
-            sortMenuItem.getActionView().setOnClickListener(v -> {
-                showCustomMenuView(v);
-            });
+            if (sortMenuItem.getActionView() != null) {
+                sortMenuItem.getActionView().setOnClickListener(v -> {
+                    showCustomMenuView(v);
+                });
+            }
         }
 
         @Override
@@ -1673,7 +1677,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(mime);
-        intent.putExtra(Intent.EXTRA_TITLE, destinationFile.getName());
+        intent.putExtra(Intent.EXTRA_TITLE, UnicodePathUtils.normalize(destinationFile.getName()));
         intent.putExtra(DocumentsContract.EXTRA_EXCLUDE_SELF, true);
 
         //temp

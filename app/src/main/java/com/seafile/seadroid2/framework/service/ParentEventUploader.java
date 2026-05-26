@@ -30,6 +30,7 @@ import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Times;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -228,6 +229,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
 
             currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
+            currentTransferModel.repo_name = UnicodePathUtils.normalize(currentTransferModel.repo_name);
+            currentTransferModel.file_name = UnicodePathUtils.normalize(currentTransferModel.file_name);
+            currentTransferModel.target_path = UnicodePathUtils.normalize(currentTransferModel.target_path);
+            currentTransferModel.original_name = UnicodePathUtils.normalize(currentTransferModel.original_name);
             SafeLogs.d(TAG, "transfer start, model:");
             SafeLogs.d(TAG, currentTransferModel.toString());
 
@@ -317,7 +322,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             if (!heicFile.exists() || heicFile.length() <= 0) {
                 throw SeafException.NOT_FOUND_EXCEPTION;
             }
-            String fileName = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";
+            String fileName = UnicodePathUtils.normalize(FileUtils.getBaseName(currentTransferModel.file_name) + ".heic");
             currentTransferModel.original_name = currentTransferModel.file_name;
             currentTransferModel.file_name = fileName;
             currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
@@ -503,7 +508,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         if (TextUtils.isEmpty(fileName)) {
             throw SeafException.NO_FILENAME_EXCEPTION;
         }
-        String normalized = Normalizer.normalize(fileName, Normalizer.Form.NFD);
+        String normalized = Normalizer.normalize(fileName, Normalizer.Form.NFC);
         String encoded = URLEncoder.encode(normalized).replace("+", "%20");
         if (TextUtils.isEmpty(encoded)) {
             throw SeafException.NO_FILENAME_EXCEPTION;

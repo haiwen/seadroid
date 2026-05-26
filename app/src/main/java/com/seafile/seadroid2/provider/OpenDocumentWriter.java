@@ -15,6 +15,7 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -49,6 +50,9 @@ public class OpenDocumentWriter {
             String repoName, String fullPath,
             String displayName, InputStream in,
             @Nullable CancellationSignal signal) throws FileNotFoundException {
+
+        fullPath = UnicodePathUtils.normalize(fullPath);
+        displayName = UnicodePathUtils.normalize(displayName);
 
         boolean isExists = false;
         String uploadUrl;
@@ -213,14 +217,14 @@ public class OpenDocumentWriter {
         FileCacheStatusEntity cache = new FileCacheStatusEntity();
         cache.v = 2;//new version
         cache.repo_id = repoId;
-        cache.repo_name = repoName;
+        cache.repo_name = UnicodePathUtils.normalize(repoName);
         cache.related_account = account.getSignature();
         cache.file_id = fileId;
-        cache.file_name = destinationFile.getName();
+        cache.file_name = UnicodePathUtils.normalize(destinationFile.getName());
         cache.created_at = System.currentTimeMillis();
         cache.modified_at = cache.created_at;
-        cache.target_path = destinationFile.getAbsolutePath();
-        cache.full_path = fullPath;
+        cache.target_path = UnicodePathUtils.normalize(destinationFile.getAbsolutePath());
+        cache.full_path = UnicodePathUtils.normalize(fullPath);
         cache.setParent_path(Utils.getParentPath(fullPath));
         cache.file_size = destinationFile.length();
         cache.file_format = FileUtils.getFileExtension(fullPath);

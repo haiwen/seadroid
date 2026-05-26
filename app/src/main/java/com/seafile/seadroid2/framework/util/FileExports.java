@@ -23,6 +23,7 @@ import java.io.InputStream;
 public class FileExports {
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public static void exportFileAndroid10AndAbove(String fileName, String mimeType, ContentResolver contentResolver, File file) throws IOException {
+        fileName = UnicodePathUtils.normalize(fileName);
         // First, try to find if the file already exists in MediaStore
         Uri existingUri = findExistingFileInDownloads(contentResolver, fileName);
 

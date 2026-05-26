@@ -20,6 +20,7 @@ import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Times;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -170,14 +171,14 @@ public class DirentModel extends BaseModel implements Parcelable {
     public static DirentModel convertStarredModelToThis(StarredModel starredModel) {
         if (starredModel == null) return null;
         DirentModel direntModel = new DirentModel();
-        direntModel.full_path = starredModel.path;
+        direntModel.full_path = UnicodePathUtils.normalize(starredModel.path);
         direntModel.related_account = starredModel.related_account;
         direntModel.repo_id = starredModel.repo_id;
-        direntModel.repo_name = starredModel.repo_name;
+        direntModel.repo_name = UnicodePathUtils.normalize(starredModel.repo_name);
         direntModel.type = starredModel.is_dir ? "dir" : "file";
         direntModel.mtime = Times.convertMtime2Long(starredModel.mtime);
-        direntModel.parent_dir = Utils.getParentPath(starredModel.path);
-        direntModel.name = starredModel.obj_name;
+        direntModel.parent_dir = Utils.getParentPath(direntModel.full_path);
+        direntModel.name = UnicodePathUtils.normalize(starredModel.obj_name);
         direntModel.encoded_thumbnail_src = starredModel.encoded_thumbnail_src;
         direntModel.uid = direntModel.getUID();
         return direntModel;
@@ -186,13 +187,13 @@ public class DirentModel extends BaseModel implements Parcelable {
     public static DirentModel convertDetailModelToThis(DirentFileModel model, String full_path, String repo_id, String repo_name) {
         if (model == null) return null;
         DirentModel direntModel = new DirentModel();
-        direntModel.full_path = full_path;
+        direntModel.full_path = UnicodePathUtils.normalize(full_path);
         direntModel.repo_id = repo_id;
-        direntModel.repo_name = repo_name;
+        direntModel.repo_name = UnicodePathUtils.normalize(repo_name);
         direntModel.type = model.type;
         direntModel.mtime = model.getMtimeInMills();
-        direntModel.parent_dir = Utils.getParentPath(full_path);
-        direntModel.name = model.name;
+        direntModel.parent_dir = Utils.getParentPath(direntModel.full_path);
+        direntModel.name = UnicodePathUtils.normalize(model.name);
         direntModel.last_modified_at = Times.convertMtime2Long(model.last_modified);
         direntModel.modifier_email = model.last_modifier_email;
         direntModel.modifier_name = model.last_modifier_name;
@@ -209,13 +210,13 @@ public class DirentModel extends BaseModel implements Parcelable {
         if (model == null) return null;
         DirentModel direntModel = new DirentModel();
         direntModel.related_account = model.related_account;
-        direntModel.full_path = model.path;
+        direntModel.full_path = UnicodePathUtils.normalize(model.path);
         direntModel.repo_id = model.repo_id;
-        direntModel.repo_name = model.repo_name;
+        direntModel.repo_name = UnicodePathUtils.normalize(model.repo_name);
         direntModel.type = model.obj_type;
         direntModel.mtime = Times.convertMtime2Long(model.time);
-        direntModel.parent_dir = Utils.getParentPath(model.path);
-        direntModel.name = model.name;
+        direntModel.parent_dir = Utils.getParentPath(direntModel.full_path);
+        direntModel.name = UnicodePathUtils.normalize(model.name);
         direntModel.uid = direntModel.getUID();
         return direntModel;
     }
@@ -224,12 +225,12 @@ public class DirentModel extends BaseModel implements Parcelable {
         if (searchModel == null) return null;
         DirentModel direntModel = new DirentModel();
         direntModel.related_account = searchModel.related_account;
-        direntModel.full_path = searchModel.fullpath;
+        direntModel.full_path = UnicodePathUtils.normalize(searchModel.fullpath);
         direntModel.repo_id = searchModel.repo_id;
-        direntModel.repo_name = searchModel.repo_name;
+        direntModel.repo_name = UnicodePathUtils.normalize(searchModel.repo_name);
         direntModel.type = searchModel.is_dir ? "dir" : "file";
-        direntModel.parent_dir = Utils.getParentPath(searchModel.fullpath);
-        direntModel.name = searchModel.name;
+        direntModel.parent_dir = Utils.getParentPath(direntModel.full_path);
+        direntModel.name = UnicodePathUtils.normalize(searchModel.name);
         direntModel.uid = direntModel.getUID();
         return direntModel;
     }

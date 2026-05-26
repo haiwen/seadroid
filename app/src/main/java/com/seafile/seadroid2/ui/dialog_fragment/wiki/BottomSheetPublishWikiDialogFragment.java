@@ -18,6 +18,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.wiki.WikiViewModel;
@@ -83,6 +84,7 @@ public class BottomSheetPublishWikiDialogFragment extends RequestBottomSheetDial
         EditText editText = getDialogView().findViewById(R.id.edit_name);
         String newName = editText.getText().toString();
         newName = StringUtils.trimEnd(newName, " ");
+        newName = UnicodePathUtils.normalize(newName);
 
         getViewModel().publishWiki(wikiId, newName);
     }

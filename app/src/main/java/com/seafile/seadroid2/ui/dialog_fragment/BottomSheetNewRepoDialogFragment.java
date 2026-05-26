@@ -22,6 +22,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.viewmodel.NewRepoViewModel;
 
@@ -154,10 +155,12 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
 
             String nameStr = name.getText() == null ? "" : name.getText().toString();
             nameStr = StringUtils.trimEnd(nameStr, " ");
+            nameStr = UnicodePathUtils.normalize(nameStr);
             getViewModel().createNewRepo(nameStr, "", pwd1Str);
         } else {
             String nameStr = name.getText() == null ? "" : name.getText().toString();
             nameStr = StringUtils.trimEnd(nameStr, " ");
+            nameStr = UnicodePathUtils.normalize(nameStr);
             getViewModel().createNewRepo(nameStr, "", "");
         }
     }
@@ -172,7 +175,7 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
             return false;
         }
 
-        String t = editable.toString().trim();
+        String t = UnicodePathUtils.normalize(editable.toString().trim());
         if (t.contains("/")) {
             Toasts.show(R.string.name_contains_slash);
             return false;
