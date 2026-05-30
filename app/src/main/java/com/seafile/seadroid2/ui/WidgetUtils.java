@@ -9,6 +9,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -22,6 +23,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 
 import com.blankj.utilcode.util.ClipboardUtils;
 import com.blankj.utilcode.util.FileUtils;
@@ -318,6 +322,21 @@ public class WidgetUtils {
         String packageName = weChatInfo.activityInfo.packageName;
         sendIntent.setClassName(packageName, className);
         context.startActivity(sendIntent);
+    }
+
+    public static void showOfficeOpenWithDialog(Context context, String repoName, String repoId, String path, String fileName, File localFile) {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+        builder.setTitle(R.string.office_open_with_title);
+        builder.setItems(R.array.office_open_with_array, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    OfficeDocumentWebActivity.openDocument(context, repoName, repoId, path, fileName);
+                } else if (which == 1) {
+                    WidgetUtils.openWith(context, localFile);
+                }
+            }
+        }).show();
     }
 
     /**

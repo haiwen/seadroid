@@ -21,6 +21,7 @@ import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -28,6 +29,7 @@ import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
@@ -38,6 +40,7 @@ import com.seafile.seadroid2.framework.model.search.SearchWrapperModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.PreDownloadHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
+import com.seafile.seadroid2.framework.util.FileCacheHelper;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -45,6 +48,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.search.SearchService;
+import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.star.StarredService;
 
 import java.io.IOException;
@@ -845,5 +849,28 @@ public class RepoViewModel extends BaseViewModel {
                 Toasts.show(seafException.getMessage());
             }
         });
+    }
+
+    public void checkRemoteAndOpen(String repo_id, String path, Consumer<String> consumer) {
+        getSecondRefreshLiveData().setValue(true);
+        addSingleDisposable(FileCacheHelper.checkRemoteAndOpen(repo_id, path),
+                new Consumer<String>() {
+                    @Override
+                    public void accept(String localFileId) throws Exception {
+                        if (consumer != null) {
+                            consumer.accept(localFileId);
+                        }
+                        getSecondRefreshLiveData().setValue(false);
+                    }
+                },
+                new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (consumer != null) {
+                            consumer.accept(null);
+                        }
+                        getSecondRefreshLiveData().setValue(false);
+                    }
+                });
     }
 }

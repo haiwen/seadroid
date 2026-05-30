@@ -20,6 +20,7 @@ import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.util.FileCacheHelper;
 import com.seafile.seadroid2.framework.util.Objs;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
@@ -134,64 +135,25 @@ public class StarredViewModel extends BaseViewModel {
 
     public void checkRemoteAndOpen(String repo_id, String path, Consumer<String> consumer) {
         getSecondRefreshLiveData().setValue(true);
-        Single<DirentFileModel> detailSingle = HttpManager.getCurrentHttp().execute(FileService.class).getFileDetail(repo_id, path);
-
-        Single<List<FileCacheStatusEntity>> cacheDbSingle = AppDatabase.getInstance().fileCacheStatusDAO().getByFullPath(repo_id, path);
-        Single<String> fileIdSingle = cacheDbSingle.flatMap(new Function<List<FileCacheStatusEntity>, SingleSource<String>>() {
-            @Override
-            public SingleSource<String> apply(List<FileCacheStatusEntity> cacheStatusEntities) {
-                if (CollectionUtils.isEmpty(cacheStatusEntities)) {
-                    return Single.just("");
-                }
-
-                if (TextUtils.isEmpty(cacheStatusEntities.get(0).file_id)) {
-                    return Single.just("");
-                }
-
-                return Single.just(cacheStatusEntities.get(0).file_id);
-            }
-        }).flatMap(new Function<String, SingleSource<String>>() {
-            @Override
-            public SingleSource<String> apply(String local_file_id) throws Exception {
-                if (TextUtils.isEmpty(local_file_id)) {
-                    return Single.just("");
-                }
-
-                return detailSingle.flatMap(new Function<DirentFileModel, SingleSource<? extends String>>() {
+        addSingleDisposable(FileCacheHelper.checkRemoteAndOpen(repo_id, path),
+                new Consumer<String>() {
                     @Override
-                    public SingleSource<? extends String> apply(DirentFileModel direntFileModel) throws Exception {
-                        if (direntFileModel == null) {
-                            return Single.just("");
+                    public void accept(String local_file_id) throws Exception {
+                        if (consumer != null) {
+                            consumer.accept(local_file_id);
                         }
-                        //check file id, if not equal, then need to download
-                        if (!direntFileModel.id.equals(local_file_id)) {
-                            return Single.just("");
+                        getSecondRefreshLiveData().setValue(false);
+                    }
+                },
+                new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (consumer != null) {
+                            consumer.accept(null);
                         }
-                        return Single.just(local_file_id);
+                        getSecondRefreshLiveData().setValue(false);
                     }
                 });
-            }
-        });
-
-        addSingleDisposable(fileIdSingle, new Consumer<String>() {
-            @Override
-            public void accept(String local_file_id) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(local_file_id);
-                }
-                getSecondRefreshLiveData().setValue(false);
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(null);
-                }
-                getSecondRefreshLiveData().setValue(false);
-            }
-        });
-
-
     }
 
     public void loadData(Account account) {
