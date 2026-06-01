@@ -157,8 +157,18 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
             return "";
         }
 
-        String s = server.substring(server.indexOf("://") + 3);
-        return s.substring(0, s.indexOf('/'));
+        int schemeIndex = server.indexOf("://");
+        if (schemeIndex == -1) {
+            return "";
+        }
+
+        String s = server.substring(schemeIndex + 3);
+        int slashIndex = s.indexOf('/');
+        if (slashIndex == -1) {
+            return s;
+        }
+
+        return s.substring(0, slashIndex);
     }
 
     /**
