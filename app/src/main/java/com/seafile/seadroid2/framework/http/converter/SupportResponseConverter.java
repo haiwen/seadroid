@@ -25,6 +25,7 @@ public class SupportResponseConverter<T> implements Converter<ResponseBody, T> {
     public T convert(@NonNull ResponseBody value) throws IOException {
         String body = value.string();
         try {
+            body = preprocessBody(body);
             return adapter.fromJson(body);
         } catch (Exception e) {
             SLogs.e("Response is not valid JSON");
@@ -33,6 +34,25 @@ public class SupportResponseConverter<T> implements Converter<ResponseBody, T> {
         } finally {
             value.close();
         }
+    }
+
+    private String preprocessBody(String body) {
+        if (body == null || body.isEmpty()) {
+            return body;
+        }
+        String trimmed = body.trim();
+        if (trimmed.length() < 2 || trimmed.charAt(0) != '"' || trimmed.charAt(trimmed.length() - 1) != '"') {
+            return body;
+        }
+        String inner = trimmed.substring(1, trimmed.length() - 1);
+        inner = inner.replace("\\\"", "\"").replace("\\\\", "\\");
+        if (inner.startsWith("[") || inner.startsWith("{")) {
+            return inner;
+        }
+        if (inner.isEmpty()) {
+            return "[]";
+        }
+        return body;
     }
 }
 

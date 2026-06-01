@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.seafile.seadroid2.R;
@@ -31,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FileDaemonService extends Service {
     private static final AtomicBoolean STARTED = new AtomicBoolean(false);
+    private volatile boolean foregroundStarted = false;
     private final String TAG = "FileDaemonService";
 
     @Nullable
@@ -45,10 +47,11 @@ public class FileDaemonService extends Service {
         SLogs.e(TAG, "onCreate()");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         SLogs.e(TAG, "onStartCommand()", "file daemon service started");
-        // Ensure the service initialization logic runs only once
+
         if (!STARTED.compareAndSet(false, true)) {
             SLogs.d(TAG, "Service already started, ignore duplicated start command");
             return START_NOT_STICKY;
@@ -59,13 +62,17 @@ public class FileDaemonService extends Service {
             startPeriodicScanTask();
             return START_STICKY;
 
+        } catch (ForegroundServiceStartNotAllowedException e) {
+            SLogs.e(TAG, "Cannot start foreground service from background", e);
+
+            STARTED.set(false);
+            stopSelf();
+            return START_NOT_STICKY;
+
         } catch (Exception e) {
             SLogs.e(TAG, "Failed to start FileDaemonService", e);
 
-            // Clean up service state properly
             cleanupServiceState();
-
-            // Stop the service
             stopSelf();
 
             return START_NOT_STICKY;
@@ -83,11 +90,14 @@ public class FileDaemonService extends Service {
         periodicHandler.removeCallbacks(periodicTask);
         isPeriodicRunning = false;
 
-        // Remove foreground notification if it was started
-        try {
-            stopForeground(STOP_FOREGROUND_REMOVE);
-        } catch (Exception e) {
-            SLogs.e(TAG, "Failed to remove foreground notification during cleanup", e);
+        // Remove foreground notification only if it was successfully started
+        if (foregroundStarted) {
+            foregroundStarted = false;
+            try {
+                stopForeground(STOP_FOREGROUND_REMOVE);
+            } catch (Exception e) {
+                SLogs.e(TAG, "Failed to remove foreground notification during cleanup", e);
+            }
         }
     }
 
@@ -102,6 +112,7 @@ public class FileDaemonService extends Service {
         } else {
             startForeground(NotificationUtils.NID_FILE_MONITOR_PERSISTENTLY, buildNotification());
         }
+        foregroundStarted = true;
     }
 
     private Notification buildNotification() {
@@ -191,8 +202,11 @@ public class FileDaemonService extends Service {
         periodicHandler.removeCallbacks(periodicTask);
         isPeriodicRunning = false;
 
-        // 2. Remove foreground notifications (must be completed before service destruction is complete)
-        stopForeground(STOP_FOREGROUND_REMOVE);
+        // 2. Remove foreground notifications only if it was successfully started
+        if (foregroundStarted) {
+            foregroundStarted = false;
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        }
 
         super.onDestroy();
     }

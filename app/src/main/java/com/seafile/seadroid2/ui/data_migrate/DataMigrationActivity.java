@@ -116,7 +116,7 @@ public class DataMigrationActivity extends BaseActivity {
                     startMigration();
 
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    SLogs.e(e);
                 } finally {
                     finishMigration();
                 }
