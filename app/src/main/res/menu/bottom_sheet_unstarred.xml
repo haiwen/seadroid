@@ -4,14 +4,14 @@
 
     <item
         android:id="@+id/nav_to"
-        app:iconTint="#8a8a8a"
-        android:icon="@drawable/icon_nav_to"
-        android:title="@string/navigate_to_directory" />
+        android:icon="@drawable/baseline_locate_folder"
+        android:title="@string/navigate_to_directory"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
         android:id="@+id/unstar"
-        app:iconTint="#8a8a8a"
-        android:icon="@drawable/baseline_starred_outline_24"
-        android:title="@string/unstar" />
+        android:icon="@drawable/baseline_fav_outline"
+        android:title="@string/unstar"
+        app:iconTint="@color/primary_icon_tint_color" />
 
 </menu>

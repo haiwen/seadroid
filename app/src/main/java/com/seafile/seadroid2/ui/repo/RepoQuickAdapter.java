@@ -268,7 +268,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         noneShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_NONE, itemBackColor, Constants.DP.DP_8);
 
         int star_width = SizeUtils.dp2px(12);
-        starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.ic_star_32);
+        starDrawable = ContextCompat.getDrawable(getContext(), R.drawable.baseline_fav_filled);
         starDrawable.setBounds(0, 0, star_width, star_width);
         starDrawable.setTint(ContextCompat.getColor(getContext(), R.color.light_grey));
     }

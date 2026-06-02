@@ -5,8 +5,9 @@
 
     <item
         android:id="@+id/edit_markdown"
-        android:icon="@drawable/baseline_edit"
+        android:icon="@drawable/baseline_edit_rename"
         android:title="@string/edit"
         android:visible="true"
+        app:iconTint="@color/navigation_bar_icon_tint_color"
         app:showAsAction="always" />
 </menu>
