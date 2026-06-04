@@ -27,6 +27,7 @@ import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.HttpUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
@@ -34,6 +35,8 @@ import com.seafile.seadroid2.ui.camera_upload.GalleryBucketUtils;
 import com.seafile.seadroid2.ui.file.FileService;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.repo.RepoService;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -347,12 +350,12 @@ public class AlbumScanHelper {
                 return false;
             }
 
-            int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
-            String bucketName = cursor.getString(bucketColumn);
-
-            int dateAddIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
-            long dateAdded = cursor.getLong(dateAddIndex);
-            String dateAddedString = TimeUtils.millis2String(dateAdded * 1000, "yyyy-MM-dd HH:mm:ss");
+//            int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
+//            String bucketName = cursor.getString(bucketColumn);
+//
+//            int dateAddIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
+//            long dateAdded = cursor.getLong(dateAddIndex);
+//            String dateAddedString = TimeUtils.millis2String(dateAdded * 1000, "yyyy-MM-dd HH:mm:ss");
 
             int dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
             String localPath = cursor.getString(dataIndex);
@@ -362,6 +365,12 @@ public class AlbumScanHelper {
             }
 
 //            String p = Utils.getRealPathFromURI(SeadroidApplication.getAppContext(), videoUri, media);
+            // nfc form
+            localPath = UnicodePathUtils.normalize(localPath);
+            if (StringUtils.isEmpty(localPath)) {
+                SafeLogs.d(TAG, "iterateCursor()", "skip file -> [localPath is null] dataIndex: " + dataIndex + ", because it doesn't exist");
+                continue;
+            }
 
             File file = new File(localPath);
             if (!file.exists()) {

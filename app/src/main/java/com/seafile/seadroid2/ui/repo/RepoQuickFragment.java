@@ -80,6 +80,7 @@ import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.TakeCameras;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -2629,7 +2630,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(), uri);
 
-        String fileName = jpegPair.first;
+        // nfc form
+        String fileName = UnicodePathUtils.normalize(jpegPair.first);
+        // destination path
         String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
         String heicPath = null;

@@ -25,6 +25,7 @@ import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -153,16 +154,22 @@ public class MainViewModel extends BaseViewModel {
                     SLogs.d(TAG, "multipleCheckRemoteDirent()", "request " + parentDir + " children result is null or empty.");
                     for (Uri uri : uris) {
                         String fileName = Utils.getFilenameFromUri(context, uri);
-                        if (StringUtils.isEmpty(fileName)){
+                        if (StringUtils.isEmpty(fileName)) {
                             continue;
                         }
+
+                        // nfc form
+                        fileName = UnicodePathUtils.normalize(fileName);
+
                         TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, false);
                         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                     }
                 } else {
                     for (Uri uri : uris) {
                         Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri);
-                        String fileName = jpegPair.first;
+                        // nfc form
+                        String fileName = UnicodePathUtils.normalize(jpegPair.first);
+
                         boolean isExists;
                         if (jpegPair.second) { // is jpeg mp?
                             String baseName = FilenameUtils.getBaseName(fileName);
