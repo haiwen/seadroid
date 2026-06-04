@@ -106,6 +106,7 @@ import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
+import com.seafile.seadroid2.ui.repo.sort.SortPopupWindow;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.versatile.VersatileSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
@@ -456,9 +457,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             //sort pop view
             sortMenuItem = menu.findItem(R.id.menu_action_sort);
             sortMenuItem.setActionView(R.layout.menu_view_sort);
-            sortMenuItem.getActionView().setOnClickListener(v -> {
-                showCustomMenuView(v);
-            });
+            if (sortMenuItem.getActionView() != null) {
+                sortMenuItem.getActionView().setOnClickListener(v -> {
+                    showCustomMenuView(v);
+                });
+            }
+
         }
 
         @Override

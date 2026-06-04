@@ -47,38 +47,8 @@ public class BottomSheetNewRepoDialogFragment extends RequestBottomSheetDialogFr
 
         TextInputEditText inputEditText1 = getDialogView().findViewById(R.id.edit_text_pwd1);
         TextInputEditText inputEditText2 = getDialogView().findViewById(R.id.edit_text_pwd2);
-
         TextInputLayout inputLayout1 = getDialogView().findViewById(R.id.edit_text_pwd1_layout);
-        inputLayout1.setEndIconOnClickListener(v -> {
-            if (inputEditText1.getTransformationMethod() instanceof PasswordTransformationMethod) {
-                inputEditText1.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                inputLayout1.setEndIconDrawable(R.drawable.icon_eye_open);
-            } else {
-                inputEditText1.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                inputLayout1.setEndIconDrawable(R.drawable.icon_eye_close);
-            }
-
-            String input = inputEditText1.getText().toString().trim();
-            if (!TextUtils.isEmpty(input)) {
-                inputEditText1.setSelection(input.length());
-            }
-        });
-
         TextInputLayout inputLayout2 = getDialogView().findViewById(R.id.edit_text_pwd2_layout);
-        inputLayout2.setEndIconOnClickListener(v -> {
-            if (inputEditText2.getTransformationMethod() instanceof PasswordTransformationMethod) {
-                inputEditText2.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                inputLayout2.setEndIconDrawable(R.drawable.icon_eye_open);
-            } else {
-                inputEditText2.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                inputLayout2.setEndIconDrawable(R.drawable.icon_eye_close);
-            }
-
-            String input = inputEditText2.getText().toString().trim();
-            if (!TextUtils.isEmpty(input)) {
-                inputEditText2.setSelection(input.length());
-            }
-        });
 
         inputEditText1.setHint(getResources().getString(R.string.passwd_min_len_limit_hint, passwordMinLength));
 

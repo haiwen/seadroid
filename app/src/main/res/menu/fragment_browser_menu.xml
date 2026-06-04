@@ -6,6 +6,7 @@
         android:id="@+id/menu_action_search"
         android:icon="@drawable/icon_search"
         android:title="@string/search_menu_item"
+        app:iconTint="@color/navigation_bar_icon_tint_color"
         app:showAsAction="ifRoom|collapseActionView" />
 
     <item

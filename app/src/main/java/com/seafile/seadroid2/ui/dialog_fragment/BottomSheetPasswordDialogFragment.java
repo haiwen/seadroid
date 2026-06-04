@@ -98,23 +98,6 @@ public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogF
     protected void initView(LinearLayout parentView) {
         super.initView(parentView);
 
-        TextInputEditText editText = getDialogView().findViewById(R.id.password);
-
-        TextInputLayout passwordInputLayout = getDialogView().findViewById(R.id.password_layout);
-        passwordInputLayout.setEndIconOnClickListener(v -> {
-            if (editText.getTransformationMethod() instanceof PasswordTransformationMethod) {
-                editText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                passwordInputLayout.setEndIconDrawable(R.drawable.icon_eye_open);
-            } else {
-                editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                passwordInputLayout.setEndIconDrawable(R.drawable.icon_eye_close);
-            }
-
-            String input = editText.getText().toString().trim();
-            if (!TextUtils.isEmpty(input)) {
-                editText.setSelection(input.length());
-            }
-        });
     }
 
     @Override

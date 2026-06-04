@@ -732,9 +732,9 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         }
 
         if (direntModel.starred) {
-            binding.galleryStarPhoto.setImageResource(R.drawable.icon_starred);
+            binding.galleryStarPhoto.setImageResource(R.drawable.baseline_fav_filled);
         } else {
-            binding.galleryStarPhoto.setImageResource(R.drawable.icon_unstarred);
+            binding.galleryStarPhoto.setImageResource(R.drawable.baseline_fav_outline);
         }
     }
 

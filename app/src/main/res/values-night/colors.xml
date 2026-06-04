@@ -60,6 +60,11 @@
     <color name="bar_icon_tint_color">@color/material_grey_200</color>
     <color name="swipe_refresh_background_color">@color/material_grey_700</color>
     <color name="child_activity_background_color">@color/black</color>
+    <color name="popup_window_background_color">#262626</color>
+
+    <!-- icon tint -->
+    <color name="navigation_bar_icon_tint_color">@color/white</color>
+    <color name="primary_icon_tint_color">@color/grey</color>
 
     <!-- bottom sheet popup view -->
     <color name="bottom_sheet_pop_enable_color">@color/bar_title_color</color>
@@ -107,10 +112,12 @@
 
     <color name="item_selector_user_background">#3C3C3C</color>
     <color name="item_selector_tag_background">#3C3C3C</color>
-    <color name="profile_editor_title">#d3d3d3</color>
-    <color name="profile_editor_divider">#212121</color>
-    <color name="profile_tag_stroke">#212121</color>
-    <color name="profile_editor_editable">#2F2F2F</color>
-    <color name="profile_editor_no_editable">#2F2F2F</color>
+
+    <!-- property -->
+    <color name="property_editor_title">#d3d3d3</color>
+    <color name="property_editor_divider">#212121</color>
+    <color name="property_tag_stroke">#212121</color>
+    <color name="property_editor_editable">#2F2F2F</color>
+    <color name="property_editor_no_editable">#2F2F2F</color>
 
 </resources>

@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="16dp"
         android:layout_weight="1"
-
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@android:id/switch_widget"
@@ -38,8 +37,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:dividerColor="@color/divider_color"
+        app:dividerInsetEnd="16dp"
         app:dividerInsetStart="16dp"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -49,6 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:dividerColor="@color/divider_color"
+        app:dividerInsetEnd="16dp"
         app:dividerInsetStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

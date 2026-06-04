@@ -31,8 +31,9 @@
             android:layout_marginTop="8dp"
             android:visibility="gone"
             app:boxBackgroundMode="none"
+            app:endIconMode="password_toggle"
             app:hintEnabled="false"
-            app:passwordToggleDrawable="@drawable/icon_eye_close"
+            app:passwordToggleDrawable="@drawable/selector_password_toggle"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/alert_dialog_onsurface_color">
 
@@ -55,8 +56,9 @@
             android:layout_marginTop="8dp"
             android:visibility="gone"
             app:boxBackgroundMode="none"
+            app:endIconMode="password_toggle"
             app:hintEnabled="false"
-            app:passwordToggleDrawable="@drawable/icon_eye_close"
+            app:passwordToggleDrawable="@drawable/selector_password_toggle"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/alert_dialog_onsurface_color">
 

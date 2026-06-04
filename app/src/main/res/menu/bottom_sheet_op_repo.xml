@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@id/star"
-        android:icon="@drawable/star_normal"
-        android:title="@string/file_action_star" />
+        android:id="@+id/star"
+        android:icon="@drawable/baseline_fav_filled"
+        android:title="@string/file_action_star"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
-        android:id="@id/unstar"
-        android:icon="@drawable/star_normal"
-        android:title="@string/unstar" />
+        android:id="@+id/unstar"
+        android:icon="@drawable/baseline_fav_outline"
+        android:title="@string/unstar"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
-        android:id="@id/rename"
-        android:icon="@drawable/action_rename"
-        android:title="@string/repo_action_rename" />
+        android:id="@+id/rename"
+        android:icon="@drawable/baseline_edit_rename"
+        android:title="@string/repo_action_rename"
+        app:iconTint="@color/primary_icon_tint_color" />
 
     <item
-        android:id="@id/delete"
-        android:icon="@drawable/baseline_delete_24"
-        android:title="@string/repo_action_delete" />
+        android:id="@+id/delete"
+        android:icon="@drawable/baseline_delete"
+        android:title="@string/repo_action_delete"
+        app:iconTint="@color/primary_icon_tint_color" />
 </menu>
