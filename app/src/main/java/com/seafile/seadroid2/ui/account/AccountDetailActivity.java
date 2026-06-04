@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
@@ -172,12 +173,24 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             } else {
                 offset = Math.max(0, oldOffset - 1);
             }
-
-            if (offset > binding.serverUrl.getText().length()) {
-                return;
-            }
-            binding.serverUrl.setSelection(offset, offset);
+            setSelectionSafely(binding.serverUrl, offset);
         }
+    }
+
+    private void setSelectionSafely(EditText editText, int targetOffset) {
+        if (editText == null) {
+            return;
+        }
+        editText.post(() -> {
+            Editable currentEditable = editText.getText();
+            int textLength = currentEditable == null ? 0 : currentEditable.length();
+            int safeOffset = Math.max(0, Math.min(targetOffset, textLength));
+            try {
+                editText.setSelection(safeOffset, safeOffset);
+            } catch (IndexOutOfBoundsException e) {
+                Log.w(DEBUG_TAG, "setSelectionSafely failed", e);
+            }
+        });
     }
 
     private void onLoginException(Account account, SeafException err) {
@@ -325,6 +338,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
         binding.serverUrl.addTextChangedListener(new TextWatcher() {
             private String old;
+            private boolean isUpdating;
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -337,21 +351,31 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
             @Override
             public void afterTextChanged(Editable s) {
-                // Don't allow the user to edit the "https://" or "http://" part of the serverText
-                Editable editable = binding.serverUrl.getText();
-                if (editable == null) {
+                if (isUpdating) {
                     return;
                 }
+                isUpdating = true;
 
-                String url = editable.toString();
-                boolean isHttps = binding.httpsCheckbox.isChecked();
-                String prefix = isHttps ? Constants.Protocol.HTTPS : Constants.Protocol.HTTP;
-                if (!url.startsWith(prefix)) {
-                    int oldOffset = Math.max(prefix.length(), binding.serverUrl.getSelectionStart());
-                    binding.serverUrl.setText(old);
-                    // Fix: ensure oldOffset doesn't exceed the actual text length
-                    int safeOffset = Math.min(oldOffset, old.length());
-                    binding.serverUrl.setSelection(safeOffset, safeOffset);
+                try {
+                    // Don't allow the user to edit the "https://" or "http://" part of the serverText
+                    Editable editable = binding.serverUrl.getText();
+                    if (editable == null) {
+                        return;
+                    }
+
+                    String url = editable.toString();
+                    boolean isHttps = binding.httpsCheckbox.isChecked();
+                    String prefix = isHttps ? Constants.Protocol.HTTPS : Constants.Protocol.HTTP;
+                    if (!url.startsWith(prefix)) {
+                        int oldOffset = Math.max(prefix.length(), binding.serverUrl.getSelectionStart());
+                        binding.serverUrl.setText(old);
+                        Editable currentEditable = binding.serverUrl.getText();
+                        int textLength = currentEditable == null ? 0 : currentEditable.length();
+                        int safeOffset = Math.max(0, Math.min(oldOffset, textLength));
+                        setSelectionSafely(binding.serverUrl, safeOffset);
+                    }
+                } finally {
+                    isUpdating = false;
                 }
             }
         });
