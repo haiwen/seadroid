@@ -49,7 +49,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -481,55 +483,12 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             builder.addFormDataPart("relative_path", dir);
         }
 
-        if (chunkedMode) {
-            appendResumableParams(builder,
-                    chunkNumber, configuredChunkSize,
-                    chunkSize, totalSize,
-                    mimeType, resumableIdentifier,
-                    resumableRelativePath, totalChunks);
-        }
-
         if (createdTime != -1) {
             String cTime = Times.convertLong2Time(createdTime);
             SafeLogs.d(TAG, "file create time: " + cTime);
             builder.addFormDataPart("last_modify", cTime);
         }
         return builder.build();
-    }
-
-
-    @NonNull
-    private String buildSafeFilename(@Nullable String fileName) throws SeafException {
-        if (TextUtils.isEmpty(fileName)) {
-            throw SeafException.NO_FILENAME_EXCEPTION;
-        }
-        String normalized = Normalizer.normalize(fileName, Normalizer.Form.NFD);
-        String encoded = URLEncoder.encode(normalized).replace("+", "%20");
-        if (TextUtils.isEmpty(encoded)) {
-            throw SeafException.NO_FILENAME_EXCEPTION;
-        }
-        return encoded;
-    }
-
-    private void appendResumableParams(@NonNull MultipartBody.Builder builder,
-                                       int chunkNumber,
-                                       long configuredChunkSize,
-                                       long currentChunkSize,
-                                       long totalSize,
-                                       @NonNull String mimeType,
-                                       @NonNull String resumableIdentifier,
-                                       @NonNull String resumableRelativePath,
-                                       int totalChunks) {
-
-        builder.addFormDataPart("resumableChunkNumber", String.valueOf(chunkNumber));
-        builder.addFormDataPart("resumableChunkSize", String.valueOf(configuredChunkSize));
-        builder.addFormDataPart("resumableCurrentChunkSize", String.valueOf(currentChunkSize));
-        builder.addFormDataPart("resumableTotalSize", String.valueOf(totalSize));
-        builder.addFormDataPart("resumableType", mimeType);
-        builder.addFormDataPart("resumableIdentifier", resumableIdentifier);
-        builder.addFormDataPart("resumableFilename", currentTransferModel.file_name);
-        builder.addFormDataPart("resumableRelativePath", resumableRelativePath);
-        builder.addFormDataPart("resumableTotalChunks", String.valueOf(totalChunks));
     }
 
     private Request buildUploadRequest(@NonNull String uploadUrl, @NonNull RequestBody requestBody, boolean chunkedMode,
@@ -540,11 +499,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                 .addHeader("User-Agent", Constants.UA.SEAFILE_ANDROID_UA)
                 .post(requestBody);
 
+        // content disposition
         if (chunkedMode) {
-            String safeFilename = buildSafeFilename(currentTransferModel.file_name);
-            requestBuilder.addHeader("Content-Disposition", "attachment; filename=\"" + safeFilename + "\"");
+            String encoded = buildSafeFilename(currentTransferModel.file_name);
+            requestBuilder.addHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encoded);
         }
 
+        // content range
         if (chunkedMode && chunkSize > 0 && totalSize > 0) {
             requestBuilder.addHeader("Content-Range", "bytes " + offset + "-" + (offset + chunkSize - 1) + "/" + totalSize);
         }
@@ -553,6 +514,31 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         SafeLogs.d(TAG, "upload url: " + uploadUrl);
         SafeLogs.d(TAG, "upload headers: " + request.headers());
         return request;
+    }
+
+
+    @NonNull
+    private String buildSafeFilename(@Nullable String fileName) throws SeafException {
+        if (TextUtils.isEmpty(fileName)) {
+            SafeLogs.d(TAG, "buildSafeFilename()", "file name is empty");
+            throw SeafException.NO_FILENAME_EXCEPTION;
+        }
+
+        String encoded;
+        try {
+            encoded = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name())
+                    .replace("+", "%20");
+
+        } catch (UnsupportedEncodingException unsupportedEncodingException) {
+            SafeLogs.d(TAG, "buildSafeFilename()", "unsupported encoding exception");
+            throw SeafException.NO_FILENAME_EXCEPTION;
+        }
+
+        if (TextUtils.isEmpty(encoded)) {
+            SafeLogs.e(TAG, "buildSafeFilename()", "encoded file name is empty");
+            throw SeafException.NO_FILENAME_EXCEPTION;
+        }
+        return encoded;
     }
 
     private void executeUploadRequest(@NonNull Account account, @NonNull Request request, boolean chunkedMode, boolean markSuccess) throws SeafException {

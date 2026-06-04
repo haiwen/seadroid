@@ -19,6 +19,7 @@ import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -77,6 +78,9 @@ public class ShareToSeafileViewModel extends BaseViewModel {
                         continue;
                     }
 
+                    // nfc form
+                    fileName = UnicodePathUtils.normalize(fileName);
+
                     for (DirentModel direntModel : wrapperModel.dirent_list) {
                         if (TextUtils.equals(direntModel.name, fileName)) {
                             SLogs.d(ShareToSeafileActivity.TAG, "exists in remote: " + fileName);
@@ -117,6 +121,9 @@ public class ShareToSeafileViewModel extends BaseViewModel {
             if (StringUtils.isEmpty(fileName)){
                 continue;
             }
+
+            // nfc form
+            fileName = UnicodePathUtils.normalize(fileName);
 
             TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isReplace);
             GlobalTransferCacheList.SHARE_FILE_TO_SEAFILE_QUEUE.put(transferModel);
