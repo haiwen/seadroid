@@ -272,11 +272,13 @@ public class VersatileShareToSeafileSelectorActivity extends BaseActivity {
             Pair<Account, NavContext> pair = vrsf.getBackupInfo();
             NavContext navContext = pair.second;
             if (!navContext.inRepo()) {
+                Toasts.show(R.string.choose_a_library);
                 return;
             }
 
             RepoModel model = navContext.getRepoModel();
             if (model == null) {
+                Toasts.show(R.string.choose_a_library);
                 return;
             }
 
