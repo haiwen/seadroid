@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -60,11 +61,19 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private final String KEY_PAY_LOAD_IS_CHECK = "is_check";
     private final String KEY_PAY_LOAD_KEY_REFRESH_LOCAL_FILE_STATUS = "refresh_local_file_status";
+    private final String KEY_PAY_LOAD_ACTION_MODE = "action_mode";
+    private final String KEY_PAY_LOAD_BACKGROUND = "background";
+    private final String KEY_PAY_LOAD_TITLE = "title";
+    private final String KEY_PAY_LOAD_SUBTITLE = "subtitle";
+    private final String KEY_PAY_LOAD_ICON = "icon";
+    private final String KEY_PAY_LOAD_STARRED = "starred";
+    private final String KEY_PAY_LOAD_EDIT_STATUS = "edit_status";
 
     private boolean onActionMode;
 
@@ -256,11 +265,17 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private Drawable allShapeBackgroundDrawable;
     private Drawable noneShapeBackgroundDrawable;
     private Drawable starDrawable;
+    private int itemTitleColor;
+    private int itemSubtitleColor;
+    private int disabledTextColor;
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         int itemBackColor = ContextCompat.getColor(getContext(), R.color.bar_background_color);
+        itemTitleColor = ContextCompat.getColor(getContext(), R.color.item_title_color);
+        itemSubtitleColor = ContextCompat.getColor(getContext(), R.color.item_subtitle_color);
+        disabledTextColor = ContextCompat.getColor(getContext(), R.color.light_grey);
 
         topShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_TOP, itemBackColor, Constants.DP.DP_8);
         bottomShapeBackgroundDrawable = BackgroundShapeUtils.genBackgroundDrawable(BackgroundShapeUtils.SHAPE_BOTTOM, itemBackColor, Constants.DP.DP_8);
@@ -341,59 +356,54 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
     private void onBindRepos(RepoViewHolder holder, RepoModel model, int position, @NonNull List<?> payloads) {
         if (!CollectionUtils.isEmpty(payloads)) {
-            Bundle bundle = (Bundle) payloads.get(0);
+            Bundle bundle = mergePayloads(payloads);
 
+            if (bundle.containsKey(KEY_PAY_LOAD_ACTION_MODE)) {
+                updateRepoMultiSelectView(holder.binding.itemMultiSelect, model);
+            }
             if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
                 boolean isChecked = bundle.getBoolean(KEY_PAY_LOAD_IS_CHECK);
                 updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
             }
+            if (bundle.containsKey(KEY_PAY_LOAD_BACKGROUND)) {
+                bindItemBackground(holder.itemView, holder.binding.divider, model.item_position);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_TITLE)) {
+                holder.binding.itemTitle.setText(model.repo_name);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_SUBTITLE)) {
+                holder.binding.itemSubtitle.setText(model.getSubtitle());
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_ICON)) {
+                holder.binding.itemIcon.setImageResource(model.getIcon());
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_STARRED)) {
+                bindStarred(holder.binding.itemTitle, model.starred);
+            }
             return;
         }
 
-        //set background color for item
-        if (model.item_position == ItemPositionEnum.START) {
-            holder.itemView.setBackground(topShapeBackgroundDrawable);
-        } else if (model.item_position == ItemPositionEnum.END) {
-            holder.itemView.setBackground(bottomShapeBackgroundDrawable);
-        } else if (model.item_position == ItemPositionEnum.ALL) {
-            holder.itemView.setBackground(allShapeBackgroundDrawable);
-        } else {
-            holder.itemView.setBackground(noneShapeBackgroundDrawable);
-        }
-
-        if (model.item_position == ItemPositionEnum.END || model.item_position == ItemPositionEnum.ALL) {
-            holder.binding.divider.setVisibility(View.GONE);
-        } else {
-            holder.binding.divider.setVisibility(View.VISIBLE);
-        }
+        bindItemBackground(holder.itemView, holder.binding.divider, model.item_position);
 
         holder.binding.itemTitle.setText(model.repo_name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
         holder.binding.itemIcon.setImageResource(model.getIcon());
 
-        if (selectType == ObjSelectType.REPO || onActionMode) {
-            holder.binding.itemMultiSelect.setVisibility(View.VISIBLE);
-
-            if (model.is_checked) {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_checked);
-            } else {
-                holder.binding.itemMultiSelect.setImageResource(R.drawable.ic_checkbox_unchecked);
-            }
-        } else {
-            holder.binding.itemMultiSelect.setVisibility(View.GONE);
-        }
+        updateRepoMultiSelectView(holder.binding.itemMultiSelect, model);
 
 
         holder.binding.expandableToggleButton.setVisibility(View.GONE);
 
-        holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
-        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
+        bindStarred(holder.binding.itemTitle, model.starred);
 
     }
 
     private void onBindDirents(DirentViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
         if (!CollectionUtils.isEmpty(payloads)) {
-            Bundle bundle = (Bundle) payloads.get(0);
+            Bundle bundle = mergePayloads(payloads);
+            if (bundle.containsKey(KEY_PAY_LOAD_ACTION_MODE)) {
+                updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
+            }
             if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
                 //
                 boolean isChecked = bundle.getBoolean(KEY_PAY_LOAD_IS_CHECK);
@@ -412,54 +422,44 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                     }
                 }
             }
+            if (bundle.containsKey(KEY_PAY_LOAD_BACKGROUND)) {
+                bindItemBackground(holder.itemView, holder.binding.divider, model.item_position);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_TITLE)) {
+                holder.binding.itemTitle.setText(model.name);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_SUBTITLE)) {
+                holder.binding.itemSubtitle.setText(model.getSubtitle());
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_ICON)) {
+                bindDirentIcon(model, holder.binding.itemIcon);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_EDIT_STATUS)) {
+                bindEditStatus(holder.binding.itemIconStatus, model);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_STARRED)) {
+                bindStarred(holder.binding.itemTitle, model.starred);
+            }
             return;
         }
 
-        //set background color for item
-        if (model.item_position == ItemPositionEnum.START) {
-            holder.itemView.setBackground(topShapeBackgroundDrawable);
-        } else if (model.item_position == ItemPositionEnum.END) {
-            holder.itemView.setBackground(bottomShapeBackgroundDrawable);
-        } else if (model.item_position == ItemPositionEnum.ALL) {
-            holder.itemView.setBackground(allShapeBackgroundDrawable);
-        } else {
-            holder.itemView.setBackground(noneShapeBackgroundDrawable);
-        }
-
-        //hide divider for bottom item
-        if (model.item_position == ItemPositionEnum.END || model.item_position == ItemPositionEnum.ALL) {
-            holder.binding.divider.setVisibility(View.GONE);
-        } else {
-            holder.binding.divider.setVisibility(View.VISIBLE);
-        }
+        bindItemBackground(holder.itemView, holder.binding.divider, model.item_position);
 
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
-            GlideApp.with(getContext())
-                    .load(model.getIcon())
-                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
-                    .into(holder.binding.itemIcon);
-        } else {
-            loadImage(model, holder.binding.itemIcon);
-        }
+        bindDirentIcon(model, holder.binding.itemIcon);
 
-        boolean canNotEdit = model.is_freezed || model.is_locked;
-        if (canNotEdit) {
-            holder.binding.itemIconStatus.setVisibility(View.VISIBLE);
-        } else {
-            holder.binding.itemIconStatus.setVisibility(View.GONE);
-        }
+        bindEditStatus(holder.binding.itemIconStatus, model);
 
         //action mode
         updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
 
         if (ObjSelectType.NOT_SELECTABLE == selectType) {
-            holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_title_color));
-            holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
+            holder.binding.itemTitle.setTextColor(itemTitleColor);
+            holder.binding.itemSubtitle.setTextColor(itemSubtitleColor);
 //            if (onActionMode) {
 //                holder.binding.expandableToggleButton.setVisibility(View.GONE);
 //            } else {
@@ -468,11 +468,11 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         } else {
 
             if (!model.isDir()) {
-                holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.light_grey));
-                holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.light_grey));
+                holder.binding.itemTitle.setTextColor(disabledTextColor);
+                holder.binding.itemSubtitle.setTextColor(disabledTextColor);
             } else {
-                holder.binding.itemTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_title_color));
-                holder.binding.itemSubtitle.setTextColor(ContextCompat.getColor(getContext(), R.color.item_subtitle_color));
+                holder.binding.itemTitle.setTextColor(itemTitleColor);
+                holder.binding.itemSubtitle.setTextColor(itemSubtitleColor);
             }
 
 //            holder.binding.expandableToggleButton.setVisibility(View.INVISIBLE);
@@ -489,14 +489,16 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
         }
 
-        holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
-        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
+        bindStarred(holder.binding.itemTitle, model.starred);
 
     }
 
     private void onBindDirentsGrid(DirentGridViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
         if (!CollectionUtils.isEmpty(payloads)) {
-            Bundle bundle = (Bundle) payloads.get(0);
+            Bundle bundle = mergePayloads(payloads);
+            if (bundle.containsKey(KEY_PAY_LOAD_ACTION_MODE)) {
+                updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
+            }
             if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
                 //
                 boolean isChecked = bundle.getBoolean(KEY_PAY_LOAD_IS_CHECK);
@@ -514,6 +516,18 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
                         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
                     }
                 }
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_TITLE)) {
+                holder.binding.itemTitle.setText(model.name);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_ICON)) {
+                bindDirentGridIcon(holder, model);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_EDIT_STATUS)) {
+                bindEditStatus(holder.binding.itemIconStatus, model);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_STARRED)) {
+                bindStarred(holder.binding.itemTitle, model.starred);
             }
 
             return;
@@ -532,23 +546,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemOutline.setVisibility(View.VISIBLE);
         }
 
-        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
-            holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            GlideApp.with(getContext())
-                    .load(model.getIcon())
-                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
-                    .into(holder.binding.itemIcon);
-        } else {
-            holder.binding.itemIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            loadImage(model, holder.binding.itemIcon);
-        }
+        bindDirentGridIcon(holder, model);
 
-        boolean canNotEdit = model.is_freezed || model.is_locked;
-        if (canNotEdit) {
-            holder.binding.itemIconStatus.setVisibility(View.VISIBLE);
-        } else {
-            holder.binding.itemIconStatus.setVisibility(View.GONE);
-        }
+        bindEditStatus(holder.binding.itemIconStatus, model);
 
         //action mode
         updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
@@ -561,17 +561,22 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemDownloadStatus.setVisibility(View.GONE);
         }
 
-        holder.binding.itemTitle.setCompoundDrawablePadding(Constants.DP.DP_4);
-        holder.binding.itemTitle.setCompoundDrawables(null, null, model.starred ? starDrawable : null, null);
+        bindStarred(holder.binding.itemTitle, model.starred);
     }
 
     private void onBindDirentsGallery(DirentGalleryViewHolder holder, DirentModel model, int position, @NonNull List<?> payloads) {
         if (!CollectionUtils.isEmpty(payloads)) {
-            Bundle bundle = (Bundle) payloads.get(0);
+            Bundle bundle = mergePayloads(payloads);
+            if (bundle.containsKey(KEY_PAY_LOAD_ACTION_MODE)) {
+                updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
+            }
             if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
                 //
                 boolean isChecked = bundle.getBoolean(KEY_PAY_LOAD_IS_CHECK);
                 updateItemMultiSelectViewWithPayload(holder.binding.itemMultiSelect, isChecked);
+            }
+            if (bundle.containsKey(KEY_PAY_LOAD_ICON)) {
+                bindGalleryIcon(model, holder.binding.itemIcon);
             }
             return;
         }
@@ -581,16 +586,91 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 //        holder.itemView.setBackground(noneShapeBackgroundDrawable);
         holder.itemView.setBackground(null);
 
-        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
-            GlideApp.with(getContext())
+        bindGalleryIcon(model, holder.binding.itemIcon);
+
+        updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
+    }
+
+    private Bundle mergePayloads(@NonNull List<?> payloads) {
+        Bundle merged = new Bundle();
+        for (Object payload : payloads) {
+            if (payload instanceof Bundle bundle) {
+                merged.putAll(bundle);
+            }
+        }
+        return merged;
+    }
+
+    private void bindItemBackground(View itemView, View divider, ItemPositionEnum itemPosition) {
+        if (itemPosition == ItemPositionEnum.START) {
+            itemView.setBackground(topShapeBackgroundDrawable);
+        } else if (itemPosition == ItemPositionEnum.END) {
+            itemView.setBackground(bottomShapeBackgroundDrawable);
+        } else if (itemPosition == ItemPositionEnum.ALL) {
+            itemView.setBackground(allShapeBackgroundDrawable);
+        } else {
+            itemView.setBackground(noneShapeBackgroundDrawable);
+        }
+
+        if (itemPosition == ItemPositionEnum.END || itemPosition == ItemPositionEnum.ALL) {
+            divider.setVisibility(View.GONE);
+        } else {
+            divider.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void bindDirentIcon(DirentModel model, ImageView imageView) {
+        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
+            GlideApp.with(imageView.getContext())
+                    .load(model.getIcon())
+                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
+                    .into(imageView);
+        } else {
+            loadImage(model, imageView);
+        }
+    }
+
+    private void bindDirentGridIcon(DirentGridViewHolder holder, DirentModel model) {
+        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
+            holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            GlideApp.with(holder.binding.itemIcon.getContext())
                     .load(model.getIcon())
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
                     .into(holder.binding.itemIcon);
         } else {
+            holder.binding.itemIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
             loadImage(model, holder.binding.itemIcon);
         }
+    }
 
-        updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
+    private void bindGalleryIcon(DirentModel model, ImageView imageView) {
+        if (model.isDir() || repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
+            GlideApp.with(imageView.getContext())
+                    .load(model.getIcon())
+                    .apply(GlideLoadConfig.getCacheableThumbnailOptions())
+                    .into(imageView);
+        } else {
+            loadImage(model, imageView);
+        }
+    }
+
+    private void bindEditStatus(ImageView imageView, DirentModel model) {
+        boolean canNotEdit = model.is_freezed || model.is_locked;
+        imageView.setVisibility(canNotEdit ? View.VISIBLE : View.GONE);
+    }
+
+    private void bindStarred(TextView textView, boolean starred) {
+        textView.setCompoundDrawablePadding(Constants.DP.DP_4);
+        textView.setCompoundDrawables(null, null, starred ? starDrawable : null, null);
+    }
+
+    private void updateRepoMultiSelectView(ImageView imageView, BaseModel model) {
+        if (selectType == ObjSelectType.REPO || onActionMode) {
+            imageView.setVisibility(View.VISIBLE);
+            imageView.setImageResource(model.is_checked ? R.drawable.ic_checkbox_checked : R.drawable.ic_checkbox_unchecked);
+        } else {
+            imageView.setVisibility(View.GONE);
+        }
     }
 
     private void updateItemMultiSelectViewWithPayload(ImageView imageView, boolean isChecked) {
@@ -622,7 +702,10 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
         if (!CollectionUtils.isEmpty(payloads)) {
-            Bundle bundle = (Bundle) payloads.get(0);
+            Bundle bundle = mergePayloads(payloads);
+            if (bundle.containsKey(KEY_PAY_LOAD_ACTION_MODE)) {
+                updateItemMultiSelectView(holder.binding.itemMultiSelect, model);
+            }
             if (bundle.containsKey(KEY_PAY_LOAD_IS_CHECK)) {
                 //
                 boolean isChecked = bundle.getBoolean(KEY_PAY_LOAD_IS_CHECK);
@@ -662,10 +745,14 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         if (!model.isDir()) {
             String displayName = URLs.getFileNameFromFullPath(model.fullpath);
             holder.binding.itemTitle.setText(displayName);
+            holder.binding.itemSubtitle.setText(model.getSubtitle());
+        } else if (StringUtils.isEmpty(model.name)) {
+            holder.binding.itemTitle.setText(model.getSubtitle());
+            holder.binding.itemSubtitle.setText("");
         } else {
             holder.binding.itemTitle.setText(model.name);
+            holder.binding.itemSubtitle.setText(model.getSubtitle());
         }
-        holder.binding.itemSubtitle.setText(model.getSubtitle());
 
         if (repoEncrypted || (!Utils.isViewableImage(model.name) && !Utils.isVideoFile(model.name))) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
@@ -680,6 +767,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemMultiSelect.setVisibility(View.GONE);
 //        holder.binding.itemDownloadStatusProgressbar.setVisibility(View.GONE);
         holder.binding.itemDownloadStatus.setVisibility(View.GONE);
+        holder.binding.itemIconStatus.setVisibility(View.GONE);
 
         holder.binding.itemTitle.setCompoundDrawables(null, null, null, null);
 
@@ -691,7 +779,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
     private void loadImage(DirentModel direntModel, ImageView imageView) {
         String thumbnailUrl = ThumbnailUtils.convertThumbnailUrl(getServerUrl(), direntModel);
         if (TextUtils.isEmpty(thumbnailUrl)) {
-            GlideApp.with(getContext())
+            GlideApp.with(imageView.getContext())
                     .load(direntModel.getIcon())
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
                     .into(imageView);
@@ -699,7 +787,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         String thumbKey = EncryptUtils.encryptMD5ToString(thumbnailUrl);
-        GlideApp.with(getContext())
+        GlideApp.with(imageView.getContext())
                 .load(thumbnailUrl)
                 .signature(new ObjectKey(thumbKey))
                 .apply(GlideLoadConfig.getCustomDrawableOptions(direntModel.getIcon()))
@@ -733,7 +821,9 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
             setAllItemSelected(false);
         }
 
-        notifyItemRangeChanged(0, getItemCount());
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(KEY_PAY_LOAD_ACTION_MODE, true);
+        notifyItemRangeChanged(0, getItemCount(), bundle);
     }
 
     public boolean isOnActionMode() {
@@ -755,6 +845,84 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         notifyItemRangeChanged(0, getItemCount(), bundle);
     }
 
+    private void notifyCheckChanged(int position, boolean isChecked) {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(KEY_PAY_LOAD_IS_CHECK, isChecked);
+        notifyItemChanged(position, bundle);
+    }
+
+    private boolean areBaseContentsTheSame(BaseModel oldItem, BaseModel newItem) {
+        return oldItem.is_checked == newItem.is_checked
+                && oldItem.item_position == newItem.item_position;
+    }
+
+    private void appendBasePayload(Bundle payload, BaseModel oldItem, BaseModel newItem) {
+        if (oldItem.is_checked != newItem.is_checked) {
+            payload.putBoolean(KEY_PAY_LOAD_IS_CHECK, newItem.is_checked);
+        }
+
+        if (oldItem.item_position != newItem.item_position) {
+            payload.putBoolean(KEY_PAY_LOAD_BACKGROUND, true);
+        }
+    }
+
+    private void appendRepoPayload(Bundle payload, RepoModel oldItem, RepoModel newItem) {
+        if (!Objects.equals(oldItem.repo_name, newItem.repo_name)) {
+            payload.putBoolean(KEY_PAY_LOAD_TITLE, true);
+        }
+
+        if (oldItem.size != newItem.size
+                || oldItem.last_modified_long != newItem.last_modified_long
+                || !Objects.equals(oldItem.type, newItem.type)
+                || !Objects.equals(oldItem.owner_name, newItem.owner_name)) {
+            payload.putBoolean(KEY_PAY_LOAD_SUBTITLE, true);
+        }
+
+        if (oldItem.encrypted != newItem.encrypted
+                || !Objects.equals(oldItem.permission, newItem.permission)) {
+            payload.putBoolean(KEY_PAY_LOAD_ICON, true);
+        }
+
+        if (oldItem.starred != newItem.starred) {
+            payload.putBoolean(KEY_PAY_LOAD_STARRED, true);
+        }
+    }
+
+    private void appendDirentPayload(Bundle payload, DirentModel oldItem, DirentModel newItem) {
+        if (!Objects.equals(oldItem.name, newItem.name)) {
+            payload.putBoolean(KEY_PAY_LOAD_TITLE, true);
+        }
+
+        if (oldItem.size != newItem.size
+                || oldItem.mtime != newItem.mtime
+                || !Objects.equals(oldItem.type, newItem.type)) {
+            payload.putBoolean(KEY_PAY_LOAD_SUBTITLE, true);
+        }
+
+        if (!Objects.equals(oldItem.name, newItem.name)
+                || !Objects.equals(oldItem.type, newItem.type)
+                || !Objects.equals(oldItem.permission, newItem.permission)
+                || !Objects.equals(oldItem.repo_id, newItem.repo_id)
+                || !Objects.equals(oldItem.full_path, newItem.full_path)
+                || !Objects.equals(oldItem.encoded_thumbnail_src, newItem.encoded_thumbnail_src)) {
+            payload.putBoolean(KEY_PAY_LOAD_ICON, true);
+        }
+
+        if (oldItem.is_freezed != newItem.is_freezed || oldItem.is_locked != newItem.is_locked) {
+            payload.putBoolean(KEY_PAY_LOAD_EDIT_STATUS, true);
+        }
+
+        if (oldItem.starred != newItem.starred) {
+            payload.putBoolean(KEY_PAY_LOAD_STARRED, true);
+        }
+
+        if (!Objects.equals(oldItem.id, newItem.id)
+                || !Objects.equals(oldItem.local_file_id, newItem.local_file_id)
+                || !Objects.equals(oldItem.type, newItem.type)) {
+            payload.putBoolean(KEY_PAY_LOAD_KEY_REFRESH_LOCAL_FILE_STATUS, true);
+        }
+    }
+
     public List<BaseModel> getSelectedList() {
         return getItems().stream().filter(f -> f.is_checked).collect(Collectors.toList());
     }
@@ -768,17 +936,17 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         int selectedPosition = getSelectedPositionByMode();
         if (selectedPosition == position) {
             item.is_checked = !item.is_checked;
-            notifyItemChanged(selectedPosition);
+            notifyCheckChanged(selectedPosition, item.is_checked);
         } else if (selectedPosition > -1) {
             //Deselect an item that has already been selected
             getItems().get(selectedPosition).is_checked = false;
-            notifyItemChanged(selectedPosition);
+            notifyCheckChanged(selectedPosition, false);
 
             item.is_checked = true;
-            notifyItemChanged(position);
+            notifyCheckChanged(position, true);
         } else {
             item.is_checked = true;
-            notifyItemChanged(position);
+            notifyCheckChanged(position, true);
         }
     }
 
@@ -922,7 +1090,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
                 if (getItems().get(oldItemPosition) instanceof RepoModel newT) {
                     RepoModel oldT = (RepoModel) newList.get(newItemPosition);
-                    return newT.equals(oldT);
+                    return newT.equals(oldT) && areBaseContentsTheSame(newT, oldT);
                 }
 
                 if (getItems().get(oldItemPosition) instanceof SearchModel newT) {
@@ -932,10 +1100,28 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
                 if (getItems().get(oldItemPosition) instanceof DirentModel newT) {
                     DirentModel oldT = (DirentModel) newList.get(newItemPosition);
-                    return newT.equals(oldT);
+                    return newT.equals(oldT) && areBaseContentsTheSame(newT, oldT);
                 }
 
                 return true;
+            }
+
+            @Nullable
+            @Override
+            public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+                BaseModel oldItem = getItems().get(oldItemPosition);
+                BaseModel newItem = newList.get(newItemPosition);
+                Bundle payload = new Bundle();
+
+                appendBasePayload(payload, oldItem, newItem);
+
+                if (oldItem instanceof RepoModel oldRepo && newItem instanceof RepoModel newRepo) {
+                    appendRepoPayload(payload, oldRepo, newRepo);
+                } else if (oldItem instanceof DirentModel oldDirent && newItem instanceof DirentModel newDirent) {
+                    appendDirentPayload(payload, oldDirent, newDirent);
+                }
+
+                return payload.isEmpty() ? null : payload;
             }
         });
 

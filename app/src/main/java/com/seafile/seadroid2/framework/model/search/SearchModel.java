@@ -52,26 +52,20 @@ public class SearchModel extends BaseModel implements Parcelable {
         return formatName;
     }
 
-    //    public String getSubtitle() {
-//        String timestamp = Utils.translateCommitTime(last_modified * 1000);
-//        if (is_dir)
-//            return timestamp;
-//        return Utils.readableFileSize(size) + ", " + timestamp;
-//    }
-
     public String getSubtitle() {
         if (TextUtils.isEmpty(repo_name)) {
             return fullpath;
         }
 
         String p = Utils.getFullPath(fullpath);
+        p = StringUtils.removeEnd(p,"/");
         return repo_name + p;
     }
 
 
     public int getIcon() {
         if (is_dir) {
-            if (TextUtils.equals(name, repo_name)) {
+            if (TextUtils.equals("/", fullpath)) {
                 return R.drawable.baseline_repo_24;
             } else {
                 return R.drawable.baseline_folder_24;
@@ -79,6 +73,7 @@ public class SearchModel extends BaseModel implements Parcelable {
         }
         return Icons.getFileIcon(getTitle());
     }
+
 
     public static RepoModel convert2RepoModel(SearchModel model) {
         RepoModel d = new RepoModel();

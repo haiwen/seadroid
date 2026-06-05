@@ -39,6 +39,11 @@ lint.xml
 /.windsurf
 /.opencode
 /.gemini
+/.cline
+/.aider
+/.prism
+CLAUDE.md
+AGENT.md
 
 # Local config and secrets
 local.properties
@@ -63,7 +68,6 @@ build_count.txt
 /libheif-android-build
 /.kotlin
 .transifexrc
-CLAUDE.md
 
 # Legacy Proguard output
 **/proguard/

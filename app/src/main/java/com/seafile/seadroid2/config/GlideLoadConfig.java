@@ -32,6 +32,7 @@ public class GlideLoadConfig {
         return new RequestOptions()
                 .fallback(R.drawable.default_avatar)
                 .placeholder(R.drawable.default_avatar)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .override(WidgetUtils.getThumbnailWidth(), WidgetUtils.getThumbnailWidth());
     }
 

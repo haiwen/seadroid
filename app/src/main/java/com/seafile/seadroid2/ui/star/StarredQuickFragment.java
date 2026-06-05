@@ -195,16 +195,12 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     }
 
     private void resetAdapterItemSelectedState() {
-        for (StarredModel item : adapter.getItems()) {
-            item.is_checked = false;
-        }
-        adapter.notifyDataSetChanged();
+        adapter.clearSelectedItems();
     }
 
     private void toggleAdapterItemSelectedState(int i) {
         StarredModel model = adapter.getItems().get(i);
-        model.is_checked = !model.is_checked;
-        adapter.set(i, model);
+        adapter.setItemChecked(i, !model.is_checked);
     }
 
     @Nullable
