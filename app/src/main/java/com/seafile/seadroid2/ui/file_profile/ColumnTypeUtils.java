@@ -46,7 +46,7 @@ public class ColumnTypeUtils {
             case ColumnType.GEOLOCATION -> R.drawable.icon_editor_location;
             case ColumnType.EMAIL -> R.drawable.icon_email;
             case ColumnType.NUMBER -> R.drawable.icon_editor_number;
-            case ColumnType.RATE -> R.drawable.icon_starred;
+            case ColumnType.RATE -> R.drawable.baseline_fav_filled;
             case ColumnType.URL -> R.drawable.icon_editor_link;
             case ColumnType.LINK -> "_tags".equals(key) ? R.drawable.icon_editor_tag_filled : R.drawable.icon_editor_link_file;
 

@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/take_photo"
         android:icon="@drawable/ic_camera"
-        android:title="@string/camera" />
+        android:title="@string/camera"
+        app:iconTint="@color/primary_icon_tint_color" />
+
     <item
         android:id="@+id/view_file"
         android:icon="@drawable/baseline_more_vert_24"
-        android:title="@string/file_action_more" />
+        android:title="@string/file_action_more"
+        app:iconTint="@color/primary_icon_tint_color" />
 </menu>

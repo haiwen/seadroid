@@ -652,7 +652,7 @@ public class FileProfileEditorActivity extends BaseActivityWithVM<SDocViewModel>
     private TextView genTitleTextView(String name, String key) {
         TextView textView = new TextView(context);
         textView.setTextSize(16);
-        textView.setTextColor(context.getColor(R.color.profile_editor_title));
+        textView.setTextColor(context.getColor(R.color.property_editor_title));
         textView.setMaxLines(1);
         textView.setEllipsize(TextUtils.TruncateAt.END);
         int resStrId = ColumnTypeUtils.getResNameByKey(key);

@@ -19,6 +19,7 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
@@ -113,7 +114,7 @@ public class FolderScanHelper {
                 SafeLogs.d(TAG, "onlyTraverseBackupPathFileCount()", backupPath);
             }
 
-            backupableCount=1;
+            backupableCount = 1;
             SafeLogs.e(TAG, "onlyTraverseBackupPathFileCount()", "backupableCount: " + backupableCount);
 
         } catch (SeafException seafException) {
@@ -193,7 +194,7 @@ public class FolderScanHelper {
                 .fileTransferDAO()
                 .getFullListByParentPathSync(repoModel.repo_id, parentPath, TransferDataSource.FOLDER_BACKUP);
 
-        // local db
+        // local db map
         Map<String, FileBackupStatusEntity> dbTransferMap;
         if (!CollectionUtils.isEmpty(dbList)) {
             dbTransferMap = dbList.stream().collect(Collectors.toMap(FileBackupStatusEntity::getFullPathFileName, Function.identity()));
@@ -206,6 +207,7 @@ public class FolderScanHelper {
 
         for (File localFile : localFiles) {
 
+            // for example:
             // backupPath is /storage/emulated/0/aaa/bbb/
             // localFile is  /storage/emulated/0/aaa/bbb/ccc.docx
             // parentAbsPath is /storage/emulated/0/aaa/
@@ -214,14 +216,23 @@ public class FolderScanHelper {
             String fullPathFileName = StringUtils.removeStart(localFile.getAbsolutePath(), parentAbsPath);
             fullPathFileName = Utils.pathJoin("/", fullPathFileName);
 
+            // If the file_backup_status db has cached this file, it means that the file has been backed up.
             FileBackupStatusEntity dbTransferEntity = dbTransferMap.getOrDefault(fullPathFileName, null);
             if (dbTransferEntity != null) {
                 SafeLogs.d(TAG, "compareCount()", "folder backup: skip file: " + fullPathFileName + ", because it has been uploaded");
                 continue;
             }
 
+            // If the remote list is not empty, it means that the file with the same name exists in the remote repository.
+            // we should not upload the same file to the remote repository.
             if (!CollectionUtils.isEmpty(remoteList)) {
-                String filename = localFile.getName();
+                // nfc form
+                String filename = UnicodePathUtils.normalize(localFile.getName());
+                if (StringUtils.isEmpty(filename)){
+                    // skip empty file
+                    continue;
+                }
+
                 String prefix, suffix;
                 if (filename.contains(".")) {
                     prefix = filename.substring(0, filename.lastIndexOf("."));
@@ -298,6 +309,7 @@ public class FolderScanHelper {
 
         for (File localFile : localFiles) {
 
+            // for example:
             // backupPath is /storage/emulated/0/aaa/bbb/
             // localFile is  /storage/emulated/0/aaa/bbb/ccc.docx
             // parentAbsPath is /storage/emulated/0/aaa/
@@ -306,14 +318,22 @@ public class FolderScanHelper {
             String fullPathFileName = StringUtils.removeStart(localFile.getAbsolutePath(), parentAbsPath);
             fullPathFileName = Utils.pathJoin("/", fullPathFileName);
 
+            // If the file_backup_status db has cached this file, it means that the file has been backed up.
             FileBackupStatusEntity dbTransferEntity = dbTransferMap.getOrDefault(fullPathFileName, null);
             if (dbTransferEntity != null) {
                 SafeLogs.d(TAG, "compare()", "folder backup: skip file: " + fullPathFileName + ", because it has been uploaded");
                 continue;
             }
 
+            // If the remote list is not empty, it means that the file with the same name exists in the remote repository.
+            // We should not upload the same file to the remote repository.
             if (!CollectionUtils.isEmpty(remoteList)) {
-                String filename = localFile.getName();
+                String filename = UnicodePathUtils.normalize(localFile.getName());
+                if (StringUtils.isEmpty(filename)){
+                    // skip empty file
+                    continue;
+                }
+
                 String prefix, suffix;
                 if (filename.contains(".")) {
                     prefix = filename.substring(0, filename.lastIndexOf("."));
