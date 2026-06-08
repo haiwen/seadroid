@@ -174,14 +174,12 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     }
 
     private void transferFile(Account account) throws SeafException {
-        Pair<String, String> pair = getDownloadLink(false);
-        String dlink = pair.first;
-        String fileId = pair.second;
-        download(account, dlink, fileId);
+        String dlink = getDownloadLink(false);
+        download(account, dlink);
     }
 
     @NonNull
-    private Pair<String, String> getDownloadLink(boolean isReUsed) throws SeafException {
+    private String getDownloadLink(boolean isReUsed) throws SeafException {
         retrofit2.Response<String> res;
         try {
             res = HttpManager.getCurrentHttp()
@@ -213,18 +211,21 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             throw SeafException.NETWORK_EXCEPTION;
         }
 
+        if (StringUtils.isNotEmpty(fileId)) {
+            currentTransferModel.file_id = fileId;
+        }
 
         dlink = StringUtils.replace(dlink, "\"", "");
 
         // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
-        if (dlink.startsWith("http") && fileId != null) {
-            return new Pair<>(dlink, fileId);
+        if (dlink.startsWith("http")) {
+            return dlink;
         } else {
             throw SeafException.NETWORK_EXCEPTION;
         }
     }
 
-    private void download(Account account, String dlink, String fileId) throws SeafException {
+    private void download(Account account, String dlink) throws SeafException {
         markDownloadStarted();
 
         SafeLogs.d(TAG, "download()", "download start：" + currentTransferModel.full_path);
@@ -240,7 +241,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
             canFallback = checkProtocol(protocol);
 
-            onRes(account, response, fileId);
+            onRes(account, response);
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
             SafeLogs.e(e);
@@ -250,7 +251,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             }
 
             if (canFallback) {
-                onFallback(account, request, fileId);
+                onFallback(account, request);
             } else {
                 throw SeafException.NETWORK_EXCEPTION;
             }
@@ -301,14 +302,14 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         return false;
     }
 
-    private void onFallback(Account account, Request request, String fileId) throws SeafException {
+    private void onFallback(Account account, Request request) throws SeafException {
         cancelCurrentCallIfExecuted("onFallbackDownload()");
 
         SafeLogs.d(TAG, "onFallbackDownload()", "use fallback client to download file");
 
         newCall = getFallbackHttpClient(account).newCall(request);
         try (Response response = newCall.execute()) {
-            onRes(account, response, fileId);
+            onRes(account, response);
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
             SafeLogs.e(e);
@@ -321,7 +322,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
     }
 
-    private void onRes(Account account, Response response, String fileId) throws IOException, SeafException {
+    private void onRes(Account account, Response response) throws IOException, SeafException {
         if (!response.isSuccessful()) {
             int code = response.code();
             String b = response.body() != null ? response.body().string() : null;
@@ -347,7 +348,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
             File tempFile = DataManager.createTempFile();
             writeResponseToTempFile(responseBody, tempFile, fileSize);
-            moveTempFileAndMarkSuccess(tempFile, localFile, fileId);
+            moveTempFileAndMarkSuccess(tempFile, localFile);
         }
     }
 
@@ -389,12 +390,12 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         }
     }
 
-    private void moveTempFileAndMarkSuccess(@NonNull File tempFile, @NonNull File localFile, @NonNull String fileId) throws IOException {
+    private void moveTempFileAndMarkSuccess(@NonNull File tempFile, @NonNull File localFile) throws IOException {
         Path path = java.nio.file.Files.move(tempFile.toPath(), localFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         boolean isSuccess = path.toFile().exists();
         if (isSuccess) {
             java.nio.file.Files.deleteIfExists(tempFile.toPath());
-            updateToSuccess(fileId, localFile);
+            updateToSuccess();
         }
     }
 
@@ -415,14 +416,14 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
     }
 
-    private void updateToSuccess(String fileId, File localFile) {
+    private void updateToSuccess() {
         currentTransferModel.transferred_size = currentTransferModel.file_size;
         currentTransferModel.transfer_status = TransferStatus.SUCCEEDED;
         currentTransferModel.err_msg = TransferResult.TRANSMITTED.name();
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         if (currentTransferModel.save_to == SaveTo.DB) {
-            FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromDownload(currentTransferModel, fileId);
+            FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromDownload(currentTransferModel);
             AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
         }
     }
