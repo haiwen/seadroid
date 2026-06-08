@@ -150,7 +150,7 @@ public class FileCacheStatusEntity extends BaseModel {
         return EncryptUtils.encryptMD5ToString(related_account + repo_id + full_path).toLowerCase();
     }
 
-    private static FileCacheStatusEntity convert(boolean isDownload, TransferModel transferModel, String fileId) {
+    private static FileCacheStatusEntity convert(boolean isDownload, TransferModel transferModel) {
         if (transferModel == null) {
             return null;
         }
@@ -160,7 +160,7 @@ public class FileCacheStatusEntity extends BaseModel {
         entity.repo_name = transferModel.repo_name;
         entity.related_account = transferModel.related_account;
         entity.file_name = transferModel.file_name;
-        entity.file_id = fileId;
+        entity.file_id = transferModel.file_id;
 
 
         if (isDownload) {
@@ -189,12 +189,13 @@ public class FileCacheStatusEntity extends BaseModel {
         return entity;
     }
 
-    public static FileCacheStatusEntity convertFromDownload(TransferModel transferModel, String fileId) {
-        return convert(true, transferModel, fileId);
+    public static FileCacheStatusEntity convertFromDownload(TransferModel transferModel) {
+        return convert(true, transferModel);
     }
 
     public static FileCacheStatusEntity convertFromUpload(TransferModel transferModel, String fileId) {
-        return convert(false, transferModel, fileId);
+        transferModel.file_id = fileId;
+        return convert(false, transferModel);
     }
 
 }

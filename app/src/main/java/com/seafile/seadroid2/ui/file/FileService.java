@@ -2,7 +2,7 @@ package com.seafile.seadroid2.ui.file;
 
 import com.seafile.seadroid2.framework.model.dirents.DirentDirModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
-import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public interface FileService {
     Single<DirentFileModel> getFileDetail(@Path("repo_id") String repoId, @Query("p") String path);
 
     @GET("api2/repos/{repo_id}/dir/?t=f&recursive=1")
-    Call<List<DirentRecursiveFileModel>> getDirRecursiveFileCall(@Path("repo_id") String repoId, @Query("p") String path);
+    Call<List<DirentRecursiveModel>> getDirRecursiveFileCall(@Path("repo_id") String repoId, @Query("p") String path);
 
     @GET("api2/repos/{repo_id}/file/?op=download")
     Call<String> getFileDownloadLinkSync(@Path("repo_id") String repoId, @Query("p") String p, @Query("reuse") int reuse);

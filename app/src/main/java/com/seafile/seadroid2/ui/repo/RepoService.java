@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.ui.repo;
 
-import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionListWrapperModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
@@ -32,8 +32,14 @@ public interface RepoService {
     Call<DirentWrapperModel> getDirentsSync(@Path("repo_id") String repoId, @Query("p") String path);
 
     @GET("api2/repos/{repo_id}/dir/?t=f&recursive=1")
-    Call<List<DirentRecursiveFileModel>> getDirRecursiveFileCall(@Path("repo_id") String repoId, @Query("p") String path);
+    Call<List<DirentRecursiveModel>> getDirRecursiveFileCall(@Path("repo_id") String repoId, @Query("p") String path);
 
+    /**
+     * @param t type, 'f' for file, 'd' for dir
+     *
+     */
+    @GET("api2/repos/{repo_id}/dir/?recursive=1")
+    Single<List<DirentRecursiveModel>> getRecursiveDirOrFileSingle(@Path("repo_id") String repoId, @Query("p") String path, @Query("t") String t);
 
     @GET("api/v2.1/repos/{repo_id}/custom-share-permissions/{permission_id}/")
     Single<PermissionWrapperModel> getCustomSharePermissionById(@Path("repo_id") String repoId, @Path("permission_id") int id);

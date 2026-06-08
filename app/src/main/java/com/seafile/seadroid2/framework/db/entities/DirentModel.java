@@ -11,11 +11,13 @@ import androidx.room.PrimaryKey;
 
 import com.blankj.utilcode.util.EncryptUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -41,7 +43,7 @@ public class DirentModel extends BaseModel implements Parcelable {
      */
     public String full_path = "";
 
-    ///////////////////common///////////////
+    /// ////////////////common///////////////
     public String name;
 
     /**
@@ -60,7 +62,7 @@ public class DirentModel extends BaseModel implements Parcelable {
     public String repo_id;
     public String repo_name;
 
-    ///////////////////file///////////////
+    /// ////////////////file///////////////
 
     public long size;    // size of file, 0 if type is dir
     public boolean is_locked;
@@ -230,6 +232,32 @@ public class DirentModel extends BaseModel implements Parcelable {
         direntModel.type = searchModel.is_dir ? "dir" : "file";
         direntModel.parent_dir = Utils.getParentPath(searchModel.fullpath);
         direntModel.name = searchModel.name;
+        direntModel.uid = direntModel.getUID();
+        return direntModel;
+    }
+
+    public static DirentModel convertDirentRecursiveFileModelToThis(DirentRecursiveModel recursiveFileModel, Account account, String repo_id) {
+        if (recursiveFileModel == null) {
+            return null;
+        }
+        DirentModel direntModel = new DirentModel();
+        direntModel.related_account = account.getSignature();
+        direntModel.full_path = Utils.pathJoin(recursiveFileModel.getParent_dir(), recursiveFileModel.name);
+        direntModel.name = recursiveFileModel.name;
+        direntModel.parent_dir = recursiveFileModel.parent_dir;
+        direntModel.id = recursiveFileModel.id;
+        direntModel.type = recursiveFileModel.type;
+        direntModel.mtime = recursiveFileModel.mtime;
+        direntModel.permission = recursiveFileModel.permission;
+        direntModel.size = recursiveFileModel.size;
+        direntModel.repo_id = repo_id;
+        direntModel.is_locked = recursiveFileModel.is_locked;
+        direntModel.locked_by_me = recursiveFileModel.locked_by_me;
+        direntModel.lock_time = recursiveFileModel.lock_time;
+        direntModel.lock_owner = recursiveFileModel.lock_owner;
+        direntModel.modifier_name = recursiveFileModel.modifier_name;
+        direntModel.modifier_email = recursiveFileModel.modifier_email;
+        direntModel.modifier_contact_email = recursiveFileModel.modifier_contact_email;
         direntModel.uid = direntModel.getUID();
         return direntModel;
     }
