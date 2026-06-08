@@ -401,7 +401,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         if (currentTransferModel.save_to == SaveTo.DB) {
-            FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromDownload(currentTransferModel);
+            FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromDownload(currentTransferModel, fileId);
             AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
         }
     }

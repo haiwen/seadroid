@@ -43,9 +43,8 @@ public class TransferModel implements Comparable<TransferModel> {
     public void setId(String id) {
         this.id = id;
     }
-    // download
-    public String file_id;
-    // upload
+
+    //just for uploading
     public String repo_id;
     public String repo_name;
     public String related_account;
