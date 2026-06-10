@@ -136,11 +136,13 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
 
         RepoModel repoModel = (RepoModel) model;
         if (repoModel.encrypted) {
-            doEncrypt(repoModel, new Consumer<RepoDecryptResult>() {
+            decryptRepo(repoModel, new Consumer<Boolean>() {
                 @Override
-                public void accept(RepoDecryptResult repoDecryptResult) {
-                    mNavContext.push(repoModel);
-                    adapter.selectItemByMode(position);
+                public void accept(Boolean result) {
+                    if (result) {
+                        mNavContext.push(repoModel);
+                        adapter.selectItemByMode(position);
+                    }
                 }
             });
         } else {
@@ -149,13 +151,13 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
         }
     }
 
-    private void doEncrypt(RepoModel repoModel, Consumer<RepoDecryptResult> consumer) {
+    private void decryptRepo(RepoModel repoModel, Consumer<Boolean> consumer) {
         getViewModel().decryptRepo(repoModel, new io.reactivex.functions.Consumer<RepoDecryptResult>() {
             @Override
             public void accept(RepoDecryptResult repoDecryptResult) {
                 if (RepoDecryptResult.SUCCESS == repoDecryptResult) {
                     if (consumer != null) {
-                        consumer.accept(repoDecryptResult);
+                        consumer.accept(true);
                     }
 
                 } else if (RepoDecryptResult.NEED_PASSWORD == repoDecryptResult || RepoDecryptResult.PASSWORD_EXPIRED == repoDecryptResult) {
@@ -163,12 +165,14 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
                         @Override
                         public void onResultData(RepoModel repoModel) {
                             if (consumer != null) {
-                                consumer.accept(repoDecryptResult);
+                                consumer.accept(repoModel != null);
                             }
                         }
                     });
                 } else { //failed
-
+                    if (consumer != null) {
+                        consumer.accept(false);
+                    }
                 }
             }
         });

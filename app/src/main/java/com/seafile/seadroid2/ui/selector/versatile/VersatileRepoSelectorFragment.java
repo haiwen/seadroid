@@ -212,12 +212,14 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
 
         if (model instanceof RepoModel repoModel) {
             if (repoModel.encrypted) {
-                doEncrypt(repoModel, new androidx.core.util.Consumer<RepoDecryptResult>() {
+                decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
                     @Override
-                    public void accept(RepoDecryptResult repoDecryptResult) {
-                        setReturnStyle(true);
-                        localNavContext.push(repoModel);
-                        loadData();
+                    public void accept(Boolean result) {
+                        if (result) {
+                            setReturnStyle(true);
+                            localNavContext.push(repoModel);
+                            loadData();
+                        }
                     }
                 });
             } else {
@@ -236,13 +238,13 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
         }
     }
 
-    private void doEncrypt(RepoModel repoModel, androidx.core.util.Consumer<RepoDecryptResult> consumer) {
+    private void decryptRepo(RepoModel repoModel, androidx.core.util.Consumer<Boolean> consumer) {
         getViewModel().decryptRepo(repoModel, new io.reactivex.functions.Consumer<RepoDecryptResult>() {
             @Override
             public void accept(RepoDecryptResult repoDecryptResult) {
                 if (RepoDecryptResult.SUCCESS == repoDecryptResult) {
                     if (consumer != null) {
-                        consumer.accept(repoDecryptResult);
+                        consumer.accept(true);
                     }
 
                 } else if (RepoDecryptResult.NEED_PASSWORD == repoDecryptResult || RepoDecryptResult.PASSWORD_EXPIRED == repoDecryptResult) {
@@ -250,12 +252,14 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
                         @Override
                         public void onResultData(RepoModel repoModel) {
                             if (consumer != null) {
-                                consumer.accept(repoDecryptResult);
+                                consumer.accept(repoModel != null);
                             }
                         }
                     });
                 } else { //failed
-
+                    if (consumer != null) {
+                        consumer.accept(false);
+                    }
                 }
             }
         });

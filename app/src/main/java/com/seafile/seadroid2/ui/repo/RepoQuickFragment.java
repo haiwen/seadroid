@@ -1055,7 +1055,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (repoModel == null) {
                 getViewModel().loadData(navContext, refreshStatus, isBlank);
             } else if (repoModel.encrypted) {
-                doEncrypt(repoModel, new androidx.core.util.Consumer<Boolean>() {
+                decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean repoDecryptResult) {
                         if (repoDecryptResult) {
@@ -1085,7 +1085,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    private void doEncrypt(RepoModel repoModel, androidx.core.util.Consumer<Boolean> consumer) {
+    private void decryptRepo(RepoModel repoModel, androidx.core.util.Consumer<Boolean> consumer) {
         getViewModel().decryptRepo(repoModel, new Consumer<RepoDecryptResult>() {
             @Override
             public void accept(RepoDecryptResult repoDecryptResult) {
@@ -1248,7 +1248,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         //save
         if (model instanceof RepoModel repoModel) {
             if (repoModel.encrypted) {
-                doEncrypt(repoModel, new androidx.core.util.Consumer<Boolean>() {
+                decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean repoDecryptResult) {
                         if (repoDecryptResult) {
@@ -1324,7 +1324,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
 
                 if (repoModel.encrypted) {
-                    doEncrypt(repoModel, new androidx.core.util.Consumer<Boolean>() {
+                    decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
                         @Override
                         public void accept(Boolean repoDecryptResult) {
                             if (repoDecryptResult) {

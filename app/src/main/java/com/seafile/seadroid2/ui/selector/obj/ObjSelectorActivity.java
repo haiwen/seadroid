@@ -317,16 +317,18 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
 
             if (isOnlyChooseRepo) {
                 if (repoModel.encrypted) {
-                    doEncrypt(repoModel, new Consumer<RepoDecryptResult>() {
+                    decryptRepo(repoModel, new Consumer<Boolean>() {
                         @Override
-                        public void accept(RepoDecryptResult repoDecryptResult) {
-                            boolean isSelected = adapter.getItems().get(position).is_checked;
-                            if (isSelected) {
-                                mNavContext.pop();
-                            } else {
-                                mNavContext.push(repoModel);
+                        public void accept(Boolean result) {
+                            if (result) {
+                                boolean isSelected = adapter.getItems().get(position).is_checked;
+                                if (isSelected) {
+                                    mNavContext.pop();
+                                } else {
+                                    mNavContext.push(repoModel);
+                                }
+                                adapter.selectItemByMode(position);
                             }
-                            adapter.selectItemByMode(position);
                         }
                     });
                 } else {
@@ -340,12 +342,15 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
                 }
             } else {
                 if (repoModel.encrypted) {
-                    doEncrypt(repoModel, new Consumer<RepoDecryptResult>() {
+                    decryptRepo(repoModel, new Consumer<Boolean>() {
                         @Override
-                        public void accept(RepoDecryptResult repoDecryptResult) {
-                            mCurrentStepType = ObjSelectType.DIR;
-                            mNavContext.push(repoModel);
-                            loadData();
+                        public void accept(Boolean result) {
+                            if (result) {
+                                mCurrentStepType = ObjSelectType.DIR;
+                                mNavContext.push(repoModel);
+                                loadData();
+                            }
+
                         }
                     });
                 } else {
@@ -367,13 +372,13 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         }
     }
 
-    private void doEncrypt(RepoModel repoModel, Consumer<RepoDecryptResult> consumer) {
+    private void decryptRepo(RepoModel repoModel, androidx.core.util.Consumer<Boolean> consumer) {
         getViewModel().decryptRepo(repoModel, new io.reactivex.functions.Consumer<RepoDecryptResult>() {
             @Override
             public void accept(RepoDecryptResult repoDecryptResult) {
                 if (RepoDecryptResult.SUCCESS == repoDecryptResult) {
                     if (consumer != null) {
-                        consumer.accept(repoDecryptResult);
+                        consumer.accept(true);
                     }
 
                 } else if (RepoDecryptResult.NEED_PASSWORD == repoDecryptResult || RepoDecryptResult.PASSWORD_EXPIRED == repoDecryptResult) {
@@ -381,16 +386,19 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
                         @Override
                         public void onResultData(RepoModel repoModel) {
                             if (consumer != null) {
-                                consumer.accept(repoDecryptResult);
+                                consumer.accept(repoModel != null);
                             }
                         }
                     });
                 } else { //failed
-
+                    if (consumer != null) {
+                        consumer.accept(false);
+                    }
                 }
             }
         });
     }
+
 
     private void showPasswordDialog(RepoModel repoModel, OnResultListener<RepoModel> onResultListener) {
         BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(mAccount, repoModel.repo_id, repoModel.repo_name);
