@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -20,9 +21,12 @@ import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.FragmentRemoteLibraryFragmentBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
+import com.seafile.seadroid2.enums.RepoDecryptResult;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
 import com.seafile.seadroid2.view.TipsViews;
 
@@ -111,6 +115,13 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
         binding.rv.setAdapter(helper.getAdapter());
     }
 
+    private void loadData() {
+        boolean isFilterUnavailable = true;
+        boolean isFilterEncryptRepo = false;
+        boolean isAddStarredGroup = false;
+        getViewModel().loadReposFromNet(mAccount, isFilterUnavailable, isFilterEncryptRepo, isAddStarredGroup);
+    }
+
     private void notifyDataChanged(List<BaseModel> models) {
         if (CollectionUtils.isEmpty(models)) {
             adapter.setStateViewEnable(true);
@@ -122,16 +133,59 @@ public class RepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewMode
 
     private void onItemClicked(BaseModel model, int position) {
         //It cannot be backed up to an encrypted repo, so there is no need to verify the password
-        adapter.selectItemByMode(position);
 
         RepoModel repoModel = (RepoModel) model;
-        mNavContext.push(repoModel);
+        if (repoModel.encrypted) {
+            doEncrypt(repoModel, new Consumer<RepoDecryptResult>() {
+                @Override
+                public void accept(RepoDecryptResult repoDecryptResult) {
+                    mNavContext.push(repoModel);
+                    adapter.selectItemByMode(position);
+                }
+            });
+        } else {
+            mNavContext.push(repoModel);
+            adapter.selectItemByMode(position);
+        }
     }
 
-    private void loadData() {
-        getViewModel().loadReposFromNet(mAccount, true, false);
+    private void doEncrypt(RepoModel repoModel, Consumer<RepoDecryptResult> consumer) {
+        getViewModel().decryptRepo(repoModel, new io.reactivex.functions.Consumer<RepoDecryptResult>() {
+            @Override
+            public void accept(RepoDecryptResult repoDecryptResult) {
+                if (RepoDecryptResult.SUCCESS == repoDecryptResult) {
+                    if (consumer != null) {
+                        consumer.accept(repoDecryptResult);
+                    }
+
+                } else if (RepoDecryptResult.NEED_PASSWORD == repoDecryptResult || RepoDecryptResult.PASSWORD_EXPIRED == repoDecryptResult) {
+                    showPasswordDialog(repoModel, new OnResultListener<RepoModel>() {
+                        @Override
+                        public void onResultData(RepoModel repoModel) {
+                            if (consumer != null) {
+                                consumer.accept(repoDecryptResult);
+                            }
+                        }
+                    });
+                } else { //failed
+
+                }
+            }
+        });
     }
 
+    private void showPasswordDialog(RepoModel repoModel, OnResultListener<RepoModel> onResultListener) {
+        BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(mAccount, repoModel.repo_id, repoModel.repo_name);
+        passwordDialogFragment.setResultListener(new OnResultListener<RepoModel>() {
+            @Override
+            public void onResultData(RepoModel repoModel) {
+                if (onResultListener != null) {
+                    onResultListener.onResultData(repoModel);
+                }
+            }
+        });
+        passwordDialogFragment.show(getChildFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
+    }
 
     public Pair<Account, RepoModel> getBackupInfo() {
         return new Pair<>(mAccount, mNavContext.getRepoModel());

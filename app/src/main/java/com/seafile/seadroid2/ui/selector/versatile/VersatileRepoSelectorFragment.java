@@ -22,12 +22,15 @@ import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.FragmentVersatileSelectorBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
+import com.seafile.seadroid2.enums.RepoDecryptResult;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
+import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetPasswordDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorViewModel;
 import com.seafile.seadroid2.view.TipsViews;
@@ -38,6 +41,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+
+import io.reactivex.functions.Consumer;
 
 public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelectorViewModel> {
     private FragmentVersatileSelectorBinding binding;
@@ -206,9 +211,20 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
 //        adapter.selectItemByMode(position);
 
         if (model instanceof RepoModel repoModel) {
-            setReturnStyle(true);
-            localNavContext.push(repoModel);
-            loadData();
+            if (repoModel.encrypted) {
+                doEncrypt(repoModel, new androidx.core.util.Consumer<RepoDecryptResult>() {
+                    @Override
+                    public void accept(RepoDecryptResult repoDecryptResult) {
+                        setReturnStyle(true);
+                        localNavContext.push(repoModel);
+                        loadData();
+                    }
+                });
+            } else {
+                setReturnStyle(true);
+                localNavContext.push(repoModel);
+                loadData();
+            }
         } else if (model instanceof DirentModel direntModel) {
             if (direntModel.isDir()) {
                 setReturnStyle(true);
@@ -218,6 +234,44 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
 
             }
         }
+    }
+
+    private void doEncrypt(RepoModel repoModel, androidx.core.util.Consumer<RepoDecryptResult> consumer) {
+        getViewModel().decryptRepo(repoModel, new io.reactivex.functions.Consumer<RepoDecryptResult>() {
+            @Override
+            public void accept(RepoDecryptResult repoDecryptResult) {
+                if (RepoDecryptResult.SUCCESS == repoDecryptResult) {
+                    if (consumer != null) {
+                        consumer.accept(repoDecryptResult);
+                    }
+
+                } else if (RepoDecryptResult.NEED_PASSWORD == repoDecryptResult || RepoDecryptResult.PASSWORD_EXPIRED == repoDecryptResult) {
+                    showPasswordDialog(repoModel, new OnResultListener<RepoModel>() {
+                        @Override
+                        public void onResultData(RepoModel repoModel) {
+                            if (consumer != null) {
+                                consumer.accept(repoDecryptResult);
+                            }
+                        }
+                    });
+                } else { //failed
+
+                }
+            }
+        });
+    }
+
+    private void showPasswordDialog(RepoModel repoModel, OnResultListener<RepoModel> onResultListener) {
+        BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(mAccount, repoModel.repo_id, repoModel.repo_name);
+        passwordDialogFragment.setResultListener(new OnResultListener<RepoModel>() {
+            @Override
+            public void onResultData(RepoModel repoModel) {
+                if (onResultListener != null) {
+                    onResultListener.onResultData(repoModel);
+                }
+            }
+        });
+        passwordDialogFragment.show(getChildFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
     }
 
     private void returnTo() {
@@ -232,7 +286,10 @@ public class VersatileRepoSelectorFragment extends BaseFragmentWithVM<ObjSelecto
         if (localNavContext.inRepo()) {
             getViewModel().loadDirentsFromNet(mAccount, localNavContext);
         } else {
-            getViewModel().loadReposFromNet(mAccount, true, false);
+            boolean isFilterUnavailable = true;
+            boolean isFilterEncryptRepo = false;
+            boolean isAddStarredGroup = false;
+            getViewModel().loadReposFromNet(mAccount, isFilterUnavailable, isFilterEncryptRepo, isAddStarredGroup);
         }
 
         binding.currentPath.setText(localNavContext.getFullNavName());

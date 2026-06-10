@@ -12,10 +12,10 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.TimeUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -26,9 +26,9 @@ import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ObjSelectType;
+import com.seafile.seadroid2.enums.RepoDecryptResult;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
@@ -42,8 +42,6 @@ import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.util.List;
-
-import io.reactivex.functions.Consumer;
 
 /**
  * can select account、repo、dir
@@ -318,24 +316,45 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         } else if (baseModel instanceof RepoModel repoModel) {
 
             if (isOnlyChooseRepo) {
-
-                boolean isSelected = adapter.getItems().get(position).is_checked;
-                if (isSelected) {
-                    mNavContext.pop();
+                if (repoModel.encrypted) {
+                    doEncrypt(repoModel, new Consumer<RepoDecryptResult>() {
+                        @Override
+                        public void accept(RepoDecryptResult repoDecryptResult) {
+                            boolean isSelected = adapter.getItems().get(position).is_checked;
+                            if (isSelected) {
+                                mNavContext.pop();
+                            } else {
+                                mNavContext.push(repoModel);
+                            }
+                            adapter.selectItemByMode(position);
+                        }
+                    });
                 } else {
-                    mNavContext.push(repoModel);
+                    boolean isSelected = adapter.getItems().get(position).is_checked;
+                    if (isSelected) {
+                        mNavContext.pop();
+                    } else {
+                        mNavContext.push(repoModel);
+                    }
+                    adapter.selectItemByMode(position);
                 }
-                adapter.selectItemByMode(position);
-                return;
+            } else {
+                if (repoModel.encrypted) {
+                    doEncrypt(repoModel, new Consumer<RepoDecryptResult>() {
+                        @Override
+                        public void accept(RepoDecryptResult repoDecryptResult) {
+                            mCurrentStepType = ObjSelectType.DIR;
+                            mNavContext.push(repoModel);
+                            loadData();
+                        }
+                    });
+                } else {
+                    mCurrentStepType = ObjSelectType.DIR;
+                    mNavContext.push(repoModel);
+                    loadData();
+                }
             }
 
-            if (repoModel.encrypted) {
-                doEncrypt(repoModel);
-            } else {
-                mCurrentStepType = ObjSelectType.DIR;
-                mNavContext.push(repoModel);
-                loadData();
-            }
 
         } else if (baseModel instanceof DirentModel) {
             DirentModel model = (DirentModel) baseModel;
@@ -348,33 +367,38 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
         }
     }
 
-    private void doEncrypt(RepoModel repoModel) {
-        getViewModel().getEncCacheDB(repoModel.repo_id, new Consumer<EncKeyCacheEntity>() {
+    private void doEncrypt(RepoModel repoModel, Consumer<RepoDecryptResult> consumer) {
+        getViewModel().decryptRepo(repoModel, new io.reactivex.functions.Consumer<RepoDecryptResult>() {
             @Override
-            public void accept(EncKeyCacheEntity encKeyCacheEntity) throws Exception {
-                long now = TimeUtils.getNowMills();
-                if (encKeyCacheEntity == null || encKeyCacheEntity.expire_time_long == 0) {
-                    showPasswordDialog(repoModel);
-                } else if (now < encKeyCacheEntity.expire_time_long) {
-                    mCurrentStepType = ObjSelectType.DIR;
-                    mNavContext.push(repoModel);
-                    loadData();
-                } else {
-                    showPasswordDialog(repoModel);
+            public void accept(RepoDecryptResult repoDecryptResult) {
+                if (RepoDecryptResult.SUCCESS == repoDecryptResult) {
+                    if (consumer != null) {
+                        consumer.accept(repoDecryptResult);
+                    }
+
+                } else if (RepoDecryptResult.NEED_PASSWORD == repoDecryptResult || RepoDecryptResult.PASSWORD_EXPIRED == repoDecryptResult) {
+                    showPasswordDialog(repoModel, new OnResultListener<RepoModel>() {
+                        @Override
+                        public void onResultData(RepoModel repoModel) {
+                            if (consumer != null) {
+                                consumer.accept(repoDecryptResult);
+                            }
+                        }
+                    });
+                } else { //failed
+
                 }
             }
         });
     }
 
-    private void showPasswordDialog(RepoModel repoModel) {
+    private void showPasswordDialog(RepoModel repoModel, OnResultListener<RepoModel> onResultListener) {
         BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(mAccount, repoModel.repo_id, repoModel.repo_name);
         passwordDialogFragment.setResultListener(new OnResultListener<RepoModel>() {
             @Override
             public void onResultData(RepoModel repoModel) {
-                if (repoModel != null) {
-                    mCurrentStepType = ObjSelectType.DIR;
-                    mNavContext.push(repoModel);
-                    loadData();
+                if (onResultListener != null) {
+                    onResultListener.onResultData(repoModel);
                 }
             }
         });
@@ -407,9 +431,9 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
             return;
         }
 
-        getViewModel().getPermissionFromLocal(repo_id, pNum, new Consumer<PermissionEntity>() {
+        getViewModel().getPermissionFromLocal(repo_id, pNum, new io.reactivex.functions.Consumer<PermissionEntity>() {
             @Override
-            public void accept(PermissionEntity entity) throws Exception {
+            public void accept(PermissionEntity entity) {
                 if (!entity.isValid()) {
                     consumer.accept(false);
                     return;
@@ -469,6 +493,7 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
             setOperateViewVisible(false);
 
             boolean isFilterUnavailable = true;
+            boolean isFilterEncryptRepo = false;
             boolean isAddStarredGroup = false;
             if (getIntent().hasExtra("isFilterUnavailable")) {
                 isFilterUnavailable = getIntent().getBooleanExtra("isFilterUnavailable", true);
@@ -478,7 +503,7 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
                 isAddStarredGroup = getIntent().getBooleanExtra("isAddStarredGroup", false);
             }
 
-            getViewModel().loadReposFromNet(mAccount, isFilterUnavailable, isAddStarredGroup);
+            getViewModel().loadReposFromNet(mAccount, isFilterUnavailable, isFilterEncryptRepo, isAddStarredGroup);
         } else if (mCurrentStepType == ObjSelectType.DIR) {
 
             setOperateViewVisible(true);

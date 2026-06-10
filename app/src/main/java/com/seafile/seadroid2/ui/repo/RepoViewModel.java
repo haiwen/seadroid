@@ -17,6 +17,7 @@ import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
+import com.seafile.seadroid2.enums.RepoDecryptResult;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
@@ -83,124 +84,78 @@ public class RepoViewModel extends BaseViewModel {
         return _objListLiveData;
     }
 
-
-    ///
-    private final MutableLiveData<RepoViewModel.DecryptResult> _decryptRepoLiveData = new MutableLiveData<>();
-
-    public MutableLiveData<RepoViewModel.DecryptResult> getDecryptRepoLiveData() {
-        return _decryptRepoLiveData;
-    }
-
-    private final MutableLiveData<ResultModel> _remoteVerifyRepoPwdLiveData = new MutableLiveData<>();
-
-    public MutableLiveData<ResultModel> getRemoteVerifyRepoPwdLiveData() {
-        return _remoteVerifyRepoPwdLiveData;
-    }
-
-    /**
-     * decrypt result enum
-     */
-    public enum DecryptResult {
-        NEED_PASSWORD,
-        PASSWORD_EXPIRED,
-        SUCCESS,
-        FAILED
-    }
-
-
-    public void decryptRepo(RepoModel repoModel) {
+    public void decryptRepo(RepoModel repoModel,Consumer<RepoDecryptResult> consumer) {
         if (repoModel == null || !repoModel.encrypted) {
             // The non-encrypted database will be returned to success
-            getDecryptRepoLiveData().setValue(DecryptResult.SUCCESS);
             return;
         }
 
         // query the local database to get the password cache
         Single<List<EncKeyCacheEntity>> encSingle = AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoModel.repo_id);
 
-        Single<DecryptResult> decryptSingle = encSingle.flatMap(new Function<List<EncKeyCacheEntity>, SingleSource<DecryptResult>>() {
+        Single<RepoDecryptResult> decryptSingle = encSingle.flatMap(new Function<List<EncKeyCacheEntity>, SingleSource<RepoDecryptResult>>() {
             @Override
-            public SingleSource<DecryptResult> apply(List<EncKeyCacheEntity> encKeyCacheEntities) throws Exception {
+            public SingleSource<RepoDecryptResult> apply(List<EncKeyCacheEntity> encKeyCacheEntities) throws Exception {
                 if (CollectionUtils.isEmpty(encKeyCacheEntities)) {
-                    return Single.just(DecryptResult.NEED_PASSWORD);
+                    return Single.just(RepoDecryptResult.NEED_PASSWORD);
                 }
 
                 EncKeyCacheEntity encKeyCacheEntity = encKeyCacheEntities.get(0);
                 long now = TimeUtils.getNowMills();
                 boolean isExpired = encKeyCacheEntity.expire_time_long == 0 || now > encKeyCacheEntity.expire_time_long;
 
-                if (isExpired) {
-                    // the password has expired
-                    if (TextUtils.isEmpty(encKeyCacheEntity.enc_key) || TextUtils.isEmpty(encKeyCacheEntity.enc_iv)) {
-                        // There is no valid encryption key and you need to re-enter your password
-                        return Single.just(DecryptResult.NEED_PASSWORD);
-                    } else {
-                        // There is an encryption key, which is attempted to decrypt and verify remotely
-                        return Single.just(DecryptResult.PASSWORD_EXPIRED);
-                    }
-                } else {
+                if (!isExpired) {
                     // The password has not expired, and it will be returned to success
-                    return Single.just(DecryptResult.SUCCESS);
+                    return Single.just(RepoDecryptResult.SUCCESS);
                 }
+
+                // the password has expired
+                if (TextUtils.isEmpty(encKeyCacheEntity.enc_key) || TextUtils.isEmpty(encKeyCacheEntity.enc_iv)) {
+                    // There is no valid encryption key and you need to re-enter your password
+                    return Single.just(RepoDecryptResult.NEED_PASSWORD);
+                }
+
+                String cachedPassword = SecurePasswordManager.decryptPassword(encKeyCacheEntity.enc_key, encKeyCacheEntity.enc_iv);
+                if (TextUtils.isEmpty(cachedPassword)) {
+                    return Single.just(RepoDecryptResult.NEED_PASSWORD);
+                }
+
+                // There is an encryption key, which is attempted to decrypt and verify remotely
+                return getRemoteVerifySingle(repoModel.repo_id, cachedPassword)
+                        .flatMap(new Function<ResultModel, SingleSource<RepoDecryptResult>>() {
+                            @Override
+                            public SingleSource<RepoDecryptResult> apply(ResultModel resultModel) throws Exception {
+                                return Single.just(resultModel.success ? RepoDecryptResult.SUCCESS : RepoDecryptResult.NEED_PASSWORD);
+                            }
+                        });
             }
         });
 
-        Single<DecryptResult> resultSingle = decryptSingle.flatMap(new Function<DecryptResult, SingleSource<DecryptResult>>() {
+        Single<RepoDecryptResult> resultSingle = decryptSingle.flatMap(new Function<RepoDecryptResult, SingleSource<RepoDecryptResult>>() {
             @Override
-            public SingleSource<DecryptResult> apply(DecryptResult result) throws Exception {
-                if (result == DecryptResult.PASSWORD_EXPIRED) {
-                    // password expired try remote verification
-                    return tryRemoteVerifyWithCachedPassword(repoModel.repo_id);
-                }
+            public SingleSource<RepoDecryptResult> apply(RepoDecryptResult result) throws Exception {
                 return Single.just(result);
             }
         });
 
-        addSingleDisposable(resultSingle, new Consumer<DecryptResult>() {
+        addSingleDisposable(resultSingle, new Consumer<RepoDecryptResult>() {
             @Override
-            public void accept(DecryptResult result) throws Exception {
-                getDecryptRepoLiveData().setValue(result);
+            public void accept(RepoDecryptResult repoDecryptResult) throws Exception {
+                if (consumer != null) {
+                    consumer.accept(repoDecryptResult);
+                }
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 // an exception occurs and the return fails
-                getDecryptRepoLiveData().setValue(DecryptResult.FAILED);
+                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                SLogs.e(seafException);
+                if (consumer != null) {
+                    consumer.accept(RepoDecryptResult.FAILED);
+                }
             }
         });
-    }
-
-    /**
-     * remote authentication with cached passwords
-     */
-    private Single<DecryptResult> tryRemoteVerifyWithCachedPassword(String repoId) {
-        return AppDatabase.getInstance().encKeyCacheDAO().getListByRepoIdAsync(repoId)
-                .flatMap(new Function<List<EncKeyCacheEntity>, SingleSource<DecryptResult>>() {
-                    @Override
-                    public SingleSource<DecryptResult> apply(List<EncKeyCacheEntity> entities) throws Exception {
-                        if (CollectionUtils.isEmpty(entities)) {
-                            return Single.just(DecryptResult.NEED_PASSWORD);
-                        }
-
-                        EncKeyCacheEntity entity = entities.get(0);
-                        if (TextUtils.isEmpty(entity.enc_key) || TextUtils.isEmpty(entity.enc_iv)) {
-                            return Single.just(DecryptResult.NEED_PASSWORD);
-                        }
-
-                        String cachedPassword = SecurePasswordManager.decryptPassword(entity.enc_key, entity.enc_iv);
-                        if (TextUtils.isEmpty(cachedPassword)) {
-                            return Single.just(DecryptResult.NEED_PASSWORD);
-                        }
-
-                        return getRemoteVerifySingle(repoId, cachedPassword)
-                                .map(new Function<ResultModel, DecryptResult>() {
-                                    @Override
-                                    public DecryptResult apply(ResultModel resultModel) throws Exception {
-                                        return resultModel.success ? DecryptResult.SUCCESS : DecryptResult.NEED_PASSWORD;
-                                    }
-                                });
-                    }
-                });
     }
 
     /**
@@ -298,7 +253,7 @@ public class RepoViewModel extends BaseViewModel {
                 .flatMap(new Function<List<RepoModel>, SingleSource<List<BaseModel>>>() {
                     @Override
                     public SingleSource<List<BaseModel>> apply(List<RepoModel> repoModels) throws Exception {
-                        List<BaseModel> bs = Objs.convertToAdapterList(repoModels, false);
+                        List<BaseModel> bs = Objs.convertToAdapterList(repoModels);
                         return Single.just(bs);
                     }
                 });

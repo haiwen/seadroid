@@ -15,7 +15,6 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.databinding.ActivitySelectorObjBinding;
@@ -25,7 +24,6 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.repo.RepoQuickAdapter;
-import com.seafile.seadroid2.ui.selector.obj.ObjSelectorActivity;
 import com.seafile.seadroid2.ui.selector.obj.ObjSelectorViewModel;
 import com.seafile.seadroid2.view.TipsViews;
 
