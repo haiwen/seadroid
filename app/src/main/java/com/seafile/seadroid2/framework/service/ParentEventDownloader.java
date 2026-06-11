@@ -1,6 +1,9 @@
 package com.seafile.seadroid2.framework.service;
 
 import android.content.Context;
+import android.media.MediaScannerConnection;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -424,6 +427,21 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         if (currentTransferModel.save_to == SaveTo.DB) {
             FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromDownload(currentTransferModel, fileId);
             AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
+        }
+
+        scanMediaStore(localFile);
+    }
+
+    private void scanMediaStore(File localFile) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.scanFile(getContext().getContentResolver(), localFile);
+            } else {
+                MediaScannerConnection.scanFile(getContext(),
+                        new String[]{localFile.getAbsolutePath()}, null, null);
+            }
+        } catch (Exception e) {
+            SafeLogs.e(TAG, "scanMediaStore()", "failed to scan file: " + localFile, e.getMessage());
         }
     }
 
