@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.framework.service;
 
 import android.content.Context;
+import android.media.MediaScannerConnection;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -23,6 +24,7 @@ import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.listener.FileTransferProgressListener;
@@ -426,8 +428,28 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             FileCacheStatusEntity transferEntity = FileCacheStatusEntity.convertFromDownload(currentTransferModel);
             AppDatabase.getInstance().fileCacheStatusDAO().insert(transferEntity);
         }
+
+        scanMediaStore(localFile);
     }
 
+    private void scanMediaStore(File localFile) {
+        // only media files benefit from being indexed by MediaStore
+        if (!isMediaFile(localFile)) {
+            return;
+        }
+
+        try {
+            MediaScannerConnection.scanFile(getContext(),
+                    new String[]{localFile.getAbsolutePath()}, null, null);
+        } catch (Exception e) {
+            SafeLogs.e(TAG, "scanMediaStore()", "failed to scan file: " + localFile, e.getMessage());
+        }
+    }
+
+    private boolean isMediaFile(File localFile) {
+        String mime = Utils.getFileMimeType(localFile);
+        return mime.startsWith("image/") || mime.startsWith("video/") || mime.startsWith("audio/");
+    }
 
     public void notifyError(SeafException seafException) {
         if (seafException == SeafException.NETWORK_EXCEPTION) {
