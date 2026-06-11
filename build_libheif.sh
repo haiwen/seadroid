@@ -55,7 +55,7 @@ ABIS=(
 )
 
 # LibHeif version
-LIBHEIF_VERSION="v1.21.2"
+LIBHEIF_VERSION="v1.22.2"
 
 # LibJpeg version
 LIBJPEG_VERSION="3.1.3"
