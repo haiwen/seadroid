@@ -31,6 +31,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
+import com.seafile.seadroid2.enums.OfficeViewMode;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
@@ -454,9 +455,25 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         } else if (activityModel.name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name, false);
 
-        } else if (Utils.isOnlyOfficeFile(activityModel.name) && serverInfo.isEnableOnlyOffice()) {
-            OfficeDocumentWebActivity.openDocument(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
-
+        } else if (Utils.isOnlyOfficeFile(activityModel.name)) {
+            OfficeViewMode action = Utils.getOfficeFileClickAction(activityModel.name, serverInfo);
+            if (action == OfficeViewMode.INTERNAL) {
+                OfficeDocumentWebActivity.openDocument(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
+                return;
+            } else if (action == OfficeViewMode.ASK) {
+                checkRemoteAndFileCache(activityModel, new Consumer<File>() {
+                    @Override
+                    public void accept(File localFile) throws Exception {
+                        if (localFile != null) {
+                            WidgetUtils.showOfficeOpenWithDialog(requireContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name, localFile);
+                        } else {
+                            Intent intent = FileActivity.startFromActivity(requireContext(), activityModel, FileReturnActionEnum.OPEN_WITH);
+                            fileActivityLauncher.launch(intent);
+                        }
+                    }
+                });
+                return;
+            }
         } else if (Utils.isVideoFile(activityModel.name)) {
             checkRemoteAndFileCache(activityModel, new Consumer<File>() {
                 @Override
@@ -512,7 +529,6 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
             public void accept(File localFile) throws Exception {
                 if (localFile != null) {
                     if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), actionEnum.name())) {
-
                         WidgetUtils.openWith(requireContext(), localFile);
                     } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), actionEnum.name())) {
                         MarkdownActivity.start(requireContext(), localFile.getAbsolutePath(), model.repo_id, model.path);

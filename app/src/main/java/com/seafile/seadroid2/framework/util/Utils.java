@@ -21,6 +21,7 @@ import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
@@ -28,8 +29,11 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.GlobalNavContext;
+import com.seafile.seadroid2.enums.OfficeViewMode;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
+import com.seafile.seadroid2.preferences.Settings;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -409,6 +413,36 @@ public class Utils {
         }
 
         return false;
+    }
+
+    public static OfficeViewMode getOfficeViewMode() {
+        return Settings.OFFICE_VIEW_MODE.getValue();
+    }
+
+    /**
+     * Determine how to handle a click on an office file based on server support and user preference.
+     *
+     * Returns EXTERNAL immediately if the server does not support OnlyOffice or the file is not
+     * an office document. Otherwise, delegates to the user's saved preference
+     * ({@link Settings#OFFICE_VIEW_MODE}), which defaults to INTERNAL.
+     *
+     * @return INTERNAL (open in Seafile webview), ASK (show a dialog), or EXTERNAL (open in another app).
+     */
+    public static OfficeViewMode getOfficeFileClickAction(String fileName, ServerInfo serverInfo) {
+        return getOfficeFileClickAction(fileName, serverInfo, getOfficeViewMode());
+    }
+
+    @VisibleForTesting
+    public static OfficeViewMode getOfficeFileClickAction(String fileName, ServerInfo serverInfo, OfficeViewMode viewMode) {
+        if (serverInfo == null || !serverInfo.isEnableOnlyOffice()) {
+            return OfficeViewMode.EXTERNAL;
+        }
+
+        if (!isOnlyOfficeFile(fileName)) {
+            return OfficeViewMode.EXTERNAL;
+        }
+
+        return viewMode;
     }
 
     @NonNull

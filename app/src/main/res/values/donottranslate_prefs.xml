@@ -114,4 +114,18 @@
     <string name="pref_key_about_privacy">key_privacy_policy</string>
     <string name="pref_key_about_author">key_about_author</string>
     <string name="pref_key_export_log_files">key_export_log_files</string>
+
+    <!-- Office documents -->
+    <string name="pref_key_office_view_mode">key_office_view_mode</string>
+    <string name="pref_default_value_office_view_mode">0</string>
+    <string-array name="pref_entry_values_office_view_mode_visualization">
+        <item>@string/settings_office_view_mode_internal</item>
+        <item>@string/settings_office_view_mode_external</item>
+        <item>@string/settings_office_view_mode_ask</item>
+    </string-array>
+    <string-array name="pref_entry_values_office_view_mode">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

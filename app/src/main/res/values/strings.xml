@@ -829,4 +829,13 @@
     <string name="tip_publish_wiki_desc">The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.</string>
     <string name="tip_stop_transfer_when_switch_or_logout">Files are transferring, do you still want to switch/exit?</string>
 
+    <string name="settings_office_view_mode_title">Office documents</string>
+    <string name="settings_office_view_mode_internal">Open in Seafile</string>
+    <string name="settings_office_view_mode_external">Open in external app</string>
+    <string name="settings_office_view_mode_ask">Ask each time</string>
+    <string name="office_open_with_title">Office documents</string>
+    <string-array name="office_open_with_array">
+        <item>@string/settings_office_view_mode_internal</item>
+        <item>@string/settings_office_view_mode_external</item>
+    </string-array>
 </resources>

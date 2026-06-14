@@ -32,6 +32,7 @@ import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
+import com.seafile.seadroid2.enums.OfficeViewMode;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -382,9 +383,25 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         } else if (model.obj_name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name,false);
 
-        } else if (Utils.isOnlyOfficeFile(model.obj_name) && serverInfo.isEnableOnlyOffice()) {
-            OfficeDocumentWebActivity.openDocument(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
-
+        } else if (Utils.isOnlyOfficeFile(model.obj_name)) {
+            OfficeViewMode action = Utils.getOfficeFileClickAction(model.obj_name, serverInfo);
+            if (action == OfficeViewMode.INTERNAL) {
+                OfficeDocumentWebActivity.openDocument(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
+                return;
+            } else if (action == OfficeViewMode.ASK) {
+                checkRemoteAndFileCache(model, new Consumer<File>() {
+                    @Override
+                    public void accept(File localFile) throws Exception {
+                        if (localFile != null) {
+                            WidgetUtils.showOfficeOpenWithDialog(requireContext(), model.repo_name, model.repo_id, model.path, model.obj_name, localFile);
+                        } else {
+                            Intent intent = FileActivity.startFromStarred(requireContext(), model, FileReturnActionEnum.OPEN_WITH);
+                            fileActivityLauncher.launch(intent);
+                        }
+                    }
+                });
+                return;
+            }
         } else if (Utils.isVideoFile(model.obj_name)) {
             checkRemoteAndFileCache(model, new Consumer<File>() {
                 @Override

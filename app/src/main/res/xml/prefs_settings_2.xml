@@ -72,6 +72,25 @@
     </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
 
     <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
+        android:title="@string/settings_office_view_mode_title"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false">
+
+        <com.seafile.seadroid2.widget.prefs.SimpleMenuPreference
+            android:defaultValue="@string/pref_default_value_office_view_mode"
+            android:entries="@array/pref_entry_values_office_view_mode_visualization"
+            android:entryValues="@array/pref_entry_values_office_view_mode"
+            android:key="@string/pref_key_office_view_mode"
+            android:title="@string/settings_office_view_mode_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="true"
+            app:radiusPosition="all"
+            app:useSimpleSummaryProvider="true" />
+    </com.seafile.seadroid2.widget.prefs.CardPreferenceCategory>
+
+    <com.seafile.seadroid2.widget.prefs.CardPreferenceCategory
         android:title="@string/settings_camera_upload_info_title"
         app:allowDividerAbove="false"
         app:allowDividerBelow="false"

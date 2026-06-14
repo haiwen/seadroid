@@ -63,6 +63,7 @@ import com.seafile.seadroid2.databinding.LayoutFastRvBinding;
 import com.seafile.seadroid2.enums.ActionModeCallbackType;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.enums.FileViewType;
+import com.seafile.seadroid2.enums.OfficeViewMode;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.SortBy;
@@ -1642,6 +1643,27 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
     }
 
+    private void checkRemoteAndFileCache(DirentModel dirent, Consumer<File> consumer) {
+        getViewModel().checkRemoteAndOpen(dirent.repo_id, dirent.full_path, new Consumer<String>() {
+            @Override
+            public void accept(String fileId) {
+                File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+                if (consumer != null) {
+                    try {
+                        boolean r = !TextUtils.isEmpty(fileId) && local.exists();
+                        if (r) {
+                            consumer.accept(local);
+                        } else {
+                            consumer.accept(null);
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+    }
+
     private void showFileProfileDialog(List<BaseModel> models) {
         if (CollectionUtils.isEmpty(models)) {
             return;
@@ -1760,16 +1782,29 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             boolean canNotEdit = dirent.is_freezed || dirent.is_locked;
             SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name, canNotEdit);
             return;
-        }
-
-        ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
-        if (Utils.isOnlyOfficeFile(fileName) && serverInfo.isEnableOnlyOffice()) {
-            String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
-            OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
-            return;
-        }
-
-        if (Utils.isVideoFile(fileName)) {
+        } else if (Utils.isOnlyOfficeFile(fileName)) {
+            ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
+            OfficeViewMode action = Utils.getOfficeFileClickAction(fileName, serverInfo);
+            if (action == OfficeViewMode.INTERNAL) {
+                String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
+                OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
+                return;
+            } else if (action == OfficeViewMode.ASK) {
+                String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
+                checkRemoteAndFileCache(dirent, new Consumer<File>() {
+                    @Override
+                    public void accept(File localFile) throws Exception  {
+                        if (localFile != null) {
+                            WidgetUtils.showOfficeOpenWithDialog(requireContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name, localFile);
+                        } else {
+                            Intent intent = FileActivity.start(requireContext(), dirent, FileReturnActionEnum.OPEN_WITH);
+                            fileActivityLauncher.launch(intent);
+                        }
+                    }
+                });
+                return;
+            }
+        } else if (Utils.isVideoFile(fileName)) {
             File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
             if (local.exists()) {
                 CustomExoVideoPlayerActivity.startThis(getContext(), fileName, repoModel.repo_id, filePath);
@@ -2244,7 +2279,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else if (TextUtils.equals(FileReturnActionEnum.DOWNLOAD_VIDEO.name(), action)) {
 
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_WITH.name(), action)) {
-
                     WidgetUtils.openWith(requireContext(), destinationFile);
 
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {

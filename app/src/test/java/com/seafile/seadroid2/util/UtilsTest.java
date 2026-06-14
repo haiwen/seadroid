@@ -2,8 +2,8 @@ package com.seafile.seadroid2.util;
 
 import android.text.TextUtils;
 
-import androidx.annotation.Nullable;
-
+import com.seafile.seadroid2.enums.OfficeViewMode;
+import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.Utils;
 
 import org.junit.Test;
@@ -93,4 +93,44 @@ public class UtilsTest {
         return;
     }
 
+    @Test
+    public void getOfficeFileClickAction_ReturnsExternalWhenServerIsNull() {
+        OfficeViewMode result = Utils.getOfficeFileClickAction("file.docx", null, OfficeViewMode.INTERNAL);
+        Assert.assertEquals(OfficeViewMode.EXTERNAL, result);
+    }
+
+    @Test
+    public void getOfficeFileClickAction_ReturnsExternalWhenOnlyOfficeNotEnabled() {
+        ServerInfo serverInfo = new ServerInfo("https://example.com", "11.0.0", "seafile-basic,seafile-pro", null);
+        OfficeViewMode result = Utils.getOfficeFileClickAction("file.docx", serverInfo, OfficeViewMode.INTERNAL);
+        Assert.assertEquals(OfficeViewMode.EXTERNAL, result);
+    }
+
+    @Test
+    public void getOfficeFileClickAction_ReturnsExternalWhenOnlyOfficeEnabledButNonOfficeFile() {
+        ServerInfo serverInfo = new ServerInfo("https://example.com", "11.0.0", "seafile-basic,onlyoffice,file-search", null);
+        OfficeViewMode result = Utils.getOfficeFileClickAction("image.png", serverInfo, OfficeViewMode.INTERNAL);
+        Assert.assertEquals(OfficeViewMode.EXTERNAL, result);
+    }
+
+    @Test
+    public void getOfficeFileClickAction_ReturnsInternalWhenOnlyOfficeEnabledAndOfficeFileAndPrefInternal() {
+        ServerInfo serverInfo = new ServerInfo("https://example.com", "11.0.0", "seafile-basic,onlyoffice,file-search", null);
+        OfficeViewMode result = Utils.getOfficeFileClickAction("file.docx", serverInfo, OfficeViewMode.INTERNAL);
+        Assert.assertEquals(OfficeViewMode.INTERNAL, result);
+    }
+
+    @Test
+    public void getOfficeFileClickAction_ReturnsAskWhenOnlyOfficeEnabledAndOfficeFileAndPrefAsk() {
+        ServerInfo serverInfo = new ServerInfo("https://example.com", "11.0.0", "seafile-basic,onlyoffice,file-search", null);
+        OfficeViewMode result = Utils.getOfficeFileClickAction("file.docx", serverInfo, OfficeViewMode.ASK);
+        Assert.assertEquals(OfficeViewMode.ASK, result);
+    }
+
+    @Test
+    public void getOfficeFileClickAction_ReturnsExternalWhenOnlyOfficeEnabledAndOfficeFileAndPrefExternal() {
+        ServerInfo serverInfo = new ServerInfo("https://example.com", "11.0.0", "seafile-basic,onlyoffice,file-search", null);
+        OfficeViewMode result = Utils.getOfficeFileClickAction("file.docx", serverInfo, OfficeViewMode.EXTERNAL);
+        Assert.assertEquals(OfficeViewMode.EXTERNAL, result);
+    }
 }
