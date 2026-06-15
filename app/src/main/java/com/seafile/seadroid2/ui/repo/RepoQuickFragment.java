@@ -65,6 +65,7 @@ import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.OpType;
 import com.seafile.seadroid2.enums.RefreshStatusEnum;
+import com.seafile.seadroid2.enums.RepoDecryptResult;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
@@ -810,13 +811,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
-        getViewModel().getDecryptRepoLiveData().observe(getViewLifecycleOwner(), new Observer<RepoViewModel.DecryptResult>() {
-            @Override
-            public void onChanged(RepoViewModel.DecryptResult result) {
-                onDecryptResult(result);
-            }
-        });
-
         Settings.FILE_LIST_VIEW_TYPE.observe(getViewLifecycleOwner(), new Observer<FileViewType>() {
             @Override
             public void onChanged(FileViewType fileViewType) {
@@ -1061,12 +1055,20 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             if (repoModel == null) {
                 getViewModel().loadData(navContext, refreshStatus, isBlank);
             } else if (repoModel.encrypted) {
-                nextDecryptCallback = new DecryptRepoNextCallback();
-                nextDecryptCallback.functionName = "loadData";
-                nextDecryptCallback.repoModel = repoModel;
-                nextDecryptCallback.refreshStatus = refreshStatus;
-                nextDecryptCallback.isBlank = isBlank;
-                getViewModel().decryptRepo(repoModel);
+                decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean repoDecryptResult) {
+                        if (repoDecryptResult) {
+                            getViewModel().loadData(navContext, refreshStatus, isBlank);
+                        } else {
+                            // return to home list
+                            GlobalNavContext.popAll();
+                            navContext.clear();
+                            getViewModel().loadData(navContext, refreshStatus, isBlank);
+                        }
+                    }
+                });
+
             } else {
                 getViewModel().loadData(navContext, refreshStatus, isBlank);
             }
@@ -1083,58 +1085,46 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
     }
 
-    static class DecryptRepoNextCallback {
-        String functionName;
-        RepoModel repoModel;
-        String fullPath;
-        boolean isDir;
-        RefreshStatusEnum refreshStatus;
-        boolean isBlank;
-    }
+    private void decryptRepo(RepoModel repoModel, androidx.core.util.Consumer<Boolean> consumer) {
+        getViewModel().decryptRepo(repoModel, new Consumer<RepoDecryptResult>() {
+            @Override
+            public void accept(RepoDecryptResult repoDecryptResult) {
+                if (RepoDecryptResult.SUCCESS == repoDecryptResult) {
+                    if (consumer != null) {
+                        consumer.accept(true);
+                    }
 
-    private DecryptRepoNextCallback nextDecryptCallback;
-
-    private void onDecryptResult(RepoViewModel.DecryptResult result) {
-        if (nextDecryptCallback == null) {
-            return;
-        }
-
-        if (result == RepoViewModel.DecryptResult.NEED_PASSWORD) {
-            showPasswordDialogCallback(nextDecryptCallback.repoModel.repo_id, nextDecryptCallback.repoModel.repo_name, new OnResultListener<RepoModel>() {
-                @Override
-                public void onResultData(RepoModel repoModel) {
-                    if (repoModel != null) {
-                        nextDecryptCallback.repoModel = repoModel;
-                        continueNextDecryptCallback();
+                } else if (RepoDecryptResult.NEED_PASSWORD == repoDecryptResult || RepoDecryptResult.PASSWORD_EXPIRED == repoDecryptResult) {
+                    showPasswordDialog(repoModel, new OnResultListener<RepoModel>() {
+                        @Override
+                        public void onResultData(RepoModel repoModel) {
+                            if (consumer != null) {
+                                consumer.accept(repoModel != null);
+                            }
+                        }
+                    });
+                } else { //failed
+                    if (consumer != null) {
+                        consumer.accept(false);
                     }
                 }
-            });
-        } else if (result == RepoViewModel.DecryptResult.SUCCESS) {
-            continueNextDecryptCallback();
-        } else if (result == RepoViewModel.DecryptResult.FAILED) {
-            Toasts.show(R.string.failed);
-            nextDecryptCallback = null;
-        }
+            }
+        });
     }
 
-    private void continueNextDecryptCallback() {
-        if (nextDecryptCallback == null) {
-            return;
-        }
-        if (TextUtils.equals("loadData", nextDecryptCallback.functionName)) {
-            NavContext navContext = GlobalNavContext.getCurrentNavContext();
-            getViewModel().loadData(navContext, nextDecryptCallback.refreshStatus, nextDecryptCallback.isBlank);
-        } else if (TextUtils.equals("navTo", nextDecryptCallback.functionName)) {
-            binding.stickyContainer.setVisibility(View.GONE);
-            GlobalNavContext.push(nextDecryptCallback.repoModel);
-            NavContext navContext = GlobalNavContext.getCurrentNavContext();
-            getViewModel().loadData(navContext, nextDecryptCallback.refreshStatus, nextDecryptCallback.isBlank);
-        } else if (TextUtils.equals("switchToPath", nextDecryptCallback.functionName)) {
-            switchToPath(nextDecryptCallback.repoModel, nextDecryptCallback.fullPath, nextDecryptCallback.isDir);
-        }
-
-        nextDecryptCallback = null;
+    private void showPasswordDialog(RepoModel repoModel, OnResultListener<RepoModel> onResultListener) {
+        BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(getCurrentAccount(), repoModel.repo_id, repoModel.repo_name);
+        passwordDialogFragment.setResultListener(new OnResultListener<RepoModel>() {
+            @Override
+            public void onResultData(RepoModel repoModel) {
+                if (onResultListener != null) {
+                    onResultListener.onResultData(repoModel);
+                }
+            }
+        });
+        passwordDialogFragment.show(getChildFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
     }
+
 
     private List<BaseModel> checkListByGroup(List<BaseModel> models) {
         List<BaseModel> newList = new ArrayList<>();
@@ -1258,12 +1248,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         //save
         if (model instanceof RepoModel repoModel) {
             if (repoModel.encrypted) {
-                nextDecryptCallback = new DecryptRepoNextCallback();
-                nextDecryptCallback.functionName = "navTo";
-                nextDecryptCallback.repoModel = repoModel;
-                nextDecryptCallback.refreshStatus = getRefreshStatus();
-                nextDecryptCallback.isBlank = true;
-                getViewModel().decryptRepo(repoModel);
+                decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean repoDecryptResult) {
+                        if (repoDecryptResult) {
+                            binding.stickyContainer.setVisibility(View.GONE);
+                            GlobalNavContext.push(repoModel);
+                            loadData(getRefreshStatus(), true);
+                        }
+                    }
+                });
             } else {
                 binding.stickyContainer.setVisibility(View.GONE);
                 GlobalNavContext.push(repoModel);
@@ -1330,21 +1324,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
 
                 if (repoModel.encrypted) {
-                    nextDecryptCallback = new DecryptRepoNextCallback();
-                    nextDecryptCallback.functionName = "switchToPath";
-                    nextDecryptCallback.repoModel = repoModel;
-                    nextDecryptCallback.fullPath = fullPath;
-                    nextDecryptCallback.isDir = isDir;
-                    getViewModel().decryptRepo(repoModel);
-
-//                    decryptRepo(repoModel, new java.util.function.Consumer<Boolean>() {
-//                        @Override
-//                        public void accept(Boolean aBoolean) {
-//                            if (aBoolean) {
-//                                switchToPath(repoModel, fullPath, isDir);
-//                            }
-//                        }
-//                    });
+                    decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
+                        @Override
+                        public void accept(Boolean repoDecryptResult) {
+                            if (repoDecryptResult) {
+                                switchToPath(repoModel, fullPath, isDir);
+                            }
+                        }
+                    });
                 } else {
                     switchToPath(repoModel, fullPath, isDir);
                 }
@@ -1424,17 +1411,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
             loadData(RefreshStatusEnum.ONLY_LOCAL, true);
         }
-    }
-
-
-    private void showPasswordDialogCallback(String repo_id, String repo_name, OnResultListener<RepoModel> resultListener) {
-        BottomSheetPasswordDialogFragment passwordDialogFragment = BottomSheetPasswordDialogFragment.newInstance(repo_id, repo_name);
-        passwordDialogFragment.setResultListener(resultListener);
-        passwordDialogFragment.show(getChildFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
-
-//        PasswordDialogFragment dialogFragment = PasswordDialogFragment.newInstance(repo_id, repo_name);
-//        dialogFragment.setResultListener(resultListener);
-//        dialogFragment.show(getChildFragmentManager(), PasswordDialogFragment.class.getSimpleName());
     }
 
     private void saveScrollPosition() {

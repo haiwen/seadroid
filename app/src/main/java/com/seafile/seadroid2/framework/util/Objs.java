@@ -194,21 +194,27 @@ public class Objs {
     }
 
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list) {
-        return convertToAdapterList(list, false, false, null);
+        return convertToAdapterList(list, false, false, false, null);
     }
 
     public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable) {
-        return convertToAdapterList(list, isFilterUnavailable, false, null);
+        return convertToAdapterList(list, isFilterUnavailable, false, false, null);
     }
 
-    public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable, boolean isAddStarredGroup, List<String> filterIds) {
+    public static List<BaseModel> convertToAdapterList(List<RepoModel> list, boolean isFilterUnavailable, boolean isFilterEncryptRepo, boolean isAddStarredGroup, List<String> filterIds) {
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
 
         if (isFilterUnavailable) {
             list = list.stream()
-                    .filter(f -> !f.encrypted && f.hasWritePermission())
+                    .filter(RepoModel::hasWritePermission)
+                    .collect(Collectors.toList());
+        }
+
+        if (isFilterEncryptRepo) {
+            list = list.stream()
+                    .filter(f -> !f.encrypted)
                     .collect(Collectors.toList());
         }
 
@@ -365,7 +371,7 @@ public class Objs {
                 return Single.create(new SingleOnSubscribe<List<DirentModel>>() {
                     @Override
                     public void subscribe(SingleEmitter<List<DirentModel>> emitter) throws Exception {
-                        if (emitter == null){
+                        if (emitter == null) {
                             return;
                         }
 

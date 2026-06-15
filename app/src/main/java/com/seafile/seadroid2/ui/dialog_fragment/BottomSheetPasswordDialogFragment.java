@@ -119,6 +119,15 @@ public class BottomSheetPasswordDialogFragment extends RequestBottomSheetDialogF
     }
 
     @Override
+    protected void onNegativeClicked() {
+        super.onNegativeClicked();
+
+        if (resultListener != null) {
+            resultListener.onResultData(null);
+        }
+    }
+
+    @Override
     protected void onPositiveClick() {
         if (!NetworkUtils.isConnected()) {
             Toasts.show(R.string.network_error);
