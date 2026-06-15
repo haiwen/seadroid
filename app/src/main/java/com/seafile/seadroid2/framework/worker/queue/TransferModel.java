@@ -44,7 +44,10 @@ public class TransferModel implements Comparable<TransferModel> {
         this.id = id;
     }
 
-    //just for uploading
+    // download
+    public String file_id;
+
+    // upload
     public String repo_id;
     public String repo_name;
     public String related_account;
@@ -57,9 +60,10 @@ public class TransferModel implements Comparable<TransferModel> {
     public int retry_times = 0;
 
     /**
-     *  Only motion photos in JPEG format will be converted to HEIC motion photos.
-     *  HEIC Motion Photo Temporary Cache Path.
-     * */
+     * Only motion photos in JPEG format will be converted to HEIC motion photos.
+     * HEIC Motion Photo Temporary Cache Path.
+     *
+     */
     public String motion_photo_path;
 
 
