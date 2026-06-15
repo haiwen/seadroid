@@ -39,18 +39,25 @@ extern "C" {
 LIBHEIF_API
 void heif_context_set_max_decoding_threads(heif_context* ctx, int max_threads);
 
+// Returns the current maximum number of background threads used for parallel tile decoding.
+// This reflects either the library default or the value last passed to
+// heif_context_set_max_decoding_threads().
+// If 'ctx' is NULL, the library default is returned.
+LIBHEIF_API
+int heif_context_get_max_decoding_threads(const heif_context* ctx);
+
 // Quick check whether there is a decoder available for the given format.
 // Note that the decoder still may not be able to decode all variants of that format.
 // You will have to query that further (todo) or just try to decode and check the returned error.
 LIBHEIF_API
-int heif_have_decoder_for_format(enum heif_compression_format format);
+int heif_have_decoder_for_format(heif_compression_format format);
 
 
-enum heif_progress_step
+typedef enum heif_progress_step
 {
   heif_progress_step_total = 0,
   heif_progress_step_load_tile = 1
-};
+} heif_progress_step;
 
 
 typedef struct heif_decoding_options
@@ -64,11 +71,11 @@ typedef struct heif_decoding_options
   uint8_t ignore_transformations;
 
   // Any of the progress functions may be called from background threads.
-  void (* start_progress)(enum heif_progress_step step, int max_progress, void* progress_user_data);
+  void (* start_progress)(heif_progress_step step, int max_progress, void* progress_user_data);
 
-  void (* on_progress)(enum heif_progress_step step, int progress, void* progress_user_data);
+  void (* on_progress)(heif_progress_step step, int progress, void* progress_user_data);
 
-  void (* end_progress)(enum heif_progress_step step, void* progress_user_data);
+  void (* end_progress)(heif_progress_step step, void* progress_user_data);
 
   void* progress_user_data;
 
@@ -111,6 +118,13 @@ typedef struct heif_decoding_options
 
   int num_library_threads; // 0 = let libheif decide (TODO, currently ignored)
   int num_codec_threads; // 0 = use decoder default
+
+  // version 9 options
+
+  // If enabled, libheif will attempt to work around known broken-input quirks
+  // (e.g. Sony HIF files where the NCLX `colr` box disagrees with the HEVC VUI
+  // on the YCbCr range flag). Default: false (strict spec-conformant behavior).
+  uint8_t autocorrect_broken_input;
 } heif_decoding_options;
 
 
@@ -136,7 +150,7 @@ typedef struct heif_decoder_descriptor heif_decoder_descriptor;
 // The number of decoders is returned, which are not more than 'count' if (out_decoders != nullptr).
 // By setting out_decoders==nullptr, you can query the number of decoders, 'count' is ignored.
 LIBHEIF_API
-int heif_get_decoder_descriptors(enum heif_compression_format format_filter,
+int heif_get_decoder_descriptors(heif_compression_format format_filter,
                                  const heif_decoder_descriptor** out_decoders,
                                  int count);
 
@@ -161,8 +175,8 @@ const char* heif_decoder_descriptor_get_id_name(const heif_decoder_descriptor*);
 LIBHEIF_API
 heif_error heif_decode_image(const heif_image_handle* in_handle,
                              heif_image** out_img,
-                             enum heif_colorspace colorspace,
-                             enum heif_chroma chroma,
+                             heif_colorspace colorspace,
+                             heif_chroma chroma,
                              const heif_decoding_options* options);
 
 #ifdef __cplusplus

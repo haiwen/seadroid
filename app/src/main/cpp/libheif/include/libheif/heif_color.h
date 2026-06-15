@@ -31,7 +31,7 @@ extern "C" {
 typedef struct heif_image heif_image;
 
 
-enum heif_chroma_downsampling_algorithm
+typedef enum heif_chroma_downsampling_algorithm
 {
   heif_chroma_downsampling_nearest_neighbor = 1,
   heif_chroma_downsampling_average = 2,
@@ -39,13 +39,13 @@ enum heif_chroma_downsampling_algorithm
   // Combine with 'heif_chroma_upsampling_bilinear' for best quality.
   // Makes edges look sharper when using YUV 420 with bilinear chroma upsampling.
   heif_chroma_downsampling_sharp_yuv = 3
-};
+} heif_chroma_downsampling_algorithm;
 
-enum heif_chroma_upsampling_algorithm
+typedef enum heif_chroma_upsampling_algorithm
 {
   heif_chroma_upsampling_nearest_neighbor = 1,
   heif_chroma_upsampling_bilinear = 2
-};
+} heif_chroma_upsampling_algorithm;
 
 
 typedef struct heif_color_conversion_options
@@ -55,8 +55,8 @@ typedef struct heif_color_conversion_options
 
   // --- version 1 options
 
-  enum heif_chroma_downsampling_algorithm preferred_chroma_downsampling_algorithm;
-  enum heif_chroma_upsampling_algorithm preferred_chroma_upsampling_algorithm;
+  heif_chroma_downsampling_algorithm preferred_chroma_downsampling_algorithm;
+  heif_chroma_upsampling_algorithm preferred_chroma_upsampling_algorithm;
 
   // When set to 'false' libheif may also use a different algorithm if the preferred one is not available
   // or using a different algorithm is computationally less complex. Note that currently (v1.17.0) this
@@ -71,12 +71,12 @@ typedef struct heif_color_conversion_options
 } heif_color_conversion_options;
 
 
-enum heif_alpha_composition_mode
+typedef enum heif_alpha_composition_mode
 {
   heif_alpha_composition_mode_none,
   heif_alpha_composition_mode_solid_color,
   heif_alpha_composition_mode_checkerboard,
-};
+} heif_alpha_composition_mode;
 
 
 typedef struct heif_color_conversion_options_ext
@@ -85,7 +85,7 @@ typedef struct heif_color_conversion_options_ext
 
   // --- version 1 options
 
-  enum heif_alpha_composition_mode alpha_composition_mode;
+  heif_alpha_composition_mode alpha_composition_mode;
 
   // color values should be specified in the range [0, 65535]
   uint16_t background_red, background_green, background_blue;
@@ -111,13 +111,13 @@ void heif_color_conversion_options_ext_free(heif_color_conversion_options_ext*);
 
 // ------------------------- color profiles -------------------------
 
-enum heif_color_profile_type
+typedef enum heif_color_profile_type
 {
   heif_color_profile_type_not_present = 0,
   heif_color_profile_type_nclx = heif_fourcc('n', 'c', 'l', 'x'),
   heif_color_profile_type_rICC = heif_fourcc('r', 'I', 'C', 'C'),
   heif_color_profile_type_prof = heif_fourcc('p', 'r', 'o', 'f')
-};
+} heif_color_profile_type;
 
 
 // Returns 'heif_color_profile_type_not_present' if there is no color profile.
@@ -126,7 +126,7 @@ enum heif_color_profile_type
 //       However, you can still use heif_image_handle_get_raw_color_profile() and
 //       heif_image_handle_get_nclx_color_profile() to access both profiles.
 LIBHEIF_API
-enum heif_color_profile_type heif_image_handle_get_color_profile_type(const heif_image_handle* handle);
+heif_color_profile_type heif_image_handle_get_color_profile_type(const heif_image_handle* handle);
 
 LIBHEIF_API
 size_t heif_image_handle_get_raw_color_profile_size(const heif_image_handle* handle);
@@ -137,7 +137,7 @@ struct heif_error heif_image_handle_get_raw_color_profile(const heif_image_handl
                                                           void* out_data);
 
 
-enum heif_color_primaries
+typedef enum heif_color_primaries
 {
   heif_color_primaries_ITU_R_BT_709_5 = 1, // g=0.3;0.6, b=0.15;0.06, r=0.64;0.33, w=0.3127,0.3290
   heif_color_primaries_unspecified = 2,
@@ -151,9 +151,9 @@ enum heif_color_primaries
   heif_color_primaries_SMPTE_RP_431_2 = 11,
   heif_color_primaries_SMPTE_EG_432_1 = 12,
   heif_color_primaries_EBU_Tech_3213_E = 22
-};
+} heif_color_primaries;
 
-enum heif_transfer_characteristics
+typedef enum heif_transfer_characteristics
 {
   heif_transfer_characteristic_ITU_R_BT_709_5 = 1,
   heif_transfer_characteristic_unspecified = 2,
@@ -172,9 +172,9 @@ enum heif_transfer_characteristics
   heif_transfer_characteristic_ITU_R_BT_2100_0_PQ = 16,
   heif_transfer_characteristic_SMPTE_ST_428_1 = 17,
   heif_transfer_characteristic_ITU_R_BT_2100_0_HLG = 18
-};
+} heif_transfer_characteristics;
 
-enum heif_matrix_coefficients
+typedef enum heif_matrix_coefficients
 {
   heif_matrix_coefficients_RGB_GBR = 0,
   heif_matrix_coefficients_ITU_R_BT_709_5 = 1,  // TODO: or 709-6 according to h.273
@@ -190,7 +190,7 @@ enum heif_matrix_coefficients
   heif_matrix_coefficients_chromaticity_derived_non_constant_luminance = 12,
   heif_matrix_coefficients_chromaticity_derived_constant_luminance = 13,
   heif_matrix_coefficients_ICtCp = 14
-};
+} heif_matrix_coefficients;
 
 typedef struct heif_color_profile_nclx
 {
@@ -198,9 +198,9 @@ typedef struct heif_color_profile_nclx
 
   uint8_t version;
 
-  enum heif_color_primaries color_primaries;
-  enum heif_transfer_characteristics transfer_characteristics;
-  enum heif_matrix_coefficients matrix_coefficients;
+  heif_color_primaries color_primaries;
+  heif_transfer_characteristics transfer_characteristics;
+  heif_matrix_coefficients matrix_coefficients;
   uint8_t full_range_flag;
 
   // --- decoded values (not used when saving nclx)
@@ -240,7 +240,7 @@ void heif_nclx_color_profile_free(heif_color_profile_nclx* nclx_profile);
 // This function will now return ICC if one is present and NCLX only if there is no ICC.
 // You may better avoid this function and simply query for NCLX and ICC directly.
 LIBHEIF_API
-enum heif_color_profile_type heif_image_get_color_profile_type(const heif_image* image);
+heif_color_profile_type heif_image_get_color_profile_type(const heif_image* image);
 
 // Returns the size of the ICC profile if one is assigned to the image. Otherwise, it returns 0.
 LIBHEIF_API
