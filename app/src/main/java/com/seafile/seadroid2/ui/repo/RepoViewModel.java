@@ -29,7 +29,7 @@ import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.CachedDirentModel;
-import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.model.repo.Dirent2Model;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
 import com.seafile.seadroid2.framework.model.search.SearchFileModel;
@@ -48,6 +48,9 @@ import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.search.SearchService;
 import com.seafile.seadroid2.ui.star.StarredService;
 
+import org.apache.commons.lang3.StringUtils;
+import org.reactivestreams.Publisher;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +64,7 @@ import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import okhttp3.RequestBody;
@@ -734,49 +738,119 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
+    private Single<List<DirentRecursiveModel>> requestRecursiveFileObservable(String repoId, String parentPath, String type) {
+        return HttpManager.getCurrentHttp().execute(RepoService.class).getRecursiveDirOrFileSingle(repoId, parentPath, type);
+    }
+
+    private static class RecursiveResult {
+        DirentModel rootDir;
+        List<DirentRecursiveModel> files;
+        List<DirentRecursiveModel> dirs;
+    }
+
     /// download
-    public void preDownload(Context context, Account account, List<DirentModel> direntModels) {
+    public void preDownload(Context context, Account account, RepoModel repoModel, List<DirentModel> direntModels) {
+        if (account == null) {
+            return;
+        }
+
+        if (repoModel == null) {
+            return;
+        }
+
+        if (CollectionUtils.isEmpty(direntModels)) {
+            return;
+        }
+
         getSecondRefreshLiveData().setValue(true);
-        Single<SeafException> single = Single.create(new SingleOnSubscribe<SeafException>() {
-            @Override
-            public void subscribe(SingleEmitter<SeafException> emitter) throws Exception {
-                if (CollectionUtils.isEmpty(direntModels)) {
-                    emitter.onSuccess(SeafException.SUCCESS);
-                    return;
-                }
 
-                for (DirentModel direntModel : direntModels) {
-                    try {
-                        if (direntModel.isDir()) {
-                            List<DirentRecursiveFileModel> list = PreDownloadHelper.fetchRecursiveFiles(direntModel);
-                            PreDownloadHelper.insertIntoDbWhenDirentIsDir(account, direntModel, list);
-                        } else {
-                            PreDownloadHelper.insertIntoDbWhenDirentIsFile(account, direntModel);
-                        }
-                    } catch (IOException e) {
-                        SLogs.e(e.getMessage());
+        // file list
+        List<DirentModel> fileList = direntModels.stream()
+                .filter(d -> !d.isDir())
+                .collect(Collectors.toList());
+
+        for (DirentModel file : fileList) {
+            PreDownloadHelper.insertIntoDbWhenDirentIsFile(account, file);
+        }
+
+
+        // dir list
+        List<DirentModel> dirList = direntModels.stream()
+                .filter(d -> d.isDir() && StringUtils.isNotEmpty(d.uid))
+                .collect(Collectors.toList());
+
+        Flowable<RecursiveResult> flowable = Flowable
+                .fromIterable(dirList)
+                .flatMapSingle(dir -> {
+                    Single<List<DirentRecursiveModel>> fileSingle = requestRecursiveFileObservable(
+                            repoModel.repo_id,
+                            dir.full_path,
+                            "f");
+
+                    Single<List<DirentRecursiveModel>> dirSingle = requestRecursiveFileObservable(
+                            repoModel.repo_id,
+                            dir.full_path,
+                            "d");
+
+                    return Single.zip(fileSingle, dirSingle, (files, dirs) -> {
+                        RecursiveResult result = new RecursiveResult();
+                        result.rootDir = dir;
+                        result.files = files;
+                        result.dirs = dirs;
+                        return result;
+                    });
+
+                }, true, 8)
+                .observeOn(io.reactivex.schedulers.Schedulers.io())
+                .doOnNext(result -> {
+
+                    if (!CollectionUtils.isEmpty(result.files)) {
+                        List<DirentModel> fileDirents = result
+                                .files
+                                .stream()
+                                .map(model -> DirentModel.convertDirentRecursiveFileModelToThis(model, account, repoModel.repo_id))
+                                .collect(Collectors.toList());
+
+                        // insert into db
+                        AppDatabase.getInstance().direntDao().insertAllSync(fileDirents);
+
+                        // insert into download queue
+                        PreDownloadHelper.insertIntoDbWhenDirentIsDir(
+                                account,
+                                result.rootDir,
+                                result.files);
                     }
+
+                    if (!CollectionUtils.isEmpty(result.dirs)) {
+                        List<DirentModel> dirDirents = result
+                                .dirs
+                                .stream()
+                                .map(model -> DirentModel.convertDirentRecursiveFileModelToThis(model, account, repoModel.repo_id))
+                                .collect(Collectors.toList());
+
+                        // insert into db
+                        AppDatabase.getInstance().direntDao().insertAllSync(dirDirents);
+                    }
+                });
+
+        addFlowableDisposable(flowable,
+                result -> {
+                },
+                throwable -> {
+                    getSecondRefreshLiveData().setValue(false);
+                    SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                    Toasts.show(seafException.getMessage());
+                },
+                () -> {
+                    getSecondRefreshLiveData().setValue(false);
+                    BackupThreadExecutor.getInstance().runDownloadTask();
                 }
-
-                emitter.onSuccess(SeafException.SUCCESS);
-            }
-        });
-
-        addSingleDisposable(single, new Consumer<SeafException>() {
-            @Override
-            public void accept(SeafException e) throws Exception {
-                getSecondRefreshLiveData().setValue(false);
-
-                //
-                BackupThreadExecutor.getInstance().runDownloadTask();
-            }
-        });
-
+        );
     }
 
 
-
     private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
+
     public MutableLiveData<FileProfileConfigModel> getFileDetailLiveData() {
         return _fileProfileConfigLiveData;
     }
@@ -784,7 +858,7 @@ public class RepoViewModel extends BaseViewModel {
     public void loadFileDetail(String repoId, String path) {
         getSecondRefreshLiveData().setValue(true);
 
-        Single<FileProfileConfigModel> s = Objs.getLoadFileDetailSingle(repoId,path);
+        Single<FileProfileConfigModel> s = Objs.getLoadFileDetailSingle(repoId, path);
 
         addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
             @Override

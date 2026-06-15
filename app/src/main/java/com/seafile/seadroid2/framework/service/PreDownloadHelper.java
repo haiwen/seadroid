@@ -8,7 +8,7 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.http.HttpManager;
-import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -23,7 +23,7 @@ import java.util.List;
 public class PreDownloadHelper {
     private static final String TAG = "PreDownloadHelper";
 
-    public static void insertIntoDbWhenDirentIsFile(Account account, DirentModel pendingModel) throws IOException {
+    public static void insertIntoDbWhenDirentIsFile(Account account, DirentModel pendingModel) {
 
         TransferModel transferModel = new TransferModel();
         transferModel.save_to = SaveTo.DB;
@@ -54,13 +54,13 @@ public class PreDownloadHelper {
     /**
      * insert into db
      */
-    public static void insertIntoDbWhenDirentIsDir(Account account, DirentModel parentDirent, List<DirentRecursiveFileModel> list) {
+    public static void insertIntoDbWhenDirentIsDir(Account account, DirentModel parentDirent, List<DirentRecursiveModel> list) {
 
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
 
-        for (DirentRecursiveFileModel model : list) {
+        for (DirentRecursiveModel model : list) {
             TransferModel transferModel = new TransferModel();
             transferModel.save_to = SaveTo.DB;
             transferModel.repo_id = parentDirent.repo_id;
@@ -87,17 +87,5 @@ public class PreDownloadHelper {
 
             GlobalTransferCacheList.DOWNLOAD_QUEUE.put(transferModel);
         }
-    }
-
-    /**
-     * get recursive files from server
-     */
-    public static List<DirentRecursiveFileModel> fetchRecursiveFiles(DirentModel direntModel) throws IOException {
-        retrofit2.Response<List<DirentRecursiveFileModel>> res = HttpManager.getCurrentHttp().execute(FileService.class).getDirRecursiveFileCall(direntModel.repo_id, direntModel.full_path).execute();
-        if (!res.isSuccessful()) {
-            return Collections.emptyList();
-        }
-
-        return res.body();
     }
 }

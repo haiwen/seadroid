@@ -15,7 +15,7 @@ import com.seafile.seadroid2.enums.TransferAction;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -390,7 +390,7 @@ public class FileTransferEntity extends BaseModel {
     }
 
 
-    public static FileTransferEntity convertDirentRecursiveModel2This(RepoModel repoModel, DirentRecursiveFileModel model) {
+    public static FileTransferEntity convertDirentRecursiveModel2This(RepoModel repoModel, DirentRecursiveModel model) {
         FileTransferEntity entity = new FileTransferEntity();
 
         if (model.parent_dir.endsWith("/")) {

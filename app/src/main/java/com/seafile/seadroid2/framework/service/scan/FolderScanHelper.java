@@ -15,9 +15,8 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePr
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
-import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveFileModel;
+import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -59,11 +58,11 @@ public class FolderScanHelper {
         return !NetworkUtils.isMobileData();
     }
 
-    private static List<DirentRecursiveFileModel> getDirentWrapper(String repoId, String parentPath) throws SeafException {
+    private static List<DirentRecursiveModel> getDirentWrapper(String repoId, String parentPath) throws SeafException {
         //get parent dirent list from remote
-        Response<List<DirentRecursiveFileModel>> res;
+        Response<List<DirentRecursiveModel>> res;
         try {
-            Call<List<DirentRecursiveFileModel>> direntWrapperModelCall = HttpManager.getCurrentHttp().execute(RepoService.class).getDirRecursiveFileCall(repoId, parentPath);
+            Call<List<DirentRecursiveModel>> direntWrapperModelCall = HttpManager.getCurrentHttp().execute(RepoService.class).getDirRecursiveFileCall(repoId, parentPath);
             res = direntWrapperModelCall.execute();
         } catch (IOException ioException) {
             SafeLogs.e(TAG, "getDirentWrapper(): " + ioException.getMessage());
@@ -79,7 +78,7 @@ public class FolderScanHelper {
             throw SeafException.NETWORK_EXCEPTION;
         }
 
-        List<DirentRecursiveFileModel> tempWrapperList = res.body();
+        List<DirentRecursiveModel> tempWrapperList = res.body();
         if (tempWrapperList == null) {
             SafeLogs.d(TAG, "request dirents is null");
             throw SeafException.NETWORK_EXCEPTION;
@@ -203,7 +202,7 @@ public class FolderScanHelper {
         }
 
         // remote dirent list
-        List<DirentRecursiveFileModel> remoteList = getDirentWrapper(repoModel.repo_id, parentPath);
+        List<DirentRecursiveModel> remoteList = getDirentWrapper(repoModel.repo_id, parentPath);
 
         for (File localFile : localFiles) {
 
@@ -253,7 +252,7 @@ public class FolderScanHelper {
                 Pattern pattern = getPattern(prefix, suffix);
 
                 String finalFileParentPath = fileParentPath;
-                Optional<DirentRecursiveFileModel> firstOp = remoteList.stream()
+                Optional<DirentRecursiveModel> firstOp = remoteList.stream()
                         .filter(f -> pattern.matcher(f.name).matches() && TextUtils.equals(f.getParent_dir(), finalFileParentPath))
                         .findFirst();
 
@@ -305,7 +304,7 @@ public class FolderScanHelper {
         }
 
         // remote dirent list
-        List<DirentRecursiveFileModel> remoteList = getDirentWrapper(repoModel.repo_id, parentPath);
+        List<DirentRecursiveModel> remoteList = getDirentWrapper(repoModel.repo_id, parentPath);
 
         for (File localFile : localFiles) {
 
@@ -354,7 +353,7 @@ public class FolderScanHelper {
                 Pattern pattern = getPattern(prefix, suffix);
 
                 String finalFileParentPath = fileParentPath;
-                Optional<DirentRecursiveFileModel> firstOp = remoteList.stream()
+                Optional<DirentRecursiveModel> firstOp = remoteList.stream()
                         .filter(f -> pattern.matcher(f.name).matches() && TextUtils.equals(f.getParent_dir(), finalFileParentPath))
                         .findFirst();
 

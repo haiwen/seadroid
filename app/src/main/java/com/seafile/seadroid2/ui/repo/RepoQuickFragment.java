@@ -1822,7 +1822,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 .collect(Collectors.toList());
 
         Account account = getCurrentAccount();
-        getViewModel().preDownload(requireContext(), account, direntModels);
+
+        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
+        getViewModel().preDownload(requireContext(), account, repoModel, direntModels);
     }
 
     public void rename(List<BaseModel> models) {

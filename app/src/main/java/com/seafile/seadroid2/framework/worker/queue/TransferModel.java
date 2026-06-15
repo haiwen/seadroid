@@ -146,6 +146,7 @@ public class TransferModel implements Comparable<TransferModel> {
         return parent_path;
     }
 
+    // upload media file to seafile
     public static TransferModel convert(File file, String bucketName, long bucketId) {
 
         // /My Photos/{bucketName}/
@@ -166,6 +167,7 @@ public class TransferModel implements Comparable<TransferModel> {
         return entity;
     }
 
+    // upload local file to seafile
     public static TransferModel convert(File file, String localBackupPath) {
 
         String backupParent = Utils.getParentPath(localBackupPath);
