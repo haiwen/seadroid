@@ -96,6 +96,7 @@ public class PhotoFragment extends BaseFragment {
     private OnPhotoTapListener onPhotoTapListener;
     private String serverUrl;
     private File destinationFile;
+    private boolean notEdit;
 
     public void setOnPhotoTapListener(OnPhotoTapListener onPhotoTapListener) {
         this.onPhotoTapListener = onPhotoTapListener;
@@ -109,19 +110,21 @@ public class PhotoFragment extends BaseFragment {
         return fragment;
     }
 
-    public static PhotoFragment newInstance(String serverUrl, String repoId, String repoName, String fullPath) {
+    public static PhotoFragment newInstance(String serverUrl, String repoId, String repoName, String fullPath, boolean notEdit) {
         Bundle args = new Bundle();
         args.putString("repoId", repoId);
         args.putString("repoName", repoName);
         args.putString("fullPath", fullPath);
         args.putString("serverUrl", serverUrl);
+        args.putBoolean("notEdit", notEdit);
         PhotoFragment fragment = new PhotoFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
     public static PhotoFragment newInstance(String serverUrl, DirentModel direntModel) {
-        return newInstance(serverUrl, direntModel.repo_id, direntModel.repo_name, direntModel.full_path);
+        boolean notEdit = direntModel.is_freezed || direntModel.is_locked || !direntModel.hasWritePermission();
+        return newInstance(serverUrl, direntModel.repo_id, direntModel.repo_name, direntModel.full_path, notEdit);
     }
 
     private ImagePreviewViewModel parentViewModel;
@@ -153,6 +156,7 @@ public class PhotoFragment extends BaseFragment {
             repoName = savedInstanceState.getString("repoName");
             fullPath = savedInstanceState.getString("fullPath");
             imageUrl = savedInstanceState.getString("image_url");
+            notEdit = savedInstanceState.getBoolean("notEdit", true);
         } else {
             Bundle args = getArguments();
             if (args == null) {
@@ -164,6 +168,7 @@ public class PhotoFragment extends BaseFragment {
             fullPath = args.getString("fullPath");
             imageUrl = args.getString("image_url");
             serverUrl = args.getString("serverUrl");
+            notEdit = args.getBoolean("notEdit", true);
         }
 
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -284,7 +289,7 @@ public class PhotoFragment extends BaseFragment {
                 DocProfileView detailView = new DocProfileView(requireContext());
                 detailView.parseData(configModel);
 
-                if (configModel.isMetadataEnabled()) {
+                if (configModel.isMetadataEnabled() && !notEdit) {
                     binding.profileActionbarContainer.setVisibility(VISIBLE);
                 } else {
                     binding.profileActionbarContainer.setVisibility(INVISIBLE);
@@ -313,7 +318,7 @@ public class PhotoFragment extends BaseFragment {
         binding.edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (configModel == null){
+                if (configModel == null) {
                     SLogs.d(TAG, "configModel is null, can not click.");
                     return;
                 }
@@ -321,6 +326,7 @@ public class PhotoFragment extends BaseFragment {
                 startActivity(intent);
             }
         });
+
         // live photo
         FrameLayout.LayoutParams fl = (FrameLayout.LayoutParams) binding.btnLivePhoto.getLayoutParams();
         fl.topMargin = BarUtils.getStatusBarHeight() + CarouselImagePreviewActivity.actionbarHeight + Constants.DP.DP_8;

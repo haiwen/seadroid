@@ -236,12 +236,14 @@ public class DirentModel extends BaseModel implements Parcelable {
         return direntModel;
     }
 
-    public static DirentModel convertDirentRecursiveFileModelToThis(DirentRecursiveModel recursiveFileModel, Account account, String repo_id) {
+    public static DirentModel convertDirentRecursiveFileModelToThis(DirentRecursiveModel recursiveFileModel, Account account, String repoId, String repoName) {
         if (recursiveFileModel == null) {
             return null;
         }
         DirentModel direntModel = new DirentModel();
         direntModel.related_account = account.getSignature();
+        direntModel.repo_id = repoId;
+        direntModel.repo_name = repoName;
         direntModel.full_path = Utils.pathJoin(recursiveFileModel.getParent_dir(), recursiveFileModel.name);
         direntModel.name = recursiveFileModel.name;
         direntModel.parent_dir = recursiveFileModel.parent_dir;
@@ -250,7 +252,6 @@ public class DirentModel extends BaseModel implements Parcelable {
         direntModel.mtime = recursiveFileModel.mtime;
         direntModel.permission = recursiveFileModel.permission;
         direntModel.size = recursiveFileModel.size;
-        direntModel.repo_id = repo_id;
         direntModel.is_locked = recursiveFileModel.is_locked;
         direntModel.locked_by_me = recursiveFileModel.locked_by_me;
         direntModel.lock_time = recursiveFileModel.lock_time;

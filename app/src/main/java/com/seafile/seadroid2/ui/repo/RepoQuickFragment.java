@@ -115,6 +115,7 @@ import com.seafile.seadroid2.view.TipsViews;
 import com.seafile.seadroid2.view.ViewSortPopupWindow;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -792,10 +793,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             }
         });
 
-        getViewModel().getFileDetailLiveData().observe(getViewLifecycleOwner(), new Observer<FileProfileConfigModel>() {
+        getViewModel().getFileDetailLiveData().observe(getViewLifecycleOwner(), new Observer<Pair<DirentModel, FileProfileConfigModel>>() {
             @Override
-            public void onChanged(FileProfileConfigModel configModel) {
-                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel);
+            public void onChanged(Pair<DirentModel, FileProfileConfigModel> p) {
+                boolean canNotEdit = p.first.is_freezed || p.first.is_locked || !p.first.hasWritePermission();
+                FileProfileDialog dialog = FileProfileDialog.newInstance(p.second, canNotEdit);
                 dialog.show(getChildFragmentManager(), FileProfileDialog.class.getSimpleName());
             }
         });
@@ -1630,7 +1632,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         BaseModel model = models.get(0);
         if (model instanceof DirentModel m) {
-            getViewModel().loadFileDetail(m.repo_id, m.full_path);
+            getViewModel().loadFileDetail(m);
         } else {
 
         }
@@ -1733,7 +1735,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         if (fileName.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
-            boolean canNotEdit = dirent.is_freezed || dirent.is_locked;
+            boolean canNotEdit = dirent.is_freezed || dirent.is_locked || !dirent.hasWritePermission();
             SDocWebViewActivity.openSdoc(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name, canNotEdit);
             return;
         }

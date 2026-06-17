@@ -274,6 +274,9 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         // save current account
         SupportAccountManager.getInstance().saveCurrentAccount(newAccountName);
 
+        // remove last path of share to seafile
+        Settings.getCommonPreferences().edit().remove(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE).apply();
+
         // reset http instance
         HttpIO.resetLoggedInInstance();
         // reset settings
