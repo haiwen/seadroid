@@ -15,8 +15,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         compileSdk rootProject.ext.compileSdkVersion
 
-        versionCode 370 // +=10
-        versionName "4.0.8"
+        versionCode 380 // +=10
+        versionName "4.0.9"
         multiDexEnabled true
 
         resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'

@@ -36,9 +36,11 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
 
     private FileProfileConfigModel configModel;
     private String repoId;
+    private boolean canNotEdit;
 
-    public static FileProfileDialog newInstance(FileProfileConfigModel configModel) {
+    public static FileProfileDialog newInstance(FileProfileConfigModel configModel, boolean canNotEdit) {
         TransportHolder.get().put("config_model", configModel);
+        TransportHolder.get().put("canNotEdit", canNotEdit);
         return new FileProfileDialog();
     }
 
@@ -47,7 +49,9 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
 
         configModel = TransportHolder.get().get("config_model");
+        canNotEdit = TransportHolder.get().get("canNotEdit");
         TransportHolder.get().remove("config_model");
+        TransportHolder.get().remove("canNotEdit");
 
         if (configModel == null) {
             throw new IllegalArgumentException("configModel is null");
@@ -84,7 +88,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
             return;
         }
 
-        if (configModel.isMetadataEnabled()) {
+        if (configModel.isMetadataEnabled() && !canNotEdit) {
             profileBinding.edit.setVisibility(View.VISIBLE);
             profileBinding.edit.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -94,7 +98,7 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
                     startActivity(intent);
                 }
             });
-        }else {
+        } else {
             profileBinding.edit.setVisibility(View.GONE);
         }
 

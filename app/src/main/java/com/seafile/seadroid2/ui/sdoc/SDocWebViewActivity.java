@@ -350,7 +350,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             @Override
             public void onChanged(FileProfileConfigModel configModel) {
 
-                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel);
+                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel,canNotEdit);
                 dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
             }
         });

@@ -99,6 +99,8 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         intent.putExtra("repo_name", direntModel.repo_name);
         intent.putExtra("parent_dir", direntModel.parent_dir);
         intent.putExtra("name", direntModel.name);
+        boolean notEdit = direntModel.is_freezed || direntModel.is_locked || !direntModel.hasWritePermission();
+        intent.putExtra("notEdit", notEdit);
         intent.putExtra("load_other_images_in_same_directory", load_other_images_in_same_directory);//Load other images in the same folder
         return intent;
     }
@@ -109,6 +111,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         intent.putExtra("repo_name", model.repo_name);
         intent.putExtra("parent_dir", Utils.getParentPath(model.path));
         intent.putExtra("name", model.obj_name);
+        intent.putExtra("notEdit", true);
         intent.putExtra("load_other_images_in_same_directory", false);//Load other images in the same folder
         return intent;
     }
@@ -119,6 +122,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         intent.putExtra("repo_name", model.repo_name);
         intent.putExtra("parent_dir", Utils.getParentPath(model.path));
         intent.putExtra("name", model.name);
+        intent.putExtra("notEdit", true);
         intent.putExtra("load_other_images_in_same_directory", false);//Load other images in the same folder
         return intent;
     }
@@ -129,6 +133,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         intent.putExtra("repo_name", model.repo_name);
         intent.putExtra("parent_dir", Utils.getParentPath(model.fullpath));
         intent.putExtra("name", model.name);
+        intent.putExtra("notEdit", true);
         intent.putExtra("load_other_images_in_same_directory", false);//Load other images in the same folder
         return intent;
     }

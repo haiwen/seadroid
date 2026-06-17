@@ -39,6 +39,9 @@ public class AccountUtils {
         // cancel all jobs
         BackgroundJobManagerImpl.getInstance().cancelAllJobs();
 
+        // remove last path of share to seafile
+        Settings.getCommonPreferences().edit().remove(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE).apply();
+
         // sign out operations
         SupportAccountManager.getInstance().signOutAccount(account);
         SupportAccountManager.getInstance().saveCurrentAccount(null);
@@ -86,6 +89,9 @@ public class AccountUtils {
 
         //
         Settings.initUserSettings();
+
+        // remove last path of share to seafile
+        Settings.getCommonPreferences().edit().remove(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE).apply();
 
         //switch camera upload
         CameraUploadManager.getInstance().setCameraAccount(account);

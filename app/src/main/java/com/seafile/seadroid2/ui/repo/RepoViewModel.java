@@ -88,7 +88,7 @@ public class RepoViewModel extends BaseViewModel {
         return _objListLiveData;
     }
 
-    public void decryptRepo(RepoModel repoModel,Consumer<RepoDecryptResult> consumer) {
+    public void decryptRepo(RepoModel repoModel, Consumer<RepoDecryptResult> consumer) {
         if (repoModel == null || !repoModel.encrypted) {
             // The non-encrypted database will be returned to success
             return;
@@ -808,7 +808,7 @@ public class RepoViewModel extends BaseViewModel {
                         List<DirentModel> fileDirents = result
                                 .files
                                 .stream()
-                                .map(model -> DirentModel.convertDirentRecursiveFileModelToThis(model, account, repoModel.repo_id))
+                                .map(model -> DirentModel.convertDirentRecursiveFileModelToThis(model, account, repoModel.repo_id, repoModel.repo_name))
                                 .collect(Collectors.toList());
 
                         // insert into db
@@ -825,7 +825,7 @@ public class RepoViewModel extends BaseViewModel {
                         List<DirentModel> dirDirents = result
                                 .dirs
                                 .stream()
-                                .map(model -> DirentModel.convertDirentRecursiveFileModelToThis(model, account, repoModel.repo_id))
+                                .map(model -> DirentModel.convertDirentRecursiveFileModelToThis(model, account, repoModel.repo_id, repoModel.repo_name))
                                 .collect(Collectors.toList());
 
                         // insert into db
@@ -849,22 +849,22 @@ public class RepoViewModel extends BaseViewModel {
     }
 
 
-    private final MutableLiveData<FileProfileConfigModel> _fileProfileConfigLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Pair<DirentModel, FileProfileConfigModel>> _fileProfileConfigLiveData = new MutableLiveData<>();
 
-    public MutableLiveData<FileProfileConfigModel> getFileDetailLiveData() {
+    public MutableLiveData<Pair<DirentModel, FileProfileConfigModel>> getFileDetailLiveData() {
         return _fileProfileConfigLiveData;
     }
 
-    public void loadFileDetail(String repoId, String path) {
+    public void loadFileDetail(DirentModel model) {
         getSecondRefreshLiveData().setValue(true);
 
-        Single<FileProfileConfigModel> s = Objs.getLoadFileDetailSingle(repoId, path);
+        Single<FileProfileConfigModel> s = Objs.getLoadFileDetailSingle(model.repo_id, model.full_path);
 
         addSingleDisposable(s, new Consumer<FileProfileConfigModel>() {
             @Override
             public void accept(FileProfileConfigModel fileProfileConfigModel) throws Exception {
                 getSecondRefreshLiveData().setValue(false);
-                getFileDetailLiveData().setValue(fileProfileConfigModel);
+                getFileDetailLiveData().setValue(new Pair<>(model, fileProfileConfigModel));
             }
         }, new Consumer<Throwable>() {
             @Override
