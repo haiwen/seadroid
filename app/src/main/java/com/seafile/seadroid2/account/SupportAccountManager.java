@@ -45,7 +45,8 @@ public class SupportAccountManager {
 
     /**
      * A list of all logged-in users, including logged-out users
-     * */
+     *
+     */
     @NonNull
     public List<Account> getAccountList() {
         List<Account> list = new ArrayList<>();
@@ -80,7 +81,8 @@ public class SupportAccountManager {
 
     /**
      * A list of all users who are not logged out
-     * */
+     *
+     */
     @NonNull
     public List<Account> getSignedInAccountList() {
         List<Account> list = new ArrayList<>();
@@ -108,7 +110,7 @@ public class SupportAccountManager {
         DataStoreManager.getCommonSharePreference().writeString(DataStoreKeys.KEY_CURRENT_ACCOUNT, accountSignature);
 
         //
-        setAuthToken(sAccount.getAndroidAccount(), Constants.Account.ACCOUNT_TYPE, sAccount.getToken());
+        updateAuthToken(sAccount.getAndroidAccount(), Constants.Account.ACCOUNT_TYPE, sAccount.getToken());
     }
 
     @Nullable
@@ -135,6 +137,7 @@ public class SupportAccountManager {
     public Account getSeafileAccount(android.accounts.Account androidAccount) {
         String server = accountManager.getUserData(androidAccount, Authenticator.KEY_SERVER_URI);
         String email = accountManager.getUserData(androidAccount, Authenticator.KEY_EMAIL);
+        String contactEmail = accountManager.getUserData(androidAccount, Authenticator.KEY_CONTACT_EMAIL);
         String name = accountManager.getUserData(androidAccount, Authenticator.KEY_NAME);
         String avatarUrl = accountManager.getUserData(androidAccount, Authenticator.KEY_AVATAR_URL);
         boolean isShib = accountManager.getUserData(androidAccount, Authenticator.KEY_SHIB) != null;
@@ -145,13 +148,14 @@ public class SupportAccountManager {
         String usageSpace = accountManager.getUserData(androidAccount, Authenticator.SPACE_USAGE);
 
         Account account = new Account();
-        account.name = name;
-        account.server = server;
-        account.email = email;
-        account.avatar_url = avatarUrl;
-        account.token = token;
+        account.setName(name);
+        account.setServer(server);
+        account.setEmail(email);
+        account.setContactEmail(contactEmail);
+        account.setAvatarUrl(avatarUrl);
+        account.setToken(token);
         account.is_shib = isShib;
-        account.sessionKey = sessionKey;
+        account.setSessionKey(sessionKey);
 
         if (TextUtils.isEmpty(totalSpace)) {
             account.setTotalSpace(0L);
@@ -185,15 +189,36 @@ public class SupportAccountManager {
         return accountManager.removeAccount(account, callback, handler);
     }
 
-    public void setAuthToken(android.accounts.Account account, final String authTokenType, final String authToken) {
-        accountManager.setAuthToken(account, authTokenType, authToken);
+    public void updateAccountInfo(Account account) {
+        // email = asdfaasdfasdffwdf@local
+        // contact_email = zhwanng@163.ocm
+        android.accounts.Account androidAccount = account.getAndroidAccount();
+
+        setUserData(androidAccount, Authenticator.KEY_EMAIL, account.getEmail());
+        setUserData(androidAccount, Authenticator.KEY_CONTACT_EMAIL, account.getContactEmail());
+        setUserData(androidAccount, Authenticator.KEY_NAME, account.getName());
+        setUserData(androidAccount, Authenticator.KEY_AVATAR_URL, account.getAvatarUrl());
+        setUserData(androidAccount, Authenticator.SESSION_KEY, account.getSessionKey());
+        setUserData(androidAccount, Authenticator.LOGIN_TIME, String.valueOf(account.getLoginTimestamp()));
+        setUserData(androidAccount, Authenticator.SPACE_TOTAL, String.valueOf(account.getTotalSpace()));
+        setUserData(androidAccount, Authenticator.SPACE_USAGE, String.valueOf(account.getUsageSpace()));
+    }
+
+    public void updateShib(android.accounts.Account androidAccount,String shib) {
+        setUserData(androidAccount, Authenticator.KEY_SHIB, shib);
+    }
+
+    public void updateAuthToken(android.accounts.Account androidAccount, final String authTokenType, final String authToken) {
+        accountManager.setAuthToken(androidAccount, authTokenType, authToken);
     }
 
     public void setServerInfo(Account account, ServerInfo serverInfo) {
-        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
-        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());
-        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_ENCRYPTED_VERSION, serverInfo.getEncrypted_library_version());
-        setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES, serverInfo.getFeatures());
+        android.accounts.Account androidAccount = account.getAndroidAccount();
+
+        setUserData(androidAccount, Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
+        setUserData(androidAccount, Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());
+        setUserData(androidAccount, Authenticator.KEY_SERVER_ENCRYPTED_VERSION, serverInfo.getEncrypted_library_version());
+        setUserData(androidAccount, Authenticator.KEY_SERVER_FEATURES, serverInfo.getFeatures());
     }
 
     public void setUserData(android.accounts.Account account, String key, String value) {

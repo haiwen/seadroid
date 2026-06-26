@@ -7,20 +7,22 @@ import android.util.Pair;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.AppUtils;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
+import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.TokenModel;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
-import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
+import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ssl.CertsManager;
-import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
 import com.seafile.seadroid2.ui.main.MainService;
 
 import java.util.HashMap;
@@ -29,59 +31,19 @@ import java.util.Map;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.HttpException;
 import retrofit2.Response;
 
 public class AccountViewModel extends BaseViewModel {
-    private final MutableLiveData<Account> mAccountLiveData = new MutableLiveData<>();
-    private final MutableLiveData<AccountInfo> mAccountInfoLiveData = new MutableLiveData<>();
     private final MutableLiveData<Pair<Account, SeafException>> AccountSeafExceptionLiveData = new MutableLiveData<>();
-    private final MutableLiveData<ServerInfo> ServerInfoLiveData = new MutableLiveData<>();
 
-    public MutableLiveData<ServerInfo> getServerInfoLiveData() {
-        return ServerInfoLiveData;
-    }
-
-    public MutableLiveData<Pair<Account, SeafException>> getAccountSeafExceptionLiveData() {
+    public MutableLiveData<Pair<Account, SeafException>> getRequestAccountResultData() {
         return AccountSeafExceptionLiveData;
-    }
-
-    public MutableLiveData<Account> getAccountLiveData() {
-        return mAccountLiveData;
-    }
-
-    public MutableLiveData<AccountInfo> getAccountInfoLiveData() {
-        return mAccountInfoLiveData;
-    }
-
-    public void loadAccountInfo(Account loginAccount, String authToken) {
-        getRefreshLiveData().setValue(true);
-
-        loginAccount.token = authToken;
-        Single<AccountInfo> single = HttpManager.getHttpWithAccount(loginAccount).execute(AccountService.class).getAccountInfo();
-        addSingleDisposable(single, new Consumer<AccountInfo>() {
-            @Override
-            public void accept(AccountInfo accountInfo) throws Exception {
-
-                loginAccount.login_time = System.currentTimeMillis();
-                loginAccount.setEmail(accountInfo.getEmail());
-                loginAccount.setName(accountInfo.getName());
-                loginAccount.setAvatarUrl(accountInfo.getAvatarUrl());
-
-                getAccountLiveData().setValue(loginAccount);
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                getRefreshLiveData().setValue(false);
-
-                SeafException seafException = getSeafExceptionByThrowable(throwable);
-                getAccountSeafExceptionLiveData().setValue(new Pair<>(loginAccount, seafException));
-            }
-        });
     }
 
     public void login(Account tempAccount, String pwd, String authToken, boolean isRememberDevice) {
@@ -93,13 +55,13 @@ public class AccountViewModel extends BaseViewModel {
                 if (emitter == null || emitter.isDisposed()) {
                     return;
                 }
-                
+
                 //the SYNC way
                 Call<TokenModel> call = getLoginCall(tempAccount, pwd, authToken, isRememberDevice);
                 Response<TokenModel> response = call.execute();
                 if (!response.isSuccessful()) {
                     HttpException httpException = new HttpException(response);
-                    throw ExceptionUtils.parseByThrowable(httpException,!TextUtils.isEmpty(authToken));
+                    throw ExceptionUtils.parseByThrowable(httpException, !TextUtils.isEmpty(authToken));
                 }
 
                 String s2fa = response.headers().get("x-seafile-s2fa");
@@ -130,11 +92,14 @@ public class AccountViewModel extends BaseViewModel {
 
                 // Update the account info
                 tempAccount.setName(accountInfo.getName());
-//                tempAccount.setEmail(accountInfo.getEmail());
+                tempAccount.setEmail(accountInfo.getEmail());
+                tempAccount.setContactEmail(accountInfo.getContactEmail());
                 tempAccount.setAvatarUrl(accountInfo.getAvatarUrl());
                 tempAccount.setTotalSpace(accountInfo.getTotal());
                 tempAccount.setUsageSpace(accountInfo.getUsage());
 
+                SLogs.d("Login success");
+                SLogs.d(tempAccount.toString());
                 emitter.onSuccess(tempAccount);
             }
         });
@@ -143,7 +108,7 @@ public class AccountViewModel extends BaseViewModel {
             @Override
             public void accept(Account account) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getAccountLiveData().setValue(account);
+                getRequestAccountResultData().setValue(new Pair<>(account, SeafException.SUCCESS));
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -151,7 +116,7 @@ public class AccountViewModel extends BaseViewModel {
                 getRefreshLiveData().setValue(false);
 
                 SeafException seafException = getSeafExceptionByThrowable(throwable);
-                getAccountSeafExceptionLiveData().setValue(new Pair<>(tempAccount, seafException));
+                getRequestAccountResultData().setValue(new Pair<>(tempAccount, seafException));
             }
         });
     }
@@ -189,36 +154,74 @@ public class AccountViewModel extends BaseViewModel {
         return HttpManager.getHttpWithAccount(tempAccount).execute(AccountService.class).login(headers, requestBody);
     }
 
-    /**
-     * NOTE: This method must be called after the login is complete.
-     * */
-    public void getServerInfo() {
+    public void syncAccountAndServerInfo() {
+
+        //
+        Account loginAccount = SupportAccountManager.getInstance().getCurrentAccount();
+        if (loginAccount == null) {
+            Toasts.show(R.string.failed);
+            return;
+        }
+
+        syncAccountAndServerInfo(loginAccount);
+    }
+
+    public void syncAccountAndServerInfo(Account loginAccount) {
+
         getRefreshLiveData().setValue(true);
 
         Single<ServerInfoModel> serverInfoSingle = HttpManager.getCurrentHttp().execute(MainService.class).getServerInfo();
-        addSingleDisposable(serverInfoSingle, new Consumer<ServerInfoModel>() {
+        Single<Account> acc = serverInfoSingle.flatMap(new Function<ServerInfoModel, SingleSource<ServerInfoModel>>() {
             @Override
-            public void accept(ServerInfoModel serverInfoModel) {
+            public SingleSource<ServerInfoModel> apply(ServerInfoModel serverInfoModel) throws Exception {
+                ServerInfo sInfo = new ServerInfo(loginAccount.server, serverInfoModel.version, serverInfoModel.getFeaturesString(), serverInfoModel.encrypted_library_version);
+                SupportAccountManager.getInstance().setServerInfo(loginAccount, sInfo);
+                return Single.just(serverInfoModel);
+            }
+        }).flatMap(new Function<ServerInfoModel, SingleSource<AccountInfo>>() {
+            @Override
+            public SingleSource<AccountInfo> apply(ServerInfoModel serverInfoModel) throws Exception {
+                return HttpManager.getCurrentHttp().execute(AccountService.class).getAccountInfo();
+            }
+        }).flatMap(new Function<AccountInfo, SingleSource<Account>>() {
+            @Override
+            public SingleSource<Account> apply(AccountInfo accountInfo) throws Exception {
 
-                Account account = SupportAccountManager.getInstance().getCurrentAccount();
-                if (account == null) {
-                    return;
-                }
 
-                ServerInfo serverInfo1 = new ServerInfo(account.server, serverInfoModel.version, serverInfoModel.getFeaturesString(), serverInfoModel.encrypted_library_version);
-                SupportAccountManager.getInstance().setServerInfo(account, serverInfo1);
+                loginAccount.login_time = System.currentTimeMillis();
+                loginAccount.setEmail(accountInfo.getEmail());
+                loginAccount.setContactEmail(accountInfo.getContactEmail());
+                loginAccount.setName(accountInfo.getName());
+                loginAccount.setAvatarUrl(accountInfo.getAvatarUrl());
+                loginAccount.setTotalSpace(accountInfo.getTotal());
+                loginAccount.setUsageSpace(accountInfo.getUsage());
+
+                //update account info
+                SupportAccountManager.getInstance().updateAccountInfo(loginAccount);
+                return Single.just(loginAccount);
+            }
+        });
+
+        addSingleDisposable(acc, new Consumer<Account>() {
+            @Override
+            public void accept(Account account) throws Exception {
+
+                SLogs.d("request account success");
+                SLogs.d(account.toString());
 
                 getRefreshLiveData().setValue(false);
-                getServerInfoLiveData().setValue(serverInfo1);
+                getRequestAccountResultData().setValue(new Pair<>(account, SeafException.SUCCESS));
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getServerInfoLiveData().setValue(null);
+                SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
+                getRequestAccountResultData().setValue(new Pair<>(loginAccount, seafException));
             }
         });
     }
+
 
     public void deleteAccount(Account account) {
         Account curAccount = SupportAccountManager.getInstance().getCurrentAccount();

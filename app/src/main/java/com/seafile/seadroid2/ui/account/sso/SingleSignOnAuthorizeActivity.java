@@ -34,6 +34,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.SingleSignOnAuthorizeLayoutBinding;
 import com.seafile.seadroid2.framework.util.DeviceIdManager;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -161,16 +162,14 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
     }
 
     private void initViewModel() {
-        getViewModel().getAccountSeafExceptionLiveData().observe(this, new Observer<Pair<Account, SeafException>>() {
+        getViewModel().getRequestAccountResultData().observe(this, new Observer<Pair<Account, SeafException>>() {
             @Override
             public void onChanged(Pair<Account, SeafException> pair) {
-                onLoginException(pair.first, pair.second);
-            }
-        });
-        getViewModel().getAccountLiveData().observe(this, new Observer<Account>() {
-            @Override
-            public void onChanged(Account account) {
-                onLoggedIn(account);
+                if (pair.second == SeafException.SUCCESS) {
+                    onLoggedIn(pair.first);
+                } else {
+                    onLoginException(pair.first, pair.second);
+                }
             }
         });
     }
@@ -182,7 +181,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
                         @Override
                         public void onAccepted(boolean rememberChoice) {
                             CertsManager.instance().saveCertForAccount(account, rememberChoice);
-                            getViewModel().loadAccountInfo(account, account.getToken());
+                            getViewModel().syncAccountAndServerInfo(account);
                         }
 
                         @Override
@@ -199,11 +198,17 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
         retData.putExtras(getIntent());
         retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, account.getSignature());
         retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, account.getToken());
-        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, account.getEmail());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, account.getName());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, account.is_shib);
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
+        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_TYPE));
+
+        retData.putExtra(Constants.AccountKeys.ARG_EMAIL, account.getEmail());
+        retData.putExtra(Constants.AccountKeys.ARG_CONTACT_EMAIL, account.getContactEmail());
+        retData.putExtra(Constants.AccountKeys.ARG_NAME, account.getName());
+        retData.putExtra(Constants.AccountKeys.ARG_SERVER_URI, account.getServer());
+        retData.putExtra(Constants.AccountKeys.ARG_AVATAR_URL, account.getAvatarUrl());
+        retData.putExtra(Constants.AccountKeys.ARG_SPACE_TOTAL, account.getTotalSpace());
+        retData.putExtra(Constants.AccountKeys.ARG_SPACE_USAGE, account.getUsageSpace());
+        retData.putExtra(Constants.AccountKeys.ARG_SHIB, true);
+
         setResult(RESULT_OK, retData);
         finish();
     }
@@ -311,7 +316,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
                     return;
                 }
 
-                getViewModel().loadAccountInfo(account, account.getToken());
+                getViewModel().syncAccountAndServerInfo(account);
             } catch (MalformedURLException e) {
                 SLogs.e(e);
             }

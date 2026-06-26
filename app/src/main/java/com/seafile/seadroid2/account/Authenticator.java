@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.account.AccountService;
@@ -42,6 +43,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
      * Key of email in userData
      */
     public static final String KEY_EMAIL = "email";
+    public static final String KEY_CONTACT_EMAIL = "contact_email";
     /**
      * Key of name in userData
      */
@@ -108,9 +110,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
-        final Intent intent = new Intent(context, SeafileAuthenticatorActivity.class);
-        intent.putExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE, accountType);
-        intent.putExtra(SeafileAuthenticatorActivity.ARG_IS_EDITING, false);
+        final Intent intent = new Intent(context, Constants.AccountKeys.class);
+        intent.putExtra(Constants.AccountKeys.ARG_ACCOUNT_TYPE, accountType);
+        intent.putExtra(Constants.AccountKeys.ARG_IS_EDITING, false);
         intent.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
 
         final Bundle bundle = new Bundle();
@@ -211,13 +213,12 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
         final Intent intent = new Intent(context, SeafileAuthenticatorActivity.class);
         intent.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-        intent.putExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE, account.type);
-        intent.putExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME, account.name); // will be overridden
-        intent.putExtra(SeafileAuthenticatorActivity.ARG_EDIT_OLD_ACCOUNT_NAME, account.name);
-        intent.putExtra(SeafileAuthenticatorActivity.ARG_IS_EDITING, true);
+        intent.putExtra(Constants.AccountKeys.ARG_ACCOUNT_TYPE, account.type);
+        intent.putExtra(Constants.AccountKeys.ARG_ACCOUNT_NAME, account.name); // will be overridden
+        intent.putExtra(Constants.AccountKeys.ARG_EDIT_OLD_ACCOUNT_NAME, account.name);
+        intent.putExtra(Constants.AccountKeys.ARG_IS_EDITING, true);
         boolean is_shib = SupportAccountManager.getInstance().getSeafileAccount(account).isShib();
-        intent.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, is_shib);
-        intent.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, is_shib);
+        intent.putExtra(Constants.AccountKeys.ARG_SHIB, is_shib);
 
         final Bundle bundle = new Bundle();
         bundle.putParcelable(android.accounts.AccountManager.KEY_INTENT, intent);

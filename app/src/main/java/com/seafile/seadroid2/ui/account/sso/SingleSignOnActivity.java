@@ -21,6 +21,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.SingleSignOnWelcomeLayoutBinding;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -273,18 +274,16 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
 //        retData.putExtras(getIntent());
         retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, account.getSignature());
         retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, account.getToken());
-        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
+        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_TYPE));
 
-
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, account.getEmail());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, account.getName());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, account.is_shib);
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
-
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_AVATAR_URL, account.getAvatarUrl());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SPACE_TOTAL, account.getTotalSpace());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SPACE_USAGE, account.getUsageSpace());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, true);
+        retData.putExtra(Constants.AccountKeys.ARG_EMAIL, account.getEmail());
+        retData.putExtra(Constants.AccountKeys.ARG_CONTACT_EMAIL, account.getContactEmail());
+        retData.putExtra(Constants.AccountKeys.ARG_NAME, account.getName());
+        retData.putExtra(Constants.AccountKeys.ARG_SERVER_URI, account.getServer());
+        retData.putExtra(Constants.AccountKeys.ARG_AVATAR_URL, account.getAvatarUrl());
+        retData.putExtra(Constants.AccountKeys.ARG_SPACE_TOTAL, account.getTotalSpace());
+        retData.putExtra(Constants.AccountKeys.ARG_SPACE_USAGE, account.getUsageSpace());
+        retData.putExtra(Constants.AccountKeys.ARG_SHIB, true);
 
         setResult(RESULT_OK, retData);
         finish();

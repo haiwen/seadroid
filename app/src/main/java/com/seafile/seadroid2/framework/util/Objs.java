@@ -13,6 +13,7 @@ import com.seafile.seadroid2.enums.ItemPositionEnum;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.GroupEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -90,22 +92,66 @@ public class Objs {
     /// ///////////////////////////////repo////////////////////////////
 
     public static Single<List<BaseModel>> getReposSingleFromServer(Account account) {
+        Single<List<GroupEntity>> groupSingle = HttpManager.getHttpWithAccount(account).execute(RepoService.class).getGroupsAsync();
         Single<RepoWrapperModel> netSingle = HttpManager.getHttpWithAccount(account).execute(RepoService.class).getReposAsync();
 
-        return netSingle.flatMap(new Function<RepoWrapperModel, SingleSource<List<RepoModel>>>() {
+
+        return groupSingle.flatMap(new Function<List<GroupEntity>, SingleSource<List<GroupEntity>>>() {
             @Override
-            public SingleSource<List<RepoModel>> apply(RepoWrapperModel repoWrapperModel) throws Exception {
-                //get data from server and convert to local data
-                if (CollectionUtils.isEmpty(repoWrapperModel.repos)) {
-                    return Single.just(Collections.emptyList());
+            public SingleSource<List<GroupEntity>> apply(List<GroupEntity> groupEntities) throws Exception {
+                Completable deleteCompletable = AppDatabase.getInstance().groupDao().deleteAll();
+                Single<Long> deleteSingle = deleteCompletable.toSingleDefault(0L);
+                return deleteSingle.flatMap(new Function<Long, SingleSource<List<GroupEntity>>>() {
+                    @Override
+                    public SingleSource<List<GroupEntity>> apply(Long aLong) throws Exception {
+                        return Single.just(groupEntities);
+                    }
+                });
+            }
+        }).flatMap(new Function<List<GroupEntity>, SingleSource<List<GroupEntity>>>() {
+            @Override
+            public SingleSource<List<GroupEntity>> apply(List<GroupEntity> groupEntities) throws Exception {
+                if (CollectionUtils.isEmpty(groupEntities)) {
+                    return Single.just(groupEntities);
                 }
 
-                for (RepoModel repoModel : repoWrapperModel.repos) {
-                    repoModel.related_account = account.getSignature();
-                    repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
-                }
+                Single<Long> si = AppDatabase.getInstance()
+                        .groupDao()
+                        .insertAll(groupEntities)
+                        .toSingleDefault(0L);
+                return si.flatMap(new Function<Long, SingleSource<List<GroupEntity>>>() {
+                    @Override
+                    public SingleSource<List<GroupEntity>> apply(Long aLong) throws Exception {
+                        return Single.just(groupEntities);
+                    }
+                });
+            }
+        }).flatMap(new Function<List<GroupEntity>, SingleSource<List<RepoModel>>>() {
+            @Override
+            public SingleSource<List<RepoModel>> apply(List<GroupEntity> groupEntities) throws Exception {
+                return netSingle.flatMap(new Function<RepoWrapperModel, SingleSource<List<RepoModel>>>() {
+                    @Override
+                    public SingleSource<List<RepoModel>> apply(RepoWrapperModel repoWrapperModel) throws Exception {
+                        //get data from server and convert to local data
+                        if (CollectionUtils.isEmpty(repoWrapperModel.repos)) {
+                            return Single.just(Collections.emptyList());
+                        }
 
-                return Single.just(repoWrapperModel.repos);
+                        for (RepoModel repoModel : repoWrapperModel.repos) {
+                            if (CollectionUtils.isNotEmpty(groupEntities)) {
+                                Optional<GroupEntity> op = groupEntities.stream()
+                                        .filter(f -> f.group_id == repoModel.group_id)
+                                        .findFirst();
+                                op.ifPresent(groupEntity -> repoModel.group_admins = groupEntity.admins);
+                            }
+                            repoModel.server_email = account.getEmail();
+                            repoModel.related_account = account.getSignature();
+                            repoModel.last_modified_long = Times.convertMtime2Long(repoModel.last_modified);
+                        }
+
+                        return Single.just(repoWrapperModel.repos);
+                    }
+                });
             }
         }).flatMap(new Function<List<RepoModel>, SingleSource<List<RepoModel>>>() {
             @Override

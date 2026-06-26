@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.repo;
 
+import com.seafile.seadroid2.framework.db.entities.GroupEntity;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionListWrapperModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
@@ -16,6 +17,9 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface RepoService {
+    @GET("api/v2.1/groups/?with_repos=0")
+    Single<List<GroupEntity>> getGroupsAsync();
+
     @GET("api/v2.1/repos/")
     Single<RepoWrapperModel> getReposAsync();
 
