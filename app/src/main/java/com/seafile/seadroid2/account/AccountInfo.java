@@ -13,13 +13,13 @@ public class AccountInfo {
     private long usage;
     private long total;
     private String email;
+    private String contact_email;
     private String server;
     private String avatar_url;
     private String name;
     private String space_usage;// "6.0382327%"
 //    private String login_id;
 //    private String department;
-//    private String contact_email;
 //    private String institution;
 //    private boolean is_staff;
 //    private int file_updates_email_interval;
@@ -39,6 +39,10 @@ public class AccountInfo {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getContactEmail() {
+        return contact_email;
     }
 
     public String getServer() {

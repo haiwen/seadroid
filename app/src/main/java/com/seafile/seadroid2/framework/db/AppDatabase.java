@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
@@ -16,6 +17,7 @@ import com.seafile.seadroid2.framework.db.dao.EncKeyCacheDAO;
 import com.seafile.seadroid2.framework.db.dao.FileCacheStatusDAO;
 import com.seafile.seadroid2.framework.db.dao.FileTransferDAO;
 import com.seafile.seadroid2.framework.db.dao.FolderBackupMonitorDAO;
+import com.seafile.seadroid2.framework.db.dao.GroupDAO;
 import com.seafile.seadroid2.framework.db.dao.PermissionDAO;
 import com.seafile.seadroid2.framework.db.dao.RepoDAO;
 import com.seafile.seadroid2.framework.db.dao.StarredDirentDAO;
@@ -28,8 +30,11 @@ import com.seafile.seadroid2.framework.db.entities.FolderBackupMonitorEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
+import com.seafile.seadroid2.framework.db.converter.StringListConverter;
+import com.seafile.seadroid2.framework.db.entities.GroupEntity;
 import com.seafile.seadroid2.framework.util.SLogs;
 
+@TypeConverters({StringListConverter.class})
 @Database(entities = {
         RepoModel.class,
         DirentModel.class,
@@ -40,7 +45,8 @@ import com.seafile.seadroid2.framework.util.SLogs;
         FileCacheStatusEntity.class,
         StarredModel.class,
         PermissionEntity.class,
-}, version = 9, exportSchema = false)
+        GroupEntity.class
+}, version = 10, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "seafile_room.db";
     private static volatile AppDatabase _instance;
@@ -59,6 +65,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_6_7)
                             .addMigrations(MIGRATION_7_8)
                             .addMigrations(MIGRATION_8_9)
+                            .addMigrations(MIGRATION_9_10)
                             .build();
                 }
             }
@@ -317,6 +324,24 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    static final Migration MIGRATION_9_10 = new Migration(9, 10) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `groups` (" +
+                    "`v` INTEGER NOT NULL DEFAULT 1, " +
+                    "`data_status` INTEGER NOT NULL DEFAULT 0, " +
+                    "`group_id` INTEGER NOT NULL, " +
+                    "`parent_groud_id` INTEGER NOT NULL, " +
+                    "`group_name` TEXT, " +
+                    "`created_at` TEXT, " +
+                    "`admins` TEXT, " +
+                    "`group_quota` INTEGER NOT NULL, " +
+                    "`group_quota_usage` INTEGER NOT NULL, " +
+                    "PRIMARY KEY(`group_id`))");
+        }
+    };
+
+    public abstract GroupDAO groupDao();
     public abstract RepoDAO repoDao();
 
     public abstract DirentDAO direntDao();

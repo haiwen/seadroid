@@ -48,7 +48,7 @@ public class RepoInfoModel {
     }
 
     /**
-     * You should to check if it's a custom permission firstly
+     * You should check if it's a custom permission firstly
      */
     public boolean hasWritePermission() {
         if (TextUtils.isEmpty(permission)) {

@@ -21,13 +21,17 @@ import retrofit2.http.Path;
 public interface AccountService {
 
 
-    @POST("api2/device-wiped//")
+    @POST("api2/device-wiped/")
     @Multipart
     Single<Object> deviceWiped();
 
     @POST("api2/auth-token/")
     @Multipart
     Call<TokenModel> login(@HeaderMap Map<String, String> headers, @PartMap Map<String, RequestBody> map);
+
+    @POST("api2/auth-token/")
+    @Multipart
+    Single<TokenModel> loginAsync(@HeaderMap Map<String, String> headers, @PartMap Map<String, RequestBody> map);
 
     @GET("api2/account/info/")
     Single<AccountInfo> getAccountInfo();

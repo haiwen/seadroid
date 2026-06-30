@@ -18,6 +18,23 @@ public class Constants {
         public static final String SEAFILE_ANDROID_UA = "Seafile Android/3.0";
     }
 
+    public static class AccountKeys{
+
+        public final static String ARG_ACCOUNT_TYPE = "ACCOUNT_TYPE";
+        public final static String ARG_ACCOUNT_NAME = "ACCOUNT_NAME";
+        public final static String ARG_SERVER_URI = "SERVER_URI";
+        public final static String ARG_EDIT_OLD_ACCOUNT_NAME = "EDIT_OLD_ACCOUNT";
+        public final static String ARG_EMAIL = "EMAIL";
+        public final static String ARG_CONTACT_EMAIL = "CONTACT_EMAIL";
+        public final static String ARG_AVATAR_URL = "AVATAR_URL";
+        public final static String ARG_SPACE_TOTAL = "SPACE_TOTAL";
+        public final static String ARG_SPACE_USAGE = "SPACE_USAGE";
+        public final static String ARG_NAME = "NAME";
+        public final static String ARG_SHIB = "SHIB";
+        public final static String ARG_LOGIN_TIME = "LOGIN_TIME";
+        public final static String ARG_AUTH_SESSION_KEY = "TWO_FACTOR_AUTH";
+        public final static String ARG_IS_EDITING = "isEdited";
+    }
 
     public static class Account {
         private Account() {

@@ -4,7 +4,10 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.TypeConverters;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.google.gson.annotations.JsonAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.model.BaseModel;
@@ -13,6 +16,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity(tableName = "repos", primaryKeys = {"repo_id", "group_id"})
@@ -46,7 +50,9 @@ public class RepoModel extends BaseModel {
 
     public String related_account;  //related account
 
+
     public String last_modified;
+    public long last_modified_long;//temp field
 
     @JsonAdapter(EncryptFieldJsonAdapter.class)
     public boolean encrypted;
@@ -60,8 +66,6 @@ public class RepoModel extends BaseModel {
     public String salt;
     public String status;
 
-    public long last_modified_long;
-
 
     //
     public String root;
@@ -70,6 +74,19 @@ public class RepoModel extends BaseModel {
     public String random_key;
     public int enc_version;
     public int file_count;
+
+
+    //
+//    public boolean enable_onlyoffice;
+    /**
+     *
+     *
+     */
+    @Ignore
+    public List<String> group_admins;
+    @Ignore
+    public String server_email;
+
 
     public String getSubtitle() {
 
@@ -93,8 +110,24 @@ public class RepoModel extends BaseModel {
         return R.drawable.baseline_repo_24;
     }
 
+    public boolean hasManageRepoPermission() {
+        if (StringUtils.equals(type, "mine")) {
+            return true;
+        }
+
+        if (StringUtils.equals(type, "shared")) {
+            return false;
+        }
+
+        if (CollectionUtils.isEmpty(group_admins)) {
+            return false;
+        }
+
+        return group_admins.contains(server_email);
+    }
+
     /**
-     * You should to check if it's a custom permission firstly
+     * Should check if it's a custom permission firstly
      */
     public boolean hasWritePermission() {
         if (TextUtils.isEmpty(permission)) {
@@ -178,6 +211,7 @@ public class RepoModel extends BaseModel {
                 && Objects.equals(permission, repoModel.permission)
                 && Objects.equals(salt, repoModel.salt)
                 && Objects.equals(status, repoModel.status)
+//                && Objects.equals(enable_onlyoffice, repoModel.enable_onlyoffice)
                 && Objects.equals(root, repoModel.root)
                 && Objects.equals(magic, repoModel.magic)
                 && Objects.equals(random_key, repoModel.random_key);
@@ -207,6 +241,7 @@ public class RepoModel extends BaseModel {
                 is_admin,
                 salt,
                 status,
+//                enable_onlyoffice,
                 last_modified_long,
                 root,
                 magic,

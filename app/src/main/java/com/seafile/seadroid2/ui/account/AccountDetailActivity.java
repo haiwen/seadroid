@@ -75,16 +75,16 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
 
         Intent intent = getIntent();
 
-        String defaultServerUri = intent.getStringExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI);
+        String defaultServerUri = intent.getStringExtra(Constants.AccountKeys.ARG_SERVER_URI);
 
         if (intent.getBooleanExtra("isEdited", false)) {
-            String account_name = intent.getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME);
-            String account_type = intent.getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE);
+            String account_name = intent.getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_NAME);
+            String account_type = intent.getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_TYPE);
             android.accounts.Account account = new android.accounts.Account(account_name, account_type);
 
             android.accounts.AccountManager mAccountManager = android.accounts.AccountManager.get(getBaseContext());
             String server = mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI);
-            String email = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
+            String email = mAccountManager.getUserData(account, Authenticator.KEY_CONTACT_EMAIL);
             String name = mAccountManager.getUserData(account, Authenticator.KEY_NAME);
             mSessionKey = mAccountManager.getUserData(account, Authenticator.SESSION_KEY);
             // isFromEdit = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
@@ -138,17 +138,14 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             }
         });
 
-        getViewModel().getAccountSeafExceptionLiveData().observe(this, new Observer<Pair<Account, SeafException>>() {
+        getViewModel().getRequestAccountResultData().observe(this, new Observer<Pair<Account, SeafException>>() {
             @Override
             public void onChanged(Pair<Account, SeafException> pair) {
-                onLoginException(pair.first, pair.second);
-            }
-        });
-
-        getViewModel().getAccountLiveData().observe(this, new Observer<Account>() {
-            @Override
-            public void onChanged(Account account) {
-                onLoggedIn(account);
+                if (pair.second == SeafException.SUCCESS) {
+                    onLoggedIn(pair.first);
+                } else {
+                    onLoginException(pair.first, pair.second);
+                }
             }
         });
     }
@@ -254,17 +251,18 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         retData.putExtras(getIntent());
         retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, loginAccount.getSignature());
         retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, loginAccount.getToken());
-        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
+        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_TYPE));
 
         //extra params
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_AVATAR_URL, loginAccount.getAvatarUrl());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SPACE_TOTAL, loginAccount.getTotalSpace());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SPACE_USAGE, loginAccount.getUsageSpace());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, loginAccount.getName());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, false);
+        retData.putExtra(Constants.AccountKeys.ARG_AVATAR_URL, loginAccount.getAvatarUrl());
+        retData.putExtra(Constants.AccountKeys.ARG_SPACE_TOTAL, loginAccount.getTotalSpace());
+        retData.putExtra(Constants.AccountKeys.ARG_SPACE_USAGE, loginAccount.getUsageSpace());
+        retData.putExtra(Constants.AccountKeys.ARG_EMAIL, loginAccount.getEmail());
+        retData.putExtra(Constants.AccountKeys.ARG_CONTACT_EMAIL, loginAccount.getContactEmail());
+        retData.putExtra(Constants.AccountKeys.ARG_NAME, loginAccount.getName());
+        retData.putExtra(Constants.AccountKeys.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
+        retData.putExtra(Constants.AccountKeys.ARG_SERVER_URI, loginAccount.getServer());
+        retData.putExtra(Constants.AccountKeys.ARG_SHIB, false);
         retData.putExtra(TWO_FACTOR_AUTH, binding.rememberDevice.isChecked());
         setResult(RESULT_OK, retData);
         finish();
@@ -452,7 +450,13 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
 
-        Account tempAccount = new Account(null, serverURL, email, null, null, false, mSessionKey, String.valueOf(System.currentTimeMillis()));
+        Account tempAccount = new Account();
+        tempAccount.setServer(serverURL);
+        tempAccount.setEmail(email);
+        tempAccount.setContactEmail(email);
+        tempAccount.is_shib = false;
+        tempAccount.setSessionKey(mSessionKey);
+        tempAccount.setLoginTimestamp(System.currentTimeMillis());
         getViewModel().login(tempAccount, passwd, authToken, rememberDevice);
 
     }

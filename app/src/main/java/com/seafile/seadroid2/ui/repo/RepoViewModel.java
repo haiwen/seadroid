@@ -23,6 +23,7 @@ import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
+import com.seafile.seadroid2.framework.db.entities.GroupEntity;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.http.HttpManager;
@@ -56,6 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.reactivex.Flowable;
@@ -251,18 +253,43 @@ public class RepoViewModel extends BaseViewModel {
             getObjListLiveData().setValue(null);
         }
 
-        Single<List<BaseModel>> singleDB = AppDatabase.getInstance()
-                .repoDao()
-                .getListByAccount(account.getSignature())
-                .flatMap(new Function<List<RepoModel>, SingleSource<List<BaseModel>>>() {
+        Single<List<GroupEntity>> groupSingle = AppDatabase.getInstance().groupDao().queryAll();
+        Single<List<BaseModel>> single = groupSingle.flatMap(new Function<List<GroupEntity>, SingleSource<List<RepoModel>>>() {
+            @Override
+            public SingleSource<List<RepoModel>> apply(List<GroupEntity> groupEntities) throws Exception {
+                Single<List<RepoModel>> repoSingle = AppDatabase
+                        .getInstance()
+                        .repoDao()
+                        .getListByAccount(account.getSignature());
+
+                return repoSingle.flatMap(new Function<List<RepoModel>, SingleSource<List<RepoModel>>>() {
                     @Override
-                    public SingleSource<List<BaseModel>> apply(List<RepoModel> repoModels) throws Exception {
-                        List<BaseModel> bs = Objs.convertToAdapterList(repoModels);
-                        return Single.just(bs);
+                    public SingleSource<List<RepoModel>> apply(List<RepoModel> repoModels) throws Exception {
+                        if (CollectionUtils.isNotEmpty(repoModels)) {
+                            for (RepoModel repoModel : repoModels) {
+                                if (CollectionUtils.isNotEmpty(groupEntities)) {
+                                    Optional<GroupEntity> op = groupEntities.stream()
+                                            .filter(f -> f.group_id == repoModel.group_id)
+                                            .findFirst();
+                                    op.ifPresent(groupEntity -> repoModel.group_admins = groupEntity.admins);
+                                }
+
+                                repoModel.server_email = account.getEmail();
+                            }
+                        }
+                        return Single.just(repoModels);
                     }
                 });
+            }
+        }).flatMap(new Function<List<RepoModel>, SingleSource<List<BaseModel>>>() {
+            @Override
+            public SingleSource<List<BaseModel>> apply(List<RepoModel> repoModels) throws Exception {
+                List<BaseModel> bs = Objs.convertToAdapterList(repoModels);
+                return Single.just(bs);
+            }
+        });
 
-        addSingleDisposable(singleDB, new Consumer<List<BaseModel>>() {
+        addSingleDisposable(single, new Consumer<List<BaseModel>>() {
             @Override
             public void accept(List<BaseModel> list) {
                 getObjListLiveData().setValue(list);

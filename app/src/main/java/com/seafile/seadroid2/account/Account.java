@@ -13,6 +13,8 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.URLs;
 import com.seafile.seadroid2.framework.util.Utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Locale;
 
 public class Account extends BaseModel implements Parcelable, Comparable<Account> {
@@ -20,7 +22,8 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
     public String server;
     public String name;
 
-    public String email;
+    public String email;// login/contact_email
+    public String contact_email;
 
     //single sign in
     public boolean is_shib;
@@ -47,24 +50,9 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
         this.avatar_url = avatar_url;
         this.server = server;
         this.email = email;
+        this.contact_email = email;
         this.token = token;
         this.is_shib = is_shib;
-    }
-
-
-    public Account(String name, String server, String email, String avatar_url, String token, Boolean is_shib, String sessionKey, String loginTime) {
-        this.server = server;
-        this.name = name;
-        this.email = email;
-        this.avatar_url = avatar_url;
-        this.token = token;
-        this.sessionKey = sessionKey;
-        this.is_shib = is_shib;
-
-        if (TextUtils.isEmpty(loginTime)) {
-            loginTime = "0";
-        }
-        this.login_time = Long.parseLong(loginTime);
     }
 
     public void setServer(String server) {
@@ -134,6 +122,14 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
 
     public String getEmail() {
         return email;
+    }
+
+    public void setContactEmail(String contact_email) {
+        this.contact_email = contact_email;
+    }
+
+    public String getContactEmail() {
+        return contact_email;
     }
 
     public String getAvatarUrl() {
@@ -232,7 +228,16 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
      * NOTICE: Do not modify the splicing format of this string
      */
     public String getSignature() {
-        return String.format("%s (%s)", getServerNoProtocol(), email);
+        String m;
+        // email = 550ea33e14f82aab7da71be0d13fa@auth.local
+        // contact_email = xxx@gmail.com
+        if (StringUtils.isNotEmpty(contact_email) && email.endsWith("@auth.local")){
+            m = contact_email;
+        }else {
+            m = email;
+        }
+
+        return String.format("%s (%s)", getServerNoProtocol(), m);
     }
 
     public String getEncryptSignature() {
@@ -251,6 +256,24 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
 
     public boolean hasValidToken() {
         return !TextUtils.isEmpty(token);
+    }
+
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "server='" + server + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", contact_email='" + contact_email + '\'' +
+                ", is_shib=" + is_shib +
+                ", token='" + token + '\'' +
+                ", sessionKey='" + sessionKey + '\'' +
+                ", avatar_url='" + avatar_url + '\'' +
+                ", login_time=" + login_time +
+                ", usage=" + usage +
+                ", total=" + total +
+                '}';
     }
 
     @Override
