@@ -42,7 +42,6 @@ import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
-import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
@@ -136,11 +135,12 @@ public class MainActivity extends BaseActivity {
     private void resetOverflowIcon() {
         Drawable more = ContextCompat.getDrawable(getBaseContext(), R.drawable.icon_more_vertical_32_18);
         if (more != null) {
-            NightMode nm = Settings.NIGHT_MODE.queryValue();
+            String nms = Settings.NIGHT_MODE.queryValue();
+            int nm = Integer.parseInt(nms);
             int c;
-            if (nm == NightMode.OFF) {
+            if (nm == AppCompatDelegate.MODE_NIGHT_NO) {
                 c = R.color.material_grey_900;
-            } else if (nm == NightMode.ON) {
+            } else if (nm == AppCompatDelegate.MODE_NIGHT_YES) {
                 c = R.color.material_grey_200;
             } else if (isNightActive()) {
                 c = R.color.material_grey_200;
@@ -454,11 +454,11 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        Settings.NIGHT_MODE.observe(this, new Observer<NightMode>() {
+        Settings.NIGHT_MODE.observe(this, new Observer<String>() {
             @Override
-            public void onChanged(NightMode nightMode) {
+            public void onChanged(String nightMode) {
 //                if (checkCanApply(nightMode)) {
-                onUserApplyNightMode(nightMode);
+                onUserApplyNightMode(Integer.parseInt(nightMode));
 //                }
             }
         });
@@ -641,57 +641,59 @@ public class MainActivity extends BaseActivity {
     private int lastNightMode;
     private int lastOrientation;
 
-    /**
-     * @see MainActivity -> android:configChanges="uiMode|orientation|screenSize"
-     */
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if (lastOrientation != newConfig.orientation) {
-//            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//                ToastUtils.showLong("LANDSCAPE");
-//            } else {
-//                ToastUtils.showLong("PORTRAIT");
+//    /**
+//     * @see MainActivity -> android:configChanges="uiMode|orientation|screenSize"
+//     */
+//    @Override
+//    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//        if (lastOrientation != newConfig.orientation) {
+////            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+////                ToastUtils.showLong("LANDSCAPE");
+////            } else {
+////                ToastUtils.showLong("PORTRAIT");
+//
+//            lastOrientation = newConfig.orientation;
+//        }
+//
+////        int newNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+////        if (newNightMode != lastNightMode) {
+////            lastNightMode = newNightMode;
+////            if (newNightMode == Configuration.UI_MODE_NIGHT_NO) {
+////                onSystemApplyNightMode(NightMode.OFF);
+////            } else if (newNightMode == Configuration.UI_MODE_NIGHT_YES) {
+////                onSystemApplyNightMode(NightMode.ON);
+////            }
+////        }
+//    }
 
-            lastOrientation = newConfig.orientation;
-        }
-
-        int newNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (newNightMode != lastNightMode) {
-            lastNightMode = newNightMode;
-            if (newNightMode == Configuration.UI_MODE_NIGHT_NO) {
-                onSystemApplyNightMode(NightMode.OFF);
-            } else if (newNightMode == Configuration.UI_MODE_NIGHT_YES) {
-                onSystemApplyNightMode(NightMode.ON);
-            }
-        }
-    }
-
-    private void onUserApplyNightMode(NightMode nightMode) {
+    private void onUserApplyNightMode(Integer nightMode) {
         if (nightMode == null) {
             return;
         }
+        AppCompatDelegate.setDefaultNightMode(nightMode);
 
-        AppCompatDelegate.setDefaultNightMode(nightMode.ordinal());
-        Settings.NIGHT_MODE.putValue(nightMode);
+//        Settings.NIGHT_MODE.putValue(nightMode);
 
-        restartThis();
+//        recreate();
+
+//        restartThis();
     }
 
-    private void onSystemApplyNightMode(NightMode futureNightMode) {
-        if (futureNightMode == null) {
-            return;
-        }
-
-        NightMode localMode = Settings.NIGHT_MODE.queryValue();
-        if (localMode != NightMode.FOLLOW_SYSTEM) {
-            return;
-        }
-
-        AppCompatDelegate.setDefaultNightMode(futureNightMode.ordinal());
-
-        restartThis();
-    }
+//    private void onSystemApplyNightMode(NightMode futureNightMode) {
+//        if (futureNightMode == null) {
+//            return;
+//        }
+//
+////        NightMode localMode = Settings.NIGHT_MODE.queryValue();
+////        if (localMode != NightMode.FOLLOW_SYSTEM) {
+////            return;
+////        }
+//
+////        AppCompatDelegate.setDefaultNightMode(futureNightMode.ordinal());
+////
+////        restartThis();
+//    }
 
     private boolean isNightActive() {
         int newNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;

@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.BoolRes;
 import androidx.annotation.IntegerRes;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
@@ -49,6 +50,12 @@ public class SeadroidApplication extends Application {
 
         //
         Settings.initUserSettings();
+
+        // init night mode
+        if (Settings.NIGHT_MODE != null) {
+            String nm = Settings.NIGHT_MODE.queryValue();
+            AppCompatDelegate.setDefaultNightMode(Integer.parseInt(nm));
+        }
 
         // Lock the app on cold start if biometric lock is enabled
         AppLockManager.lockIfEnabled();
