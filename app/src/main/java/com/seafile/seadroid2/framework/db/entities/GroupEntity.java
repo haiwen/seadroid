@@ -4,8 +4,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.adapter.GroupQuotaUsageAdapter;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ public class GroupEntity extends BaseModel {
 
     public String created_at;
     public List<String> admins;
-    public long group_quota; // < 0:no limit
+    public long group_quota = 0; // < 0:no limit
+    @JsonAdapter(GroupQuotaUsageAdapter.class)
     public long group_quota_usage;
 }
