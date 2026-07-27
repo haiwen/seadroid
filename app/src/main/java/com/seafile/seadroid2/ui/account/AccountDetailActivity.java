@@ -54,6 +54,8 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SLogs.d(DEBUG_TAG, "onCreate");
+
         binding = AccountDetailBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
