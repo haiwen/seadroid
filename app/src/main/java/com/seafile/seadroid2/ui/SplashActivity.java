@@ -65,20 +65,6 @@ public class SplashActivity extends BaseActivity {
 
     }
 
-    private void initAppNightMode() {
-        //
-        Settings.initUserSettings();
-
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
-            String nightMode = Settings.NIGHT_MODE.queryValue();
-            if (nightMode == null) {
-                return;
-            }
-            int nightModeInt = Integer.parseInt(nightMode);
-            AppCompatDelegate.setDefaultNightMode(nightModeInt);
-        }
-    }
-
     private void navTo() {
         Account curAccount = SupportAccountManager.getInstance().getCurrentAccount();
         if (!AppDataManager.isMigratedWhenV300()) {
