@@ -62,6 +62,10 @@ public class StarredModel extends BaseModel implements Parcelable {
         return TextUtils.equals("/", path) && is_dir;
     }
 
+    public boolean isDir() {
+        return !TextUtils.equals("/", path) && is_dir;
+    }
+
     public int getIcon() {
         if (is_dir) {
             if (isRepo()) {

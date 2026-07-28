@@ -1315,7 +1315,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         //different repo
-        getViewModel().getRepoModelEntity(repoId, new Consumer<RepoModel>() {
+        getViewModel().getRepoModelEntity(getCurrentAccount(),repoId, new Consumer<RepoModel>() {
             @Override
             public void accept(RepoModel repoModel) throws Exception {
                 if (repoModel == null) {

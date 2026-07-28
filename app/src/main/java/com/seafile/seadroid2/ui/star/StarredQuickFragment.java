@@ -30,16 +30,17 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
+import com.seafile.seadroid2.databinding.FragmentStarredBinding;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.ServerInfo;
-import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.WidgetUtils;
@@ -57,21 +58,22 @@ import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
+import com.seafile.seadroid2.ui.selector.OpSelectorViewModel;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
 import java.util.List;
-import java.util.Locale;
 
 import io.reactivex.functions.Consumer;
 import kotlin.Pair;
 
 public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
     private MainViewModel mainViewModel;
-    private LayoutFrameSwipeRvBinding binding;
+    private OpSelectorViewModel opSelectorViewModel;
+    private FragmentStarredBinding binding;
     private StarredAdapter adapter;
     private boolean isSelectMode = false;
-    private Account account;
+    private Account currentAccount;
 
     public static StarredQuickFragment newInstance() {
         return newInstance(null, false);
@@ -96,24 +98,30 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             if (args.containsKey("isSelectMode")) {
                 isSelectMode = args.getBoolean("isSelectMode");
             }
+
             if (args.containsKey("accountSignature")) {
                 String s = args.getString("accountSignature");
-                account = SupportAccountManager.getInstance().getSpecialAccount(s);
+                currentAccount = SupportAccountManager.getInstance().getSpecialAccount(s);
             }
         }
 
-        if (account == null) {
-            account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (currentAccount == null) {
+            currentAccount = SupportAccountManager.getInstance().getCurrentAccount();
         }
 
-        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-        registerResultLauncher();
+        if (isSelectMode) {
+            opSelectorViewModel = new ViewModelProvider(requireActivity()).get(OpSelectorViewModel.class);
+        } else {
+            mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+            registerResultLauncher();
+        }
+
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = LayoutFrameSwipeRvBinding.inflate(inflater, container, false);
+        binding = FragmentStarredBinding.inflate(inflater, container, false);
         binding.swipeRefreshLayout.setSaveEnabled(false);
         binding.swipeRefreshLayout.setSaveFromParentEnabled(false);
         binding.rv.setSaveEnabled(false);
@@ -127,8 +135,8 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         super.onViewCreated(view, savedInstanceState);
 
 
+        initView();
         initAdapter();
-
         initViewModel();
 
         reload();
@@ -146,79 +154,57 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         }
     }
 
-    private void initAdapter() {
-        adapter = new StarredAdapter();
-        adapter.setSelectMode(isSelectMode);
-        adapter.setServerUrl(account.getServer());
-
-        TextView tipView = TipsViews.getTipTextView(requireContext());
-        tipView.setText(R.string.no_starred_file);
-        tipView.setOnClickListener(v -> reload());
-        adapter.setStateView(tipView);
-        adapter.setStateViewEnable(false);
-
-        adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
-
-            if (isSelectMode) {
-                int selectedItemPosition = adapter.getSingleSelectedItemPosition();
-                if (selectedItemPosition == i) {
-                    toggleAdapterItemSelectedState(i);
-                } else {
-                    resetAdapterItemSelectedState();
-                    toggleAdapterItemSelectedState(i);
+    private void initView() {
+        if (isSelectMode) {
+            binding.returnTo.setVisibility(View.VISIBLE);
+            binding.returnTo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    returnTo();
                 }
-            } else {
-                StarredModel starredModel = adapter.getItems().get(i);
-                navTo(starredModel);
-            }
-
-        });
-
-        adapter.addOnItemChildClickListener(R.id.expandable_toggle_button, new BaseQuickAdapter.OnItemChildClickListener<StarredModel>() {
-            @Override
-            public void onItemClick(@NonNull BaseQuickAdapter<StarredModel, ?> baseQuickAdapter, @NonNull View view, int i) {
-                showBottomSheet(adapter.getItems().get(i));
-            }
-        });
-
-        binding.rv.setAdapter(createAdapterHelper(adapter).getAdapter());
-    }
-
-    private void showErrorTip(SeafException seafException) {
-        adapter.submitList(null);
-        TextView tipView = TipsViews.getTipTextView(requireContext());
-        String msg = getString(R.string.error_when_load_starred);
-        msg += "\n\n" + seafException.getMessage();
-        tipView.setText(msg);
-        adapter.setStateView(tipView);
-        adapter.setStateViewEnable(true);
-    }
-
-    private void resetAdapterItemSelectedState() {
-        for (StarredModel item : adapter.getItems()) {
-            item.is_checked = false;
-        }
-        adapter.notifyDataSetChanged();
-    }
-
-    private void toggleAdapterItemSelectedState(int i) {
-        StarredModel model = adapter.getItems().get(i);
-        model.is_checked = !model.is_checked;
-        adapter.set(i, model);
-    }
-
-    @Nullable
-    public StarredModel getSingleSelectedModel() {
-        int selectedItemPosition = adapter.getSingleSelectedItemPosition();
-        if (selectedItemPosition == -1) {
-            return null;
+            });
+        } else {
+            binding.returnTo.setVisibility(View.GONE);
         }
 
-        if (selectedItemPosition >= adapter.getItems().size()) {
-            return null;
-        }
+    }
 
-        return adapter.getItems().get(selectedItemPosition);
+    private void returnTo() {
+        opSelectorViewModel.pop();
+
+        setReturnStyle();
+
+        reload();
+    }
+
+    private void setReturnStyle() {
+        if (opSelectorViewModel.isNavEmpty()) {
+            setReturnStyle(false);
+        } else {
+            setReturnStyle(true);
+        }
+    }
+
+    private void setReturnStyle(boolean isEnable) {
+        binding.returnTo.setEnabled(isEnable);
+        if (isEnable) {
+            binding.returnTo.setVisibility(View.VISIBLE);
+            binding.returnTo.animate()
+                    .alpha(1f)
+                    .setDuration(400)
+                    .start();
+        } else {
+            binding.returnTo.animate()
+                    .alpha(0f)
+                    .setDuration(400)
+                    .withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.returnTo.setVisibility(View.GONE);
+                        }
+                    })
+                    .start();
+        }
     }
 
     private void initViewModel() {
@@ -243,14 +229,14 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             }
         });
 
-        getViewModel().getListLiveData().observe(getViewLifecycleOwner(), new Observer<List<StarredModel>>() {
+        getViewModel().getListLiveData().observe(getViewLifecycleOwner(), new Observer<List<BaseModel>>() {
             @Override
-            public void onChanged(List<StarredModel> starredModels) {
-                if (CollectionUtils.isEmpty(starredModels)) {
+            public void onChanged(List<BaseModel> models) {
+                if (CollectionUtils.isEmpty(models)) {
                     adapter.setStateViewEnable(true);
                 }
 
-                adapter.notifyDataChanged(starredModels);
+                adapter.submitList(models);
             }
         });
 
@@ -279,31 +265,99 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         });
     }
 
-    private void reload() {
+    private void initAdapter() {
+        adapter = new StarredAdapter();
+        adapter.setSelectMode(isSelectMode);
+        adapter.setServerUrl(currentAccount.getServer());
+
+        TextView tipView = TipsViews.getTipTextView(requireContext());
+        tipView.setText(R.string.no_starred_file);
+        tipView.setOnClickListener(v -> reload());
+        adapter.setStateView(tipView);
         adapter.setStateViewEnable(false);
-        getViewModel().loadData(account);
+
+        adapter.setOnItemClickListener((baseQuickAdapter, view, i) -> {
+            BaseModel starredModel = adapter.getItems().get(i);
+            navTo(starredModel);
+        });
+
+        adapter.addOnItemChildClickListener(R.id.expandable_toggle_button, new BaseQuickAdapter.OnItemChildClickListener<BaseModel>() {
+            @Override
+            public void onItemClick(@NonNull BaseQuickAdapter<BaseModel, ?> baseQuickAdapter, @NonNull View view, int i) {
+                showBottomSheet(adapter.getItems().get(i));
+            }
+        });
+
+        binding.rv.setAdapter(adapter);
     }
 
-    private void showBottomSheet(StarredModel model) {
+
+    private void showErrorTip(SeafException seafException) {
+        adapter.submitList(null);
+        TextView tipView = TipsViews.getTipTextView(requireContext());
+        String msg = getString(R.string.error_when_load_starred);
+        msg += "\n\n" + seafException.getMessage();
+        tipView.setText(msg);
+        adapter.setStateView(tipView);
+        adapter.setStateViewEnable(true);
+    }
+
+
+    private void reload() {
+        adapter.setStateViewEnable(false);
+        if (isSelectMode) {
+            android.util.Pair<String, String> pair = opSelectorViewModel.getStarredNavContextRepoIdAndName();
+            if (pair == null) {
+                setReturnStyle(false);
+
+                getViewModel().loadData(currentAccount);
+            } else {
+                setReturnStyle(true);
+
+                String repoID = pair.first;
+                String repoName = pair.second;
+                String dir = opSelectorViewModel.getStarredPath();
+
+                getViewModel().loadDirentsFromRemote(currentAccount, repoID, repoName, dir);
+            }
+
+        } else {
+            getViewModel().loadData(currentAccount);
+        }
+    }
+
+    private void showBottomSheet(BaseModel model) {
+        if (model instanceof DirentModel) {
+            return;
+        }
+
+        StarredModel starredModel = (StarredModel) model;
         BottomSheetMenuFragment.Builder builder = BottomSheetHelper.buildSheet(requireActivity(), R.menu.bottom_sheet_unstarred, new OnMenuClickListener() {
             @Override
             public void onMenuClick(MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.nav_to) {
-                    MainActivity.navToThis(requireContext(), model.repo_id, model.repo_name, model.path, model.is_dir);
+                    MainActivity.navToThis(requireContext(), starredModel.repo_id, starredModel.repo_name, starredModel.path, starredModel.is_dir);
                 } else if (menuItem.getItemId() == R.id.unstar) {
-                    getViewModel().unStarItem(model.repo_id, model.path);
+                    getViewModel().unStarItem(starredModel.repo_id, starredModel.path);
                 }
             }
         });
 
-        if (model.deleted) {
+        if (starredModel.deleted) {
             builder.removeMenu(R.id.nav_to);
         }
 
         builder.show(getChildFragmentManager(), StarredQuickFragment.class.getSimpleName());
     }
 
-    private void navTo(StarredModel starredModel) {
+    private void navTo(BaseModel model) {
+        if (model instanceof DirentModel d) {
+            opSelectorViewModel.pushDir(d.repo_id, d.repo_name, d.name);
+            reload();
+            return;
+        }
+
+        StarredModel starredModel = (StarredModel) model;
         if (!starredModel.deleted) {
             decryptRepo(starredModel);
         } else if (starredModel.isRepo()) {
@@ -331,25 +385,25 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                             @Override
                             public void onResultData(RepoModel repoModel) {
                                 if (repoModel != null) {
-                                    open(model);
+                                    openResult(model);
                                 }
                             }
                         });
                     } else if (TextUtils.equals(i, "done")) {
-                        open(model);
+                        openResult(model);
                     } else {
                         getViewModel().remoteVerify(model.repo_id, i, new Consumer<ResultModel>() {
                             @Override
                             public void accept(ResultModel r) throws Exception {
                                 if (r.success) {
-                                    open(model);
+                                    openResult(model);
                                 } else {
                                     Toasts.show(r.error_msg);
                                     showPasswordDialogCallback(model.repo_id, model.repo_name, new OnResultListener<RepoModel>() {
                                         @Override
                                         public void onResultData(RepoModel repoModel) {
                                             if (repoModel != null) {
-                                                open(model);
+                                                openResult(model);
                                             }
                                         }
                                     });
@@ -360,7 +414,31 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
                 }
             });
         } else {
+            openResult(model);
+        }
+    }
+
+    @OptIn(markerClass = UnstableApi.class)
+    private void openResult(StarredModel model) {
+        if (isSelectMode) {
+            navInto(model);
+        } else {
             open(model);
+        }
+    }
+
+    private void navInto(StarredModel model) {
+        if (model.isRepo()) {
+            // repo
+            opSelectorViewModel.pushRepoAndName(model.repo_id, model.repo_name);
+            reload();
+        } else if (model.isDir()) {
+            // dir
+            opSelectorViewModel.pushDir(model.repo_id,model.repo_name, model.path);
+            reload();
+        } else {
+            // file
+
         }
     }
 
@@ -380,7 +458,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
             imagePreviewActivityLauncher.launch(getIntent);
 
         } else if (model.obj_name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
-            SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name,false);
+            SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name, false);
 
         } else if (Utils.isOnlyOfficeFile(model.obj_name) && serverInfo.isEnableOnlyOffice()) {
             OfficeDocumentWebActivity.openDocument(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);

@@ -14,6 +14,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.GsonUtils;
@@ -27,13 +28,13 @@ import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityVersatileSelectorBinding;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.versatile.RecentlyUsedModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
-import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetNewDirFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.selector.versatile.RecentlyUsedFragment;
@@ -45,11 +46,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import io.reactivex.functions.Consumer;
 import kotlin.Triple;
 
-public class OpSelectorActivity extends BaseActivity {
+public class OpSelectorActivity extends BaseActivityWithVM<OpSelectorViewModel> {
 
     public enum OpSelectorType {
         COPY(0),
@@ -121,6 +122,16 @@ public class OpSelectorActivity extends BaseActivity {
         initView();
         initTabLayout();
         initViewPager();
+        initViewModel();
+    }
+
+    private void initViewModel() {
+        getViewModel().getSecondRefreshLiveData().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                showLoadingDialog(aBoolean);
+            }
+        });
     }
 
     private void receiveParams() {
@@ -318,28 +329,53 @@ public class OpSelectorActivity extends BaseActivity {
     }
 
     private void onOkClicked() {
-        Intent intent = null;
         int index = binding.pager.getCurrentItem();
-        if (index == 0) {
-            intent = setIntent(0);
-        } else if (index == 1) {
-            if (opSelectorTypeType == OpSelectorType.COPY) {
-                intent = setIntent(1);
-            } else if (opSelectorTypeType == OpSelectorType.MOVE) {
-                intent = setIntent(1);
-            } else {
-                intent = setStarredIntent(1);
+        if (index == 1 && opSelectorTypeType == OpSelectorType.SHARE) {
+            Pair<String, String> pair = getViewModel().getStarredNavContextRepoIdAndName();
+            if (pair == null) {
+                Toasts.show(R.string.choose_a_library);
+                return;
             }
-        } else if (index == 2) {
-            intent = setRecentlyIntent(2);
+
+            checkRepoPermission(pair.first, new java.util.function.Consumer<Boolean>() {
+                @Override
+                public void accept(Boolean canWrite) {
+                    if (canWrite) {
+                        Intent intent = setStarredIntent();
+                        if (null == intent) {
+                            return;
+                        }
+
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    } else {
+                        Toasts.show(R.string.library_read_only);
+                    }
+                }
+            });
+        } else {
+            Intent intent = null;
+            if (index == 0) {
+                intent = setIntent(0);
+            } else if (index == 1) {
+                if (opSelectorTypeType == OpSelectorType.COPY) {
+                    intent = setIntent(1);
+                } else if (opSelectorTypeType == OpSelectorType.MOVE) {
+                    intent = setIntent(1);
+                }
+            } else if (index == 2) {
+                intent = setRecentlyIntent(2);
+            }
+
+            if (null == intent) {
+                return;
+            }
+
+            setResult(RESULT_OK, intent);
+            finish();
         }
 
-        if (null == intent) {
-            return;
-        }
 
-        setResult(RESULT_OK, intent);
-        finish();
     }
 
     private Triple<String, String, String> getVersatileRepoSelectorBackupInfo(int selectedIndex) {
@@ -387,7 +423,8 @@ public class OpSelectorActivity extends BaseActivity {
         return intent;
     }
 
-    private Intent setStarredIntent(int selectedIndex) {
+    private Intent setStarredIntent() {
+
         Intent intent = new Intent();
 
         Bundle bundle = getIntent().getExtras();
@@ -395,15 +432,18 @@ public class OpSelectorActivity extends BaseActivity {
             intent.putExtras(bundle);
         }
 
-        StarredQuickFragment starredQuickFragment = (StarredQuickFragment) fragments.get(selectedIndex);
-        StarredModel starredModel = starredQuickFragment.getSingleSelectedModel();
-        if (starredModel == null) {
+        Pair<String, String> pair = getViewModel().getStarredNavContextRepoIdAndName();
+        if (pair == null) {
+            Toasts.show(R.string.choose_a_library);
             return null;
         }
-
-        String repoName = starredModel.repo_name;
-        String repoID = starredModel.repo_id;
-        String dir = starredModel.path;
+        String repoID = pair.first;
+        String repoName = pair.second;
+        String dir = getViewModel().getStarredPath();
+        if (TextUtils.isEmpty(dir)) {
+            Toasts.show(R.string.choose_a_folder);
+            return null;
+        }
 
         intent.putExtra(ObjKey.ACCOUNT, mAccount);
         intent.putExtra(ObjKey.REPO_NAME, repoName);
@@ -414,6 +454,36 @@ public class OpSelectorActivity extends BaseActivity {
         saveRecentlyUsedModelIfNotExists(repoID, repoName, dir);
 
         return intent;
+    }
+
+    private void checkRepoPermission(String repoId, java.util.function.Consumer<Boolean> consumer) {
+        // check permission
+        getViewModel().getRepoModelAndPermissionEntity(mAccount, repoId, new Consumer<Pair<RepoModel, PermissionEntity>>() {
+            @Override
+            public void accept(android.util.Pair<RepoModel, PermissionEntity> pair) throws Exception {
+                RepoModel repoModel = pair.first;
+                PermissionEntity permissionEntity = pair.second;
+                if (repoModel == null) {
+                    if (consumer != null) {
+                        consumer.accept(false);
+                    }
+                } else if (repoModel.isCustomPermission()) {
+                    if (permissionEntity == null) {
+                        if (consumer != null) {
+                            consumer.accept(false);
+                        }
+                    } else {
+                        if (consumer != null) {
+                            consumer.accept(permissionEntity.canWrite());
+                        }
+                    }
+                } else {
+                    if (consumer != null) {
+                        consumer.accept(repoModel.hasWritePermission());
+                    }
+                }
+            }
+        });
     }
 
     private Intent setRecentlyIntent(int selectedIndex) {

@@ -23,6 +23,7 @@ public class AbsLayoutItemType {
     public static final int DB_LIST = 101;
 
     public static final int WIKI = 200;
+    public static final int STARRED = 300;
 
 
 }
