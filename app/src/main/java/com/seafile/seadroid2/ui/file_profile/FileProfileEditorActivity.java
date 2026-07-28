@@ -184,7 +184,11 @@ public class FileProfileEditorActivity extends BaseActivityWithVM<SDocViewModel>
         getViewModel().getSecondRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                showLoadingDialog(aBoolean);
+                if (aBoolean) {
+                    showLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                }
             }
         });
 

@@ -135,10 +135,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
             // ignore
         }
 
-        if (!url.endsWith("/")) {
-            url += "/shib-login";
-        } else
-            url += "shib-login";
+        url = Utils.pathJoin(url, "shib-login");
 
         //local device id
         String deviceId = DeviceIdManager.getInstance().getOrSet();
@@ -254,14 +251,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
     class CustomWebviewClient extends WebViewClient {
         @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            // Display error messages
-            Toasts.show(String.format((R.string.shib_load_page_error) + description));
-
-            showPageLoading(false);
-        }
-
-        @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             SLogs.d(TAG, "onReceivedSslError " + error.getCertificate().toString());
 
@@ -298,6 +287,12 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
             super.onReceivedError(view, request, error);
             SLogs.e(TAG, "onReceivedError " + request.getUrl(), error.getDescription().toString());
+
+            // Display error messages
+            String errStr = getString(R.string.shib_load_page_error);
+            Toasts.show(errStr + error.getDescription());
+
+            showPageLoading(false);
         }
 
         @Override
