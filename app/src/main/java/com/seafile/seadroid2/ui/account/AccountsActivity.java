@@ -23,7 +23,6 @@ import com.blankj.utilcode.util.AppUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.databinding.StartBinding;
-import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
@@ -44,8 +43,6 @@ import com.seafile.seadroid2.ui.main.MainActivity;
 
 import java.util.List;
 import java.util.Locale;
-
-import io.reactivex.functions.Consumer;
 
 public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountsActivity";

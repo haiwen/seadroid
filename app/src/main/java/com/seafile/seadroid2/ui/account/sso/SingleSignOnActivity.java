@@ -1,9 +1,16 @@
 package com.seafile.seadroid2.ui.account.sso;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.InetAddresses;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -13,8 +20,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NavUtils;
-import androidx.core.app.TaskStackBuilder;
 import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -24,21 +29,16 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.SingleSignOnWelcomeLayoutBinding;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.account.SeafileAuthenticatorActivity;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Single Sign-On welcome page
- * <p/>
  */
 public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewModel> implements Toolbar.OnMenuItemClickListener {
     public static final String DEBUG_TAG = "SingleSignOnActivity";
@@ -48,6 +48,7 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
     private SingleSignOnWelcomeLayoutBinding binding;
 
     private ActivityResultLauncher<Intent> authLauncher;
+    private boolean _SsoStatusPeriodicityStatus = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +64,19 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (timer != null) {
+                finish();
+            }
+        });
+
+        setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if (_SsoStatusPeriodicityStatus) {
+                    _SsoStatusPeriodicityStatus = false;
+
                     stopAction();
-                    if (isDialogShowing()) {
-                        dismissLoadingDialog();
-                    }
-                } else {
-                    finish();
+
+                    dismissLoadingDialog();
                 }
             }
         });
@@ -108,6 +115,7 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.shib_login_title);
@@ -121,10 +129,9 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -133,7 +140,11 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                showLoadingDialog(aBoolean);
+                if (aBoolean) {
+                    showLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                }
             }
         });
 
@@ -168,15 +179,25 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         getViewModel().getSsoStatusLiveData().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                SLogs.e(s);
-                startDelayedAction();
+                if (TextUtils.isEmpty(s)) {
+                    _SsoStatusPeriodicityStatus = false;
+
+                    dismissLoadingDialog();
+                } else {
+                    startDelayedAction();
+                }
             }
         });
 
         getViewModel().getAccountLiveData().observe(this, new Observer<Account>() {
             @Override
             public void onChanged(Account account) {
-                onLoggedIn(account);
+                _SsoStatusPeriodicityStatus = false;
+                dismissLoadingDialog();
+
+                if (account != null) {
+                    onLoggedIn(account);
+                }
             }
         });
     }
@@ -199,12 +220,29 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
             return false;
         }
 
-        String serverUrl1 = hostUrl
-                .toLowerCase(Locale.ROOT)
-                .replace("https://", "")
-                .replace("http://", "");
-        if (TextUtils.isEmpty(serverUrl1)) {
+        Uri uri = Uri.parse(hostUrl);
+        String host = uri.getHost();
+        if (TextUtils.isEmpty(host)) {
             Toasts.show(R.string.err_server_andress_empty);
+            return false;
+        }
+
+        host = host.toLowerCase(Locale.ROOT);
+        int port = uri.getPort();
+        if (port != -1 && (port < 1 || port > 65535)) {
+            Toasts.show(R.string.invalid_server_address);
+            return false;
+        }
+
+        boolean isValidDomain = Patterns.DOMAIN_NAME.matcher(host).matches();
+        boolean isValidIp;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            isValidIp = InetAddresses.isNumericAddress(host);
+        } else {
+            isValidIp = Patterns.IP_ADDRESS.matcher(host).matches();
+        }
+        if (!isValidDomain && !isValidIp) {
+            Toasts.show(R.string.invalid_server_address);
             return false;
         }
 
@@ -247,13 +285,22 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
     @Override
     protected void onRestart() {
         super.onRestart();
-        getSsoStatus();
+
+        if (!TextUtils.isEmpty(ssoLink)) {
+            _SsoStatusPeriodicityStatus = true;
+
+            showLoadingDialog();
+
+            startDelayedAction();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        getViewModel().getRefreshLiveData().setValue(false);
+
+        dismissLoadingDialog();
+
         stopAction();
     }
 
@@ -290,37 +337,24 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
     }
 
 
-    private Timer timer;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable delayedSsoStatusAction = this::getSsoStatus;
 
     public void startDelayedAction() {
-        if (timer != null) {
-            timer.cancel();
-        }
-
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new TimerTask() {
-                    @Override
-                    public void run() {
-                        getSsoStatus();
-                    }
-                });
-            }
-        }, 2 * 1000);
+        stopAction();
+        handler.postDelayed(delayedSsoStatusAction, 2 * 1000L);
     }
 
     public void stopAction() {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
+        handler.removeCallbacks(delayedSsoStatusAction);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        dismissLoadingDialog();
+
         stopAction();
     }
 }

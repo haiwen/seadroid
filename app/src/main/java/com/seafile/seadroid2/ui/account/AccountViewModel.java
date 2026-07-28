@@ -170,7 +170,7 @@ public class AccountViewModel extends BaseViewModel {
 
         getRefreshLiveData().setValue(true);
 
-        Single<ServerInfoModel> serverInfoSingle = HttpManager.getCurrentHttp().execute(MainService.class).getServerInfo();
+        Single<ServerInfoModel> serverInfoSingle = HttpManager.getHttpWithAccount(loginAccount).execute(MainService.class).getServerInfo();
         Single<Account> acc = serverInfoSingle.flatMap(new Function<ServerInfoModel, SingleSource<ServerInfoModel>>() {
             @Override
             public SingleSource<ServerInfoModel> apply(ServerInfoModel serverInfoModel) throws Exception {

@@ -72,7 +72,6 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.StringUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.listener.Callback;
 import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
@@ -342,7 +341,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         getViewModel().getSecondRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                showLoadingDialog(aBoolean);
+                if (aBoolean) {
+                    showLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                }
             }
         });
 

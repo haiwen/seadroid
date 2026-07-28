@@ -47,6 +47,7 @@ public class SingleSignOnViewModel extends BaseViewModel {
 
     public void loadServerInfo(String host) {
         getRefreshLiveData().setValue(true);
+
         Account tempAccount = new Account();
         tempAccount.is_shib = true;
         tempAccount.server = host;
@@ -65,20 +66,13 @@ public class SingleSignOnViewModel extends BaseViewModel {
 
                 String errMsg = getErrorMsgByThrowable(throwable);
                 Toasts.show(errMsg);
-                ServerInfoModel serverInfoModel = new ServerInfoModel();
-                serverInfoModel.features =new ArrayList<>();
-                serverInfoModel.features.add("seafile-basic");
-                serverInfoModel.features.add("seafile-pro");
-                serverInfoModel.features.add("file-search");
-
-                getServerInfoLiveData().setValue(serverInfoModel);
-
             }
         });
     }
 
     public void getSsoLink(String host) {
         getRefreshLiveData().setValue(true);
+
         Account tempAccount = new Account();
         tempAccount.is_shib = true;
         tempAccount.server = host;
@@ -100,7 +94,7 @@ public class SingleSignOnViewModel extends BaseViewModel {
     }
 
     public void getSsoStatus(String host, String token) {
-        getRefreshLiveData().setValue(true);
+
         Account tempAccount = new Account();
         tempAccount.is_shib = true;
         tempAccount.server = host;
@@ -110,19 +104,17 @@ public class SingleSignOnViewModel extends BaseViewModel {
         addSingleDisposable(serverSingle, new Consumer<SSOStatusModel>() {
             @Override
             public void accept(SSOStatusModel model) throws Exception {
-
                 if (TextUtils.equals("success", model.status)) {
                     tempAccount.token = model.apiToken;
                     tempAccount.email = model.username;
                     loadAccountInfo(tempAccount);
-                }else {
+                } else {
                     getSsoStatusLiveData().setValue(model.status);
                 }
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                getRefreshLiveData().setValue(false);
                 getSsoStatusLiveData().setValue(null);
             }
         });
@@ -145,17 +137,16 @@ public class SingleSignOnViewModel extends BaseViewModel {
                 loginAccount.login_time = System.currentTimeMillis();
                 loginAccount.is_shib = true;
 
-                getRefreshLiveData().setValue(false);
                 getAccountLiveData().setValue(loginAccount);
 
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                getRefreshLiveData().setValue(false);
+                getAccountLiveData().setValue(null);
 
                 SeafException seafException = getSeafExceptionByThrowable(throwable);
-                getSeafExceptionLiveData().setValue(seafException);
+                Toasts.show(seafException.getMessage());
             }
         });
     }

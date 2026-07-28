@@ -6,13 +6,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -119,33 +116,30 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isDialogShowing() {
-        if (loadingDialog == null) {
-            return false;
-        }
+    private DialogInterface.OnDismissListener listener;
 
-        return loadingDialog.isShowing();
-    }
-
-    public void showLoadingDialog(boolean isShow) {
-        if (isShow) {
-            showLoadingDialog();
-        } else {
-            dismissLoadingDialog();
-        }
+    public void setOnDismissListener(DialogInterface.OnDismissListener listener) {
+        this.listener = listener;
     }
 
     public void showLoadingDialog() {
+        showLoadingDialog(true);
+    }
+
+    public void showLoadingDialog(boolean cancelable) {
         if (loadingDialog == null) {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setCancelable(false);
+            builder.setCancelable(cancelable);
             builder.setView(R.layout.layout_dialog_progress_bar);
-            builder.setCancelable(false);
             loadingDialog = builder.create();
             loadingDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface iDialog) {
                     // delay dismiss
+                    if (listener != null) {
+                        listener.onDismiss(iDialog);
+                    }
+
                     if (pendingDismissRunnable != null && loadingDialog != null && loadingDialog.getWindow() != null) {
                         loadingDialog.getWindow().getDecorView().removeCallbacks(pendingDismissRunnable);
                     }

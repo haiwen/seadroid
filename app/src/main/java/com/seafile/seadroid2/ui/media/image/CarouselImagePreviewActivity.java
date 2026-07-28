@@ -317,7 +317,11 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         getViewModel().getRefreshLiveData().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                showLoadingDialog(aBoolean);
+                if (aBoolean) {
+                    showLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                }
             }
         });
 
