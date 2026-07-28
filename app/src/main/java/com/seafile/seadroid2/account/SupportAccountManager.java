@@ -97,7 +97,7 @@ public class SupportAccountManager {
 
     /**
      * save current Account info to SharedPreference<br>
-     * <strong>current</strong> means the Account is now in using at the foreground if has multiple accounts
+     * <strong>current</strong> means the Account is now in using at the foreground if it has multiple accounts
      */
     public void saveCurrentAccount(String accountSignature) {
 
@@ -190,8 +190,6 @@ public class SupportAccountManager {
     }
 
     public void updateAccountInfo(Account account) {
-        // email = asdfaasdfasdffwdf@local
-        // contact_email = zhwanng@163.ocm
         android.accounts.Account androidAccount = account.getAndroidAccount();
 
         setUserData(androidAccount, Authenticator.KEY_EMAIL, account.getEmail());

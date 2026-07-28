@@ -1,14 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/return_to"
         android:layout_width="match_parent"
-        android:visibility="gone"
         android:layout_height="wrap_content"
         android:foreground="?android:selectableItemBackground"
         android:gravity="center_vertical"
@@ -18,11 +17,11 @@
 
         <ImageView
             android:id="@+id/return_to_icon"
+            app:tint="@color/item_title_color"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:padding="4dp"
-            android:src="@drawable/baseline_return_to_24"
-            app:tint="@color/item_title_color" />
+            android:src="@drawable/baseline_return_to_24" />
 
         <TextView
             android:id="@+id/return_to_title"
@@ -35,9 +34,9 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:gravity="end"
-            android:layout_marginStart="8dp"
             android:orientation="horizontal">
 
             <TextView
@@ -55,16 +54,13 @@
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent">
 
         <com.seafile.seadroid2.view.LinearRecyclerView
             android:id="@+id/rv"
+            style="@style/Widget.RecyclerView.Style"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="32dp"
-            tools:listitem="@layout/item_dirent" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="match_parent" />
 
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

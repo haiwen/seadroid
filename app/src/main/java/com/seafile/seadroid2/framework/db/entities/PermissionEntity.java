@@ -31,6 +31,10 @@ public class PermissionEntity extends BaseModel {
     public PermissionEntity() {
     }
 
+    public boolean canWrite() {
+        return create || modify;
+    }
+
     /**
      * @return false if the permission is empty
      */

@@ -505,8 +505,8 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    public void getRepoModelEntity(String repoId, Consumer<RepoModel> consumer) {
-        Single<List<RepoModel>> r = AppDatabase.getInstance().repoDao().getRepoById(repoId);
+    public void getRepoModelEntity(Account account, String repoId, Consumer<RepoModel> consumer) {
+        Single<List<RepoModel>> r = AppDatabase.getInstance().repoDao().getRepoById(account.getSignature(), repoId);
         addSingleDisposable(r, new Consumer<List<RepoModel>>() {
             @Override
             public void accept(List<RepoModel> rs) throws Exception {

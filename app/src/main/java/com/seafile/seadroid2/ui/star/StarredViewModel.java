@@ -5,28 +5,38 @@ import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
+import com.seafile.seadroid2.context.NavContext;
+import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.framework.crypto.SecurePasswordManager;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
+import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
+import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.http.HttpManager;
+import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.TResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.Objs;
+import com.seafile.seadroid2.framework.util.Utils;
+import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.dialog_fragment.DialogService;
 import com.seafile.seadroid2.ui.file.FileService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -36,10 +46,10 @@ import kotlin.Pair;
 import okhttp3.RequestBody;
 
 public class StarredViewModel extends BaseViewModel {
-    private final MutableLiveData<List<StarredModel>> listLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<BaseModel>> listLiveData = new MutableLiveData<>();
     private final MutableLiveData<Pair<String, ResultModel>> UnStarredResultLiveData = new MutableLiveData<>();
 
-    public MutableLiveData<List<StarredModel>> getListLiveData() {
+    public MutableLiveData<List<BaseModel>> getListLiveData() {
         return listLiveData;
     }
 
@@ -202,7 +212,7 @@ public class StarredViewModel extends BaseViewModel {
             @Override
             public void accept(List<StarredModel> starredModels) throws Exception {
                 getRefreshLiveData().setValue(false);
-                getListLiveData().setValue(starredModels);
+                getListLiveData().setValue(new ArrayList<>(starredModels));
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -226,6 +236,42 @@ public class StarredViewModel extends BaseViewModel {
             @Override
             public void accept(ResultModel resultModel) throws Exception {
                 getUnStarredResultLiveData().setValue(new Pair<>(path, resultModel));
+            }
+        });
+    }
+
+    public void loadDirentsFromRemote(Account account, String repoId, String repoName, String parentDir) {
+        if (!NetworkUtils.isConnected()) {
+            getRefreshLiveData().setValue(false);
+            return;
+        }
+
+        getRefreshLiveData().setValue(true);
+
+        if (!parentDir.endsWith("/")) {
+            parentDir = parentDir + "/";
+        }
+
+        Single<List<DirentModel>> direntSingle = Objs.getDirentsSingleFromServer(account, repoId, repoName, parentDir);
+        addSingleDisposable(direntSingle, new Consumer<List<DirentModel>>() {
+            @Override
+            public void accept(List<DirentModel> direntModels) throws Exception {
+                getListLiveData().setValue(new ArrayList<>(direntModels));
+                getRefreshLiveData().setValue(false);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getRefreshLiveData().setValue(false);
+                getListLiveData().setValue(null);
+
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
+                if (seafException == SeafException.REMOTE_WIPED_EXCEPTION) {
+                    //post a request
+                    completeRemoteWipe();
+                }
+
+                getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }

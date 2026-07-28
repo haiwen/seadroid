@@ -22,7 +22,7 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
     public String server;
     public String name;
 
-    public String email;// login/contact_email
+    public String email;
     public String contact_email;
 
     //single sign in
@@ -228,16 +228,7 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
      * NOTICE: Do not modify the splicing format of this string
      */
     public String getSignature() {
-        String m;
-        // email = 550ea33e14f82aab7da71be0d13fa@auth.local
-        // contact_email = xxx@gmail.com
-        if (StringUtils.isNotEmpty(contact_email) && email.endsWith("@auth.local")){
-            m = contact_email;
-        }else {
-            m = email;
-        }
-
-        return String.format("%s (%s)", getServerNoProtocol(), m);
+        return String.format("%s (%s)", getServerNoProtocol(), email);
     }
 
     public String getEncryptSignature() {
