@@ -49,9 +49,15 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     public static final int OTHER_SERVER = 2;
 
     private static final int REQ_SIGNUP = 1;
+    private static final String STATE_PENDING_FLOW = "pending_flow";
+    private static final int FLOW_NONE = 0;
+    private static final int FLOW_ACCOUNT_DETAIL = 1;
+    private static final int FLOW_SSO = 2;
 
     private final String DEBUG_TAG = this.getClass().getSimpleName();
     private ActivityResultLauncher<Intent> activityLauncher;
+    private int pendingFlow = FLOW_NONE;
+    private boolean hasLaunchedChildFlow;
 
     /**
      * Called when the activity is first created.
@@ -61,6 +67,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
+        if (savedInstanceState != null) {
+            pendingFlow = savedInstanceState.getInt(STATE_PENDING_FLOW, FLOW_NONE);
+        }
+
         setContentView(R.layout.account_create_type_select);
 
         applyEdgeToEdge(findViewById(R.id.root_layout));
@@ -68,7 +78,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult o) {
-                if (o == null) {
+                pendingFlow = FLOW_NONE;
+                hasLaunchedChildFlow = false;
+
+                if (o == null || o.getData() == null) {
                     finish();
                     return;
                 }
@@ -103,6 +116,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = null;
+                int flow = FLOW_NONE;
 
                 if (!isZH) {
                     id++;
@@ -112,41 +126,30 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
                     intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                     intent.putExtras(getIntent());
                     intent.putExtra(Constants.AccountKeys.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
+                    flow = FLOW_ACCOUNT_DETAIL;
                 } else if (id == SINGLE_SIGN_ON_LOGIN) {
                     intent = new Intent(SeafileAuthenticatorActivity.this, SingleSignOnActivity.class);
                     intent.putExtras(getIntent());
+                    flow = FLOW_SSO;
                 } else if (id == OTHER_SERVER) {
                     intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                     intent.putExtras(getIntent());
+                    flow = FLOW_ACCOUNT_DETAIL;
                 }
 
-
                 if (intent != null) {
-                    activityLauncher.launch(intent);
+                    launchAuthFlow(intent, flow);
                 }
 
             }
         });
 
-        if (getIntent().getBooleanExtra(Constants.AccountKeys.ARG_SHIB, false)) {
-
-            Intent intent = new Intent(this, SingleSignOnActivity.class);
-            Account account = new Account(getIntent().getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_NAME), Constants.Account.ACCOUNT_TYPE);
-
-            String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
-            intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
-            if (getIntent() != null) {
-                intent.putExtras(getIntent().getExtras());
+        if (!maybeRestoreAuthFlow()) {
+            if (getIntent().getBooleanExtra(Constants.AccountKeys.ARG_SHIB, false)) {
+                launchSingleSignOnFlow();
+            } else if (getIntent().getBooleanExtra(Constants.AccountKeys.ARG_IS_EDITING, false)) {
+                launchEditAccountFlow();
             }
-            activityLauncher.launch(intent);
-
-        } else if (getIntent().getBooleanExtra(Constants.AccountKeys.ARG_IS_EDITING, false)) {
-
-            Intent intent = new Intent(this, AccountDetailActivity.class);
-            if (getIntent() != null) {
-                intent.putExtras(getIntent().getExtras());
-            }
-            activityLauncher.launch(intent);
         }
 
         Toolbar toolbar = getActionBarToolbar();
@@ -159,6 +162,60 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
                 navigateUpOrBack(SeafileAuthenticatorActivity.this, null);
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt(STATE_PENDING_FLOW, pendingFlow);
+        super.onSaveInstanceState(outState);
+    }
+
+    private boolean maybeRestoreAuthFlow() {
+        if (hasLaunchedChildFlow || pendingFlow == FLOW_NONE) {
+            return false;
+        }
+
+        if (pendingFlow == FLOW_SSO) {
+            launchSingleSignOnFlow();
+            return true;
+        }
+
+        if (pendingFlow == FLOW_ACCOUNT_DETAIL) {
+            launchEditAccountFlow();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void launchSingleSignOnFlow() {
+        Intent intent = new Intent(this, SingleSignOnActivity.class);
+        Account account = new Account(getIntent().getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_NAME), Constants.Account.ACCOUNT_TYPE);
+
+        String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
+        intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
+        if (getIntent() != null) {
+            intent.putExtras(getIntent().getExtras());
+        }
+        launchAuthFlow(intent, FLOW_SSO);
+    }
+
+    private void launchEditAccountFlow() {
+        Intent intent = new Intent(this, AccountDetailActivity.class);
+        if (getIntent() != null) {
+            intent.putExtras(getIntent().getExtras());
+        }
+        launchAuthFlow(intent, FLOW_ACCOUNT_DETAIL);
+    }
+
+    private void launchAuthFlow(Intent intent, int flow) {
+        if (hasLaunchedChildFlow) {
+            return;
+        }
+
+        pendingFlow = flow;
+        hasLaunchedChildFlow = true;
+        activityLauncher.launch(intent);
     }
 
     /**
