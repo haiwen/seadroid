@@ -352,6 +352,10 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
 
     private void navTo(BaseModel model) {
         if (model instanceof DirentModel d) {
+            if (!d.isDir()){
+                return;
+            }
+
             opSelectorViewModel.pushDir(d.repo_id, d.repo_name, d.name);
             reload();
             return;

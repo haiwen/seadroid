@@ -22,7 +22,7 @@ public class Account extends BaseModel implements Parcelable, Comparable<Account
     public String server;
     public String name;
 
-    public String email;// login/contact_email
+    public String email;
     public String contact_email;
 
     //single sign in
