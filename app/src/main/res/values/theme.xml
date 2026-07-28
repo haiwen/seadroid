@@ -47,8 +47,6 @@
         <!-- Another way to hide the divider line of the PreferenceCategory -->
         <!--        <item name="preferenceCategoryStyle">@style/Widget.PreferenceCategory</item>-->
 
-        <item name="colorAccent">@color/fancy_orange</item>
-
         <!-- Primary -->
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
@@ -57,12 +55,12 @@
         <item name="colorSecondary">@color/md_theme_secondary</item>
         <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
 
+        <!-- background/font/icon colors -->
         <item name="colorSurface">@color/md_theme_surface</item>
         <item name="colorOnSurface">@color/md_theme_onSurface</item>
-
-        <item name="android:colorControlNormal">@color/fancy_light_black</item>
-        <item name="android:colorControlActivated">@color/fancy_orange</item>
-        <item name="android:colorControlHighlight">@color/fancy_light_black</item>
+        <item name="colorControlNormal">?attr/colorOnSurface</item> <!-- from colorOnSurface -->
+        <item name="colorControlActivated">@color/fancy_orange</item>
+        <item name="colorAccent">@color/fancy_orange</item> <!-- Compatible with older components or third-party lib -->
 
         <item name="minTouchTargetSize">0dp</item>
     </style>

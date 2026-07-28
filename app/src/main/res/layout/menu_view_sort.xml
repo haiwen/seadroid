@@ -7,6 +7,6 @@
     android:foreground="@drawable/ripple_icon_middle"
     android:scaleType="centerInside"
     android:src="@drawable/icon_sort"
-    app:iconTint="@color/navigation_bar_icon_tint_color">
+    app:iconTint="?attr/colorControlNormal">
 
 </ImageView>

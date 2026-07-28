@@ -12,9 +12,9 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FileViewType;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.enums.NetworkMode;
-import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.preferences.livedata.BooleanSettingLiveData;
 import com.seafile.seadroid2.preferences.livedata.EnumSettingLiveData;
+import com.seafile.seadroid2.preferences.livedata.IntegerSettingLiveData;
 import com.seafile.seadroid2.preferences.livedata.LongSettingLiveData;
 import com.seafile.seadroid2.preferences.livedata.StringSettingLiveData;
 
@@ -30,9 +30,9 @@ public class Settings {
     private static Account _account;
     private static SharedPreferences sharedPreferences;
 
-    //////////////////
+    /// ///////////////
     /// app settings
-    //////////////////
+    /// ///////////////
     public static final SettingsLiveData<FileViewType> FILE_LIST_VIEW_TYPE = new EnumSettingLiveData<>(FileViewType.class, R.string.pref_key_file_list_view_type, R.string.pref_default_value_file_list_view_type);
     public static final SettingsLiveData<SortBy> FILE_LIST_SORT_BY = new EnumSettingLiveData<>(SortBy.class, R.string.pref_key_file_list_sort_options, R.string.pref_default_value_file_list_options);
     public static final SettingsLiveData<Boolean> FILE_LIST_SORT_ASCENDING = new BooleanSettingLiveData(R.string.pref_key_file_list_sort_ascending);
@@ -46,13 +46,13 @@ public class Settings {
     public static SettingsLiveData<Boolean> BIOMETRIC_LOCK_SWITCH;
     public static SettingsLiveData<String> LOCK_TIMEOUT;
 
-    //////////////////
+    /// ///////////////
     /// user settings
-    //////////////////
+    /// ///////////////
     public static SettingsLiveData<String> USER_INFO;
     public static SettingsLiveData<String> SPACE_INFO;
     public static SettingsLiveData<String> USER_SERVER_INFO;
-    public static SettingsLiveData<NightMode> NIGHT_MODE;
+    public static SettingsLiveData<String> NIGHT_MODE;
 
     @Deprecated
     public static SettingsLiveData<Boolean> USER_GESTURE_LOCK_SWITCH;
@@ -148,13 +148,14 @@ public class Settings {
         USER_INFO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_user_info, R.string.settings_account_info_load_data);
         SPACE_INFO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_user_space, R.string.settings_account_info_load_data);
         USER_SERVER_INFO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_user_server, Resources.ID_NULL);
-        NIGHT_MODE = new EnumSettingLiveData<>(NightMode.class, _account.getEncryptSignature(), R.string.pref_key_night_mode, R.string.pref_default_value_night_mode);
+        NIGHT_MODE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_night_mode, R.string.pref_default_value_night_mode);
+
 //        CLIENT_ENCRYPT_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_security_client_encrypt);
 
 //        USER_GESTURE_LOCK_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_gesture_lock);
 //        USER_GESTURE_LOCK_TIMESTAMP = new LongSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_gesture_lock_timestamp, R.string.pref_default_value_key_gesture_lock_timestamp);
 
-        BACKUP_SETTINGS_BACKGROUND_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(),R.string.pref_key_backup_settings_turn_on_background_switch);
+        BACKUP_SETTINGS_BACKGROUND_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_backup_settings_turn_on_background_switch);
         //album backup advance
         ALBUM_BACKUP_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_switch);
         ALBUM_BACKUP_SELECTED_REPO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_repo_select, Resources.ID_NULL);

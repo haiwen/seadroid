@@ -174,6 +174,9 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         viewModel = new ViewModelProvider(this).get(SettingsFragmentViewModel.class);
+        viewHandler = new Handler(Looper.getMainLooper());
+
+
     }
 
     @Override
@@ -191,14 +194,21 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewHandler = new Handler(Looper.getMainLooper());
-
-        initViewModel();
-
-        registerResultLauncher();
 
         getListView().setPadding(0, 0, 0, Constants.DP.DP_32);
         getListView().setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.window_background_color));
+
+        initViewModel();
+
+        initPref();
+
+        initPrefLiveData();
+
+        initWorkerBusObserver();
+
+        registerResultLauncher();
+
+        onFirstResume();
     }
 
     private void initViewModel() {
@@ -217,34 +227,17 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         });
     }
 
-    private boolean isFirstLoadData = true;
-
     @Override
     public void onResume() {
         super.onResume();
-        if (isFirstLoadData) {
-
-            onFirstResume();
-
-            isFirstLoadData = false;
-        }
 
         // Reinforce biometric switch on every resume (e.g., returning from another tab)
         syncBiometricSwitchState();
 
-        if (canLoad()) {
-            loadData();
-        }
+        loadData();
     }
 
     public void onFirstResume() {
-        initPref();
-
-        initPrefLiveData();
-
-        initWorkerBusObserver();
-
-
         // delay updates to avoid flickering
         runMainThreadDelay(() -> {
             switchAlbumBackupState(mAlbumBackupSwitch.isChecked());
@@ -256,18 +249,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             syncBiometricSwitchState();
         });
 
-    }
-
-
-    private long last_time = 0L;
-
-    private boolean canLoad() {
-        long now = TimeUtils.getNowMills();
-        if (now - last_time > 60000) {//1m
-            last_time = now;
-            return true;
-        }
-        return false;
     }
 
     private void initPref() {

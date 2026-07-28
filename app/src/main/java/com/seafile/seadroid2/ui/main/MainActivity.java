@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -23,6 +24,7 @@ import android.widget.LinearLayout;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -42,7 +44,6 @@ import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
-import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
@@ -79,6 +80,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SLogs.e(TAG, "onCreate");
         if (!isTaskRoot()) {
             final Intent intent = getIntent();
             final String intentAction = getIntent().getAction();
@@ -87,9 +89,6 @@ public class MainActivity extends BaseActivity {
                 return;
             }
         }
-
-        lastOrientation = getResources().getConfiguration().orientation;
-        lastNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -134,22 +133,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void resetOverflowIcon() {
-        Drawable more = ContextCompat.getDrawable(getBaseContext(), R.drawable.icon_more_vertical_32_18);
-        if (more != null) {
-            NightMode nm = Settings.NIGHT_MODE.queryValue();
-            int c;
-            if (nm == NightMode.OFF) {
-                c = R.color.material_grey_900;
-            } else if (nm == NightMode.ON) {
-                c = R.color.material_grey_200;
-            } else if (isNightActive()) {
-                c = R.color.material_grey_200;
-            } else {
-                c = R.color.material_grey_900;
-            }
-            more.setColorFilter(ContextCompat.getColor(getApplicationContext(), c), PorterDuff.Mode.SRC_ATOP);
-            binding.toolbarActionbar.setOverflowIcon(more);
-        }
+        binding.toolbarActionbar.setOverflowIcon(AppCompatResources.getDrawable(this, R.drawable.icon_more_vertical_32_18));
     }
 
     private void applyEdgeToEdgeInsets() {
@@ -272,10 +256,12 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        SLogs.e(TAG, "onStart");
     }
 
     @Override
     protected void onDestroy() {
+        SLogs.e(TAG, "onStart");
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
 
         stopWatching();
@@ -291,6 +277,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        SLogs.e(TAG, "onStart");
     }
 
     @Override
@@ -361,6 +348,24 @@ public class MainActivity extends BaseActivity {
         binding.pager.setUserInputEnabled(false);
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("pagerIndex", binding.pager.getCurrentItem());
+        outState.putInt("navItemId", binding.navBottomView.getSelectedItemId());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.containsKey("pagerIndex")) {
+            binding.pager.setCurrentItem(savedInstanceState.getInt("pagerIndex"));
+        }
+        if (savedInstanceState.containsKey("navItemId")) {
+            binding.navBottomView.setSelectedItemId(savedInstanceState.getInt("navItemId"));
+        }
+    }
+
     private static final long DOUBLE_TAP_TIMEOUT = 300;
     private int lastReselectItemId = View.NO_ID;
     private long lastReselectTime = 0L;
@@ -408,6 +413,9 @@ public class MainActivity extends BaseActivity {
 
     private void onBottomNavItemSingleReselect(MenuItem item) {
         SLogs.d(TAG, "onBottomNavItemSingleReselect:" + item.getTitle());
+
+        // refresh actionbar if needed
+        refreshActionbar();
     }
 
     private void onBottomNavigationSelected(MenuItem menuItem) {
@@ -454,11 +462,11 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        Settings.NIGHT_MODE.observe(this, new Observer<NightMode>() {
+        Settings.NIGHT_MODE.observe(this, new Observer<String>() {
             @Override
-            public void onChanged(NightMode nightMode) {
+            public void onChanged(String nightMode) {
 //                if (checkCanApply(nightMode)) {
-                onUserApplyNightMode(nightMode);
+                onUserApplyNightMode(Integer.parseInt(nightMode));
 //                }
             }
         });
@@ -638,65 +646,19 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private int lastNightMode;
-    private int lastOrientation;
-
-    /**
-     * @see MainActivity -> android:configChanges="uiMode|orientation|screenSize"
-     */
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if (lastOrientation != newConfig.orientation) {
-//            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//                ToastUtils.showLong("LANDSCAPE");
-//            } else {
-//                ToastUtils.showLong("PORTRAIT");
-
-            lastOrientation = newConfig.orientation;
-        }
-
-        int newNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (newNightMode != lastNightMode) {
-            lastNightMode = newNightMode;
-            if (newNightMode == Configuration.UI_MODE_NIGHT_NO) {
-                onSystemApplyNightMode(NightMode.OFF);
-            } else if (newNightMode == Configuration.UI_MODE_NIGHT_YES) {
-                onSystemApplyNightMode(NightMode.ON);
-            }
-        }
-    }
-
-    private void onUserApplyNightMode(NightMode nightMode) {
+    private void onUserApplyNightMode(Integer nightMode) {
         if (nightMode == null) {
             return;
         }
+        AppCompatDelegate.setDefaultNightMode(nightMode);
 
-        AppCompatDelegate.setDefaultNightMode(nightMode.ordinal());
-        Settings.NIGHT_MODE.putValue(nightMode);
+//        Settings.NIGHT_MODE.putValue(nightMode);
 
-        restartThis();
+        recreate();
+
+//        restartThis();
     }
 
-    private void onSystemApplyNightMode(NightMode futureNightMode) {
-        if (futureNightMode == null) {
-            return;
-        }
-
-        NightMode localMode = Settings.NIGHT_MODE.queryValue();
-        if (localMode != NightMode.FOLLOW_SYSTEM) {
-            return;
-        }
-
-        AppCompatDelegate.setDefaultNightMode(futureNightMode.ordinal());
-
-        restartThis();
-    }
-
-    private boolean isNightActive() {
-        int newNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return newNightMode == Configuration.UI_MODE_NIGHT_YES;
-    }
 
     //todo replace by recreate()
     private void restartThis() {

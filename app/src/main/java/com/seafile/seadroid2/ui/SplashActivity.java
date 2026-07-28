@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
@@ -12,14 +11,12 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.splashscreen.SplashScreen;
 
 import com.blankj.utilcode.util.ActivityUtils;
-import com.seafile.seadroid2.framework.util.AppLockManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.compat.AppCompatKt;
-import com.seafile.seadroid2.enums.NightMode;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.util.AppLockManager;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.base.BaseActivity;
@@ -39,8 +36,6 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        initAppNightMode();
 
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
 
@@ -68,23 +63,6 @@ public class SplashActivity extends BaseActivity {
                     navTo();
                 });
 
-    }
-
-    private void initAppNightMode() {
-        //
-        Settings.initUserSettings();
-
-        if (Settings.NIGHT_MODE != null) {
-            NightMode nightMode = Settings.NIGHT_MODE.queryValue();
-            if (nightMode == NightMode.FOLLOW_SYSTEM) {
-                int lastNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                AppCompatDelegate.setDefaultNightMode(lastNightMode);
-            } else {
-                AppCompatDelegate.setDefaultNightMode(nightMode.ordinal());
-            }
-        } else {
-            AppCompatDelegate.setDefaultNightMode(NightMode.FOLLOW_SYSTEM.ordinal());
-        }
     }
 
     private void navTo() {
