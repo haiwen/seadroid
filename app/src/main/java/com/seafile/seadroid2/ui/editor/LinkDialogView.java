@@ -9,11 +9,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.seafile.seadroid2.R;
 
 public class LinkDialogView extends LinearLayout {
-    private EditText mDescriptionEditText;
-    private EditText mLinkEditText;
+    private TextInputEditText mDescriptionEditText;
+    private TextInputEditText mLinkEditText;
 
     public LinkDialogView(Context context) {
         super(context);
@@ -33,8 +34,8 @@ public class LinkDialogView extends LinearLayout {
 
     private void init(Context context) {
         View v = LayoutInflater.from(context).inflate(R.layout.dialog_link, this, true);
-        mDescriptionEditText = (EditText) v.findViewById(R.id.edit_description_link);
-        mLinkEditText = (EditText) v.findViewById(R.id.edit_link);
+        mDescriptionEditText =  v.findViewById(R.id.edit_description_link);
+        mLinkEditText =  v.findViewById(R.id.edit_link);
     }
 
     public void clear() {

@@ -57,7 +57,7 @@
     <color name="bar_background_color">@color/white</color>
     <color name="bar_title_color">@color/material_grey_900</color>
     <color name="bar_icon_tint_color">@color/material_grey_900</color>
-    <color name="swipe_refresh_background_color">@color/material_grey_109</color>
+    <color name="swipe_refresh_background_color">@color/material_grey_88</color>
     <color name="child_activity_background_color">@color/white</color>
     <color name="popup_window_background_color">@color/white</color>
 
@@ -68,6 +68,7 @@
     <!-- bottom sheet popup view -->
     <color name="bottom_sheet_pop_enable_color">@color/material_grey_666</color>
     <color name="bottom_sheet_pop_disable_color">@color/material_grey_300</color>
+    <color name="bottom_sheet_input_background_color">@color/material_grey_200</color>
 
     <!-- toolbar bar color -->
     <color name="toolbar_progress_bar_background_color">@color/material_grey_50</color>
@@ -88,11 +89,8 @@
 
     <color name="alert_dialog_background_color">#f2f2f2</color>
     <color name="alert_dialog_onsurface_color">#191919</color>
-
     <color name="switch_thumb_color">@color/fancy_orange</color>
     <color name="switch_track_color">#E3E3E3</color>
-
-    <color name="edit_text_background_color">@color/material_grey_88</color>
 
     <!-- search -->
     <color name="search_bg_color">@color/white</color>

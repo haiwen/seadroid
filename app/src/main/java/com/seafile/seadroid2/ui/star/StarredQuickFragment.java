@@ -218,7 +218,11 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         getViewModel().getSecondRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                showLoadingDialog(aBoolean);
+                if (aBoolean) {
+                    showLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                }
             }
         });
 

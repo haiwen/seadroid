@@ -29,13 +29,15 @@
             android:id="@+id/server_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/server_hint">
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/server_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:hint="@string/server_hint"
                 android:importantForAutofill="auto"
                 android:inputType="textUri"
                 android:textSize="@dimen/et_txt_size" />
@@ -45,17 +47,19 @@
             android:id="@+id/email_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/app_widget_top_margin_small"
-            android:hint="@string/email_hint"
-            app:endIconMode="clear_text"
+            android:layout_marginTop="@dimen/app_widget_top_margin_middle"
+            app:boxBackgroundMode="none"
             app:endIconDrawable="@drawable/baseline_close_24"
-            app:endIconTint="@color/bar_title_color">
+            app:endIconMode="clear_text"
+            app:endIconTint="@color/bar_title_color"
+            app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:hint="@string/email_hint"
                 android:importantForAutofill="auto"
                 android:inputType="textEmailAddress"
                 android:textSize="@dimen/et_txt_size" />
@@ -66,12 +70,13 @@
             android:id="@+id/password_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/app_widget_top_margin_small"
-            android:hint="@string/passwd_hint"
+            android:layout_marginTop="@dimen/app_widget_top_margin_middle"
             android:orientation="horizontal"
+            app:boxBackgroundMode="none"
             app:endIconDrawable="@drawable/selector_password_toggle"
             app:endIconMode="password_toggle"
             app:endIconTint="@color/bar_title_color"
+            app:hintEnabled="false"
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -79,6 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:hint="@string/passwd_hint"
                 android:importantForAutofill="auto"
                 android:inputType="textPassword" />
 
@@ -89,7 +95,7 @@
             android:id="@+id/auth_token_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/app_widget_top_margin_small"
+            android:layout_marginTop="@dimen/app_widget_top_margin_middle"
             android:hint="@string/two_factor_auth_token"
             android:visibility="gone">
 

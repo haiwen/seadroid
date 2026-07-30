@@ -6,4 +6,13 @@
         <item name="android:windowBackground">@color/black</item>
     </style>
 
+    <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/App.Widget.BottomSheetDialog</item>
+        <item name="colorSurfaceContainerLow">?attr/bottomSheetBackgroundColor</item>
+        <item name="colorSurfaceContainer">?attr/bottomSheetBackgroundColor</item>
+        <item name="colorSurfaceContainerHigh">?attr/bottomSheetBackgroundColor</item>
+        <item name="android:windowSoftInputMode">adjustNothing</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
 </resources>

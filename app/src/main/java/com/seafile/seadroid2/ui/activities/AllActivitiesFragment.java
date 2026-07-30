@@ -243,7 +243,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         getViewModel().getSecondRefreshLiveData().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                showLoadingDialog(aBoolean);
+                if (aBoolean) {
+                    showLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                }
             }
         });
 

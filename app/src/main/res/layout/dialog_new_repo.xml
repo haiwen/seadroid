@@ -35,13 +35,12 @@
             app:hintEnabled="false"
             app:passwordToggleDrawable="@drawable/selector_password_toggle"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/alert_dialog_onsurface_color">
+            app:passwordToggleTint="@color/primary_icon_tint_color">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_pwd1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/shape_solid_grey88_radius_8"
                 android:hint="@string/passwd_min_len_limit_hint"
                 android:importantForAutofill="auto"
                 android:inputType="textPassword"
@@ -60,17 +59,15 @@
             app:hintEnabled="false"
             app:passwordToggleDrawable="@drawable/selector_password_toggle"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="@color/alert_dialog_onsurface_color">
+            app:passwordToggleTint="@color/primary_icon_tint_color">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_text_pwd2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/shape_solid_grey88_radius_8"
                 android:hint="@string/passwd_confirmation_hint"
                 android:importantForAutofill="auto"
-                android:inputType="textPassword"
-                android:textSize="14sp" />
+                android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

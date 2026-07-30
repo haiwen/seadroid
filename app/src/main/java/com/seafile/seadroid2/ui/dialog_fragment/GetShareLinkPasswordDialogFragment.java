@@ -11,6 +11,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -91,7 +92,7 @@ public class GetShareLinkPasswordDialogFragment extends RequestBottomSheetDialog
             });
 
             TextInputLayout daysTextInput = getDialogView().findViewById(R.id.days_text_input);
-            EditText daysTextView = getDialogView().findViewById(R.id.days);
+            TextInputEditText daysTextView = getDialogView().findViewById(R.id.days);
             daysTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

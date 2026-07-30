@@ -89,58 +89,22 @@
         <item name="android:dropDownHorizontalOffset">-10dip</item>
         <item name="android:dropDownWidth">wrap_content</item>
 
-        <item name="android:background">?attr/colorSurface</item>
-        <item name="android:popupBackground">?attr/colorSurface</item>
+        <item name="android:background">?attr/bottomSheetBackgroundColor</item>
+        <item name="android:popupBackground">?attr/bottomSheetBackgroundColor</item>
 
     </style>
 
     <!-- App.BottomSheet -->
     <style name="App.Widget.BottomSheetDialog" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="backgroundTint">?attr/colorSurface</item>
+        <item name="backgroundTint">?attr/bottomSheetBackgroundColor</item>
         <item name="shapeAppearance">@style/ShapeAppearance.App.LargeComponent</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <style name="ShapeAppearance.App.LargeComponent" parent="ShapeAppearance.Material3.LargeComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>
     </style>
-
-
-    <!-- App.AlertDialog -->
-    <style name="App.AppCompat.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="alertDialogStyle">@style/App.AppCompat.AlertDialog.Material3</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/App.AppCompat.AlertDialog.Title
-        </item>
-
-        <item name="android:background">@color/white</item>
-
-        <item name="buttonBarPositiveButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
-        <item name="buttonBarNegativeButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
-        <item name="buttonBarNeutralButtonStyle">@style/App.AppCompat.AlertDialog.Button</item>
-
-        <!--        <item name="android:windowElevation">0dp</item>-->
-
-        <item name="colorPrimary">@color/white</item>
-        <item name="colorSecondary">@color/md_theme_secondary</item>
-        <item name="colorSurface">@color/alert_dialog_background_color</item>
-        <item name="colorOnSurface">@color/md_theme_onSurface</item>
-    </style>
-
-    <style name="App.AppCompat.AlertDialog.Title" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">@color/light_black</item>
-        <item name="android:textSize">20sp</item>
-    </style>
-
-    <style name="App.AppCompat.AlertDialog.Button" parent="Widget.Material3.Button.TextButton.Dialog">
-        <item name="android:textColor">@color/fancy_orange</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-
-    <style name="App.AppCompat.AlertDialog.Material3" parent="MaterialAlertDialog.Material3">
-        <item name="shapeAppearance">@style/ShapeAppearance.App.LargeComponent</item>
-        <item name="shapeAppearanceOverlay">@null</item>
-    </style>
-
 
     <!-- App.Button.OutlinedButton -->
     <style name="App.Widget.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
@@ -176,17 +140,19 @@
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
         <item name="hintTextColor">?attr/colorOnSurface</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.MediumComponent</item>
+        <item name="android:background">@drawable/sheet_dialog_input_shape</item>
     </style>
 
     <style name="ThemeOverlay.App.TextInputLayout" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
         <item name="colorPrimary">@color/item_title_color</item>
         <item name="colorOnSurface">@color/item_title_color</item>
         <item name="colorError">@color/red</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <!-- App.EditText -->
     <style name="App.Widget.EditText" parent="Widget.AppCompat.EditText">
-        <item name="android:background">@drawable/shape_solid_grey88_radius_8</item>
+        <item name="android:background">@drawable/sheet_dialog_input_shape</item>
         <item name="android:textColor">@color/bar_title_color</item>
         <item name="android:textSize">14sp</item>
         <item name="android:paddingHorizontal">16dp</item>
@@ -202,7 +168,7 @@
 
     <style name="Widget.Material3.Preference.SimpleMenuPreference.PopupMenu" parent="Widget.Preference.SimpleMenuPreference.PopupMenu">
         <!--        <item name="android:popupBackground">@drawable/m3_popupmenu_background_overlay</item>-->
-<!--        <item name="android:background">@color/white</item>"-->
+        <!--        <item name="android:background">@color/white</item>"-->
     </style>
 
     <style name="Preference.Material3.SwitchPreferenceCompat" parent="Preference.SwitchPreferenceCompat.Material">

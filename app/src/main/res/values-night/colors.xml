@@ -64,6 +64,7 @@
     <!-- bottom sheet popup view -->
     <color name="bottom_sheet_pop_enable_color">@color/bar_title_color</color>
     <color name="bottom_sheet_pop_disable_color">@color/material_grey_666</color>
+    <color name="bottom_sheet_input_background_color">@color/material_grey_800</color>
 
     <!-- toolbar bar color -->
     <color name="toolbar_progress_bar_background_color">@color/material_grey_700</color>
@@ -81,14 +82,11 @@
     <color name="item_subtitle_color">#7F7F7F</color>
     <color name="item_icon_tint_color">#9a9a9a</color>
 
-
     <color name="alert_dialog_background_color">#191919</color>
     <color name="alert_dialog_onsurface_color">#f2f2f2</color>
 
     <color name="switch_thumb_color">@color/fancy_orange</color>
     <color name="switch_track_color">#E3E3E3</color>
-
-    <color name="edit_text_background_color">@color/material_grey_919</color>
 
     <!-- search -->
     <color name="search_bg_color">#5e5e5e</color>
