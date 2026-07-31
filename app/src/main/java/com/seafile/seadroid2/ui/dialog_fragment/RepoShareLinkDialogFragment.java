@@ -14,6 +14,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.model.dirents.DirentPermissionModel;
@@ -100,7 +101,7 @@ public class RepoShareLinkDialogFragment extends RequestBottomSheetDialogFragmen
     }
 
     public String getPassword() {
-        EditText editText = getDialogView().findViewById(R.id.password);
+        TextInputEditText editText = getDialogView().findViewById(R.id.password);
         return editText.getText().toString();
     }
 
@@ -116,7 +117,7 @@ public class RepoShareLinkDialogFragment extends RequestBottomSheetDialogFragmen
         });
 
         TextInputLayout daysTextInput = getDialogView().findViewById(R.id.days_text_input);
-        EditText daysTextView = getDialogView().findViewById(R.id.days);
+        TextInputEditText daysTextView = getDialogView().findViewById(R.id.days);
         daysTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,7 +190,7 @@ public class RepoShareLinkDialogFragment extends RequestBottomSheetDialogFragmen
 
         MaterialSwitch passwordSwitch = getDialogView().findViewById(R.id.add_password);
         if (passwordSwitch.isChecked()) {
-            EditText editText = getDialogView().findViewById(R.id.password);
+            TextInputEditText editText = getDialogView().findViewById(R.id.password);
             String password = editText.getText().toString();
 
             if (TextUtils.isEmpty(password)) {
@@ -200,7 +201,7 @@ public class RepoShareLinkDialogFragment extends RequestBottomSheetDialogFragmen
 
         MaterialSwitch daysSwitch = getDialogView().findViewById(R.id.add_expiration);
         if (daysSwitch.isChecked()) {
-            EditText daysEditText = getDialogView().findViewById(R.id.days);
+            TextInputEditText daysEditText = getDialogView().findViewById(R.id.days);
             String daysText = daysEditText.getText().toString();
 
             if (TextUtils.isEmpty(daysText) || selectedExpirationDateLong == null) {

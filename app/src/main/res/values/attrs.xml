@@ -58,6 +58,7 @@
     </declare-styleable>
 
     <attr name="catalogToolbarWithCloseButtonStyle" format="reference" />
+    <attr name="bottomSheetBackgroundColor" format="color" />
 
     <declare-styleable name="AspectRatioFrameLayout">
         <attr name="aspectRatio" format="float" />

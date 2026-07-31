@@ -162,42 +162,13 @@ public abstract class RequestBottomSheetDialogFragmentWithVM<VM extends BaseView
     private BottomSheetBehavior<FrameLayout> bottomSheetBehavior;
 
     private void initDialog() {
-//        if (getDialog() != null) {
-//            Window window = getDialog().getWindow();
-//            if (window != null) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-//                } else {
-//                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-//                }
-//            }
-//        }
-
         BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) getDialog();
         if (bottomSheetDialog != null) {
             bottomSheetBehavior = bottomSheetDialog.getBehavior();
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-//            bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback);
         }
     }
 
-
-    private final BottomSheetBehavior.BottomSheetCallback bottomSheetCallback = new BottomSheetBehavior.BottomSheetCallback() {
-        @Override
-        public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            if (newState == BottomSheetBehavior.STATE_DRAGGING) {
-//                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            }
-        }
-
-        @Override
-        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-        }
-    };
-//
-//    private boolean canDismiss = false;
-//    private boolean isDismissing = false;
 
     public void dismissDialogWithIme() {
         KeyboardUtils.hideSoftInput(getDialog().getWindow());
@@ -234,25 +205,6 @@ public abstract class RequestBottomSheetDialogFragmentWithVM<VM extends BaseView
                             ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) rootView.getLayoutParams();
                             layoutParams.bottomMargin = diffH;
                             rootView.setLayoutParams(layoutParams);
-
-//                            boolean isIme = insets.isVisible(WindowInsetsCompat.Type.ime());
-//                            if (lastImeVisible == isIme) {
-//
-//                            } else {
-//                                lastImeVisible = isIme;
-//                                if (!lastImeVisible && canDismiss && !isDismissing) {
-//                                    isDismissing = true;
-//                                    dismiss();
-//                                    ViewCompat.setWindowInsetsAnimationCallback(rootView, null);
-//                                }
-//                            }
-
-//                            SLogs.e("isIme: " + isIme);
-                            // keyboard hide and dismiss
-//                            if (diffH < lastDiffH && canDismiss) {
-//                                dismiss();
-//                                ViewCompat.setWindowInsetsAnimationCallback(rootView, null);
-//                            }
 
                             lastDiffH = diffH;
                             return insets;

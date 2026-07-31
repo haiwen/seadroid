@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="4dp"
         android:orientation="vertical">
 
         <com.google.android.material.materialswitch.MaterialSwitch
@@ -22,13 +22,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:hint="@string/passwd_hint"
-            android:visibility="visible">
+            android:visibility="visible"
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/passwd_hint"
                 android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -45,15 +47,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:hint="@string/select_an_expiration_dates"
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false"
             android:visibility="gone">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/days"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:clickable="true"
+                android:hint="@string/select_an_expiration_dates"
                 android:contentDescription="@string/select_an_expiration_dates"
                 android:focusable="false"
                 android:longClickable="false" />

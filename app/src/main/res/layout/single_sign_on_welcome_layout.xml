@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -12,12 +13,14 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/app_padding_horizontal"
         android:layout_marginTop="30dp"
-        android:hint="@string/server_hint">
+        app:boxBackgroundMode="none"
+        app:hintEnabled="false">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/server_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/server_hint"
             android:importantForAutofill="auto"
             android:inputType="textUri" />
 

@@ -19,6 +19,28 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="windowNoTitle">true</item>
 
+
+        <!-- Primary -->
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/md_theme_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
+
+        <!-- background/font/icon colors -->
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="bottomSheetBackgroundColor">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+        <item name="colorControlNormal">?attr/colorOnSurface</item> <!-- from colorOnSurface -->
+        <item name="colorControlActivated">@color/fancy_orange</item>
+        <item name="android:colorControlNormal">?attr/colorOnSurface</item>
+        <item name="android:colorControlActivated">@color/fancy_orange</item>
+
+        <!-- Compatible with older components or third-party lib -->
+        <item name="colorAccent">@color/fancy_orange</item>
+
+
         <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">
             @color/swipe_refresh_background_color
         </item>
@@ -33,7 +55,7 @@
         <item name="tabStyle">@style/App.Widget.TabLayout</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="materialButtonStyle">@style/App.Widget.Button</item>
-        <item name="materialAlertDialogTheme">@style/App.AppCompat.AlertDialog</item>
+<!--        <item name="materialAlertDialogTheme">@style/App.AppCompat.AlertDialog</item>-->
         <item name="bottomNavigationStyle">@style/App.Widget.BottomNavigationView</item>
         <item name="actionOverflowMenuStyle">@style/App.Widget.OverflowMenu</item>
         <item name="editTextStyle">@style/App.Widget.EditText</item>
@@ -47,27 +69,15 @@
         <!-- Another way to hide the divider line of the PreferenceCategory -->
         <!--        <item name="preferenceCategoryStyle">@style/Widget.PreferenceCategory</item>-->
 
-        <!-- Primary -->
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
-
-        <!-- Secondary -->
-        <item name="colorSecondary">@color/md_theme_secondary</item>
-        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
-
-        <!-- background/font/icon colors -->
-        <item name="colorSurface">@color/md_theme_surface</item>
-        <item name="colorOnSurface">@color/md_theme_onSurface</item>
-        <item name="colorControlNormal">?attr/colorOnSurface</item> <!-- from colorOnSurface -->
-        <item name="colorControlActivated">@color/fancy_orange</item>
-        <item name="colorAccent">@color/fancy_orange</item> <!-- Compatible with older components or third-party lib -->
-
         <item name="minTouchTargetSize">0dp</item>
     </style>
 
     <!-- BottomSheet -->
     <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/App.Widget.BottomSheetDialog</item>
+        <item name="colorSurfaceContainerLow">?attr/bottomSheetBackgroundColor</item>
+        <item name="colorSurfaceContainer">?attr/bottomSheetBackgroundColor</item>
+        <item name="colorSurfaceContainerHigh">?attr/bottomSheetBackgroundColor</item>
         <item name="android:windowSoftInputMode">adjustNothing</item>
         <item name="android:windowIsFloating">false</item>
     </style>

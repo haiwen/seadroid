@@ -126,24 +126,30 @@ public class SeaWebViewClient extends BridgeWebViewClient {
 
             Account account = SupportAccountManager.getInstance().getCurrentAccount();
             if (account != null) {
+                SLogs.d("open sdoc page: load buildUrl");
                 map.put("Authorization", "Token " + account.token);
+                String rUrl = buildUrl(account.server, mOriginTargetUrl);
+                wb.loadUrl(rUrl, map);
+            } else {
+                SLogs.d("open sdoc page: no login, load url directly.");
+                wb.loadUrl(targetUrl);
             }
-
-            String rUrl = buildUrl(mOriginTargetUrl);
-            wb.loadUrl(rUrl, map);
         } else {
             wb.loadUrl(mOriginTargetUrl);
             SLogs.d("targetUrl: " + mOriginTargetUrl);
         }
     }
 
-    private String buildUrl(String url) {
-        if (!url.startsWith("http")) {
-            return url;
+    private String buildUrl(String server, String next) {
+        if (!next.startsWith("http")) {
+            return next;
         }
 
-        return Token2SessionConverts.buildUrl(url);
+        return Uri.parse(server + "mobile-login/")
+                .buildUpon()
+                .appendQueryParameter("next", next)
+                .build()
+                .toString();
     }
-
 }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
@@ -9,14 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         android:layout_marginRight="20dp"
-        android:hint="@string/description">
+        app:boxBackgroundMode="none"
+        app:hintEnabled="false">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edit_description_link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/description"
             android:importantForAutofill="auto"
             android:textColor="@android:color/black" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -25,14 +28,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         android:layout_marginRight="20dp"
-        android:hint="@string/link">
+        app:boxBackgroundMode="none"
+        app:hintEnabled="false">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edit_link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/link"
             android:importantForAutofill="auto"
             android:text="http://"
             android:textColor="@android:color/black" />
