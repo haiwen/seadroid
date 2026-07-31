@@ -24,8 +24,6 @@ import okhttp3.logging.HttpLoggingInterceptor;
 
 public abstract class BaseOkHttpClient {
     protected final int DEFAULT_TIME_OUT = 60000;
-    protected final int MAX_AGE = 600;
-    protected final int MAX_STALE = 60 * 60 * 8;
     protected final long MAX_CACHE_SIZE = 20 * 1024 * 1024L;
 
     protected final Cache cache;
@@ -69,34 +67,4 @@ public abstract class BaseOkHttpClient {
         interceptors.add(loggingInterceptor);
         return interceptors;
     }
-
-    //No longer used. The caching policy is determined by the server-side response header
-    @Deprecated
-    protected final Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR = chain -> {
-        Request request = chain.request();
-
-        boolean isConnected = NetworkUtils.isConnected();
-        if (!isConnected) {
-            //no network,use cache data
-            request = request.newBuilder().cacheControl(CacheControl.FORCE_CACHE).build();
-        } else {
-            request = request.newBuilder().cacheControl(CacheControl.FORCE_NETWORK).build();
-        }
-
-        Response originalResponse = chain.proceed(request);
-        if (isConnected) {
-            return originalResponse.newBuilder()
-                    .removeHeader("Pragma")
-                    .removeHeader("Cache-Control")
-                    .header("Cache-Control", "public, max-age=" + MAX_AGE)
-                    .build();
-        } else {
-            return originalResponse.newBuilder()
-                    .removeHeader("Pragma")
-                    .removeHeader("Cache-Control")
-                    .header("Cache-Control", "public, only-if-cached, max-stale=" + MAX_STALE)
-                    .build();
-        }
-
-    };
 }

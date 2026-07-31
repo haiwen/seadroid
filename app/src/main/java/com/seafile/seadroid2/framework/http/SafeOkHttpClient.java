@@ -4,25 +4,15 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import okhttp3.Cache;
 import okhttp3.ConnectionSpec;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -37,31 +27,6 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
         _interceptors.addAll(getInterceptors());
     }
 
-    public static TrustManager[] getTrustManagers() {
-        try {
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init((KeyStore) null);
-            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-            if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
-                throw new IllegalStateException("Unexpected default trust managers:" + Arrays.toString(trustManagers));
-            }
-            return trustManagers;
-        } catch (NoSuchAlgorithmException | KeyStoreException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public SSLSocketFactory getTLSSocketFactory(TrustManager[] trustManagers) {
-        try {
-            X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
-
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{trustManager}, new SecureRandom());
-            return sslContext.getSocketFactory();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public OkHttpClient getOkClient() {
         return getOkClient(false);
@@ -96,50 +61,20 @@ public class SafeOkHttpClient extends BaseOkHttpClient {
             X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
 
             builder.sslSocketFactory(factory, trustManager);
-            builder.hostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
+            // Use OkHttp's default OkHostnameVerifier for proper hostname validation.
+            // SSLTrustManager.SecureX509TrustManager handles certificate trust (including
+            // user-approved self-signed certs via customCheck()), and OkHttp's built-in
+            // verifier ensures the hostname matches the certificate's CN/SAN.
+
+            // HTTPS: only enable MODERN_TLS (TLS 1.2+).
+            // TLS 1.0/1.1 have been removed since Android 14 (API 34).
+            builder.connectionSpecs(List.of(ConnectionSpec.MODERN_TLS));
+        } else {
+            // HTTP: allow cleartext
+            builder.connectionSpecs(List.of(ConnectionSpec.CLEARTEXT));
         }
 
-        // Add an interceptor to set SSL only for HTTPS
-//        builder.addInterceptor(chain -> {
-//            Request request = chain.request();
-//            if (request.isHttps()) {
-//                //ssl
-//                TrustManager[] trustManagers = getTrustManagers();
-//                X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
-//                SSLSocketFactory sslSocketFactory = getTLSSocketFactory(trustManagers);
-//
-//                builder.sslSocketFactory(sslSocketFactory, trustManager);
-//
-//                builder.hostnameVerifier(new HostnameVerifier() {
-//                    @Override
-//                    public boolean verify(String hostname, SSLSession session) {
-//                        //check host
-//                        if (account.getServerDomainName().equals(hostname)) {
-//                            return true;
-//                        }
-//
-//                        //check by default verifier
-//                        HostnameVerifier verifier = HttpsURLConnection.getDefaultHostnameVerifier();
-//                        return verifier.verify(hostname, session);
-//                    }
-//                });
-//            }
-//            return chain.proceed(request);
-//        });
-
-        builder.connectionSpecs(Arrays.asList(
-                ConnectionSpec.MODERN_TLS,
-                ConnectionSpec.COMPATIBLE_TLS,
-                ConnectionSpec.CLEARTEXT));
-//        builder.cache(cache);
-//        //cache control
-//        builder.interceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
-//        builder.networkInterceptors().add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
+        builder.cache(cache);
 
         //add interceptors
         if (!CollectionUtils.isEmpty(_interceptors)) {

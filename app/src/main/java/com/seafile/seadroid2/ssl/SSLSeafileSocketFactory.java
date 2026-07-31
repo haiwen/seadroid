@@ -50,54 +50,74 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
         return allowedCiphers;
     }
 
+    /**
+     * Apply allowed protocols and cipher suites to the SSLSocket.
+     * Filters out any protocols or ciphers that are not supported by the device,
+     * to avoid IllegalArgumentException on systems where older TLS versions
+     * (e.g. TLSv1, TLSv1.1) have been removed (Android 14+).
+     */
+    private SSLSocket configureSSLSocket(SSLSocket ss) {
+        // --- protocols ---
+        String[] supportedProtocols = ss.getSupportedProtocols();
+        if (supportedProtocols != null && supportedProtocols.length > 0) {
+            List<String> supportedList = Arrays.asList(supportedProtocols);
+            List<String> enabled = new ArrayList<>();
+            for (String p : allowedProtocols) {
+                if (supportedList.contains(p)) {
+                    enabled.add(p);
+                }
+            }
+            if (!enabled.isEmpty()) {
+                ss.setEnabledProtocols(enabled.toArray(new String[0]));
+            }
+        }
+
+        // --- cipher suites ---
+        String[] supportedCiphers = ss.getSupportedCipherSuites();
+        if (supportedCiphers != null && supportedCiphers.length > 0) {
+            List<String> supportedCipherList = Arrays.asList(supportedCiphers);
+            List<String> enabledCiphers = new ArrayList<>();
+            for (String c : allowedCiphers) {
+                if (supportedCipherList.contains(c)) {
+                    enabledCiphers.add(c);
+                }
+            }
+            if (!enabledCiphers.isEmpty()) {
+                ss.setEnabledCipherSuites(enabledCiphers.toArray(new String[0]));
+            }
+        }
+
+        return ss;
+    }
+
     public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
         SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(s, host, port, autoClose);
-
-        ss.setEnabledProtocols(allowedProtocols);
-        ss.setEnabledCipherSuites(allowedCiphers);
-
-        return ss;
+        return configureSSLSocket(ss);
     }
 
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
         SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(address, port, localAddress, localPort);
-
-        ss.setEnabledProtocols(allowedProtocols);
-        ss.setEnabledCipherSuites(allowedCiphers);
-
-        return ss;
+        return configureSSLSocket(ss);
     }
 
     public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
         SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(host, port, localHost, localPort);
-
-        ss.setEnabledProtocols(allowedProtocols);
-        ss.setEnabledCipherSuites(allowedCiphers);
-
-        return ss;
+        return configureSSLSocket(ss);
     }
 
     public Socket createSocket(InetAddress host, int port) throws IOException {
         SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(host, port);
-
-        ss.setEnabledProtocols(allowedProtocols);
-        ss.setEnabledCipherSuites(allowedCiphers);
-
-        return ss;
+        return configureSSLSocket(ss);
     }
 
     public Socket createSocket(String host, int port) throws IOException {
         SSLSocketFactory factory = sslContext.getSocketFactory();
         SSLSocket ss = (SSLSocket)factory.createSocket(host, port);
-
-        ss.setEnabledProtocols(allowedProtocols);
-        ss.setEnabledCipherSuites(allowedCiphers);
-
-        return ss;
+        return configureSSLSocket(ss);
     }
 
     protected String[] getProtocolList() {
