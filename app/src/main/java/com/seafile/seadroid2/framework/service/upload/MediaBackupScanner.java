@@ -33,7 +33,7 @@ public class MediaBackupScanner extends ParentEventTransfer {
     }
 
     public SeafException scan(boolean isFullScan) {
-        SafeLogs.e(TAG, "相册扫描器启动");
+        SafeLogs.e(TAG, "Album backup scanner launch");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
