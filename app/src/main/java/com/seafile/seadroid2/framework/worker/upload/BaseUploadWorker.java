@@ -250,6 +250,21 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 throw SeafException.NOT_FOUND_EXCEPTION;
             }
 
+            // The size was captured when the file was scanned. If the file has
+            // changed since then (e.g. a just-taken photo that was still being
+            // written), uploading the stale scan-time length would truncate it.
+            // Defer such files to the next scan instead.
+            if (currentTransferModel.file_size > 0) {
+                SLogs.d(TAG, "transferFile()", "check size before upload: scan=" + currentTransferModel.file_size + ", current=" + file.length() + ", path: " + currentTransferModel.full_path);
+                if (file.length() != currentTransferModel.file_size) {
+                    SLogs.e(TAG, "transferFile()", "file size changed since scan, defer upload: scan=" + currentTransferModel.file_size + ", current=" + file.length() + ", path: " + file.getAbsolutePath());
+                    throw new SeafException(SeafException.READ_FILE_EXCEPTION.getCode(),
+                            "File size changed since scan, upload deferred: " + file.getAbsolutePath());
+                }
+            } else {
+                SLogs.d(TAG, "transferFile()", "no scan-time size baseline, skip size check: file_size=" + currentTransferModel.file_size + ", path: " + currentTransferModel.full_path);
+            }
+
             fileRequestBody = new FileStreamRequestBody(file, _fileTransferProgressListener);
             builder.addFormDataPart("file", currentTransferModel.file_name, fileRequestBody);
             createdTime = FileUtils.getCreatedTimeFromPath(getApplicationContext(), file);
