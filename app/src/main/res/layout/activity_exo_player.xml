@@ -84,10 +84,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="·"
-                android:textColor="#FF666666"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:text="/"
+                android:textColor="#FFBEBEBE"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -99,7 +99,7 @@
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:text="00:00"
-                android:textColor="#FF666666"
+                android:textColor="#FFBEBEBE"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
