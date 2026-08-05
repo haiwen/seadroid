@@ -7,10 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.framework.util.ConcurrentAsyncTask;
-
-import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -25,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -189,7 +183,7 @@ public final class SSLTrustManager {
     }
 
     private class SecureX509TrustManager implements X509TrustManager {
-        private Account account;
+        private final Account account;
         private SslFailureReason reason;
 
         private volatile List<X509Certificate> certsChain = ImmutableList.of();
@@ -209,20 +203,29 @@ public final class SSLTrustManager {
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            defaultTrustManager.checkClientTrusted(chain, authType);
+            X509TrustManager dft = defaultTrustManager;
+            if (dft == null) {
+                throw new CertificateException("Trust manager not initialized");
+            }
+            dft.checkClientTrusted(chain, authType);
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            X509TrustManager dft = defaultTrustManager;
+            if (dft == null) {
+                throw new CertificateException("Trust manager not initialized");
+            }
+
             if (chain == null || chain.length == 0) {
-                defaultTrustManager.checkServerTrusted(chain, authType);
+                dft.checkServerTrusted(chain, authType);
                 return;
             }
 
             List<X509Certificate> orderedChain = orderCerts(chain);
             try {
                 // First try to do default check
-                defaultTrustManager.checkServerTrusted(chain, authType);
+                dft.checkServerTrusted(chain, authType);
                 // Second check if hostname is valid
                 validateHostName(orderedChain);
             } catch (CertificateException e) {
@@ -232,53 +235,47 @@ public final class SSLTrustManager {
 
 
         /**
-         * Interface for checking if a hostname matches the names stored inside the server's X.509 certificate
+         * Validates that the server's hostname matches the names stored inside the
+         * server's X.509 certificate (CN or SAN fields).
          */
         private void validateHostName(List<X509Certificate> chain) throws CertificateException {
             X509Certificate cert = chain.get(0);
 
-            // BrowserCompatHostnameVerifier can verify hostnames in the form of IP addresses (like a browser)
-            // where as the DefaultHostnameVerifier will always try to lookup IP addresses via the DNS.
-            X509HostnameVerifier mHostnameVerifier = new BrowserCompatHostnameVerifier();
-            try {
-                mHostnameVerifier.verify(account.getServerDomainName(), cert);
-            } catch (SSLException e) {
-                throw new CertificateException();
+            // OkHostnameVerifier handles both hostnames and IP addresses correctly,
+            // and provides a public verify(host, certificate) overload that does not
+            // require an SSLSession.
+            if (!okhttp3.internal.tls.OkHostnameVerifier.INSTANCE.verify(account.getServerDomainName(), cert)) {
+                throw new CertificateException("Hostname mismatch: expected " + account.getServerDomainName());
             }
         }
 
         private void customCheck(List<X509Certificate> chain, String authType) throws CertificateException {
-
             certsChain = ImmutableList.copyOf(chain);
 
-            try {
-                X509Certificate cert = chain.get(0);
+            X509Certificate cert = chain.get(0);
+            X509Certificate savedCert = CertsManager.instance().getCertificate(account);
 
-                X509Certificate savedCert = CertsManager.instance().getCertificate(account);
-                if (savedCert == null) {
-                    Log.d(DEBUG_TAG, "no saved cert for " + account.server);
-                    reason = SslFailureReason.CERT_NOT_TRUSTED;
-                    throw new CertificateException();
-                } else if (savedCert.equals(cert)) {
-                    // The user has confirmed to trust this certificate
-                    Log.d(DEBUG_TAG, "the cert of " + account.server + " is trusted");
-                } else {
-                    // The certificate is different from the one user confirmed to trust,
-                    // This may be either:
-                    // 1. The server admin has changed its cert
-                    // 2. The user is under security attack
-                    Log.d(DEBUG_TAG, "the cert of " + account.server + " has changed");
-                    reason = SslFailureReason.CERT_CHANGED;
-                    throw new CertificateException();
-                }
-            } catch (CertificateException e) {
-                throw new RuntimeException(e);
+            if (savedCert == null) {
+                Log.d(DEBUG_TAG, "no saved cert for " + account.server);
+                reason = SslFailureReason.CERT_NOT_TRUSTED;
+                throw new CertificateException("Certificate not trusted: " + account.server);
+            } else if (savedCert.equals(cert)) {
+                // The user has confirmed to trust this certificate
+                Log.d(DEBUG_TAG, "the cert of " + account.server + " is trusted");
+            } else {
+                // The certificate is different from the one user confirmed to trust.
+                // This may be either:
+                // 1. The server admin has changed its cert
+                // 2. The user is under security attack
+                Log.d(DEBUG_TAG, "the cert of " + account.server + " has changed");
+                reason = SslFailureReason.CERT_CHANGED;
+                throw new CertificateException("Certificate has changed: " + account.server);
             }
-
         }
 
         public X509Certificate[] getAcceptedIssuers() {
-            return defaultTrustManager.getAcceptedIssuers();
+            X509TrustManager dft = defaultTrustManager;
+            return dft != null ? dft.getAcceptedIssuers() : new X509Certificate[0];
         }
 
         @Override
