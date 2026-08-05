@@ -65,9 +65,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
+        android:pageSizeCompat="enabled"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/App.Theme">
+        android:theme="@style/App.Theme"
+        tools:targetApi="36">
 
         <activity
             android:name=".ui.SplashActivity"
@@ -97,7 +99,7 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="false"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustNothing" />
 
         <activity android:name=".ui.markdown.MarkdownActivity" />
 
@@ -132,10 +134,8 @@
         </activity>
 
 
-        <activity
-            android:name=".ui.camera_upload.CameraUploadConfigActivity" />
-        <activity
-            android:name=".ui.folder_backup.FolderBackupConfigActivity" />
+        <activity android:name=".ui.camera_upload.CameraUploadConfigActivity" />
+        <activity android:name=".ui.folder_backup.FolderBackupConfigActivity" />
 
         <activity
             android:name=".ui.editor.EditorActivity"
@@ -161,17 +161,15 @@
         <activity android:name=".ui.media.image.CarouselImagePreviewActivity" />
         <activity android:name=".ui.media.image.OnlyImagePreviewActivity" />
         <activity android:name=".ui.selector.folder_selector.FolderSelectorActivity" />
-        <activity android:name=".ui.selector.versatile.VersatileSelectorActivity" />
         <activity android:name=".ui.selector.AccountSelectorActivity" />
         <activity android:name=".ui.selector.DateSelectorActivity" />
         <activity android:name=".ui.selector.LongTextSelectorActivity" />
         <activity android:name=".ui.office_doc.OfficeDocumentWebActivity" />
-        <activity android:name=".ui.share.VersatileShareToSeafileSelectorActivity" />
         <activity android:name=".ui.selector.OpSelectorActivity" />
         <activity
             android:name=".ui.file_profile.FileProfileEditorActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <provider
             android:name=".provider.SeafileProvider"

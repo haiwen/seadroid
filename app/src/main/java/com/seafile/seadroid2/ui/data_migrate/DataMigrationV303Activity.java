@@ -1,9 +1,8 @@
 package com.seafile.seadroid2.ui.data_migrate;
 
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.KeyEvent;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,7 +10,8 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivityDataMigrationBinding;
-import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
+import com.seafile.seadroid2.ui.base.BaseActivity;
+import com.seafile.seadroid2.enums.NetworkMode;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
 import com.seafile.seadroid2.framework.datastore.sp.AlbumBackupManager;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
@@ -21,7 +21,6 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePre
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.preferences.Settings;
-import com.seafile.seadroid2.enums.NetworkMode;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.util.List;
@@ -34,10 +33,14 @@ public class DataMigrationV303Activity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
         binding = ActivityDataMigrationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // 无 Toolbar 的迁移页面，根容器兜底处理顶部状态栏和底部导航栏/IME 安全区域
+        BaseActivity.setupInsets(binding.getRoot());
 
         List<Account> accounts = SupportAccountManager.getInstance().getAccountList();
         if (CollectionUtils.isEmpty(accounts)) {
@@ -179,13 +182,5 @@ public class DataMigrationV303Activity extends AppCompatActivity {
 
         setResult(RESULT_OK);
         finish();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            return true; //do not back
-        }
-        return super.onKeyDown(keyCode, event);
     }
 }

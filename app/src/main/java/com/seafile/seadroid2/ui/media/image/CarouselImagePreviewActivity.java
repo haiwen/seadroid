@@ -76,22 +76,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
     private String repoId, repoName, parentDir, name;
     private boolean load_other_images_in_same_directory = false;
     private ActivityResultLauncher<Intent> copyMoveLauncher;
-    //    public static Intent startThisFromDocsComment(Context context, String url) {
-//        Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
-//        intent.putExtra("image_url", url);//Load other images in the same folder
-//        intent.putExtra("load_other_images_in_same_directory", false);//Load other images in the same folder
-//        return intent;
-//    }
-
-    public static Intent startThisFromObjs(Context context, DirentModel direntModel) {
-        Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
-        intent.putExtra("repo_id", direntModel.repo_id);
-        intent.putExtra("repo_name", direntModel.repo_name);
-        intent.putExtra("parent_dir", direntModel.parent_dir);
-        intent.putExtra("name", direntModel.name);
-        intent.putExtra("load_other_images_in_same_directory", true);//Load other images in the same folder
-        return intent;
-    }
 
     public static Intent startThisFromObjs(Context context, DirentModel direntModel, boolean load_other_images_in_same_directory) {
         Intent intent = new Intent(context, CarouselImagePreviewActivity.class);
@@ -278,9 +262,6 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(null);
         }
-        //init toolbar margin top
-        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.toolbarActionbar.getLayoutParams();
-        layoutParams.topMargin = BarUtils.getStatusBarHeight();
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
