@@ -83,6 +83,8 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         binding = ActivityShareToSeafileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        applyEdgeToEdge(binding.getRoot());
+
         registerResultLauncher();
 
         initViewModel();

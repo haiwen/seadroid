@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.editor;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,7 +13,9 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.SystemBarStyle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -83,6 +86,11 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // 蓝色 Toolbar 背景延伸进状态栏/导航栏区域，系统栏图标需保持浅色
+        EdgeToEdge.enable(this,
+                SystemBarStyle.dark(Color.TRANSPARENT),
+                SystemBarStyle.dark(Color.TRANSPARENT));
+
         binding = ActivityEditorBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -114,7 +122,7 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             loadData();
         }
 
-        if (!TextUtils.isEmpty(localPath)) {
+        if (!TextUtils.isEmpty(localPath) && getSupportActionBar()!=null) {
             getSupportActionBar().setTitle(new File(localPath).getName());
         }
     }

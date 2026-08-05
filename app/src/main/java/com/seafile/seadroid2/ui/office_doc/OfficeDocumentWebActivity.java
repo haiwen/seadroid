@@ -8,14 +8,10 @@ import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
@@ -98,21 +94,7 @@ public class OfficeDocumentWebActivity extends BaseActivity {
 
 
     public void applyEdgeToEdge() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(
-                    systemBars.left,
-                    0,
-                    systemBars.right,
-                    systemBars.bottom
-            );
-
-            Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) toolBinding.statusBarGuideline.getLayoutParams();
-            lp.height = statusBars.top;
-            toolBinding.statusBarGuideline.setLayoutParams(lp);
-            return insets;
-        });
+        BaseActivity.setupInsets(binding.getRoot());
     }
 
 

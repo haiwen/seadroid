@@ -25,7 +25,6 @@ import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
-import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultCallback;
@@ -197,15 +196,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     public void applyEdgeToEdge() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom);
-
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) toolBinding.statusBarGuideline.getLayoutParams();
-            lp.height = systemBars.top;
-            toolBinding.statusBarGuideline.setLayoutParams(lp);
-            return insets;
-        });
+        setupInsets(binding.getRoot());
     }
 
     private void initData() {

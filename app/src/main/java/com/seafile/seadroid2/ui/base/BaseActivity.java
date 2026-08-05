@@ -2,17 +2,18 @@ package com.seafile.seadroid2.ui.base;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ComponentActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -28,11 +29,8 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // support for Android 15
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-//
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
-        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        // Android 15+ 强制 edge-to-edge，官方 API 统一处理系统栏样式与对比度
+        EdgeToEdge.enable(this);
 
         super.onCreate(savedInstanceState);
         ActionBar ab = getSupportActionBar();
@@ -64,28 +62,57 @@ public class BaseActivity extends AppCompatActivity {
         if (view == null) {
             throw new IllegalArgumentException("view is null");
         }
+        setupInsets(view);
+    }
 
-        View statusBarGuideline = view.findViewById(R.id.status_bar_guideline);
-        if (statusBarGuideline == null) {
-            throw new IllegalArgumentException("view must not contain a view with id 'status_bar_guideline'");
-        }
+    /**
+     * 官方推荐：把 insets 直接绑定到具体组件。
+     * - 顶部：绑定到 Toolbar（高度同步增加，背景自然延伸进状态栏）；无 Toolbar 的页面兜底给根容器
+     * - 底部：有 BottomNavigationView 时绑定到它自身（背景延伸到导航栏）；否则根容器兜底处理导航栏
+     */
+    public static void setupInsets(View root) {
+        View toolbar = root.findViewById(R.id.toolbar_actionbar);
+        boolean hasToolbar = toolbar != null;
 
-        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+        View bottomNav = root.findViewById(R.id.nav_bottom_view);
+        boolean hasBottomNav = bottomNav != null;
+
+        // 根容器：只处理左右 system bars 和顶部（无 Toolbar 时）；底部在有 BottomNav 时跳过
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(
-                    systemBars.left,
-                    0,
-                    systemBars.right,
-                    systemBars.bottom
-            );
 
-
-            Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
-            ViewGroup.LayoutParams lp = statusBarGuideline.getLayoutParams();
-            lp.height = statusBars.top;
-            statusBarGuideline.setLayoutParams(lp);
+            int top = hasToolbar ? 0 : systemBars.top;
+            int bottom = hasBottomNav ? 0 : systemBars.bottom;
+            v.setPadding(systemBars.left, top, systemBars.right, bottom);
             return insets;
         });
+
+        if (hasToolbar) {
+            ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
+                int top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+                int cur = v.getPaddingTop();
+                if (cur != top) {
+                    int delta = top - cur;
+                    v.setPadding(v.getPaddingLeft(), top, v.getPaddingRight(), v.getPaddingBottom());
+                    // 固定高度时同步增加，避免内容被状态栏 padding 压缩
+                    ViewGroup.LayoutParams lp = v.getLayoutParams();
+                    if (lp != null && lp.height > 0) {
+                        lp.height += delta;
+                        v.setLayoutParams(lp);
+                    }
+                }
+                return insets;
+            });
+        }
+
+        if (hasBottomNav) {
+            // BottomNavigationView 导航栏 inset 绑定到自身，背景延伸到系统导航栏后方
+            ViewCompat.setOnApplyWindowInsetsListener(bottomNav, (v, insets) -> {
+                int bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+                v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottom);
+                return insets;
+            });
+        }
     }
 
     private Dialog loadingDialog;
