@@ -159,31 +159,4 @@ public class ActivityAdapter extends BaseMultiAdapter<BaseModel> {
         spanUtils.create();
 
     }
-
-
-//    switch (event.op_type) {
-//        case "create":
-//            break;
-//        case "edit":
-//            break;
-//        case "rename":
-//            break;
-//        case "delete":
-//            break;
-//        case "recover":
-//        case "restore":
-//            event.opType = OpType.RESTORE;
-//            break;
-//        case "move":
-//            break;
-//        case "update":
-//            break;
-//        case "public":
-//        case "publish":
-//            break;
-//        case "batch_create":
-//            break;
-//        case "batch_delete":
-//            break;
-//    }
 }

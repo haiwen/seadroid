@@ -142,7 +142,7 @@ public class StarredAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //set item_icon
-        if (model.deleted || !Utils.isViewableImage(model.obj_name) || model.repo_encrypted || model.is_dir) {
+        if (model.deleted || !Utils.availableThumbnail(model.obj_name) || model.repo_encrypted || model.is_dir) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             String url = convertThumbnailUrl(model.repo_id, model.path);

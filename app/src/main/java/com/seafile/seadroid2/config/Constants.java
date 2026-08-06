@@ -76,6 +76,7 @@ public class Constants {
         public static final String DOT_PPTX = ".pptx";
         public static final String DOT_PPSX = ".ppsx";
         public static final String DOT_ODP = ".odp";
+        public static final String DOT_PDF = ".pdf";
     }
 
     public static class DP {

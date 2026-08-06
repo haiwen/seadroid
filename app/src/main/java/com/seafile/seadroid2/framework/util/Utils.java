@@ -297,6 +297,10 @@ public class Utils {
             return true;
         }
 
+        if (isPdfFile(fileName)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -408,6 +412,18 @@ public class Utils {
             return true;
         }
 
+        return false;
+    }
+
+    public static boolean isPdfFile(String name) {
+        if (TextUtils.isEmpty(name)) {
+            return false;
+        }
+
+        name = name.toLowerCase();
+        if (name.endsWith(Constants.FileExtensions.DOT_PDF)) {
+            return true;
+        }
         return false;
     }
 
