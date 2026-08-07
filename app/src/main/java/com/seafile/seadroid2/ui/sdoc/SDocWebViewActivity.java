@@ -135,6 +135,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         binding = ActivitySeaWebviewProBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
+        initToolbar();
 
         toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
         bottomBarBinding = LayoutSdocBottomBarBinding.bind(binding.toolBottomBar.getRoot());
@@ -225,16 +226,9 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void initView() {
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setNavigationOnClickListener(v -> {
-            finish();
-        });
-
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(fileName);
         }
-
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -344,7 +338,7 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             @Override
             public void onChanged(FileProfileConfigModel configModel) {
 
-                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel,canNotEdit);
+                FileProfileDialog dialog = FileProfileDialog.newInstance(configModel, canNotEdit);
                 dialog.show(getSupportFragmentManager(), FileProfileDialog.class.getSimpleName());
             }
         });
@@ -1130,7 +1124,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
         @Override
         public void onReceivedTitle(WebView view, String title) {
             super.onReceivedTitle(view, title);
-//            toolBinding.toolbarActionbar.setTitle(title);
         }
 
         @Override

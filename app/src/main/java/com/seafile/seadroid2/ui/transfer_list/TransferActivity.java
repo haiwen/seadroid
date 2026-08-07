@@ -59,24 +59,14 @@ public class TransferActivity extends BaseActivity {
         binding = TransferListLayoutBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
-
-        findViewById(R.id.view_toolbar_bottom_line).setVisibility(View.GONE);
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
+
+        initView();
         initTabLayout();
         initViewPager();
 
-        Toolbar toolbar = getActionBarToolbar();
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.transfer_tasks);
-        }
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         /** this is hacky to explicitly call onNewIntent()
          * because it was never called when start the TransferActivity
@@ -84,12 +74,27 @@ public class TransferActivity extends BaseActivity {
         onNewIntent(getIntent());
     }
 
+    private void initView() {
+        findViewById(R.id.view_toolbar_bottom_line).setVisibility(View.GONE);
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.transfer_tasks);
+        }
+    }
+
     private void initTabLayout() {
         binding.slidingTabs.setTabIndicatorAnimationMode(TabLayout.INDICATOR_ANIMATION_MODE_ELASTIC);
         binding.slidingTabs.setSelectedTabIndicator(R.drawable.cat_tabs_rounded_line_indicator);
         binding.slidingTabs.setTabIndicatorFullWidth(false);
         binding.slidingTabs.setTabGravity(TabLayout.GRAVITY_CENTER);
-        
+
         binding.slidingTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

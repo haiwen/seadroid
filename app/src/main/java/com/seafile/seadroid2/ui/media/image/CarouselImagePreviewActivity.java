@@ -149,6 +149,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
         binding = ActivityCarouselImagePreviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
         registerCopyMoveLauncher();
@@ -157,7 +158,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
         initStatusBar();
         initNightMode();
-        initToolbar();
+        initSelfToolbar();
         initView();
         initPager();
         initThumbnailList();
@@ -252,16 +253,11 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         isNightMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
-    private void initToolbar() {
-        toolbar = getActionBarToolbar();
-        toolbar.setNavigationOnClickListener(v -> {
-            checkBack();
-        });
+    private void initSelfToolbar() {
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(null);
-        }
+        toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(v -> checkBack());
+        toolbar.setTitle(null);
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override

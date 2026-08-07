@@ -76,6 +76,7 @@ public class SeaWebViewActivity extends BaseActivity {
 
         binding = ActivitySeaWebviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
         applyEdgeToEdge(binding.getRoot());
 
         toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
@@ -95,7 +96,7 @@ public class SeaWebViewActivity extends BaseActivity {
         }
 
         initStoragePermissionLauncher();
-        initUI();
+        initView();
 
         //let's go
         if (withToken) {
@@ -106,13 +107,25 @@ public class SeaWebViewActivity extends BaseActivity {
     }
 
 
-    private void initUI() {
+    private void initView() {
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mWebView != null && mWebView.canGoBack()) {
+                    mWebView.goBack();
+                } else {
+                    finish();
+                }
+            }
+        });
+
         Toolbar toolbar = toolBinding.toolbarActionbar;
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> {
             finish();
         });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(null);
+        }
 
         mWebView = PreloadWebView.getInstance().getWebView(this);
 
@@ -133,16 +146,6 @@ public class SeaWebViewActivity extends BaseActivity {
             }
         });
 
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (mWebView != null && mWebView.canGoBack()) {
-                    mWebView.goBack();
-                } else {
-                    finish();
-                }
-            }
-        });
     }
 
     private void download(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
@@ -258,8 +261,8 @@ public class SeaWebViewActivity extends BaseActivity {
                     String remaining = fileNameSegments[0];
                     // Common charsets: utf-8, UTF-8, iso-8859-1, etc.
                     String[] charsetPrefixes = {"utf-8", "UTF-8", "UTF8", "utf8",
-                                                "iso-8859-1", "ISO-8859-1",
-                                                "gbk", "GBK", "gb2312", "GB2312"};
+                            "iso-8859-1", "ISO-8859-1",
+                            "gbk", "GBK", "gb2312", "GB2312"};
 
                     for (String prefix : charsetPrefixes) {
                         if (remaining.toLowerCase().startsWith(prefix.toLowerCase())) {

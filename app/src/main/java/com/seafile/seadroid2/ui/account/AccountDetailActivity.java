@@ -37,7 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
+public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> {
     private final String DEBUG_TAG = "AccountDetailActivity";
 
     private final String TWO_FACTOR_AUTH = "two_factor_auth";
@@ -58,6 +58,7 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         binding = AccountDetailBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
@@ -113,12 +114,11 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
             binding.serverUrl.setSelection(prefixLen, prefixLen);
         }
 
-
         Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.login);
+        toolbar.setNavigationOnClickListener(v -> finish());
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.login);
+        }
 
         binding.httpsCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -295,41 +295,6 @@ public class AccountDetailActivity extends BaseActivityWithVM<AccountViewModel> 
         binding.emailAddress.setText((String) savedInstanceState.get("email"));
         binding.password.setText((String) savedInstanceState.get("password"));
         binding.rememberDevice.setChecked((boolean) savedInstanceState.get("rememberDevice"));
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return false;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                SLogs.d(DEBUG_TAG, "initPrefLiveData, onOptionsItemSelected, home");
-                
-                /* FYI {@link http://stackoverflow.com/questions/13293772/how-to-navigate-up-to-the-same-parent-state?rq=1} */
-                Intent upIntent = new Intent(this, AccountsActivity.class);
-                if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
-                    // This activity is NOT part of this app's task, so create a new task
-                    // when navigating up, with a synthesized back stack.
-                    TaskStackBuilder.create(this)
-                            // Add all of this activity's parents to the back stack
-                            .addNextIntentWithParentStack(upIntent)
-                            // Navigate up to the closest parent
-                            .startActivities();
-                } else {
-                    // This activity is part of this app's task, so simply
-                    // navigate up to the logical parent activity.
-                    // NavUtils.navigateUpTo(this, upIntent);
-                    upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(upIntent);
-                    finish();
-                }
-
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void setupServerText() {

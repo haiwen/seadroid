@@ -40,7 +40,7 @@ import java.util.Locale;
 /**
  * Single Sign-On welcome page
  */
-public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewModel> implements Toolbar.OnMenuItemClickListener {
+public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewModel> {
     public static final String DEBUG_TAG = "SingleSignOnActivity";
 
     public static final String SINGLE_SIGN_ON_HTTPS_PREFIX = "https://";
@@ -55,18 +55,15 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         super.onCreate(savedInstanceState);
         binding = SingleSignOnWelcomeLayoutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
+
+        applyEdgeToEdge(binding.getRoot());
 
         registerAuthLauncher();
 
         initView();
         initViewModel();
 
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                finish();
-            }
-        });
 
         setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -82,17 +79,26 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         });
     }
 
-    private void registerAuthLauncher() {
-        authLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+
+    private void initView() {
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onActivityResult(ActivityResult o) {
-                setResult(o.getResultCode(), o.getData());
+            public void onClick(View v) {
                 finish();
             }
         });
-    }
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.shib_login_title);
+        }
 
-    private void initView() {
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
+
         String url = getIntent().getStringExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL);
         if (!TextUtils.isEmpty(url)) {
             binding.serverEditText.setText(url);
@@ -110,30 +116,16 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
                 doNext();
             }
         });
-
-        applyEdgeToEdge(binding.getRoot());
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.shib_login_title);
-        }
     }
 
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return false;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void registerAuthLauncher() {
+        authLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult o) {
+                setResult(o.getResultCode(), o.getData());
+                finish();
+            }
+        });
     }
 
     private void initViewModel() {

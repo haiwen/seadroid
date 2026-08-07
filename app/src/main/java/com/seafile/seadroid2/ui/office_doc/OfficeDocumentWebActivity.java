@@ -66,6 +66,8 @@ public class OfficeDocumentWebActivity extends BaseActivity {
 
         binding = ActivitySeaWebviewBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
+
         toolBinding = ToolbarActionbarProgressBarBinding.bind(binding.toolProgressBar.getRoot());
 
         if (!NetworkUtils.isConnected()) {
@@ -76,8 +78,9 @@ public class OfficeDocumentWebActivity extends BaseActivity {
 
         applyEdgeToEdge();
 
+        initView();
+
         initData();
-        initUI();
 
         if (savedInstanceState != null) {
             repoId = savedInstanceState.getString("repoId");
@@ -122,14 +125,15 @@ public class OfficeDocumentWebActivity extends BaseActivity {
     }
 
 
-    private void initUI() {
+    private void initView() {
         Toolbar toolbar = getActionBarToolbar();
-        toolbar.setNavigationOnClickListener(v -> {
-            finish();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
         });
-
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(fileName);
         }
 

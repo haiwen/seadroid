@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
@@ -45,7 +46,7 @@ import io.reactivex.functions.Consumer;
 /**
  * Display a file
  */
-public class FileActivity extends BaseActivityWithVM<FileViewModel> implements Toolbar.OnMenuItemClickListener {
+public class FileActivity extends BaseActivityWithVM<FileViewModel> {
 
     private FileActivityBinding binding;
 
@@ -85,6 +86,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
         binding = FileActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
 
         if (!NetworkUtils.isConnected()) {
             Toasts.show(R.string.network_error);
@@ -94,8 +96,23 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
         applyEdgeToEdge(binding.getRoot());
 
-        Intent intent = getIntent();
+        initIntent();
 
+        initView(direntModel.name);
+
+        initViewModel();
+
+        if (NetworkUtils.isConnected()) {
+            loadData();
+        } else {
+            Toasts.show(R.string.network_error);
+            finishWithCancel();
+        }
+    }
+
+    private void initIntent() {
+
+        Intent intent = getIntent();
         if (intent == null) {
             throw new IllegalArgumentException("missing args");
         }
@@ -116,21 +133,41 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
 
         destinationFile = getLocalDestinationFile(repoId, direntModel.repo_name, direntModel.full_path);
         account = SupportAccountManager.getInstance().getCurrentAccount();
-        //
-        binding.progressBar.setIndeterminate(true);
-
-        initWidgets(direntModel.name);
-
-        initViewModel();
-
-        if (NetworkUtils.isConnected()) {
-            loadData();
-        } else {
-            Toasts.show(R.string.network_error);
-            finishWithCancel();
-        }
     }
 
+    private void initView(String titleBarName) {
+        binding.fileName.setText(titleBarName);
+        binding.progressBar.setIndeterminate(true);
+
+        // icon
+        binding.fileIcon.setImageResource(Icons.getFileIcon(titleBarName));
+
+        binding.opCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cancelDownload();
+            }
+        });
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelDownload();
+            }
+        });
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(titleBarName);
+        }
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                cancelDownload();
+            }
+        });
+    }
 
     private void initViewModel() {
         getViewModel().getSeafExceptionLiveData().observe(this, new Observer<SeafException>() {
@@ -181,25 +218,6 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         });
     }
 
-    private void initWidgets(String titleBarName) {
-        binding.fileName.setText(titleBarName);
-
-        // icon
-        binding.fileIcon.setImageResource(Icons.getFileIcon(titleBarName));
-
-        binding.opCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cancelDownload();
-            }
-        });
-
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(titleBarName);
-    }
 
     private void cancelDownload() {
         getViewModel().clearAll();
@@ -303,19 +321,5 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> implements T
         });
 
         dialogFragment.show(getSupportFragmentManager(), BottomSheetPasswordDialogFragment.class.getSimpleName());
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            cancelDownload();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return false;
     }
 }

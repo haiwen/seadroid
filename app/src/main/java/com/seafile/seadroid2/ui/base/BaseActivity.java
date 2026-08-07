@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -15,17 +17,18 @@ import androidx.core.app.ComponentActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.webkit.internal.ApiFeature;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 /**
  * A base activity that handles common functionality in the app. This includes Action Bar tweaks.
  */
 public class BaseActivity extends AppCompatActivity {
 
-    // Primary toolbar and drawer toggle
-    private Toolbar mActionBarToolbar;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,30 +36,28 @@ public class BaseActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
 
         super.onCreate(savedInstanceState);
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-        }
     }
 
+    public void initToolbar() {
+        mToolbar = findViewById(R.id.toolbar_actionbar);
+        if (mToolbar == null) {
+            throw new RuntimeException("not found toolbar(R.id.toolbar_actionbar), please check your layout.");
+        }
+
+        // Depending on which version of Android you are on the Toolbar or the ActionBar may be
+        // active so the a11y description is set here.
+        mToolbar.setNavigationContentDescription(R.string.navdrawer_description_a11y);
+        setSupportActionBar(mToolbar);
+    }
+
+    @NonNull
     public Toolbar getActionBarToolbar() {
-        if (mActionBarToolbar == null) {
-            mActionBarToolbar = findViewById(R.id.toolbar_actionbar);
-            if (mActionBarToolbar != null) {
-                // Depending on which version of Android you are on the Toolbar or the ActionBar may be
-                // active so the a11y description is set here.
-                mActionBarToolbar.setNavigationContentDescription(R.string.navdrawer_description_a11y);
-                setSupportActionBar(mActionBarToolbar);
-            }
+        if (mToolbar == null) {
+            throw new RuntimeException("Toolbar is null, please first call initToolbar() after setContentView().");
         }
-        return mActionBarToolbar;
+        return mToolbar;
     }
 
-    @Override
-    public void setContentView(int layoutResID) {
-        super.setContentView(layoutResID);
-        getActionBarToolbar();
-    }
 
     public void applyEdgeToEdge(View view) {
         if (view == null) {

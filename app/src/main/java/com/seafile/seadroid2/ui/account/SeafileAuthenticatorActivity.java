@@ -2,9 +2,7 @@ package com.seafile.seadroid2.ui.account;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,8 +16,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NavUtils;
-import androidx.core.app.TaskStackBuilder;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
@@ -72,27 +68,38 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         }
 
         setContentView(R.layout.account_create_type_select);
+        initToolbar();
 
         applyEdgeToEdge(findViewById(R.id.root_layout));
 
-        activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        initView();
+        initListView();
+        initLauncher();
+
+        if (!maybeRestoreAuthFlow()) {
+            if (getIntent().getBooleanExtra(Constants.AccountKeys.ARG_SHIB, false)) {
+                launchSingleSignOnFlow();
+            } else if (getIntent().getBooleanExtra(Constants.AccountKeys.ARG_IS_EDITING, false)) {
+                launchEditAccountFlow();
+            }
+        }
+    }
+
+    private void initView() {
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onActivityResult(ActivityResult o) {
-                pendingFlow = FLOW_NONE;
-                hasLaunchedChildFlow = false;
-
-                if (o == null || o.getData() == null) {
-                    finish();
-                    return;
-                }
-
-                if (o.getResultCode() == RESULT_OK) {
-                    finishLogin(o.getData());
-                } else {
-                    finish();
-                }
+            public void onClick(View v) {
+                finish();
             }
         });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.choose_server);
+        }
+    }
+
+    private void initListView() {
+
 
         String country = Locale.getDefault().getCountry();
         String language = Locale.getDefault().getLanguage();
@@ -108,6 +115,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             strArray = new String[array.length];
             System.arraycopy(array, 0, strArray, 0, array.length);
         }
+
 
         ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, R.layout.list_item_authenticator, strArray);
         ListView listView = (ListView) findViewById(R.id.account_create_list);
@@ -143,23 +151,26 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
             }
         });
+    }
 
-        if (!maybeRestoreAuthFlow()) {
-            if (getIntent().getBooleanExtra(Constants.AccountKeys.ARG_SHIB, false)) {
-                launchSingleSignOnFlow();
-            } else if (getIntent().getBooleanExtra(Constants.AccountKeys.ARG_IS_EDITING, false)) {
-                launchEditAccountFlow();
-            }
-        }
+    private void initLauncher() {
 
-        Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.choose_server);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
-            public void onClick(View view) {
-                navigateUpOrBack(SeafileAuthenticatorActivity.this, null);
+            public void onActivityResult(ActivityResult o) {
+                pendingFlow = FLOW_NONE;
+                hasLaunchedChildFlow = false;
+
+                if (o == null || o.getData() == null) {
+                    finish();
+                    return;
+                }
+
+                if (o.getResultCode() == RESULT_OK) {
+                    finishLogin(o.getData());
+                } else {
+                    finish();
+                }
             }
         });
     }
@@ -217,58 +228,6 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         hasLaunchedChildFlow = true;
         activityLauncher.launch(intent);
     }
-
-    /**
-     * This utility method handles Up navigation intents by searching for a parent activity and
-     * navigating there if defined. When using this for an activity make sure to define both the
-     * native parentActivity as well as the AppCompat one when supporting API levels less than 16.
-     * when the activity has a single parent activity. If the activity doesn't have a single parent
-     * activity then don't define one and this method will use back button functionality. If "Up"
-     * functionality is still desired for activities without parents then use
-     * {@code syntheticParentActivity} to define one dynamically.
-     * <p>
-     * Note: Up navigation intents are represented by a back arrow in the top left of the Toolbar
-     * in Material Design guidelines.
-     *
-     * @param currentActivity         Activity in use when navigate Up action occurred.
-     * @param syntheticParentActivity Parent activity to use when one is not already configured.
-     */
-    public void navigateUpOrBack(Activity currentActivity, Class<? extends Activity> syntheticParentActivity) {
-        // Retrieve parent activity from AndroidManifest.
-        Intent intent = NavUtils.getParentActivityIntent(currentActivity);
-
-        // Synthesize the parent activity when a natural one doesn't exist.
-        if (intent == null && syntheticParentActivity != null) {
-            try {
-                intent = NavUtils.getParentActivityIntent(currentActivity, syntheticParentActivity);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (intent == null) {
-            // No parent defined in manifest. This indicates the activity may be used by
-            // in multiple flows throughout the app and doesn't have a strict parent. In
-            // this case the navigation up button should act in the same manner as the
-            // back button. This will result in users being forwarded back to other
-            // applications if currentActivity was invoked from another application.
-            currentActivity.onBackPressed();
-        } else {
-            if (NavUtils.shouldUpRecreateTask(currentActivity, intent)) {
-                // Need to synthesize a backstack since currentActivity was probably invoked by a
-                // different app. The preserves the "Up" functionality within the app according to
-                // the activity hierarchy defined in AndroidManifest.xml via parentActivity
-                // attributes.
-                TaskStackBuilder builder = TaskStackBuilder.create(currentActivity);
-                builder.addNextIntentWithParentStack(intent);
-                builder.startActivities();
-            } else {
-                // Navigate normally to the manifest defined "Up" activity.
-                NavUtils.navigateUpTo(currentActivity, intent);
-            }
-        }
-    }
-
 
     private void finishLogin(Intent intent) {
         SLogs.d(DEBUG_TAG, "finishLogin");
