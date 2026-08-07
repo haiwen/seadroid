@@ -44,7 +44,7 @@ import com.seafile.seadroid2.ui.main.MainActivity;
 import java.util.List;
 import java.util.Locale;
 
-public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
+public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> {
     private static final String DEBUG_TAG = "AccountsActivity";
     public static final int DETAIL_ACTIVITY_REQUEST = 1;
     private android.accounts.AccountManager mAccountManager;
@@ -90,8 +90,10 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
 
         binding = StartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
 
-        initUI();
+        initView();
+
         applyEdgeToEdge(binding.getRoot());
 
         mAccountManager = android.accounts.AccountManager.get(this);
@@ -102,15 +104,7 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
 
         registerForContextMenu(binding.accountListView);
 
-        // updates toolbar back button
-        if (currentDefaultAccount == null || !currentDefaultAccount.hasValidToken()) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        } else {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
-        getSupportActionBar().setTitle(R.string.accounts);
-
+        initSelfToolbar();
 
         initOnBackPressedDispatcher();
         initViewModel();
@@ -124,7 +118,7 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         }
     }
 
-    private void initUI() {
+    private void initView() {
 
         View footerView = getLayoutInflater().inflate(R.layout.account_list_footer, null, false);
 
@@ -146,12 +140,32 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         binding.accountListView.setAdapter(adapter);
         binding.accountListView.setOnItemClickListener((parent, view, position, id) -> onListItemClick(position));
 
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
-
-
     }
+
+    private void initSelfToolbar() {
+        // updates toolbar back button
+        if (currentDefaultAccount == null || !currentDefaultAccount.hasValidToken()) {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            }
+        } else {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
+            getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.accounts);
+        }
+    }
+
 
     private void initOnBackPressedDispatcher() {
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
@@ -250,21 +264,6 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> imple
         super.onResume();
 
         refreshView();
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private void refreshView() {

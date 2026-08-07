@@ -114,6 +114,7 @@ public class OpSelectorActivity extends BaseActivityWithVM<OpSelectorViewModel> 
 
         binding = ActivityVersatileSelectorBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
@@ -234,22 +235,19 @@ public class OpSelectorActivity extends BaseActivityWithVM<OpSelectorViewModel> 
                 finishSelf();
             }
         });
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            String action;
-            if (opSelectorTypeType == OpSelectorType.COPY) {
-                action = getResources().getString(R.string.file_action_copy);
-            } else if (opSelectorTypeType == OpSelectorType.MOVE) {
-                action = getResources().getString(R.string.file_action_move);
-            } else {
-                action = getResources().getString(R.string.file_share);
-            }
-
-            String title = TextUtils.isEmpty(fileName) ? action : action + " " + fileName;
-            getSupportActionBar().setTitle(title);
+        String action;
+        if (opSelectorTypeType == OpSelectorType.COPY) {
+            action = getResources().getString(R.string.file_action_copy);
+        } else if (opSelectorTypeType == OpSelectorType.MOVE) {
+            action = getResources().getString(R.string.file_action_move);
+        } else {
+            action = getResources().getString(R.string.file_share);
         }
 
+        String title = TextUtils.isEmpty(fileName) ? action : action + " " + fileName;
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(title);
+        }
         binding.ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

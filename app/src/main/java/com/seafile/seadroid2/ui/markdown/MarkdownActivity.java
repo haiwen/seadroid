@@ -39,7 +39,7 @@ import io.reactivex.functions.Consumer;
 /**
  * For showing markdown files
  */
-public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implements Toolbar.OnMenuItemClickListener {
+public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
     private final String TAG = "MarkdownActivity";
     private ActivityMarkdownBinding binding;
     private String path, repoId, fullPathInRemote;
@@ -68,6 +68,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
         super.onCreate(savedInstanceState);
         binding = ActivityMarkdownBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
@@ -94,11 +95,15 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
             binding.scrollMarkdownView.setVisibility(View.GONE);
         }
 
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(FileUtils.getFileName(path));
+        getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(FileUtils.getFileName(path));
+        }
 
         if (!NetworkUtils.isConnected()) {
             Toasts.show(R.string.network_unavailable);
@@ -178,19 +183,9 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> implem
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-            case R.id.edit_markdown:
-                edit();
-                break;
+        if (item.getItemId() == R.id.edit_markdown) {
+            edit();
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
 

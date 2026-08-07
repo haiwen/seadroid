@@ -34,7 +34,6 @@ public class BaseActivityWithVM<VM extends BaseViewModel> extends BaseActivity {
         initTvm();
     }
 
-
     private void initTvm() {
         tvm = new ViewModelProvider(this).get(getViewModelClass());
     }

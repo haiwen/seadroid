@@ -56,7 +56,6 @@ import io.reactivex.functions.Consumer;
 public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentViewModel> {
     private ActivityDocCommentBinding binding;
     private ToolbarActionbarBinding bindingOfToolbar;
-
     private DocsCommentAdapter adapter;
     private DocsCommentUserAdapter userAdapter;
 
@@ -86,20 +85,33 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         binding = ActivityDocCommentBinding.inflate(getLayoutInflater());
         bindingOfToolbar = ToolbarActionbarBinding.bind(binding.toolbar.getRoot());
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
+        initOnSavedState(savedInstanceState);
+        initView();
+
         adaptInputMethod();
 
+        initViewModel();
+
+        initAdapter();
+
+        refreshData();
+    }
+
+    private void initOnSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             pageOptionsModel = savedInstanceState.getParcelable("pageOption");
             if (pageOptionsModel == null) {
                 throw new IllegalArgumentException("pageOption is null");
             }
-            bindingOfToolbar.toolbarActionbar.setTitle(pageOptionsModel.docName);
 
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(pageOptionsModel.docName);
+            }
             Parcelable listParcelable = savedInstanceState.getParcelable("listParcelable");
             if (listParcelable != null) {
                 linearLayoutManager.onRestoreInstanceState(listParcelable);
@@ -115,30 +127,20 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
             if (pageOptionsModel == null) {
                 throw new IllegalArgumentException("pageOption is null");
             }
-            bindingOfToolbar.toolbarActionbar.setTitle(pageOptionsModel.docName);
+
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(pageOptionsModel.docName);
+            }
 
             hasModifyPermission = getIntent().getBooleanExtra("hasModifyPermission", false);
         }
-
-        initViewModel();
-
-        initAdapter();
-
-        initView();
-
-        refreshData();
     }
-
 
     private final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
 
     private void initView() {
-        Toolbar toolbar = bindingOfToolbar.toolbarActionbar;
 
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
-
-        toolbar.setNavigationOnClickListener(v -> {
+        bindingOfToolbar.toolbarActionbar.setNavigationOnClickListener(v -> {
             finish();
         });
 
@@ -154,10 +156,6 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
                     showPickPhotoSheetDialog(false);
                 }
             });
-
-//        //
-//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-//        binding.rvUserList.setLayoutManager(linearLayoutManager);
 
             binding.submit.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -191,14 +189,6 @@ public class DocsCommentsActivity extends BaseMediaSelectorActivity<DocsCommentV
         } else {
             binding.bottomSheetContainer.setVisibility(View.GONE);
         }
-
-//
-//        binding.richEditText.setOnRichAtListener(new OnRichAtListener() {
-//            @Override
-//            public void onCall(EditText editText) {
-//                showCollaboratorSelector(editText);
-//            }
-//        });
     }
 
     private void adaptInputMethod() {

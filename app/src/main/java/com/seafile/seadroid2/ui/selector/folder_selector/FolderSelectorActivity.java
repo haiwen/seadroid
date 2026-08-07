@@ -82,22 +82,11 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
         binding = ActivityFolderSelectorBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
         initView();
-
-
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (!onBackTo()) {
-                    finishPage();
-                } else {
-
-                }
-            }
-        });
 
         BusHelper.getCommonObserver().observe(this, busObserver);
 
@@ -116,17 +105,28 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
 
 
     private void initView() {
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (!onBackTo()) {
+                    finishPage();
+                } else {
+
+                }
+            }
+        });
+
         Toolbar toolbar = getActionBarToolbar();
-        if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(v -> {
-                finish();
-            });
-        }
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.settings_select_backup_folder_title);
         }
-
         binding.confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -49,9 +49,21 @@ public class AccountSelectorActivity extends BaseActivityWithVM<ObjSelectorViewM
 
         binding = ActivitySelectorObjBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
+
+        initIntent();
+
+        initView();
+        initViewModel();
+        initRv();
+
+        loadData();
+    }
+
+    private void initIntent() {
         Intent intent = getIntent();
         if (intent == null) {
             throw new IllegalArgumentException("Intent is null");
@@ -59,6 +71,9 @@ public class AccountSelectorActivity extends BaseActivityWithVM<ObjSelectorViewM
 
         maxCount = intent.getIntExtra("max", -1);
         isSingleSelect = maxCount == 1;
+    }
+
+    private void initView() {
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -74,23 +89,12 @@ public class AccountSelectorActivity extends BaseActivityWithVM<ObjSelectorViewM
                 stepBack();
             }
         });
-
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.choose_an_account);
         }
-
-        initView();
-        initViewModel();
-        initRv();
-
-        loadData();
-    }
-
-    private void initView() {
         binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
-        
-        if (!isSingleSelect){
+
+        if (!isSingleSelect) {
             binding.ok.setVisibility(View.VISIBLE);
             binding.ok.setOnClickListener(new View.OnClickListener() {
                 @Override
