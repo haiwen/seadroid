@@ -31,4 +31,9 @@
         android:title="@string/file_share"
         app:iconTint="@color/primary_icon_tint_color" />
 
+    <item
+        android:id="@+id/leave_share"
+        android:icon="@drawable/baseline_close_24"
+        android:title="@string/file_share_leave"
+        app:iconTint="@color/primary_icon_tint_color" />
 </menu>

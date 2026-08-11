@@ -13,4 +13,6 @@ public class ObjKey {
     public static final String DIRENT = "dirent";
     public static final String FILE = "file";
     public static final String DIR = "dir";
+
+    public static final String SEARCH = "search";
 }

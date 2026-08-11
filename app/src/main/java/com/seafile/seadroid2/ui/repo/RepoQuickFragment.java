@@ -96,6 +96,7 @@ import com.seafile.seadroid2.ui.dialog_fragment.BottomSheetRenameDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.CopyMoveDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteFileDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.DeleteRepoDialogFragment;
+import com.seafile.seadroid2.ui.dialog_fragment.LeaveShareDialogFragment;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnRefreshDataListener;
 import com.seafile.seadroid2.ui.dialog_fragment.listener.OnResultListener;
 import com.seafile.seadroid2.ui.file.FileActivity;
@@ -169,7 +170,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private ActivityResultLauncher<Intent> imagePreviewActivityLauncher;
     private ActivityResultLauncher<Intent> copyMoveLauncher;
     private BottomSheetMenuManager bottomSheetMenuManager;
-
+    private String curObjKey;
 
     public static RepoQuickFragment newInstance() {
         Bundle args = new Bundle();
@@ -694,6 +695,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 return true;
             }
 
+            if (baseModel instanceof RepoModel) {
+                curObjKey = ObjKey.REPO;
+            } else if (baseModel instanceof DirentModel) {
+                curObjKey = ObjKey.DIRENT;
+            } else if (baseModel instanceof SearchModel) {
+                curObjKey = ObjKey.SEARCH;
+            }
+
             //return
             if (adapter.isOnActionMode()) {
                 return true;
@@ -911,10 +920,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private void showBottomSheetWindow() {
         List<BaseModel> selected = adapter.getSelectedList();
-        bottomSheetMenuManager.showMenu(selected);
+        bottomSheetMenuManager.showMenu(getCurrentAccount().getSignature(), curObjKey, selected);
     }
 
     private void removeFloatingView() {
+        curObjKey = null;
         bottomSheetMenuManager.dismiss();
     }
 
@@ -972,6 +982,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             onSaveAs(selectedList);
         } else if (item.getItemId() == R.id.profile) {
             showFileProfileDialog(selectedList);
+        } else if (item.getItemId() == R.id.leave_share) {
+            showLeaveShareDialog(selectedList);
         }
     }
 
@@ -1054,7 +1066,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             RepoModel repoModel = navContext.getRepoModel();
             if (repoModel == null) {
                 getViewModel().loadData(navContext, refreshStatus, isBlank);
-            } else if (repoModel.encrypted) {
+            } else {
                 decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean repoDecryptResult) {
@@ -1069,8 +1081,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     }
                 });
 
-            } else {
-                getViewModel().loadData(navContext, refreshStatus, isBlank);
             }
         } else {
             getViewModel().loadData(navContext, refreshStatus, isBlank);
@@ -1247,22 +1257,16 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private void navTo(BaseModel model) {
         //save
         if (model instanceof RepoModel repoModel) {
-            if (repoModel.encrypted) {
-                decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
-                    @Override
-                    public void accept(Boolean repoDecryptResult) {
-                        if (repoDecryptResult) {
-                            binding.stickyContainer.setVisibility(View.GONE);
-                            GlobalNavContext.push(repoModel);
-                            loadData(getRefreshStatus(), true);
-                        }
+            decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
+                @Override
+                public void accept(Boolean repoDecryptResult) {
+                    if (repoDecryptResult) {
+                        binding.stickyContainer.setVisibility(View.GONE);
+                        GlobalNavContext.push(repoModel);
+                        loadData(getRefreshStatus(), true);
                     }
-                });
-            } else {
-                binding.stickyContainer.setVisibility(View.GONE);
-                GlobalNavContext.push(repoModel);
-                loadData(getRefreshStatus(), true);
-            }
+                }
+            });
 
         } else if (model instanceof DirentModel direntModel) {
             if (direntModel.isDir()) {
@@ -1315,7 +1319,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         //different repo
-        getViewModel().getRepoModelEntity(getCurrentAccount(),repoId, new Consumer<RepoModel>() {
+        getViewModel().getRepoModelEntity(getCurrentAccount(), repoId, new Consumer<RepoModel>() {
             @Override
             public void accept(RepoModel repoModel) throws Exception {
                 if (repoModel == null) {
@@ -1323,18 +1327,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     return;
                 }
 
-                if (repoModel.encrypted) {
-                    decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
-                        @Override
-                        public void accept(Boolean repoDecryptResult) {
-                            if (repoDecryptResult) {
-                                switchToPath(repoModel, fullPath, isDir);
-                            }
+                decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean repoDecryptResult) {
+                        if (repoDecryptResult) {
+                            switchToPath(repoModel, fullPath, isDir);
                         }
-                    });
-                } else {
-                    switchToPath(repoModel, fullPath, isDir);
-                }
+                    }
+                });
             }
         });
     }
@@ -1616,6 +1616,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private File getLocalDestinationFile(String repoId, String repoName, String fullPathInRepo) {
         Account account = getCurrentAccount();
         return DataManager.getLocalFileCachePath(account, repoId, repoName, fullPathInRepo);
+    }
+
+    private void showLeaveShareDialog(List<BaseModel> repoModels) {
+        if (CollectionUtils.isEmpty(repoModels)) {
+            return;
+        }
+
+        RepoModel repoModel = (RepoModel) repoModels.get(0);
+        String repoId = repoModel.repo_id;
+        LeaveShareDialogFragment dialogFragment = LeaveShareDialogFragment.newInstance(repoId, repoModel.owner_email);
+        dialogFragment.setRefreshListener(isDone -> {
+            closeActionMode();
+            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
+        });
+        dialogFragment.show(getChildFragmentManager(), LeaveShareDialogFragment.class.getSimpleName());
     }
 
     private void showFileProfileDialog(List<BaseModel> models) {
@@ -2097,7 +2112,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private CopyMoveContext copyMoveContext = null;
 
-    //SearchModel supported
+//SearchModel supported
 
     /**
      * Choose copy/move destination for multiple files
@@ -2511,7 +2526,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     //0 camera
-    //1 video
+//1 video
     private int permission_media_select_type = -1;
 
     private void takePhoto() {

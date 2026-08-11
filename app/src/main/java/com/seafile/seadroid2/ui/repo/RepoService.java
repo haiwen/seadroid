@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.repo;
 
 import com.seafile.seadroid2.framework.db.entities.GroupEntity;
+import com.seafile.seadroid2.framework.model.ResultModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionListWrapperModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionWrapperModel;
@@ -12,6 +13,7 @@ import java.util.List;
 
 import io.reactivex.Single;
 import retrofit2.Call;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -50,4 +52,8 @@ public interface RepoService {
 
     @GET("api/v2.1/repos/{repo_id}/custom-share-permissions/")
     Single<PermissionListWrapperModel> getCustomSharePermissions(@Path("repo_id") String repoId);
+
+    //    https://dev.seafile.com/seahub/api2/beshared-repos/c897035a-a521-4b4e-be89-c9437a7ac968/?share_type=personal&from=ed812a0629bf40bc80526a4ef3216dae%40auth.local
+    @DELETE("api2/beshared-repos/{repo_id}/")
+    Single<ResultModel> deleteRepoShare(@Path("repo_id") String repoId, @Query("from") String from,@Query("share_type") String shareType);
 }

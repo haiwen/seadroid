@@ -91,8 +91,18 @@ public class RepoViewModel extends BaseViewModel {
     }
 
     public void decryptRepo(RepoModel repoModel, Consumer<RepoDecryptResult> consumer) {
-        if (repoModel == null || !repoModel.encrypted) {
+        if (repoModel == null) {
             // The non-encrypted database will be returned to success
+            return;
+        }
+
+        if (!repoModel.encrypted) {
+            if (consumer != null) {
+                try {
+                    consumer.accept(RepoDecryptResult.SUCCESS);
+                } catch (Exception ignored) {
+                }
+            }
             return;
         }
 
@@ -899,6 +909,35 @@ public class RepoViewModel extends BaseViewModel {
                 getSecondRefreshLiveData().setValue(false);
                 SeafException seafException = ExceptionUtils.parseByThrowable(throwable);
                 Toasts.show(seafException.getMessage());
+            }
+        });
+    }
+
+    private final MutableLiveData<ResultModel> _leaveShareLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<ResultModel> getLeaveShareLiveData() {
+        return _leaveShareLiveData;
+    }
+
+    public void leaveShare(String repoId, String accountEmail) {
+        getRefreshLiveData().setValue(true);
+
+        Single<ResultModel> single = HttpManager.getCurrentHttp().execute(RepoService.class).deleteRepoShare(repoId, accountEmail,"personal");
+
+        addSingleDisposable(single, new Consumer<ResultModel>() {
+            @Override
+            public void accept(ResultModel resultModel) throws Exception {
+                getRefreshLiveData().setValue(false);
+
+                getLeaveShareLiveData().setValue(resultModel);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                getRefreshLiveData().setValue(false);
+
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
+                getSeafExceptionLiveData().setValue(seafException);
             }
         });
     }
