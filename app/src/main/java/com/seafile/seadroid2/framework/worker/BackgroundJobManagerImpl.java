@@ -242,6 +242,22 @@ public class BackgroundJobManagerImpl {
     }
 
     public void cancelAllJobs() {
+        // album scan
+        getWorkManager().cancelUniqueWork(AlbumBackupPeriodicScanStarter.TAG);
+        getWorkManager().cancelWorkById(AlbumBackupPeriodicScanStarter.UID);
+
+        // folder scan
+        getWorkManager().cancelUniqueWork(FolderBackupPeriodicScanStarter.TAG);
+        getWorkManager().cancelWorkById(FolderBackupPeriodicScanStarter.UID);
+
+        // media upload
+        getWorkManager().cancelWorkById(MediaBackupUploadWorker.UID);
+
+        // folder upload
+        getWorkManager().cancelWorkById(FolderBackupUploadWorker.UID);
+
+        getWorkManager().cancelAllWorkByTag(TAG_ALL);
+
         getWorkManager().cancelAllWork();
     }
 }

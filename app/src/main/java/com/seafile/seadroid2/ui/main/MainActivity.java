@@ -49,6 +49,7 @@ import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
@@ -130,6 +131,8 @@ public class MainActivity extends BaseActivity {
         requestServerInfo(true);
 
         startMediaMountWatching();
+
+        clearOldWorker();
     }
 
     private void resetOverflowIcon() {
@@ -153,6 +156,10 @@ public class MainActivity extends BaseActivity {
         GlobalNavContext.restore();
 
         refreshActionbar();
+    }
+
+    private void clearOldWorker(){
+        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
     }
 
     private void registerComponent() {
