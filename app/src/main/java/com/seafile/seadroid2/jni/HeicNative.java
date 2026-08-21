@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.jni;
 
+import android.util.Log;
+
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.annotation.Todo;
@@ -17,8 +19,23 @@ public class HeicNative {
     public static final int MOTION_PHOTO_TYPE_HEIC = 1;  // HEIC motion photo
     public static final int MOTION_PHOTO_TYPE_NONE = 2;  // Not a motion photo
 
+    /**
+     * 原生库加载失败（如 32 位设备缺对应 ABI 的库）时为 true，
+     * 调用方应跳过所有原生调用，避免 UnsatisfiedLinkError。
+     */
+    private static volatile boolean nativeUnavailable = false;
+
     static {
-        System.loadLibrary("heicgen");
+        try {
+            System.loadLibrary("heicgen");
+        } catch (Throwable t) {
+            nativeUnavailable = true;
+            Log.w(TAG, "failed to load heicgen, motion photo feature disabled", t);
+        }
+    }
+
+    public static boolean isNativeUnavailable() {
+        return nativeUnavailable;
     }
 
     // ==================== Native methods ====================
@@ -40,6 +57,10 @@ public class HeicNative {
     public static native String ConvertJpeg2Heic(String jpegFilePath, String outputPath);
 
     public static String convertJpegMotionPhotoTo(String heicFilePath, String outputPath) {
+        if (nativeUnavailable) {
+            return null;
+        }
+
         if (FileUtils.isFileExists(heicFilePath)) {
             return ConvertJpeg2Heic(heicFilePath, outputPath);
         } else {
@@ -84,6 +105,24 @@ public class HeicNative {
     public static native byte[] ExtractJpegVideo(String inputFilePath);
 
     /**
+     * 将 JPEG Motion Photo 中内嵌的 MP4 视频流式写入临时文件（不经过 Java 堆，避免大 byte[] OOM）。
+     *
+     * @param inputFilePath  原图路径
+     * @param outputFilePath 输出视频文件路径
+     * @return 是否提取成功
+     */
+    public static native boolean ExtractJpegVideoToFile(String inputFilePath, String outputFilePath);
+
+    /**
+     * 将 HEIC Motion Photo 中内嵌的 MP4 视频流式写入临时文件（不经过 Java 堆，避免大 byte[] OOM）。
+     *
+     * @param inputFilePath  原图路径
+     * @param outputFilePath 输出视频文件路径
+     * @return 是否提取成功
+     */
+    public static native boolean ExtractHeicVideoToFile(String inputFilePath, String outputFilePath);
+
+    /**
      * Checks whether the image is a Motion Photo and returns its type.
      * <p>
      * Detection steps:
@@ -106,6 +145,9 @@ public class HeicNative {
      * @return whether the file is a motion photo
      */
     public static boolean isMotionPhoto(String inputFilePath) {
+        if (nativeUnavailable) {
+            return false;
+        }
         int type = CheckMotionPhotoType(inputFilePath);
         return type == MOTION_PHOTO_TYPE_JPEG || type == MOTION_PHOTO_TYPE_HEIC;
     }
@@ -117,6 +159,10 @@ public class HeicNative {
      * @return MP4 video bytes, or null on failure or if not a motion photo
      */
     public static byte[] extractMotionPhotoVideo(String inputFilePath) {
+        if (nativeUnavailable) {
+            return null;
+        }
+
         int type = CheckMotionPhotoType(inputFilePath);
         switch (type) {
             case MOTION_PHOTO_TYPE_JPEG:

@@ -56,7 +56,14 @@ public class TransferModel implements Comparable<TransferModel> {
     public String full_path;
     public String file_name;
     public String original_name;
+    /**
+     * 排序键：单调递增，严格区分先后顺序，用于上传队列排序（不是墙钟时间，不能直接展示）。
+     */
     public long created_at;
+    /**
+     * 入队时的墙钟时间（ms），仅用于 UI 展示"加入时间"。
+     */
+    public long added_at;
     public int retry_times = 0;
 
     /**
@@ -154,6 +161,7 @@ public class TransferModel implements Comparable<TransferModel> {
 
         TransferModel entity = new TransferModel();
         entity.created_at = System.nanoTime();
+        entity.added_at = System.currentTimeMillis();
         entity.full_path = file.getAbsolutePath();
 
         // remote path: /My Photos/{bucketName}/{fileName}
@@ -174,6 +182,7 @@ public class TransferModel implements Comparable<TransferModel> {
 
         TransferModel entity = new TransferModel();
         entity.created_at = System.nanoTime();
+        entity.added_at = System.currentTimeMillis();
         entity.full_path = file.getAbsolutePath();
 
         String t = entity.full_path;

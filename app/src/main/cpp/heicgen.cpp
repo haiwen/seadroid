@@ -57,8 +57,14 @@ struct MotionPhotoXmpInfo {
 };
 
 static MotionPhotoXmpInfo ParseMotionPhotoXmpContent(const std::string &xmpContent);
+static std::string ExtractXmpValue(const std::string &xmp, const std::string &tagName);
+static bool ValidatePrivateHeicMotionPhotoXmp(const std::string &xmp, size_t mp4VideoLength,
+                                              size_t hdrDataSize);
+static bool ValidatePrivateHeicGainMapXmp(const std::string &xmp, size_t hdrDataSize);
+static long CalcPrimaryJpegLength(const std::vector<uint8_t> &jpegBytes);
 
 static bool HasJpegSoi(const std::vector<uint8_t> &data);
+static bool IsCompleteJpeg(const std::vector<uint8_t> &data);
 
 static long SafeStol(const std::string &str, long defaultValue = 0) {
     try {
@@ -748,23 +754,29 @@ Java_com_seafile_seadroid2_jni_HeicNative_GenHeicMotionPhoto(
     LOGI_MP("[Step 2/6] Primary image encoded successfully, handle=%p", primaryHandle);
 
     if (!hdrData.empty()) {
-        if (!HasJpegSoi(hdrData)) {
-            LOGW_MP("[Step 3/6] HDR GainMap data missing JPEG SOI, skipping");
-        } else {
-            heif_error hdrMetaErr = heif_context_add_generic_metadata(
-                    ctx,
-                    primaryHandle,
-                    hdrData.data(),
-                    static_cast<int>(hdrData.size()),
-                    "mime",
-                    "image/jpeg+gainmap"
-            );
-            if (hdrMetaErr.code != heif_error_Ok) {
-                LOGW_MP("[Step 3/6] 添加 HDR GainMap 元数据失败: %s", hdrMetaErr.message);
-            } else {
-                LOGI_MP("[Step 3/6] HDR GainMap 元数据已写入 (%zu bytes)", hdrData.size());
-            }
+        if (!IsCompleteJpeg(hdrData)) {
+            LOGE_MP("[Step 3/6] HDR GainMap data is not a complete JPEG");
+            heif_image_handle_release(primaryHandle);
+            heif_context_free(ctx);
+            env->ReleaseStringUTFChars(outputPath, outPath);
+            return env->NewStringUTF("error: invalid HDR gainmap JPEG");
         }
+        heif_error hdrMetaErr = heif_context_add_generic_metadata(
+                ctx,
+                primaryHandle,
+                hdrData.data(),
+                static_cast<int>(hdrData.size()),
+                "mime",
+                "image/jpeg+gainmap"
+        );
+        if (hdrMetaErr.code != heif_error_Ok) {
+            LOGE_MP("[Step 3/6] Failed to write private HDR GainMap metadata: %s", hdrMetaErr.message);
+            heif_image_handle_release(primaryHandle);
+            heif_context_free(ctx);
+            env->ReleaseStringUTFChars(outputPath, outPath);
+            return env->NewStringUTF("error: failed to write HDR gainmap metadata");
+        }
+        LOGI_MP("[Step 3/6] Private HDR GainMap metadata written (%zu bytes)", hdrData.size());
     }
 
     // Handle XMP metadata: directly use the provided xmpBytes
@@ -780,6 +792,14 @@ Java_com_seafile_seadroid2_jni_HeicNative_GenHeicMotionPhoto(
         finalXmp = GenerateHeicMotionPhotoXMP(mp4Data.size(), hdrData.size(), presentationTimestampUs);
         LOGI_MP("[GenHeicMotionPhoto] No XMP provided, generated new Motion Photo XMP: %zu bytes",
                 finalXmp.size());
+    }
+
+    if (!ValidatePrivateHeicMotionPhotoXmp(finalXmp, mp4Data.size(), hdrData.size())) {
+        LOGE_MP("[GenHeicMotionPhoto] XMP does not match the private HEIC Motion Photo layout");
+        heif_image_handle_release(primaryHandle);
+        heif_context_free(ctx);
+        env->ReleaseStringUTFChars(outputPath, outPath);
+        return env->NewStringUTF("error: inconsistent HEIC motion photo XMP");
     }
 
     // Write XMP metadata using libheif
@@ -946,6 +966,27 @@ Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicXMP(JNIEnv *env, jclass cla
     env->ReleaseStringUTFChars(inputFilePath, path);
 
     return env->NewStringUTF(xmp.c_str());
+}
+
+static bool ValidatePrivateHeicGainMapXmp(const std::string &xmp, size_t hdrDataSize) {
+    if (hdrDataSize == 0) {
+        return ExtractXmpValue(xmp, "Seafile:GainMapStorage").empty() &&
+               ExtractXmpValue(xmp, "Seafile:GainMapMime").empty() &&
+               ExtractXmpValue(xmp, "Seafile:GainMapLength").empty();
+    }
+
+    return ExtractXmpValue(xmp, "Seafile:GainMapStorage") == "heif-mime-metadata" &&
+           ExtractXmpValue(xmp, "Seafile:GainMapMime") == "image/jpeg+gainmap" &&
+           SafeStol(ExtractXmpValue(xmp, "Seafile:GainMapLength"), -1) ==
+           static_cast<long>(hdrDataSize);
+}
+
+static bool ValidatePrivateHeicMotionPhotoXmp(const std::string &xmp, size_t mp4VideoLength,
+                                              size_t hdrDataSize) {
+    return ExtractXmpValue(xmp, "Seafile:MotionPhotoVideoStorage") == "mpvd-box" &&
+           SafeStol(ExtractXmpValue(xmp, "Seafile:MotionPhotoVideoLength"), -1) ==
+           static_cast<long>(mp4VideoLength) &&
+           ValidatePrivateHeicGainMapXmp(xmp, hdrDataSize);
 }
 
 static MotionPhotoXmpInfo ParseMotionPhotoXmpContent(const std::string &xmpContent) {
@@ -2202,6 +2243,11 @@ static bool HasJpegSoi(const std::vector<uint8_t> &data) {
     return data.size() >= 2 && data[0] == 0xFF && data[1] == 0xD8;
 }
 
+static bool IsCompleteJpeg(const std::vector<uint8_t> &data) {
+    long jpegLength = CalcPrimaryJpegLength(data);
+    return jpegLength > 0 && static_cast<size_t>(jpegLength) == data.size();
+}
+
 static bool IsLikelyMp4Slice(const std::vector<uint8_t> &data, long start, long len) {
     if (start < 0 || len < 12) return false;
     if (static_cast<size_t>(start + len) > data.size()) return false;
@@ -2290,13 +2336,12 @@ static std::vector<uint8_t> SliceBytes(const std::vector<uint8_t> &data, long st
 
 static std::vector<uint8_t> ExtractGainMapJpegFromMotionPhotoBytes(const std::vector<uint8_t> &data,
                                                                    long start, long len, long padding) {
-    if (start < 0 || len < 4) return {};
-    if (static_cast<size_t>(start + len) > data.size()) return {};
-    if (data[static_cast<size_t>(start)] != 0xFF || data[static_cast<size_t>(start + 1)] != 0xD8) {
-        return {};
-    }
-    if (padding < 0) return {};
-    return SliceBytes(data, start, len);
+    if (start < 0 || len < 4 || padding < 0) return {};
+    if (start > static_cast<long>(data.size()) || len > static_cast<long>(data.size()) - start) return {};
+    if (padding > static_cast<long>(data.size()) - start - len) return {};
+    std::vector<uint8_t> gainMap = SliceBytes(data, start, len);
+    if (!IsCompleteJpeg(gainMap)) return {};
+    return gainMap;
 }
 
 static std::vector<uint8_t> EncodeHeifHandleToJpeg(heif_image_handle *handle, int quality) {
@@ -2423,8 +2468,8 @@ static std::vector<uint8_t> ExtractHeicHdrData(const char *filePath) {
                 continue;
             }
 
-            if (!HasJpegSoi(buf)) {
-                LOGD_MP("[ExtractHeicHdr] Skipping non-JPEG mime metadata");
+            if (!IsCompleteJpeg(buf)) {
+                LOGD_MP("[ExtractHeicHdr] Skipping incomplete JPEG mime metadata");
                 continue;
             }
 
@@ -2752,70 +2797,36 @@ static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <rdf:Description rdf:about=""
         xmlns:GCamera="http://ns.google.com/photos/1.0/camera/"
-        xmlns:Container="http://ns.google.com/photos/1.0/container/"
-        xmlns:Item="http://ns.google.com/photos/1.0/container/item/")";
-
-    if (hdrDataSize > 0) {
-        xmp += R"(
-        xmlns:hdrgm="http://ns.adobe.com/hdr-gain-map/1.0/"
-        hdrgm:Version="1.0")";
-    }
-
-    xmp += R"(
+        xmlns:Seafile="https://www.seafile.com/ns/motion-photo/1.0/"
         GCamera:MicroVideo="1"
         GCamera:MicroVideoVersion="1"
         GCamera:MicroVideoOffset=")" + std::to_string(mp4VideoLength) + R"("
-        GCamera:MicroVideoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"(""
+        GCamera:MicroVideoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"("
         GCamera:MotionPhoto="1"
         GCamera:MotionPhotoVersion="1"
-        GCamera:MotionPhotoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"("">
-      <Container:Directory>
-        <rdf:Seq>
-          <rdf:li rdf:parseType="Resource">
-            <Container:Item
-              Item:Mime="image/jpeg"
-              Item:Semantic="Primary"
-              Item:Length="0"
-              Item:Padding="0"/>
-          </rdf:li>)";
+        GCamera:MotionPhotoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"("
+        Seafile:MotionPhotoVideoStorage="mpvd-box"
+        Seafile:MotionPhotoVideoLength=")" + std::to_string(mp4VideoLength) + R"(")";
 
-    // hdr item
     if (hdrDataSize > 0) {
         xmp += R"(
-          <rdf:li rdf:parseType="Resource">
-            <Container:Item
-              Item:Mime="image/jpeg"
-              Item:Semantic="GainMap"
-              Item:Length=")" + std::to_string(hdrDataSize) + R"("
-              Item:Padding="0"/>
-          </rdf:li>)";
+        Seafile:GainMapStorage="heif-mime-metadata"
+        Seafile:GainMapMime="image/jpeg+gainmap"
+        Seafile:GainMapLength=")" + std::to_string(hdrDataSize) + R"(")";
     }
 
-    // motion photo item
-    xmp += R"(
-              <rdf:li rdf:parseType="Resource">
-                <Container:Item
-                  Item:Mime="video/mp4"
-                  Item:Semantic="MotionPhoto"
-                  Item:Padding="8"
-                  Item:Length=")" + std::to_string(mp4VideoLength) + R"("/>
-              </rdf:li>
-            </rdf:Seq>
-          </Container:Directory>
-        </rdf:Description>
-      </rdf:RDF>
-    </x:xmpmeta>)";
+    xmp += R"(>
+    </rdf:Description>
+  </rdf:RDF>
+</x:xmpmeta>)";
 
     LOGD_MP("[GenerateXMP] XMP size=%zu bytes", xmp.size());
-    LOGD_MP("[GenerateXMP] XMP fields: MotionPhoto=1, Version=1, TimestampUs=%zu", presentationTimestampUs);
-    LOGD_MP("[GenerateXMP] Primary: Mime=image/heic, Semantic=Primary, Padding=8");
+    LOGD_MP("[GenerateXMP] Private HEIC layout: video=mpvd-box, videoLength=%zu", mp4VideoLength);
     if (hdrDataSize > 0) {
-        LOGD_MP("[GenerateXMP] GainMap: Mime=image/jpeg, Semantic=GainMap, Length=%zu", hdrDataSize);
+        LOGD_MP("[GenerateXMP] Private HDR GainMap: storage=heif-mime-metadata, mime=image/jpeg+gainmap, length=%zu", hdrDataSize);
     }
-    LOGD_MP("[GenerateXMP] Video: Mime=video/mp4, Semantic=MotionPhoto, Length=%zu", mp4VideoLength);
     return xmp;
 }
-
 
 static std::string GetSupportedVendorsMotionPhotoNamespace(const std::string &vendor) {
     std::string xmp;
@@ -3156,6 +3167,11 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertJpeg2Heic(
 
     std::vector<uint8_t> hdrJpeg;
     if (hdrStart >= 0 && hdrLen > 0) {
+        if (xmpInfo.gainMapLength != hdrLen || xmpInfo.gainMapMime != "image/jpeg") {
+            LOGE_MP("[Convert] Invalid GainMap XMP descriptor");
+            env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+            return env->NewStringUTF("error: invalid HDR gainmap XMP");
+        }
         hdrJpeg = ExtractGainMapJpegFromMotionPhotoBytes(fileData, hdrStart, hdrLen, hdrPadding);
         if (hdrJpeg.empty()) {
             LOGE_MP("[Convert] HDR GainMap slice not valid JPEG");
@@ -3383,7 +3399,13 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertHeic2Jpeg(
 
     // extract HDR data
     std::vector<uint8_t> hdrData = ExtractHeicHdrData(inPath);
-    size_t hdrPadding = 0;  // No padding when converting from HEIC
+    if (!hdrData.empty() && !ValidatePrivateHeicGainMapXmp(heicXmp, hdrData.size())) {
+        LOGE_MP("[ConvertHeic2Jpeg] HDR metadata does not match private HEIC XMP");
+        env->ReleaseStringUTFChars(outputFilePath, outPath);
+        env->ReleaseStringUTFChars(inputFilePath, inPath);
+        return env->NewStringUTF("error: inconsistent HDR gainmap metadata");
+    }
+    size_t hdrPadding = 0;
     if (!hdrData.empty()) {
         if (!HasJpegSoi(hdrData)) {
             LOGE_MP("[ConvertHeic2Jpeg] HDR gainmap data missing JPEG SOI");

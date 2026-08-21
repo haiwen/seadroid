@@ -99,16 +99,18 @@ public final class MotionPhotoDetector {
             //     * - {@link #MOTION_PHOTO_TYPE_JPEG} (0): JPEG 格式的动态照片
             //     * - {@link #MOTION_PHOTO_TYPE_HEIC} (1): HEIC 格式的动态照片
             //     * - {@link #MOTION_PHOTO_TYPE_NONE} (2): 非动态照片
-            int t = HeicNative.CheckMotionPhotoType(p.getAbsolutePath());
-            if (t == 0) {
-                d.mpType = MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_JPEG;
-                return d;
-            } else if (t == 1) {
-                d.mpType = MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_HEIC;
-                return d;
+            if (!HeicNative.isNativeUnavailable()) {
+                int t = HeicNative.CheckMotionPhotoType(p.getAbsolutePath());
+                if (t == 0) {
+                    d.mpType = MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_JPEG;
+                    return d;
+                } else if (t == 1) {
+                    d.mpType = MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_HEIC;
+                    return d;
+                }
             }
             return d;
-        } catch (ImageProcessingException | IOException e) {
+        } catch (ImageProcessingException | IOException | LinkageError e) {
             return new MotionPhotoDescriptor();
         }
     }
@@ -124,10 +126,14 @@ public final class MotionPhotoDetector {
 
     public static MotionPhotoDescriptor extractHeicXmp(File p) {
         try {
+            if (HeicNative.isNativeUnavailable()) {
+                return new MotionPhotoDescriptor();
+            }
+
             String xml = HeicNative.ExtractHeicXMP(p.getAbsolutePath());
             MotionPhotoDescriptor descriptor = parse(xml, false);
             return descriptor;
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             return new MotionPhotoDescriptor();
         }
     }
