@@ -181,7 +181,7 @@ public class AccountViewModel extends BaseViewModel {
         }).flatMap(new Function<ServerInfoModel, SingleSource<AccountInfo>>() {
             @Override
             public SingleSource<AccountInfo> apply(ServerInfoModel serverInfoModel) throws Exception {
-                return HttpManager.getCurrentHttp().execute(AccountService.class).getAccountInfo();
+                return HttpManager.getHttpWithAccount(loginAccount).execute(AccountService.class).getAccountInfo();
             }
         }).flatMap(new Function<AccountInfo, SingleSource<Account>>() {
             @Override
