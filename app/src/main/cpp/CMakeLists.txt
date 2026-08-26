@@ -19,13 +19,6 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 # Define library path for convenience
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libheif/lib/${ANDROID_ABI}")
 
-# Skip unsupported ABI (x86). This project only provides prebuilt libraries for
-# arm64-v8a, armeabi-v7a and x86_64.
-if(ANDROID_ABI STREQUAL "x86")
-    message(STATUS "Skipping build for unsupported ABI: ${ANDROID_ABI}")
-    return()
-endif()
-
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libheif/include")
 
 # Check if library directory exists for current ABI
@@ -67,6 +60,10 @@ elseif(ANDROID_ABI STREQUAL "x86_64")
 elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
     target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
             -Wl,-z,max-page-size=16384
+            -Wl,-z,separate-code
+    )
+elseif(ANDROID_ABI STREQUAL "x86")
+    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
             -Wl,-z,separate-code
     )
 endif()

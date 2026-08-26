@@ -89,16 +89,12 @@ public final class MotionPhotoDetector {
     public static MotionPhotoDescriptor extractJpegXmp(File p) {
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(p);
-
-
             MotionPhotoDescriptor d = extractXmp(metadata, true);
             if (d.isMotionPhoto()) {
                 return d;
             }
 
-            //     * - {@link #MOTION_PHOTO_TYPE_JPEG} (0): JPEG 格式的动态照片
-            //     * - {@link #MOTION_PHOTO_TYPE_HEIC} (1): HEIC 格式的动态照片
-            //     * - {@link #MOTION_PHOTO_TYPE_NONE} (2): 非动态照片
+            // if file not motion photo, secondary check: Native check
             if (!HeicNative.isNativeUnavailable()) {
                 int t = HeicNative.CheckMotionPhotoType(p.getAbsolutePath());
                 if (t == 0) {
@@ -114,39 +110,6 @@ public final class MotionPhotoDetector {
             return new MotionPhotoDescriptor();
         }
     }
-
-    public static MotionPhotoDescriptor extractJpegXmp(byte[] jpeg) {
-        try {
-            Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(jpeg));
-            return extractXmp(metadata, true);
-        } catch (ImageProcessingException | IOException e) {
-            return new MotionPhotoDescriptor();
-        }
-    }
-
-    public static MotionPhotoDescriptor extractHeicXmp(File p) {
-        try {
-            if (HeicNative.isNativeUnavailable()) {
-                return new MotionPhotoDescriptor();
-            }
-
-            String xml = HeicNative.ExtractHeicXMP(p.getAbsolutePath());
-            MotionPhotoDescriptor descriptor = parse(xml, false);
-            return descriptor;
-        } catch (Exception | LinkageError e) {
-            return new MotionPhotoDescriptor();
-        }
-    }
-
-//    public static MotionPhotoDescriptor extractHeicXmp(InputStream p) {
-//        try {
-//
-//            Metadata metadata = ImageMetadataReader.readMetadata(p);
-//            return extractXmp(metadata, false);
-//        } catch (ImageProcessingException | IOException e) {
-//            return new MotionPhotoDescriptor();
-//        }
-//    }
 
     public static MotionPhotoDescriptor extractXmp(Metadata metadata, boolean isJpeg) {
         MotionPhotoDescriptor descriptor = new MotionPhotoDescriptor();
@@ -173,16 +136,27 @@ public final class MotionPhotoDetector {
             throw new RuntimeException(e);
         }
 
-
         return descriptor;
     }
 
+    public static MotionPhotoDescriptor extractHeicXmp(File p) {
+        try {
+            if (HeicNative.isNativeUnavailable()) {
+                return new MotionPhotoDescriptor();
+            }
+
+            String xml = HeicNative.ExtractHeicXMP(p.getAbsolutePath());
+            return parse(xml, false);
+        } catch (Exception | LinkageError e) {
+            return new MotionPhotoDescriptor();
+        }
+    }
 
     /**
-     * 解析 Motion Photo XMP
+     * Motion Photo XMP
      *
-     * @param xmpString XMP 字符串
-     * @return MotionPhotoDescriptor 对象
+     * @param xmpString XMP String
+     * @return MotionPhotoDescriptor object
      * @throws Exception
      */
     public static MotionPhotoDescriptor parse(String xmpString, boolean isJpeg) throws Exception {
@@ -199,94 +173,107 @@ public final class MotionPhotoDetector {
             return descriptor;
         }
 
-        // Google V1 Motion Photo
-        String microVideoStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideo");
-        if (TextUtils.equals("1", microVideoStr)) {
-            descriptor.source = MotionPhotoDescriptor.Source.MICRO_VIDEO;
-            descriptor.mpType = isJpeg ? MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_JPEG
-                    : MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_HEIC;
-
-            String presentationTsStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideoPresentationTimestampUs");
-            String microVideoVersion = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideoVersion");
-            String microVideoOffset = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideoOffset");
-
-            if (!presentationTsStr.isEmpty()) {
-                descriptor.motionPhotoPresentationTimestampUs = parseLongSafe(presentationTsStr);
-            }
-            if (!microVideoVersion.isEmpty()) {
-                descriptor.motionPhotoVersion = Integer.parseInt(microVideoVersion);
-            }
-
-            descriptor.items = new ArrayList<>();
-            MotionPhotoDescriptor.MotionPhotoItem primary = new MotionPhotoDescriptor.MotionPhotoItem();
-            primary.padding = 0L;
-            primary.length = 0L;
-            primary.offset = 0L;
-            primary.semantic = Constants.MotionPhoto.PRIMARY;
-            descriptor.items.add(primary);
-
-            if (!microVideoOffset.isEmpty()) {
-                MotionPhotoDescriptor.MotionPhotoItem mpi = new MotionPhotoDescriptor.MotionPhotoItem();
-                mpi.semantic = Constants.MotionPhoto.MOTION_PHOTO;
-                mpi.mime = "video/mp4";
-                mpi.padding = 0L;
-                mpi.length = parseLongSafe(microVideoOffset);
-                descriptor.items.add(mpi);
-            }
-
-            return descriptor;
+        if (TextUtils.equals("1", rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideo"))) {
+            return parseGoogleV1MotionPhoto(rdfDescription, isJpeg);
         }
 
-        // Google V2 Motion Photo
-        String motionPhotoStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MotionPhoto");
-        if (!TextUtils.equals("1", motionPhotoStr)) {
-            descriptor.source = MotionPhotoDescriptor.Source.CONTAINER;
-            return descriptor;
+        if (TextUtils.equals("1", rdfDescription.getAttributeNS(GCAMERA_NS, "MotionPhoto"))) {
+            return parseGoogleV2MotionPhoto(rdfDescription, isJpeg);
         }
 
-        descriptor.source = MotionPhotoDescriptor.Source.MOTION_PHOTO;
-        descriptor.mpType = isJpeg ? MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_JPEG
-                : MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_HEIC;
+        descriptor.source = MotionPhotoDescriptor.Source.CONTAINER;
+        return descriptor;
+    }
 
+    /**
+     * Parses legacy Google V1 MicroVideo metadata.
+     */
+    private static MotionPhotoDescriptor parseGoogleV1MotionPhoto(Element rdfDescription, boolean isJpeg) {
+        MotionPhotoDescriptor descriptor = new MotionPhotoDescriptor();
+        descriptor.source = MotionPhotoDescriptor.Source.MICRO_VIDEO;
+        descriptor.mpType = getMotionPhotoType(isJpeg);
 
-        String motionPhotoVerStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MotionPhotoVersion");
-        if (!TextUtils.isEmpty(motionPhotoVerStr)) {
-            descriptor.motionPhotoVersion = Integer.parseInt(motionPhotoVerStr);
+        String presentationTimestamp = rdfDescription.getAttributeNS(
+                GCAMERA_NS, "MicroVideoPresentationTimestampUs");
+        if (!TextUtils.isEmpty(presentationTimestamp)) {
+            descriptor.motionPhotoPresentationTimestampUs = parseLongSafe(presentationTimestamp);
         }
 
-        String presentationTsStr = rdfDescription.getAttributeNS(GCAMERA_NS, "MotionPhotoPresentationTimestampUs");
-        if (!TextUtils.isEmpty(presentationTsStr)) {
-            descriptor.motionPhotoPresentationTimestampUs = parseLongSafe(presentationTsStr);
+        String version = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideoVersion");
+        if (!TextUtils.isEmpty(version)) {
+            descriptor.motionPhotoVersion = Integer.parseInt(version);
         }
 
         descriptor.items = new ArrayList<>();
+        MotionPhotoDescriptor.MotionPhotoItem primary = new MotionPhotoDescriptor.MotionPhotoItem();
+        primary.padding = 0L;
+        primary.length = 0L;
+        primary.offset = 0L;
+        primary.semantic = Constants.MotionPhoto.PRIMARY;
+        descriptor.items.add(primary);
 
-        // 解析 Container:Directory 下的 Item
-        NodeList directoryNodes = rdfDescription.getElementsByTagNameNS(CONTAINER_NS, "Directory");
-        if (directoryNodes.getLength() > 0) {
-            Element directory = (Element) directoryNodes.item(0);
-            NodeList liNodes = directory.getElementsByTagNameNS(RDF_NS, "li");
-            for (int i = 0; i < liNodes.getLength(); i++) {
-                Element li = (Element) liNodes.item(i);
-                NodeList itemNodes = li.getElementsByTagNameNS(CONTAINER_NS, "Item");
-                if (itemNodes.getLength() > 0) {
-                    Element item = (Element) itemNodes.item(0);
-                    MotionPhotoDescriptor.MotionPhotoItem mpi = new MotionPhotoDescriptor.MotionPhotoItem();
+        String videoLength = rdfDescription.getAttributeNS(GCAMERA_NS, "MicroVideoOffset");
+        if (!TextUtils.isEmpty(videoLength)) {
+            MotionPhotoDescriptor.MotionPhotoItem video = new MotionPhotoDescriptor.MotionPhotoItem();
+            video.semantic = Constants.MotionPhoto.MOTION_PHOTO;
+            video.mime = "video/mp4";
+            video.padding = 0L;
+            video.length = parseLongSafe(videoLength);
+            descriptor.items.add(video);
+        }
+        return descriptor;
+    }
 
-                    mpi.mime = item.getAttributeNS(ITEM_NS, "Mime");
-                    mpi.semantic = item.getAttributeNS(ITEM_NS, "Semantic");
+    /**
+     * Parses Google V2 MotionPhoto metadata and its Container:Directory items.
+     */
+    private static MotionPhotoDescriptor parseGoogleV2MotionPhoto(Element rdfDescription, boolean isJpeg) {
+        MotionPhotoDescriptor descriptor = new MotionPhotoDescriptor();
+        descriptor.source = MotionPhotoDescriptor.Source.MOTION_PHOTO;
+        descriptor.mpType = getMotionPhotoType(isJpeg);
 
-                    String length = item.getAttributeNS(ITEM_NS, "Length");
-                    String padding = item.getAttributeNS(ITEM_NS, "Padding");
-                    mpi.length = parseLongSafe(length);
-                    mpi.padding = parseLongSafe(padding);
-
-                    descriptor.items.add(mpi);
-                }
-            }
+        String version = rdfDescription.getAttributeNS(GCAMERA_NS, "MotionPhotoVersion");
+        if (!TextUtils.isEmpty(version)) {
+            descriptor.motionPhotoVersion = Integer.parseInt(version);
         }
 
+        String presentationTimestamp = rdfDescription.getAttributeNS(
+                GCAMERA_NS, "MotionPhotoPresentationTimestampUs");
+        if (!TextUtils.isEmpty(presentationTimestamp)) {
+            descriptor.motionPhotoPresentationTimestampUs = parseLongSafe(presentationTimestamp);
+        }
+
+        descriptor.items = new ArrayList<>();
+        NodeList directoryNodes = rdfDescription.getElementsByTagNameNS(CONTAINER_NS, "Directory");
+        if (directoryNodes.getLength() == 0) {
+            return descriptor;
+        }
+
+        Element directory = (Element) directoryNodes.item(0);
+        NodeList liNodes = directory.getElementsByTagNameNS(RDF_NS, "li");
+        for (int i = 0; i < liNodes.getLength(); i++) {
+            Element li = (Element) liNodes.item(i);
+            NodeList itemNodes = li.getElementsByTagNameNS(CONTAINER_NS, "Item");
+            if (itemNodes.getLength() == 0) {
+                continue;
+            }
+
+            Element item = (Element) itemNodes.item(0);
+            MotionPhotoDescriptor.MotionPhotoItem motionPhotoItem =
+                    new MotionPhotoDescriptor.MotionPhotoItem();
+            motionPhotoItem.mime = item.getAttributeNS(ITEM_NS, "Mime");
+            motionPhotoItem.semantic = item.getAttributeNS(ITEM_NS, "Semantic");
+            motionPhotoItem.length = parseLongSafe(item.getAttributeNS(ITEM_NS, "Length"));
+            motionPhotoItem.padding = parseLongSafe(item.getAttributeNS(ITEM_NS, "Padding"));
+            descriptor.items.add(motionPhotoItem);
+        }
         return descriptor;
+    }
+
+    private static MotionPhotoDescriptor.MotionPhotoTypeEnum getMotionPhotoType(boolean isJpeg) {
+        return isJpeg
+                ? MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_JPEG
+                : MotionPhotoDescriptor.MotionPhotoTypeEnum.MOTION_PHOTO_TYPE_HEIC;
     }
 
     public static long calcPrimaryJpegLength(File f) throws IOException {
@@ -294,7 +281,7 @@ public final class MotionPhotoDetector {
     }
 
     /**
-     * 从 InputStream 中顺序扫描，计算 Primary JPEG 的真实字节长度
+     * Scan sequentially from the InputStream to calculate the actual byte length of the Primary JPEG.
      */
     public static long calcPrimaryJpegLength(InputStream is) throws IOException {
         if (is == null) {
@@ -418,97 +405,7 @@ public final class MotionPhotoDetector {
     }
 
     /**
-     * 计算 Primary JPEG 的真实字节长度（直到第一个合法 EOI）
-     *
-     * @param jpegBytes JPEG 字节数据
-     * @return JPEG 真实长度（EOI 之后的 offset），失败返回 -1
-     */
-    public static long calcPrimaryJpegLength(byte[] jpegBytes) {
-        if (jpegBytes == null || jpegBytes.length < 4) {
-            return -1;
-        }
-
-        // SOI
-        if ((jpegBytes[0] & 0xFF) != 0xFF || (jpegBytes[1] & 0xFF) != 0xD8) {
-            return -1;
-        }
-
-        int offset = 2;
-        final int size = jpegBytes.length;
-
-        while (offset < size) {
-            // 寻找 marker 前导 FF
-            if ((jpegBytes[offset] & 0xFF) != 0xFF) {
-                offset++;
-                continue;
-            }
-
-            // 跳过填充 FF
-            while (offset < size && (jpegBytes[offset] & 0xFF) == 0xFF) {
-                offset++;
-            }
-            if (offset >= size) {
-                break;
-            }
-
-            int marker = jpegBytes[offset] & 0xFF;
-            offset++;
-
-            // 无 length 的 standalone marker
-            if (isStandaloneMarker(marker)) {
-                if (marker == 0xD9) { // EOI
-                    return offset;
-                }
-                continue;
-            }
-
-            // SOS：进入熵编码段
-            if (marker == 0xDA) {
-                // 跳过 SOS header
-                if (offset + 2 > size) return -1;
-                int len = ((jpegBytes[offset] & 0xFF) << 8)
-                        | (jpegBytes[offset + 1] & 0xFF);
-                offset += len;
-
-                // 扫描熵编码数据，直到遇到 EOI
-                while (offset + 1 < size) {
-                    int b = jpegBytes[offset] & 0xFF;
-                    if (b == 0xFF) {
-                        int next = jpegBytes[offset + 1] & 0xFF;
-                        if (next == 0x00) {
-                            // byte stuffing
-                            offset += 2;
-                            continue;
-                        }
-                        if (next == 0xD9) {
-                            // EOI
-                            return offset + 2;
-                        }
-                    }
-                    offset++;
-                }
-                break;
-            }
-
-            // 普通带 length 的 marker
-            if (offset + 2 > size) {
-                return -1;
-            }
-
-            int len = ((jpegBytes[offset] & 0xFF) << 8)
-                    | (jpegBytes[offset + 1] & 0xFF);
-            if (len < 2) {
-                return -1;
-            }
-
-            offset += len;
-        }
-
-        return -1;
-    }
-
-    /**
-     * JPEG 中不带 length 的 marker
+     * JPEG marker without length
      */
     private static boolean isStandaloneMarker(int marker) {
         return (marker >= 0xD0 && marker <= 0xD7) // RST0~RST7

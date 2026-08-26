@@ -151,7 +151,8 @@ public class TransferListAdapter extends BaseMultiAdapter<Object> {
         int iconId = Icons.getFileIcon(model.file_name);
         holder.binding.transferFileIcon.setImageResource(iconId);
 
-        holder.binding.transferTime.setText(Utils.translateCommitTime(model.added_at));
+        long displayTime = model.added_at > 0 ? model.added_at : System.currentTimeMillis();
+        holder.binding.transferTime.setText(Utils.translateCommitTime(displayTime));
 
         //
         long totalSize = model.file_size;

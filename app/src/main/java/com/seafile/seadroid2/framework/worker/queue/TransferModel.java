@@ -63,7 +63,7 @@ public class TransferModel implements Comparable<TransferModel> {
     /**
      * 入队时的墙钟时间（ms），仅用于 UI 展示"加入时间"。
      */
-    public long added_at;
+    public long added_at = System.currentTimeMillis();
     public int retry_times = 0;
 
     /**

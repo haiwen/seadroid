@@ -28,6 +28,7 @@ import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
+import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -588,7 +589,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private String resolveMimeType(@Nullable File uploadFile, @Nullable Uri uploadUri, boolean uploadFromUri) throws SeafException {
         try {
             if (uploadFromUri && uploadUri != null) {
-                String mime = Utils.getMimeType(getContext(), uploadUri);
+                String mime = Utils.getMimeTypeFromUri(getContext(), uploadUri);
                 if (!TextUtils.isEmpty(mime)) {
                     return mime;
                 }

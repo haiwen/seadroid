@@ -59,8 +59,6 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -275,6 +273,18 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
+        // photo data
+        getViewModel().getMotionPhotoParseLiveData().observe(getViewLifecycleOwner(), new Observer<PhotoViewModel.MotionPhotoParseResult>() {
+            @Override
+            public void onChanged(PhotoViewModel.MotionPhotoParseResult result) {
+                applyMotionPhotoParseResult(result);
+            }
+        });
+
+        // video data
+        getViewModel().getMotionPhotoVideoLiveData().observe(getViewLifecycleOwner(), this::handleMotionPhotoVideoResult);
+
+        // photo detail data
         getViewModel().getFileDetailLiveData().observe(getViewLifecycleOwner(), new Observer<FileProfileConfigModel>() {
             @Override
             public void onChanged(FileProfileConfigModel configModel) {
@@ -667,41 +677,19 @@ public class PhotoFragment extends BaseFragment {
 
     // no load yet.
     private int motionPhotoType = -1;
-
-    /**
-     * EXIF 解析结果缓存，按本地文件路径缓存，避免翻页/重试时在主线程重复解析。
-     */
-    private final HashMap<String, HashMap<String, String>> exifCache = new HashMap<>();
-
-    /**
-     * 纯检测：识别文件是否为动态照片。只读文件，可在后台线程执行。
-     */
-    private int detectMotionPhotoType(String localPath) {
-        if (Utils.isJpeg(localPath)) {
-            MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(new File(localPath));
-            if (descriptor.isMotionPhoto()) {
-                return HeicNative.MOTION_PHOTO_TYPE_JPEG;
-            }
-        } else if (Utils.isHeic(localPath)) {
-            MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(new File(localPath));
-            if (descriptor.isMotionPhoto()) {
-                return HeicNative.MOTION_PHOTO_TYPE_HEIC;
-            }
-        }
-        return HeicNative.MOTION_PHOTO_TYPE_NONE;
-    }
+    private String currentLocalImagePath;
 
     /**
      * 纯 UI：根据动态照片类型更新 "Live" 按钮。须在主线程调用。
      */
     private void applyMotionPhotoUi(int type) {
         if (type == HeicNative.MOTION_PHOTO_TYPE_HEIC || type == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-            binding.btnLivePhoto.setVisibility(View.VISIBLE);
+            binding.btnLivePhoto.setVisibility(VISIBLE);
             if (canScrollBottomLayout && imagePreviewHelper != null) {
                 imagePreviewHelper.setActionViews(binding.btnLivePhoto);
             }
         } else {
-            binding.btnLivePhoto.setVisibility(View.GONE);
+            binding.btnLivePhoto.setVisibility(GONE);
         }
     }
 
@@ -714,51 +702,26 @@ public class PhotoFragment extends BaseFragment {
             return;
         }
 
-        HashMap<String, String> cachedExif = exifCache.get(oriUrl);
-        if (cachedExif != null) {
-            applyMotionPhotoUi(motionPhotoType);
-            try {
-                addTextView(cachedExif);
-            } catch (Exception e) {
-                SLogs.e(e.getMessage());
-            }
+        currentLocalImagePath = oriUrl;
+        stopPlay();
+        motionPhotoType = -1;
+        applyMotionPhotoUi(HeicNative.MOTION_PHOTO_TYPE_NONE);
+
+        getViewModel().parseMotionPhoto(oriUrl);
+    }
+
+    private void applyMotionPhotoParseResult(PhotoViewModel.MotionPhotoParseResult result) {
+        if (!TextUtils.equals(currentLocalImagePath, result.localPath)) {
             return;
         }
 
-        new Thread(() -> {
-            MotionPhotoParseResult result = new MotionPhotoParseResult();
-            try {
-                result.type = detectMotionPhotoType(oriUrl);
-                result.exif = loadExifMeta(oriUrl);
-            } catch (Exception e) {
-                SLogs.e(e.getMessage());
-            }
-            exifCache.put(oriUrl, result.exif);
-
-            if (getActivity() == null) {
-                return;
-            }
-
-            getActivity().runOnUiThread(() -> {
-                // 视图可能已销毁（翻页/退出），此时不再更新 UI
-                if (!isAdded() || getView() == null) {
-                    return;
-                }
-
-                motionPhotoType = result.type;
-                applyMotionPhotoUi(result.type);
-                try {
-                    addTextView(result.exif);
-                } catch (Exception e) {
-                    SLogs.e(e.getMessage());
-                }
-            });
-        }, "motion-photo-detect").start();
-    }
-
-    private static class MotionPhotoParseResult {
-        int type = HeicNative.MOTION_PHOTO_TYPE_NONE;
-        HashMap<String, String> exif = new HashMap<>();
+        motionPhotoType = result.type;
+        applyMotionPhotoUi(result.type);
+        try {
+            addTextView(result.exif);
+        } catch (Exception e) {
+            SLogs.e(e.getMessage());
+        }
     }
 
     private ExoPlayer exoPlayer;
@@ -789,7 +752,7 @@ public class PhotoFragment extends BaseFragment {
 
     @OptIn(markerClass = Unstable.class)
     private void playLivePhotoVideo() {
-        if (motionPhotoType == -1 || HeicNative.isNativeUnavailable()) {
+        if (motionPhotoType == -1 || motionPhotoType ==  HeicNative.MOTION_PHOTO_TYPE_NONE) {
             return;
         }
 
@@ -797,68 +760,50 @@ public class PhotoFragment extends BaseFragment {
             return;
         }
 
+        if (HeicNative.isNativeUnavailable()) {
+            return;
+        }
+
         if (isLivePhotoExtracting) {
             return;
         }
 
-        // 在后台线程把内嵌 MP4 流式提取到临时文件，
-        // 避免在主线程分配大 byte[]（低内存设备上 25MB 级的分配会直接 OOM）
+        final File imageFile = destinationFile;
+        final String imagePath = currentLocalImagePath;
+        final int imageMotionPhotoType = motionPhotoType;
+        if (imageFile == null || !TextUtils.equals(imageFile.getAbsolutePath(), imagePath)) {
+            return;
+        }
+
         isLivePhotoExtracting = true;
-        new Thread(() -> {
-            File videoFile = extractMotionPhotoToFile(destinationFile);
-            if (getActivity() == null) {
-                return;
-            }
-
-            getActivity().runOnUiThread(() -> {
-                isLivePhotoExtracting = false;
-
-                // 视图可能已销毁（翻页/退出），此时不再更新 UI
-                if (!isAdded() || getView() == null) {
-                    return;
-                }
-
-                if (videoFile == null) {
-                    Toasts.show(R.string.not_available);
-                    return;
-                }
-
-                startLivePhotoPlayback(videoFile);
-            });
-        }, "live-photo-extract").start();
+        getViewModel().extractMotionPhotoVideo(imageFile, imageMotionPhotoType);
     }
 
-    /**
-     * 把 Motion Photo 内嵌的 MP4 视频提取到临时文件（原生层流式写入，不经过 Java 堆）。
-     *
-     * @return 提取成功的临时文件，失败返回 null
-     */
-    private File extractMotionPhotoToFile(File imageFile) {
-        if (imageFile == null || !imageFile.exists()) {
-            return null;
+    private void handleMotionPhotoVideoResult(PhotoViewModel.MotionPhotoVideoResult result) {
+        isLivePhotoExtracting = false;
+        if (result == null) {
+            return;
         }
 
-        try {
-            File tempFile = DataManager.createTempFile("live-photo-", ".mp4");
-            boolean ok;
-            if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-                ok = HeicNative.ExtractHeicVideoToFile(imageFile.getAbsolutePath(), tempFile.getAbsolutePath());
-            } else {
-                ok = HeicNative.ExtractJpegVideoToFile(imageFile.getAbsolutePath(), tempFile.getAbsolutePath());
-            }
-
-            if (!ok || !tempFile.exists() || tempFile.length() <= 0) {
-                FileUtils.delete(tempFile);
-                return null;
-            }
-            return tempFile;
-        } catch (Exception e) {
-            SLogs.e(e.getMessage());
-            return null;
+        if (!isAdded() || getView() == null ||
+                !TextUtils.equals(currentLocalImagePath, result.imagePath)) {
+            FileUtils.delete(result.videoFile);
+            return;
         }
+
+        if (result.videoFile == null) {
+            Toasts.show(R.string.not_available);
+            return;
+        }
+
+        startLivePhotoPlayback(result.videoFile);
     }
 
     private void startLivePhotoPlayback(File videoFile) {
+        if (livePhotoVideoFile != null && !livePhotoVideoFile.equals(videoFile)) {
+            FileUtils.delete(livePhotoVideoFile);
+        }
+
         livePhotoVideoFile = videoFile;
 
         if (exoPlayer == null) {
@@ -872,12 +817,12 @@ public class PhotoFragment extends BaseFragment {
 
                             break;
                         case Player.STATE_READY:
-                            binding.playerView.setVisibility(View.VISIBLE);
+                            binding.playerView.setVisibility(VISIBLE);
                             binding.photoView.setVisibility(GONE);
                             break;
                         case Player.STATE_ENDED:
                             binding.photoView.setVisibility(VISIBLE);
-                            binding.playerView.setVisibility(View.GONE);
+                            binding.playerView.setVisibility(GONE);
                             break;
                     }
                 }
@@ -908,10 +853,6 @@ public class PhotoFragment extends BaseFragment {
             return;
         }
 
-        if (!exoPlayer.isPlaying()) {
-            return;
-        }
-
         exoPlayer.stop();
         exoPlayer.clearMediaItems();
 
@@ -925,7 +866,6 @@ public class PhotoFragment extends BaseFragment {
             exoPlayer = null;
         }
 
-        // 清理动态照片提取的临时视频文件
         if (livePhotoVideoFile != null) {
             FileUtils.delete(livePhotoVideoFile);
             livePhotoVideoFile = null;
@@ -959,6 +899,7 @@ public class PhotoFragment extends BaseFragment {
                 .into(binding.photoView);
     }
 
+    @SuppressWarnings("unused")
     private HashMap<String, String> loadExifMeta(String localPath) {
         HashMap<String, String> exifMap = new HashMap<>();
 

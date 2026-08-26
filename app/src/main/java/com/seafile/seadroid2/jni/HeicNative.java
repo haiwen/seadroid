@@ -2,10 +2,7 @@ package com.seafile.seadroid2.jni;
 
 import android.util.Log;
 
-import com.blankj.utilcode.util.FileUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.annotation.Todo;
-import com.seafile.seadroid2.framework.util.Toasts;
 
 @Todo
 public class HeicNative {
@@ -40,72 +37,15 @@ public class HeicNative {
 
     // ==================== Native methods ====================
 
-    /**
-     * Returns the libheif version.
-     */
-    public static native String GetLibVersion();
-
-    /**
-     * Generates a still HEIC image.
-     *
-     * @param primaryImage JPEG data for the primary image
-     * @param outputPath output file path
-     * @return whether the operation succeeded
-     */
-    public static native boolean GenStillHeicSeq(byte[] primaryImage, String outputPath);
-
     public static native String ConvertJpeg2Heic(String jpegFilePath, String outputPath);
 
-    public static String convertJpegMotionPhotoTo(String heicFilePath, String outputPath) {
-        if (nativeUnavailable) {
-            return null;
-        }
-
-        if (FileUtils.isFileExists(heicFilePath)) {
-            return ConvertJpeg2Heic(heicFilePath, outputPath);
-        } else {
-            Toasts.show(R.string.not_available);
-        }
-        return null;
-    }
 
     public static native String ConvertHeic2Jpeg(String heicFilePath, String vendor, String outputPath);
-
-
-    /**
-     * Generates a Google Motion Photo HEIC file.
-     *
-     * @param primaryImage JPEG data for the primary image
-     * @param mp4Video MP4 video data
-     * @param outputPath output file path
-     * @return result string (success:... or error:...)
-     */
-    public static native String GenHeicMotionPhoto(byte[] primaryImage, byte[] hdrDatas, byte[] exifDatas, byte[] xmpBytes, byte[] mp4Video, long presentationTimestampUs, String outputPath);
-
-    /**
-     * Extracts MP4 video data from a HEIC Motion Photo file.
-     * This applies to HEIC motion photos stored in mpvd box format.
-     *
-     * @param inputFilePath HEIC Motion Photo file path
-     * @return MP4 video bytes, or null on failure
-     */
-    public static native byte[] ExtractHeicVideo(String inputFilePath);
 
     public static native String ExtractHeicXMP(String inputFilePath);
 
     /**
-     * Extracts MP4 video data from a JPEG Motion Photo file.
-     * This applies to JPEG motion photos captured by Google Camera.
-     * <p>
-     * JPEG Motion Photo structure: JPEG image plus appended MP4 video.
-     *
-     * @param inputFilePath JPEG Motion Photo file path
-     * @return MP4 video bytes, or null on failure
-     */
-    public static native byte[] ExtractJpegVideo(String inputFilePath);
-
-    /**
-     * 将 JPEG Motion Photo 中内嵌的 MP4 视频流式写入临时文件（不经过 Java 堆，避免大 byte[] OOM）。
+     * Stream the MP4 video embedded in the JPEG Motion Photo to a temporary file (avoiding the Java heap to prevent large byte[] OOM).
      *
      * @param inputFilePath  原图路径
      * @param outputFilePath 输出视频文件路径
@@ -121,6 +61,14 @@ public class HeicNative {
      * @return 是否提取成功
      */
     public static native boolean ExtractHeicVideoToFile(String inputFilePath, String outputFilePath);
+
+    public static boolean extractJpegVideoToFile(String inputFilePath, String outputFilePath) {
+        return !nativeUnavailable && ExtractJpegVideoToFile(inputFilePath, outputFilePath);
+    }
+
+    public static boolean extractHeicVideoToFile(String inputFilePath, String outputFilePath) {
+        return !nativeUnavailable && ExtractHeicVideoToFile(inputFilePath, outputFilePath);
+    }
 
     /**
      * Checks whether the image is a Motion Photo and returns its type.
@@ -138,39 +86,4 @@ public class HeicNative {
      */
     public static native int CheckMotionPhotoType(String inputFilePath);
 
-    /**
-     * Checks whether the image is a Motion Photo.
-     *
-     * @param inputFilePath image file path
-     * @return whether the file is a motion photo
-     */
-    public static boolean isMotionPhoto(String inputFilePath) {
-        if (nativeUnavailable) {
-            return false;
-        }
-        int type = CheckMotionPhotoType(inputFilePath);
-        return type == MOTION_PHOTO_TYPE_JPEG || type == MOTION_PHOTO_TYPE_HEIC;
-    }
-
-    /**
-     * Automatically extracts video data from a Motion Photo by file path.
-     *
-     * @param inputFilePath image file path
-     * @return MP4 video bytes, or null on failure or if not a motion photo
-     */
-    public static byte[] extractMotionPhotoVideo(String inputFilePath) {
-        if (nativeUnavailable) {
-            return null;
-        }
-
-        int type = CheckMotionPhotoType(inputFilePath);
-        switch (type) {
-            case MOTION_PHOTO_TYPE_JPEG:
-                return ExtractJpegVideo(inputFilePath);
-            case MOTION_PHOTO_TYPE_HEIC:
-                return ExtractHeicVideo(inputFilePath);
-            default:
-                return null;
-        }
-    }
 }
