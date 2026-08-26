@@ -62,10 +62,6 @@ elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
             -Wl,-z,max-page-size=16384
             -Wl,-z,separate-code
     )
-elseif(ANDROID_ABI STREQUAL "x86")
-    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
-            -Wl,-z,separate-code
-    )
 endif()
 
 # Release 构建的额外优化

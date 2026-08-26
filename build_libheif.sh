@@ -54,7 +54,6 @@ export CMAKE_BIN="${ANDROID_SDK_ROOT:-$ANDROID_HOME}/cmake/3.22.1/bin/cmake"
 ABIS=(
     "armeabi-v7a"
     "arm64-v8a"
-    "x86"
     "x86_64"
 )
 
@@ -437,9 +436,6 @@ strip_libraries() {
                 ;;
             "arm64-v8a")
                 STRIP_TOOL="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/aarch64-linux-android-strip"
-                ;;
-            "x86")
-                STRIP_TOOL="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/i686-linux-android-strip"
                 ;;
             "x86_64")
                 STRIP_TOOL="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/x86_64-linux-android-strip"
