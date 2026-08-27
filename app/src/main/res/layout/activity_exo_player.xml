@@ -116,7 +116,7 @@
                 android:foreground="?selectableItemBackground"
                 android:padding="8dp"
                 android:text="1x"
-                android:textColor="@color/bar_background_color" />
+                android:textColor="#FFBEBEBE" />
 
             <ImageView
                 android:id="@+id/fullscreen"

@@ -8,6 +8,6 @@
         android:icon="@drawable/baseline_rename_24"
         android:title="@string/edit"
         android:visible="true"
-        app:iconTint="@color/navigation_bar_icon_tint_color"
+        app:iconTint="@color/primary_icon_tint_color"
         app:showAsAction="always" />
 </menu>

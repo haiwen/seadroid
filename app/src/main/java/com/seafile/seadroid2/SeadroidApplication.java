@@ -18,6 +18,7 @@ import com.seafile.seadroid2.framework.monitor.ActivityMonitor;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.util.AppLockManager;
 import com.seafile.seadroid2.framework.util.CrashHandler;
+import com.seafile.seadroid2.framework.util.IconFontUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.preferences.Settings;
@@ -56,6 +57,9 @@ public class SeadroidApplication extends Application {
             String nm = Settings.NIGHT_MODE.queryValue();
             AppCompatDelegate.setDefaultNightMode(Integer.parseInt(nm));
         }
+
+        // init iconfont
+        IconFontUtils.initIconFont();
 
         // Lock the app on cold start if biometric lock is enabled
         AppLockManager.lockIfEnabled();

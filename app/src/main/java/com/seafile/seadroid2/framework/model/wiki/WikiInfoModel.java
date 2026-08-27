@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.framework.model.wiki;
 
+import android.text.TextUtils;
+
 import com.seafile.seadroid2.framework.model.BaseModel;
 
 public class WikiInfoModel extends BaseModel {
@@ -8,6 +10,8 @@ public class WikiInfoModel extends BaseModel {
     public long group_id;
     public String group_name;
     public String group_owner;
+    public String color;
+    public String icon;
 
     public String name;
     public String owner;
@@ -21,5 +25,33 @@ public class WikiInfoModel extends BaseModel {
     public String type;
     public String updated_at;
     public String created_at;//wiki1
+
+    public String getIcon() {
+        if (TextUtils.isEmpty(icon)) {
+            return "haiwen-book-bookmark-fill";
+        }
+        return "haiwen-" + icon;
+    }
+
+    public String getOriginalColor() {
+        // default color is #ff9800
+        if (TextUtils.isEmpty(color)) {
+            return "#ff9800";
+        }
+        return color;
+    }
+
+    public String getColor() {
+        // default color is #22ff9800
+        if (TextUtils.isEmpty(color)) {
+            return "#22ff9800";
+        }
+        color = color.replace("#", "");
+        if (color.length() == 6) {
+            color = "22" + color;
+        }
+        color = "#" + color;
+        return color;
+    }
 
 }

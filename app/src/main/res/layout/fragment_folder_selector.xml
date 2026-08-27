@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="@string/settings_select_backup_folder_title"
-        android:textColor="@color/black"
+        android:textColor="@color/item_title_color"
         android:textSize="@dimen/tv_title_txt_size"
         android:textStyle="bold" />
 

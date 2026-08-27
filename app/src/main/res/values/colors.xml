@@ -58,11 +58,9 @@
     <color name="bar_title_color">@color/material_grey_900</color>
     <color name="bar_icon_tint_color">@color/material_grey_900</color>
     <color name="swipe_refresh_background_color">@color/material_grey_88</color>
-    <color name="child_activity_background_color">@color/white</color>
     <color name="popup_window_background_color">@color/white</color>
 
     <!-- icon tint -->
-    <color name="navigation_bar_icon_tint_color">#000000</color>
     <color name="primary_icon_tint_color">@color/grey</color>
 
     <!-- bottom sheet popup view -->
@@ -79,6 +77,7 @@
 
     <!-- divider color -->
     <color name="divider_color">#F1F1F1</color>
+    <color name="border_color">#E0E5EC</color>
     <color name="vertical_divider_color">#BBC0C6</color>
     <color name="image_preview_divider_color">@color/material_grey_300</color>
 

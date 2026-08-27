@@ -12,8 +12,8 @@
 
     <ImageView
         android:id="@+id/bucket_item_marking"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_gravity="bottom|end"
         android:background="@drawable/checkbox_unchecked"
         android:scaleType="centerCrop" />
@@ -28,7 +28,7 @@
         android:gravity="center_vertical"
         android:maxLines="2"
         android:paddingHorizontal="4dp"
-        android:text="@string/unknow_error"
+        android:text="@string/app_name"
         android:textColor="#ffffff" />
 
 </FrameLayout>

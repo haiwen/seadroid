@@ -5,6 +5,6 @@
         android:id="@+id/create_new_folder"
         android:icon="@drawable/baseline_new_folder_24"
         android:title="@string/create_new_dir"
-        app:iconTint="@color/navigation_bar_icon_tint_color"
+        app:iconTint="@color/primary_icon_tint_color"
         app:showAsAction="always" />
 </menu>
