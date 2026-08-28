@@ -302,30 +302,56 @@ public class Utils {
 
     public static boolean isViewableImage(String name) {
         String suffix = FilenameUtils.getExtension(name);
+
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
 
-        if (suffix.equals("svg"))
-            // don't support svg preview
-            return false;
+        suffix = suffix.toLowerCase(Locale.ROOT);
 
-        if (suffix.equals("psd"))
-            // don't support psd preview
-            return false;
+        switch (suffix) {
+            case "svg" -> {
+                return false;// don't support svg preview
+            }
+            case "psd" -> {
+                return false;// don't support psd preview
+            }
+            case "tif" -> {
+                return false;// don't support tiff preview
+            }
+            case "tiff" -> {
+                return false;// don't support tiff preview
+            }
+        }
 
-        if (suffix.equals("tif"))
-            // don't support tiff preview
-            return false;
+        String mime = getMimeType(suffix);
 
-        if (suffix.equals("tiff"))
-            // don't support tiff preview
-            return false;
-
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         if (mime == null)
             return false;
         return mime.contains("image/");
+    }
+
+    public static String getMimeTypeFromUri(Context context, Uri uri) {
+        return context.getContentResolver().getType(uri);
+    }
+
+    public static String getMimeType(String extension) {
+        if (TextUtils.isEmpty(extension)) {
+            return null;
+        }
+
+        extension = extension.toLowerCase(Locale.ROOT);
+
+        // For devices with lower versions of Android, handle heic and heif explicitly
+        if ("heic".equals(extension)) {
+            return "image/heic";
+        }
+
+        if ("heif".equals(extension)) {
+            return "image/heif";
+        }
+
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 
     public static boolean isVideoFile(String name) {
@@ -587,9 +613,6 @@ public class Utils {
         return null;
     }
 
-    public static String getMimeType(Context context, Uri uri) {
-        return context.getContentResolver().getType(uri);
-    }
 
 
     public static String getStackTrace(Exception e) {

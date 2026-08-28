@@ -7,7 +7,6 @@
 #include "vector"
 #include "algorithm"
 #include "cctype"
-#include <setjmp.h>
 #include <type_traits>
 
 // libjpeg for JPEG decoding
@@ -21,7 +20,6 @@ extern "C" {
 #include "libheif/heif_sequences.h"
 
 #define TAG "HeicSeq"
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 
@@ -57,20 +55,15 @@ struct MotionPhotoXmpInfo {
 };
 
 static MotionPhotoXmpInfo ParseMotionPhotoXmpContent(const std::string &xmpContent);
+static std::string ExtractXmpValue(const std::string &xmp, const std::string &tagName);
+static long CalcPrimaryJpegLength(const std::vector<uint8_t> &jpegBytes);
+static bool IsLikelyMp4Slice(const std::vector<uint8_t> &data, long start, long len);
 
 static bool HasJpegSoi(const std::vector<uint8_t> &data);
 
 static long SafeStol(const std::string &str, long defaultValue = 0) {
     try {
         return std::stol(str);
-    } catch (...) {
-        return defaultValue;
-    }
-}
-
-static int SafeStoi(const std::string &str, int defaultValue = 0) {
-    try {
-        return std::stoi(str);
     } catch (...) {
         return defaultValue;
     }
@@ -251,65 +244,6 @@ static bool EncodePrimaryImageFromJpeg(const std::vector<uint8_t> &jpegBytes,
 }
 
 /**
- * Generate static HEIC
- */
-extern "C" JNIEXPORT jboolean
-
-JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_GenStillHeicSeq(JNIEnv *env, jclass clazz, jbyteArray jpegBytes, jstring outputPath) {
-    const char *outPath = env->GetStringUTFChars(outputPath, nullptr);
-    if (!outPath) {
-        return JNI_FALSE;
-    }
-
-    jsize imgLen = env->GetArrayLength(jpegBytes);
-    if (imgLen <= 0) {
-        env->ReleaseStringUTFChars(outputPath, outPath);
-        return JNI_FALSE;
-    }
-
-    std::vector<uint8_t> jpegData(imgLen);
-    jbyte *imgData = env->GetByteArrayElements(jpegBytes, nullptr);
-    if (!imgData) {
-        env->ReleaseStringUTFChars(outputPath, outPath);
-        return JNI_FALSE;
-    }
-    memcpy(jpegData.data(), imgData, imgLen);
-    env->ReleaseByteArrayElements(jpegBytes, imgData, JNI_ABORT);
-
-    heif_context *ctx = heif_context_alloc();
-    if (!ctx) {
-        env->ReleaseStringUTFChars(outputPath, outPath);
-        return JNI_FALSE;
-    }
-
-    bool success = EncodePrimaryImageFromJpeg(jpegData, ctx);
-    if (success) {
-        heif_error werr = heif_context_write_to_file(ctx, outPath);
-        success = (werr.code == heif_error_Ok);
-        if (!success) {
-            LOGE("Failed to write HEIC: %s", werr.message);
-        }
-    }
-
-    heif_context_free(ctx);
-    env->ReleaseStringUTFChars(outputPath, outPath);
-
-    return success ? JNI_TRUE : JNI_FALSE;
-}
-
-/**
- * Get libheif version
- */
-extern "C" JNIEXPORT jstring
-
-JNICALL
-Java_com_seafile_seadroid2_jni_HeicNative_GetLibVersion(JNIEnv *env, jclass clazz) {
-    const char *version = heif_get_version();
-    return env->NewStringUTF(version);
-}
-
-/**
  * Custom heif_writer for writing to memory buffer
  */
 struct MemoryWriter {
@@ -319,10 +253,7 @@ struct MemoryWriter {
 static heif_error memory_writer_write(heif_context *ctx, const void *data, size_t size, void *userdata) {
     auto *writer = static_cast<MemoryWriter *>(userdata);
     const uint8_t *bytes = static_cast<const uint8_t *>(data);
-    size_t oldSize = writer->data.size();
     writer->data.insert(writer->data.end(), bytes, bytes + size);
-    LOGD_MP("[MemoryWriter] write: %zu bytes (buffer: %zu -> %zu)", size, oldSize,
-            writer->data.size());
     heif_error err = {heif_error_Ok, heif_suberror_Unspecified, nullptr};
     return err;
 }
@@ -336,44 +267,24 @@ static heif_error memory_writer_write(heif_context *ctx, const void *data, size_
  * - N bytes: MP4 video data
  */
 static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
-    LOGD_MP("[WriteMpvdBox] START - mp4Data size=%zu", mp4Data.size());
-
     // mpvd box: size(4) + type(4) + data(N)
     uint32_t boxSize = static_cast<uint32_t>(8 + mp4Data.size());
-    LOGD_MP("[WriteMpvdBox] boxSize=%u (header=8 + data=%zu)", boxSize,
-            mp4Data.size());
 
     // Write box size (big-endian)
     uint8_t sizeBytes[4] = {static_cast<uint8_t>((boxSize >> 24) & 0xFF),
                             static_cast<uint8_t>((boxSize >> 16) & 0xFF),
                             static_cast<uint8_t>((boxSize >> 8) & 0xFF),
                             static_cast<uint8_t>(boxSize & 0xFF)};
-    LOGD_MP("[WriteMpvdBox] size bytes (big-endian): [%02X %02X %02X %02X]",
-            sizeBytes[0], sizeBytes[1], sizeBytes[2], sizeBytes[3]);
-
     if (fwrite(sizeBytes, 1, 4, file) != 4) {
         LOGE_MP("[WriteMpvdBox] FAILED to write box size");
         return false;
     }
-    LOGD_MP("[WriteMpvdBox] wrote box size (4 bytes)");
-
     // Write box type 'mpvd'
     const char *boxType = "mpvd";
     if (fwrite(boxType, 1, 4, file) != 4) {
         LOGE_MP("[WriteMpvdBox] FAILED to write box type 'mpvd'");
         return false;
     }
-    LOGD_MP("[WriteMpvdBox] wrote box type 'mpvd' (4 bytes)");
-
-    // Print magic bytes at the beginning of MP4 file (ftyp)
-    if (mp4Data.size() >= 12) {
-        LOGD_MP("[WriteMpvdBox] MP4 header bytes: [%02X %02X %02X %02X] [%c%c%c%c] "
-                "[%c%c%c%c]",
-                mp4Data[0], mp4Data[1], mp4Data[2], mp4Data[3], mp4Data[4],
-                mp4Data[5], mp4Data[6], mp4Data[7], mp4Data[8], mp4Data[9],
-                mp4Data[10], mp4Data[11]);
-    }
-
     // Write MP4 video data
     size_t written = fwrite(mp4Data.data(), 1, mp4Data.size(), file);
     if (written != mp4Data.size()) {
@@ -381,8 +292,6 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
                 written, mp4Data.size());
         return false;
     }
-    LOGD_MP("[WriteMpvdBox] wrote MP4 data (%zu bytes)", mp4Data.size());
-
     LOGI_MP("[WriteMpvdBox] SUCCESS - total mpvd box = %u bytes", boxSize);
     return true;
 }
@@ -393,24 +302,17 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
  */
 static heif_image_handle *EncodePrimaryImageForMotionPhoto(
         const std::vector<uint8_t> &jpegBytes, heif_context *ctx) {
-    LOGD_MP("[EncodePrimary] START - jpegBytes size=%zu, ctx=%p", jpegBytes.size(), ctx);
+    LOGI_MP("[EncodePrimary] Encoding primary JPEG (%zu bytes)", jpegBytes.size());
 
     if (jpegBytes.empty() || !ctx) {
-        LOGE_MP("[EncodePrimary] Invalid input (empty=%d, ctx=%p)", jpegBytes.empty(), ctx);
+        LOGE_MP("[EncodePrimary] Missing JPEG data or HEIF context");
         return nullptr;
-    }
-
-    // print JPEG head (should be FF D8 FF)
-    if (jpegBytes.size() >= 4) {
-        LOGD_MP("[EncodePrimary] JPEG header: [%02X %02X %02X %02X]",
-                jpegBytes[0], jpegBytes[1], jpegBytes[2], jpegBytes[3]);
     }
 
     jpeg_decompress_struct cinfo;
     jpeg_error_mgr jerr;
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_decompress(&cinfo);
-    LOGD_MP("[EncodePrimary] JPEG decompressor created");
 
     jpeg_mem_src(&cinfo, const_cast<unsigned char *>(jpegBytes.data()), jpegBytes.size());
 
@@ -419,7 +321,6 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
         LOGE_MP("[EncodePrimary] Failed to read JPEG header");
         return nullptr;
     }
-    LOGD_MP("[EncodePrimary] JPEG header read OK");
 
     cinfo.out_color_space = JCS_RGB;
     if (!jpeg_start_decompress(&cinfo)) {
@@ -440,10 +341,6 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
     std::vector<uint8_t> row(src_row_stride);
     size_t rgba_stride = static_cast<size_t>(width) * 4;
     std::vector<uint8_t> rgba(static_cast<size_t>(height) * rgba_stride);
-    LOGD_MP("[EncodePrimary] Allocated RGBA buffer: %zu bytes (stride=%zu)",
-            rgba.size(), rgba_stride);
-
-    int scanlines = 0;
     while (cinfo.output_scanline < cinfo.output_height) {
         JSAMPROW rowptr = row.data();
         jpeg_read_scanlines(&cinfo, &rowptr, 1);
@@ -471,22 +368,16 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
             LOGE_MP("[EncodePrimary] Unsupported JPEG format: %d components", comps);
             return nullptr;
         }
-        scanlines++;
     }
-    LOGD_MP("[EncodePrimary] Decoded %d scanlines to RGBA", scanlines);
 
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
-    LOGD_MP("[EncodePrimary] JPEG decompression finished");
-
-    LOGD_MP("[EncodePrimary] Creating heif_image from RGBA...");
     heif_image *image = CreateHeifImageFromRGBA(rgba.data(), width, height,
                                                 static_cast<int>(rgba_stride));
     if (!image) {
         LOGE_MP("[EncodePrimary] Failed to create heif_image");
         return nullptr;
     }
-    LOGD_MP("[EncodePrimary] heif_image created: %p", image);
 
     // Get HEVC encoder
     heif_encoder *encoder = nullptr;
@@ -497,20 +388,15 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
         return nullptr;
     }
 
-    LOGD_MP("[EncodePrimary] HEVC encoder obtained: %p", encoder);
-
     heif_encoder_set_lossy_quality(encoder, 90);
-    LOGD_MP("[EncodePrimary] Encoder quality set to 90");
 
     // Disable alpha channel saving
     heif_encoding_options *enc_options = heif_encoding_options_alloc();
     if (enc_options) {
         enc_options->save_alpha_channel = 0;
-        LOGD_MP("[EncodePrimary] Alpha channel disabled");
     }
 
     heif_image_handle *handle = nullptr;
-    LOGD_MP("[EncodePrimary] Starting HEVC encoding...");
     err = heif_context_encode_image(ctx, image, encoder, enc_options, &handle);
 
     if (enc_options) {
@@ -519,12 +405,10 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
 
     if (err.code == heif_error_Ok && handle) {
         heif_context_set_primary_image(ctx, handle);
-        LOGD_MP("[EncodePrimary] Primary image set in context");
     }
 
     heif_encoder_release(encoder);
     heif_image_release(image);
-    LOGD_MP("[EncodePrimary] Encoder and image released");
 
     if (err.code != heif_error_Ok) {
         LOGE_MP("[EncodePrimary] HEVC encoding failed: %s (code=%d, subcode=%d)",
@@ -534,21 +418,8 @@ static heif_image_handle *EncodePrimaryImageForMotionPhoto(
         return nullptr;
     }
 
-    LOGI_MP("[EncodePrimary] SUCCESS - handle=%p, image=%dx%d", handle, width,
-            height);
+    LOGI_MP("[EncodePrimary] Primary image encoded (%dx%d)", width, height);
     return handle;
-}
-
-// JPEG error handler to avoid exit
-struct my_error_mgr {
-    struct jpeg_error_mgr pub;
-    jmp_buf setjmp_buffer;
-};
-
-static void my_error_exit(j_common_ptr cinfo) {
-    auto *myErr = (my_error_mgr *) cinfo->err;
-    (*cinfo->err->output_message)(cinfo);
-    longjmp(myErr->setjmp_buffer, 1);
 }
 
 static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrDataSize, size_t presentationTimestampUs);
@@ -748,23 +619,22 @@ Java_com_seafile_seadroid2_jni_HeicNative_GenHeicMotionPhoto(
     LOGI_MP("[Step 2/6] Primary image encoded successfully, handle=%p", primaryHandle);
 
     if (!hdrData.empty()) {
-        if (!HasJpegSoi(hdrData)) {
-            LOGW_MP("[Step 3/6] HDR GainMap data missing JPEG SOI, skipping");
-        } else {
-            heif_error hdrMetaErr = heif_context_add_generic_metadata(
-                    ctx,
-                    primaryHandle,
-                    hdrData.data(),
-                    static_cast<int>(hdrData.size()),
-                    "mime",
-                    "image/jpeg+gainmap"
-            );
-            if (hdrMetaErr.code != heif_error_Ok) {
-                LOGW_MP("[Step 3/6] 添加 HDR GainMap 元数据失败: %s", hdrMetaErr.message);
-            } else {
-                LOGI_MP("[Step 3/6] HDR GainMap 元数据已写入 (%zu bytes)", hdrData.size());
-            }
+        heif_error hdrMetaErr = heif_context_add_generic_metadata(
+                ctx,
+                primaryHandle,
+                hdrData.data(),
+                static_cast<int>(hdrData.size()),
+                "mime",
+                "image/jpeg+gainmap"
+        );
+        if (hdrMetaErr.code != heif_error_Ok) {
+            LOGE_MP("[Step 3/6] Failed to write private HDR GainMap metadata: %s", hdrMetaErr.message);
+            heif_image_handle_release(primaryHandle);
+            heif_context_free(ctx);
+            env->ReleaseStringUTFChars(outputPath, outPath);
+            return env->NewStringUTF("error: failed to write HDR gainmap metadata");
         }
+        LOGI_MP("[Step 3/6] Private HDR GainMap metadata written (%zu bytes)", hdrData.size());
     }
 
     // Handle XMP metadata: directly use the provided xmpBytes
@@ -1473,6 +1343,331 @@ static bool ReadFileFully(const char *filePath, std::vector<uint8_t> &outData, l
     return true;
 }
 
+static bool GetFileSize(FILE *file, long &fileSize) {
+    if (!file || fseek(file, 0, SEEK_END) != 0) return false;
+    fileSize = ftell(file);
+    return fileSize >= 0;
+}
+
+static bool CopyFileRangeToFile(const char *inputPath, const char *outputPath, long offset, long length) {
+    if (!inputPath || !outputPath || offset < 0 || length <= 0) return false;
+
+    FILE *input = fopen(inputPath, "rb");
+    if (!input) return false;
+    FILE *output = fopen(outputPath, "wb");
+    if (!output) {
+        fclose(input);
+        return false;
+    }
+
+    bool success = fseek(input, offset, SEEK_SET) == 0;
+    std::vector<uint8_t> buffer(64 * 1024);
+    long remaining = length;
+    while (success && remaining > 0) {
+        size_t chunkSize = static_cast<size_t>(std::min<long>(remaining, static_cast<long>(buffer.size())));
+        size_t bytesRead = fread(buffer.data(), 1, chunkSize, input);
+        if (bytesRead != chunkSize || fwrite(buffer.data(), 1, bytesRead, output) != bytesRead) {
+            success = false;
+            break;
+        }
+        remaining -= static_cast<long>(bytesRead);
+    }
+
+    success = success && fflush(output) == 0 && fclose(output) == 0;
+    fclose(input);
+    if (!success) remove(outputPath);
+    return success;
+}
+
+static bool ReadFileRange(FILE *file, long offset, uint8_t *buffer, size_t length) {
+    return file && buffer && offset >= 0 && fseek(file, offset, SEEK_SET) == 0 &&
+           fread(buffer, 1, length, file) == length;
+}
+
+static uint32_t ReadBigEndianU32(const uint8_t *bytes) {
+    return (static_cast<uint32_t>(bytes[0]) << 24) |
+           (static_cast<uint32_t>(bytes[1]) << 16) |
+           (static_cast<uint32_t>(bytes[2]) << 8) |
+           static_cast<uint32_t>(bytes[3]);
+}
+
+static uint64_t ReadBigEndianU64(const uint8_t *bytes) {
+    return (static_cast<uint64_t>(ReadBigEndianU32(bytes)) << 32) |
+           ReadBigEndianU32(bytes + 4);
+}
+
+static void WriteBigEndianU32(uint8_t *bytes, uint32_t value) {
+    bytes[0] = static_cast<uint8_t>(value >> 24);
+    bytes[1] = static_cast<uint8_t>(value >> 16);
+    bytes[2] = static_cast<uint8_t>(value >> 8);
+    bytes[3] = static_cast<uint8_t>(value);
+}
+
+static void WriteBigEndianU64(uint8_t *bytes, uint64_t value) {
+    WriteBigEndianU32(bytes, static_cast<uint32_t>(value >> 32));
+    WriteBigEndianU32(bytes + 4, static_cast<uint32_t>(value));
+}
+
+static bool RelocateChunkOffsets(FILE *file, long outputLength, long mp4Offset,
+                                 long boxOffset, long boxEnd, bool isCo64) {
+    const long entrySize = isCo64 ? 8 : 4;
+    uint8_t header[8];
+    if (boxEnd < boxOffset || boxEnd - boxOffset < 16 ||
+        !ReadFileRange(file, boxOffset + 8, header, sizeof(header))) {
+        return false;
+    }
+    uint32_t entryCount = ReadBigEndianU32(header + 4);
+    uint64_t entriesEnd = static_cast<uint64_t>(boxOffset) + 16 +
+                          static_cast<uint64_t>(entryCount) * entrySize;
+    if (entriesEnd > static_cast<uint64_t>(boxEnd)) return false;
+
+    uint8_t entry[8];
+    for (uint32_t i = 0; i < entryCount; ++i) {
+        long entryOffset = boxOffset + 16 + static_cast<long>(i) * entrySize;
+        if (!ReadFileRange(file, entryOffset, entry, entrySize)) return false;
+        uint64_t originalOffset = isCo64 ? ReadBigEndianU64(entry) : ReadBigEndianU32(entry);
+        // Some vendors already store offsets relative to the embedded MP4, while others
+        // store absolute offsets into the enclosing HEIC. Relocate only absolute offsets.
+        uint64_t relocatedOffset = originalOffset;
+        if (originalOffset >= static_cast<uint64_t>(mp4Offset)) {
+            relocatedOffset = originalOffset - static_cast<uint64_t>(mp4Offset);
+        }
+        if (relocatedOffset >= static_cast<uint64_t>(outputLength)) return false;
+        if (isCo64) WriteBigEndianU64(entry, relocatedOffset);
+        else WriteBigEndianU32(entry, static_cast<uint32_t>(relocatedOffset));
+        if (fseek(file, entryOffset, SEEK_SET) != 0 || fwrite(entry, 1, entrySize, file) != entrySize) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool RelocateStblChunkOffsets(FILE *file, long outputLength, long mp4Offset,
+                                     long start, long end) {
+    long position = start;
+    while (position < end) {
+        uint8_t header[16];
+        if (end - position < 8 || !ReadFileRange(file, position, header, 8)) return false;
+        uint64_t size = ReadBigEndianU32(header);
+        long headerSize = 8;
+        if (size == 1) {
+            if (end - position < 16 || !ReadFileRange(file, position, header, 16)) return false;
+            size = ReadBigEndianU64(header + 8);
+            headerSize = 16;
+        } else if (size == 0) {
+            size = static_cast<uint64_t>(end - position);
+        }
+        if (size < static_cast<uint64_t>(headerSize) ||
+            size > static_cast<uint64_t>(end - position)) return false;
+        long boxEnd = position + static_cast<long>(size);
+        bool isStco = memcmp(header + 4, "stco", 4) == 0;
+        bool isCo64 = memcmp(header + 4, "co64", 4) == 0;
+        if ((isStco || isCo64) &&
+            !RelocateChunkOffsets(file, outputLength, mp4Offset, position, boxEnd, isCo64)) {
+            return false;
+        }
+        position = boxEnd;
+    }
+    return position == end;
+}
+
+static bool RelocateMp4ChunkOffsetsInContainer(FILE *file, long outputLength, long mp4Offset,
+                                                long start, long end, const char *expectedType,
+                                                int depth) {
+    long position = start;
+    while (position < end) {
+        uint8_t header[16];
+        if (end - position < 8 || !ReadFileRange(file, position, header, 8)) return false;
+        uint64_t size = ReadBigEndianU32(header);
+        long headerSize = 8;
+        if (size == 1) {
+            if (end - position < 16 || !ReadFileRange(file, position, header, 16)) return false;
+            size = ReadBigEndianU64(header + 8);
+            headerSize = 16;
+        } else if (size == 0) {
+            size = static_cast<uint64_t>(end - position);
+        }
+        if (size < static_cast<uint64_t>(headerSize) ||
+            size > static_cast<uint64_t>(end - position)) return false;
+        long boxEnd = position + static_cast<long>(size);
+        if (memcmp(header + 4, expectedType, 4) == 0) {
+            bool success = depth == 4
+                    ? RelocateStblChunkOffsets(file, outputLength, mp4Offset,
+                                                position + headerSize, boxEnd)
+                    : RelocateMp4ChunkOffsetsInContainer(file, outputLength, mp4Offset,
+                                                         position + headerSize, boxEnd,
+                                                         depth == 0 ? "trak" : depth == 1 ? "mdia" :
+                                                         depth == 2 ? "minf" : "stbl",
+                                                         depth + 1);
+            if (!success) return false;
+        }
+        position = boxEnd;
+    }
+    return position == end;
+}
+
+static bool RelocateRawHeicMp4ChunkOffsets(const char *outputPath, long mp4Offset) {
+    FILE *file = fopen(outputPath, "r+b");
+    if (!file) return false;
+    long outputLength = 0;
+    bool success = mp4Offset >= 0 && GetFileSize(file, outputLength) && outputLength >= 8 &&
+                   RelocateMp4ChunkOffsetsInContainer(file, outputLength, mp4Offset, 0,
+                                                      outputLength, "moov", 0) &&
+                   fflush(file) == 0;
+    if (fclose(file) != 0) success = false;
+    return success;
+}
+
+static bool FindSignatureInFile(FILE *file, long fileSize, const uint8_t *signature,
+                                size_t signatureLength, bool searchFromEnd, long &signatureOffset) {
+    constexpr size_t kBufferSize = 64 * 1024;
+    if (!file || !signature || signatureLength == 0 || fileSize < static_cast<long>(signatureLength)) {
+        return false;
+    }
+
+    std::vector<uint8_t> buffer(kBufferSize);
+    if (!searchFromEnd) {
+        long offset = 0;
+        while (offset < fileSize) {
+            size_t bytesToRead = static_cast<size_t>(std::min<long>(kBufferSize, fileSize - offset));
+            if (!ReadFileRange(file, offset, buffer.data(), bytesToRead)) return false;
+            for (size_t i = 0; i + signatureLength <= bytesToRead; ++i) {
+                if (memcmp(buffer.data() + i, signature, signatureLength) == 0) {
+                    signatureOffset = offset + static_cast<long>(i);
+                    return true;
+                }
+            }
+            if (bytesToRead <= signatureLength - 1) break;
+            offset += static_cast<long>(bytesToRead - (signatureLength - 1));
+        }
+    } else {
+        long end = fileSize;
+        while (end > 0) {
+            long start = std::max(0L, end - static_cast<long>(kBufferSize));
+            size_t bytesToRead = static_cast<size_t>(end - start);
+            if (!ReadFileRange(file, start, buffer.data(), bytesToRead)) return false;
+            for (long i = static_cast<long>(bytesToRead) - static_cast<long>(signatureLength); i >= 0; --i) {
+                if (memcmp(buffer.data() + i, signature, signatureLength) == 0) {
+                    signatureOffset = start + i;
+                    return true;
+                }
+            }
+            if (start == 0) break;
+            end = start + static_cast<long>(signatureLength - 1);
+        }
+    }
+    return false;
+}
+
+static bool FindJpegEoi(FILE *file, long fileSize, long &eoiEndOffset) {
+    uint8_t previous = 0;
+    bool hasPrevious = false;
+    constexpr size_t kBufferSize = 64 * 1024;
+    std::vector<uint8_t> buffer(kBufferSize);
+    long offset = 0;
+    while (offset < fileSize) {
+        size_t bytesToRead = static_cast<size_t>(std::min<long>(kBufferSize, fileSize - offset));
+        if (!ReadFileRange(file, offset, buffer.data(), bytesToRead)) return false;
+        for (size_t i = 0; i < bytesToRead; ++i) {
+            if (hasPrevious && previous == 0xFF && buffer[i] == 0xD9) {
+                eoiEndOffset = offset + static_cast<long>(i) + 1;
+                return true;
+            }
+            previous = buffer[i];
+            hasPrevious = true;
+        }
+        offset += static_cast<long>(bytesToRead);
+    }
+    return false;
+}
+
+static bool IsValidMp4FtypAt(FILE *file, long fileSize, long mp4Offset) {
+    uint8_t header[12];
+    if (mp4Offset < 0 || mp4Offset > fileSize - static_cast<long>(sizeof(header)) ||
+        !ReadFileRange(file, mp4Offset, header, sizeof(header))) {
+        return false;
+    }
+    uint32_t boxSize = (static_cast<uint32_t>(header[0]) << 24) |
+                       (static_cast<uint32_t>(header[1]) << 16) |
+                       (static_cast<uint32_t>(header[2]) << 8) |
+                       static_cast<uint32_t>(header[3]);
+    return boxSize >= 8 && boxSize <= static_cast<uint32_t>(fileSize - mp4Offset) &&
+           header[4] == 'f' && header[5] == 't' && header[6] == 'y' && header[7] == 'p';
+}
+
+static bool FindJpegMotionPhotoMp4Range(const char *inputPath, long &mp4Offset, long &mp4Length) {
+    FILE *file = fopen(inputPath, "rb");
+    if (!file) return false;
+
+    long fileSize = 0;
+    uint8_t header[3];
+    long jpegEndOffset = -1;
+    bool success = GetFileSize(file, fileSize) && fileSize >= 16 &&
+                   ReadFileRange(file, 0, header, sizeof(header)) &&
+                   header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF &&
+                   FindJpegEoi(file, fileSize, jpegEndOffset);
+    if (success) {
+        const uint8_t ftypSignature[4] = {'f', 't', 'y', 'p'};
+        long ftypOffset = -1;
+        success = FindSignatureInFile(file, fileSize, ftypSignature, sizeof(ftypSignature), false, ftypOffset) &&
+                  ftypOffset >= jpegEndOffset + 4;
+        if (success) {
+            mp4Offset = ftypOffset - 4;
+            mp4Length = fileSize - mp4Offset;
+            success = IsValidMp4FtypAt(file, fileSize, mp4Offset);
+        }
+    }
+    fclose(file);
+    return success && mp4Length >= 12;
+}
+
+static bool FindHeicMotionPhotoMp4Range(const char *inputPath, long &mp4Offset, long &mp4Length,
+                                        bool &requiresChunkOffsetRelocation) {
+    requiresChunkOffsetRelocation = false;
+    FILE *file = fopen(inputPath, "rb");
+    if (!file) return false;
+
+    long fileSize = 0;
+    bool success = GetFileSize(file, fileSize) && fileSize >= 16;
+    if (success) {
+        // Google HEIC Motion Photos use an mpvd box. Some vendor HEIC Motion Photos instead
+        // append a raw MP4 after proprietary metadata, so retain a validated ftyp fallback.
+        const uint8_t mpvdSignature[4] = {'m', 'p', 'v', 'd'};
+        long mpvdOffset = -1;
+        uint8_t boxSizeBytes[4];
+        if (FindSignatureInFile(file, fileSize, mpvdSignature, sizeof(mpvdSignature), true, mpvdOffset) &&
+            mpvdOffset >= 4 && ReadFileRange(file, mpvdOffset - 4, boxSizeBytes, sizeof(boxSizeBytes))) {
+            long boxStart = mpvdOffset - 4;
+            uint32_t boxSize = (static_cast<uint32_t>(boxSizeBytes[0]) << 24) |
+                               (static_cast<uint32_t>(boxSizeBytes[1]) << 16) |
+                               (static_cast<uint32_t>(boxSizeBytes[2]) << 8) |
+                               static_cast<uint32_t>(boxSizeBytes[3]);
+            mp4Offset = mpvdOffset + 4;
+            mp4Length = static_cast<long>(boxSize) - 8;
+            success = boxSize >= 8 && mp4Offset >= 0 && mp4Length >= 12 &&
+                      mp4Offset <= fileSize - mp4Length &&
+                      boxStart + static_cast<long>(boxSize) == fileSize &&
+                      IsValidMp4FtypAt(file, fileSize, mp4Offset);
+        } else {
+            success = false;
+        }
+
+        if (!success) {
+            const uint8_t ftypSignature[4] = {'f', 't', 'y', 'p'};
+            long ftypOffset = -1;
+            if (FindSignatureInFile(file, fileSize, ftypSignature, sizeof(ftypSignature), true, ftypOffset) &&
+                ftypOffset >= 4) {
+                mp4Offset = ftypOffset - 4;
+                mp4Length = fileSize - mp4Offset;
+                success = mp4Length >= 12 && IsValidMp4FtypAt(file, fileSize, mp4Offset);
+                requiresChunkOffsetRelocation = success;
+            }
+        }
+    }
+    fclose(file);
+    return success;
+}
+
 extern "C" JNIEXPORT jbyteArray
 
 JNICALL
@@ -1620,95 +1815,84 @@ Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideoByXMP(
 }
 
 
-/**
- * Extract video data from Google JPEG format Motion Photo
- *
- * Requirements:提取 Google JPEG 结构的动态照片的视频数据，以供 app 播放动态效果。
- *
- * JPEG Motion Photo 文件Structure:
- * - JPEG image data (starts with FF D8, ends with FF D9)
- * - [Optional] Padding bytes
- * - MP4 video data (starts with ftyp box)
- *
- * Supports two positioning methods:
- *
- * Method 1: Google XMP method (priority)
- * - Read XMP metadata from JPEG APP1 segment
- * - Find GCamera:MotionPhoto="1" to confirm it's a Motion Photo
- * - Use Item:Length to calculate video position from end of file
- * - Video start position = file size - Item:Length
- *
- * Method 2: Huawei ftyp search method (fallback)
- * - Search for "ftyp" identifier in file (beginning of MP4 file)
- * - 4 bytes before ftyp is box size, locate MP4 start position
- * - From MP4 start position to end of file is complete MP4 data
- *
- * @param inputFilePath JPEG Motion Photo 文件路径
- * @return MP4 video data byte array, returns null on failure
- */
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractJpegVideoToFile(
+        JNIEnv *env, jclass clazz, jstring inputFilePath, jstring outputFilePath) {
+    const char *inputPath = env->GetStringUTFChars(inputFilePath, nullptr);
+    const char *outputPath = env->GetStringUTFChars(outputFilePath, nullptr);
+    if (!inputPath || !outputPath) {
+        if (inputPath) env->ReleaseStringUTFChars(inputFilePath, inputPath);
+        if (outputPath) env->ReleaseStringUTFChars(outputFilePath, outputPath);
+        return JNI_FALSE;
+    }
+
+    long mp4StartPos = -1;
+    long mp4Length = 0;
+    bool success = FindJpegMotionPhotoMp4Range(inputPath, mp4StartPos, mp4Length);
+    if (success) success = CopyFileRangeToFile(inputPath, outputPath, mp4StartPos, mp4Length);
+    env->ReleaseStringUTFChars(outputFilePath, outputPath);
+    env->ReleaseStringUTFChars(inputFilePath, inputPath);
+    return success ? JNI_TRUE : JNI_FALSE;
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_seafile_seadroid2_jni_HeicNative_ExtractHeicVideoToFile(
+        JNIEnv *env, jclass clazz, jstring inputFilePath, jstring outputFilePath) {
+    const char *inputPath = env->GetStringUTFChars(inputFilePath, nullptr);
+    const char *outputPath = env->GetStringUTFChars(outputFilePath, nullptr);
+    if (!inputPath || !outputPath) {
+        if (inputPath) env->ReleaseStringUTFChars(inputFilePath, inputPath);
+        if (outputPath) env->ReleaseStringUTFChars(outputFilePath, outputPath);
+        return JNI_FALSE;
+    }
+
+    long mp4StartPos = -1;
+    long mp4Length = 0;
+    bool requiresChunkOffsetRelocation = false;
+    bool success = FindHeicMotionPhotoMp4Range(inputPath, mp4StartPos, mp4Length,
+                                                requiresChunkOffsetRelocation);
+    if (success) success = CopyFileRangeToFile(inputPath, outputPath, mp4StartPos, mp4Length);
+    if (success && requiresChunkOffsetRelocation) {
+        success = RelocateRawHeicMp4ChunkOffsets(outputPath, mp4StartPos);
+        if (!success) remove(outputPath);
+    }
+    env->ReleaseStringUTFChars(outputFilePath, outputPath);
+    env->ReleaseStringUTFChars(inputFilePath, inputPath);
+    return success ? JNI_TRUE : JNI_FALSE;
+}
+
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_seafile_seadroid2_jni_HeicNative_ExtractJpegVideo(JNIEnv *env, jclass clazz, jstring inputFilePath) {
-    LOGI_MP("============================================================");
-    LOGI_MP("nativeExtractGoogleJpegMotionPhotoVideo: START");
-    LOGI_MP("============================================================");
-
     const char *filePath = env->GetStringUTFChars(inputFilePath, nullptr);
-    if (!filePath) {
-        LOGE_MP("[ExtractJPEGVideo] Failed to get input file path");
-        return nullptr;
-    }
-    LOGD_MP("[ExtractJPEGVideo] Input file: %s", filePath);
+    if (!filePath) return nullptr;
 
-    // Open file
     FILE *file = fopen(filePath, "rb");
     if (!file) {
-        LOGE_MP("[ExtractJPEGVideo] Failed to open file: %s (errno=%d)", filePath, errno);
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
-
-    // Get file size
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
-    LOGD_MP("[ExtractJPEGVideo] File size: %ld bytes (%.2f MB)", fileSize, fileSize / (1024.0 * 1024.0));
-
     if (fileSize < 16) {
-        LOGE_MP("[ExtractJPEGVideo] File too small to be a valid Motion Photo");
         fclose(file);
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
 
-    // Read entire file into memory
-    std::vector<uint8_t> fileData(fileSize);
-    size_t bytesRead = fread(fileData.data(), 1, fileSize, file);
+    std::vector<uint8_t> fileData(static_cast<size_t>(fileSize));
+    size_t bytesRead = fread(fileData.data(), 1, static_cast<size_t>(fileSize), file);
     fclose(file);
-
-    if (bytesRead != static_cast<size_t>(fileSize)) {
-        LOGE_MP("[ExtractJPEGVideo] Failed to read file (read %zu of %ld)", bytesRead, fileSize);
+    if (bytesRead != static_cast<size_t>(fileSize) || fileData[0] != 0xFF ||
+        fileData[1] != 0xD8 || fileData[2] != 0xFF) {
         env->ReleaseStringUTFChars(inputFilePath, filePath);
         return nullptr;
     }
-    LOGD_MP("[ExtractJPEGVideo] File loaded into memory: %zu bytes", bytesRead);
-
-    // Verify JPEG file header (FF D8 FF)
-    if (fileData[0] != 0xFF || fileData[1] != 0xD8 || fileData[2] != 0xFF) {
-        LOGE_MP("[ExtractJPEGVideo] Not a valid JPEG file (header: %02X %02X %02X)",
-                fileData[0], fileData[1], fileData[2]);
-        env->ReleaseStringUTFChars(inputFilePath, filePath);
-        return nullptr;
-    }
-    LOGD_MP("[ExtractJPEGVideo] Valid JPEG header detected (FF D8 FF)");
 
     long mp4StartPos = -1;
     uint32_t mp4Size = 0;
     const char *locateMethod = "unknown";
-
-    // ==================== 方式一：Try XMP method ====================
-    LOGI_MP("[ExtractJPEGVideo] Trying XMP method (Google style)...");
     MotionPhotoXmpInfo xmpInfo = ParseJpegMotionPhotoXmp(fileData);
-
     if (xmpInfo.isMotionPhoto && xmpInfo.videoLength > 0) {
         LOGI_MP(
                 "[ExtractJPEGVideo] XMP method: Motion Photo confirmed, video length = %ld",
@@ -1868,30 +2052,6 @@ Java_com_seafile_seadroid2_jni_HeicNative_ExtractJpegVideo(JNIEnv *env, jclass c
     return result;
 }
 
-/**
- * Requirements:根据输入的图片地址，检查图片是否为哪种 Motion Photo。
- *
- * Logic:
- * 1. Read file raw bytes to determine the actual format is JPEG or HEIC.
- *
- * 2. If format is JPEG
- * 2.1 Read XMP, if MotionPhoto="1" or MicroVideo="1" field exists, determine as JPEG_MOTION_PHOTO
- * 2.2 如果上述不成立，搜索 ftyp 标识（MP4 文件头），如果存在特定的“mp4”的视频字符，则确定为 JPEG_MOTION_PHOTO
- * 2.3 Otherwise return MOTION_PHOTO_TYPE_NONE
- *
- * 3. If format is HEIC
- * 3.1 Use libheif to read XMP, if MotionPhoto="1" or MicroVideo="1" field exists, determine as HEIC_MOTION_PHOTO
- * 3.2 如果上述不成立，则检索 “mpvd” 字符，如果存在，则确定为 HEIC_MOTION_PHOTO
- * 3.3 Otherwise return MOTION_PHOTO_TYPE_NONE
- *
- * 4. If file is neither JPEG nor HEIC, directly return MOTION_PHOTO_TYPE_NONE
- *
- * Return: Motion Photo Type enum:
- * JPEG_MOTION_PHOTO(0): JPEG format motion photo
- * HEIC_MOTION_PHOTO(1): HEIC format motion photo
- * MOTION_PHOTO_TYPE_NONE(2): Not a motion photo
- * */
-
 // Motion Photo Type enum values
 #define MOTION_PHOTO_TYPE_JPEG 0
 #define MOTION_PHOTO_TYPE_HEIC 1
@@ -1925,7 +2085,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_CheckMotionPhotoType(JNIEnv *env, jcla
         return MOTION_PHOTO_TYPE_NONE;
     }
 
-    // 读取文件头（足够识别格式）
+    // Read the file header (enough to recognize the format).
     uint8_t header[12];
     if (fread(header, 1, 12, file) != 12) {
         LOGE_MP("[CheckType] Failed to read file header");
@@ -2288,14 +2448,11 @@ static std::vector<uint8_t> SliceBytes(const std::vector<uint8_t> &data, long st
     return out;
 }
 
-static std::vector<uint8_t> ExtractGainMapJpegFromMotionPhotoBytes(const std::vector<uint8_t> &data,
+static std::vector<uint8_t> ExtractGainMapPayloadFromMotionPhoto(const std::vector<uint8_t> &data,
                                                                    long start, long len, long padding) {
-    if (start < 0 || len < 4) return {};
-    if (static_cast<size_t>(start + len) > data.size()) return {};
-    if (data[static_cast<size_t>(start)] != 0xFF || data[static_cast<size_t>(start + 1)] != 0xD8) {
-        return {};
-    }
-    if (padding < 0) return {};
+    if (start < 0 || len < 4 || padding < 0) return {};
+    if (start > static_cast<long>(data.size()) || len > static_cast<long>(data.size()) - start) return {};
+    if (padding > static_cast<long>(data.size()) - start - len) return {};
     return SliceBytes(data, start, len);
 }
 
@@ -2420,11 +2577,6 @@ static std::vector<uint8_t> ExtractHeicHdrData(const char *filePath) {
             err = heif_image_handle_get_metadata(handle, id, buf.data());
             if (err.code != heif_error_Ok) {
                 LOGE_MP("[ExtractHeicHdr] Failed to read mime metadata: %s", err.message);
-                continue;
-            }
-
-            if (!HasJpegSoi(buf)) {
-                LOGD_MP("[ExtractHeicHdr] Skipping non-JPEG mime metadata");
                 continue;
             }
 
@@ -2753,33 +2905,24 @@ static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
     <rdf:Description rdf:about=""
         xmlns:GCamera="http://ns.google.com/photos/1.0/camera/"
         xmlns:Container="http://ns.google.com/photos/1.0/container/"
-        xmlns:Item="http://ns.google.com/photos/1.0/container/item/")";
-
-    if (hdrDataSize > 0) {
-        xmp += R"(
-        xmlns:hdrgm="http://ns.adobe.com/hdr-gain-map/1.0/"
-        hdrgm:Version="1.0")";
-    }
-
-    xmp += R"(
+        xmlns:Item="http://ns.google.com/photos/1.0/container/item/"
         GCamera:MicroVideo="1"
         GCamera:MicroVideoVersion="1"
         GCamera:MicroVideoOffset=")" + std::to_string(mp4VideoLength) + R"("
-        GCamera:MicroVideoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"(""
+        GCamera:MicroVideoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"("
         GCamera:MotionPhoto="1"
         GCamera:MotionPhotoVersion="1"
-        GCamera:MotionPhotoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"("">
+        GCamera:MotionPhotoPresentationTimestampUs=")" + std::to_string(presentationTimestampUs) + R"(">
       <Container:Directory>
         <rdf:Seq>
           <rdf:li rdf:parseType="Resource">
             <Container:Item
-              Item:Mime="image/jpeg"
+              Item:Mime="image/heic"
               Item:Semantic="Primary"
               Item:Length="0"
               Item:Padding="0"/>
           </rdf:li>)";
 
-    // hdr item
     if (hdrDataSize > 0) {
         xmp += R"(
           <rdf:li rdf:parseType="Resource">
@@ -2791,31 +2934,27 @@ static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
           </rdf:li>)";
     }
 
-    // motion photo item
     xmp += R"(
-              <rdf:li rdf:parseType="Resource">
-                <Container:Item
-                  Item:Mime="video/mp4"
-                  Item:Semantic="MotionPhoto"
-                  Item:Padding="8"
-                  Item:Length=")" + std::to_string(mp4VideoLength) + R"("/>
-              </rdf:li>
-            </rdf:Seq>
-          </Container:Directory>
-        </rdf:Description>
-      </rdf:RDF>
-    </x:xmpmeta>)";
+          <rdf:li rdf:parseType="Resource">
+            <Container:Item
+              Item:Mime="video/mp4"
+              Item:Semantic="MotionPhoto"
+              Item:Length=")" + std::to_string(mp4VideoLength) + R"("
+              Item:Padding="0"/>
+          </rdf:li>
+        </rdf:Seq>
+      </Container:Directory>
+    </rdf:Description>
+  </rdf:RDF>
+</x:xmpmeta>)";
 
     LOGD_MP("[GenerateXMP] XMP size=%zu bytes", xmp.size());
-    LOGD_MP("[GenerateXMP] XMP fields: MotionPhoto=1, Version=1, TimestampUs=%zu", presentationTimestampUs);
-    LOGD_MP("[GenerateXMP] Primary: Mime=image/heic, Semantic=Primary, Padding=8");
+    LOGD_MP("[GenerateXMP] Google Motion Photo metadata: videoLength=%zu", mp4VideoLength);
     if (hdrDataSize > 0) {
-        LOGD_MP("[GenerateXMP] GainMap: Mime=image/jpeg, Semantic=GainMap, Length=%zu", hdrDataSize);
+        LOGD_MP("[GenerateXMP] Google GainMap metadata: length=%zu", hdrDataSize);
     }
-    LOGD_MP("[GenerateXMP] Video: Mime=video/mp4, Semantic=MotionPhoto, Length=%zu", mp4VideoLength);
     return xmp;
 }
-
 
 static std::string GetSupportedVendorsMotionPhotoNamespace(const std::string &vendor) {
     std::string xmp;
@@ -3156,11 +3295,16 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertJpeg2Heic(
 
     std::vector<uint8_t> hdrJpeg;
     if (hdrStart >= 0 && hdrLen > 0) {
-        hdrJpeg = ExtractGainMapJpegFromMotionPhotoBytes(fileData, hdrStart, hdrLen, hdrPadding);
-        if (hdrJpeg.empty()) {
-            LOGE_MP("[Convert] HDR GainMap slice not valid JPEG");
+        if (xmpInfo.gainMapLength != hdrLen || xmpInfo.gainMapMime != "image/jpeg") {
+            LOGE_MP("[Convert] Invalid GainMap XMP descriptor");
             env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
-            return env->NewStringUTF("error: invalid HDR gainmap JPEG slice");
+            return env->NewStringUTF("error: invalid HDR gainmap XMP");
+        }
+        hdrJpeg = ExtractGainMapPayloadFromMotionPhoto(fileData, hdrStart, hdrLen, hdrPadding);
+        if (hdrJpeg.empty()) {
+            LOGE_MP("[Convert] HDR GainMap payload range is invalid");
+            env->ReleaseStringUTFChars(inputJpegFilePath, filePath);
+            return env->NewStringUTF("error: invalid HDR gainmap payload range");
         }
     } else {
         hdrLen = 0;
@@ -3383,13 +3527,13 @@ Java_com_seafile_seadroid2_jni_HeicNative_ConvertHeic2Jpeg(
 
     // extract HDR data
     std::vector<uint8_t> hdrData = ExtractHeicHdrData(inPath);
-    size_t hdrPadding = 0;  // No padding when converting from HEIC
+    size_t hdrPadding = 0;
     if (!hdrData.empty()) {
         if (!HasJpegSoi(hdrData)) {
-            LOGE_MP("[ConvertHeic2Jpeg] HDR gainmap data missing JPEG SOI");
+            LOGE_MP("[ConvertHeic2Jpeg] HDR gainmap payload is not supported by the JPEG export path");
             env->ReleaseStringUTFChars(outputFilePath, outPath);
             env->ReleaseStringUTFChars(inputFilePath, inPath);
-            return env->NewStringUTF("error: invalid HDR gainmap data");
+            return env->NewStringUTF("error: unsupported HDR gainmap payload");
         }
         LOGD_MP("[ConvertHeic2Jpeg] Extracted HDR data: %zu bytes", hdrData.size());
     } else {

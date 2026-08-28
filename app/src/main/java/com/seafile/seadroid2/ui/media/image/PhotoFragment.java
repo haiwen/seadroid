@@ -32,10 +32,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.exoplayer.source.MediaSource;
-import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
-import com.adobe.internal.xmp.XMPException;
 import com.blankj.utilcode.util.BarUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ScreenUtils;
@@ -62,14 +59,12 @@ import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
 import com.seafile.seadroid2.framework.model.sdoc.FileProfileConfigModel;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.jni.HeicNative;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragment;
 import com.seafile.seadroid2.ui.file_profile.FileProfileEditorActivity;
-import com.seafile.seadroid2.ui.media.data_source.MotionPhotoDataSourceFactory;
 import com.seafile.seadroid2.view.DocProfileView;
 import com.seafile.seadroid2.view.photoview.OnPhotoTapListener;
 import com.seafile.seadroid2.view.photoview.OnViewActionEndListener;
@@ -278,6 +273,18 @@ public class PhotoFragment extends BaseFragment {
             }
         });
 
+        // photo data
+        getViewModel().getMotionPhotoParseLiveData().observe(getViewLifecycleOwner(), new Observer<PhotoViewModel.MotionPhotoParseResult>() {
+            @Override
+            public void onChanged(PhotoViewModel.MotionPhotoParseResult result) {
+                applyMotionPhotoParseResult(result);
+            }
+        });
+
+        // video data
+        getViewModel().getMotionPhotoVideoLiveData().observe(getViewLifecycleOwner(), this::handleMotionPhotoVideoResult);
+
+        // photo detail data
         getViewModel().getFileDetailLiveData().observe(getViewLifecycleOwner(), new Observer<FileProfileConfigModel>() {
             @Override
             public void onChanged(FileProfileConfigModel configModel) {
@@ -660,16 +667,7 @@ public class PhotoFragment extends BaseFragment {
                     @Override
                     public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                         binding.progressBar.setVisibility(GONE);
-                        try {
-                            //
-                            checkMotionPhoto(oriUrl);
-
-                            //
-                            HashMap<String, String> hashMap = loadExifMeta(oriUrl);
-                            addTextView(hashMap);
-                        } catch (Exception e) {
-                            SLogs.e(e.getMessage());
-                        }
+                        handleLocalImageLoaded(oriUrl);
                         return false;
                     }
                 })
@@ -679,30 +677,15 @@ public class PhotoFragment extends BaseFragment {
 
     // no load yet.
     private int motionPhotoType = -1;
+    private String currentLocalImagePath;
 
-    private void checkMotionPhoto(String localPath) {
-        if (motionPhotoType == -1) {
-            if (Utils.isJpeg(localPath)) {
-                MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(new File(localPath));
-                if (descriptor.isMotionPhoto()) {
-                    motionPhotoType = HeicNative.MOTION_PHOTO_TYPE_JPEG;
-                }
-            } else if (Utils.isHeic(localPath)) {
-                MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractHeicXmp(new File(localPath));
-                if (descriptor.isMotionPhoto()) {
-                    motionPhotoType = HeicNative.MOTION_PHOTO_TYPE_HEIC;
-                }
-            }
-        }
-
-        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
+    /**
+     * 纯 UI：根据动态照片类型更新 "Live" 按钮。须在主线程调用。
+     */
+    private void applyMotionPhotoUi(int type) {
+        if (type == HeicNative.MOTION_PHOTO_TYPE_HEIC || type == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
             binding.btnLivePhoto.setVisibility(VISIBLE);
-            if (canScrollBottomLayout) {
-                imagePreviewHelper.setActionViews(binding.btnLivePhoto);
-            }
-        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-            binding.btnLivePhoto.setVisibility(VISIBLE);
-            if (canScrollBottomLayout) {
+            if (canScrollBottomLayout && imagePreviewHelper != null) {
                 imagePreviewHelper.setActionViews(binding.btnLivePhoto);
             }
         } else {
@@ -710,7 +693,48 @@ public class PhotoFragment extends BaseFragment {
         }
     }
 
+    /**
+     * 本地图片加载成功后：在后台线程做动态照片检测与 EXIF 解析（避免阻塞主线程，
+     * 尤其是慢速/低内存设备），完成后回到主线程更新 UI。
+     */
+    private void handleLocalImageLoaded(String oriUrl) {
+        if (TextUtils.isEmpty(oriUrl)) {
+            return;
+        }
+
+        currentLocalImagePath = oriUrl;
+        stopPlay();
+        motionPhotoType = -1;
+        applyMotionPhotoUi(HeicNative.MOTION_PHOTO_TYPE_NONE);
+
+        getViewModel().parseMotionPhoto(oriUrl);
+    }
+
+    private void applyMotionPhotoParseResult(PhotoViewModel.MotionPhotoParseResult result) {
+        if (!TextUtils.equals(currentLocalImagePath, result.localPath)) {
+            return;
+        }
+
+        motionPhotoType = result.type;
+        applyMotionPhotoUi(result.type);
+        try {
+            addTextView(result.exif);
+        } catch (Exception e) {
+            SLogs.e(e.getMessage());
+        }
+    }
+
     private ExoPlayer exoPlayer;
+
+    /**
+     * 动态照片视频的临时文件，播放结束后在 releasePlayer 中清理。
+     */
+    private File livePhotoVideoFile;
+
+    /**
+     * 是否正在后台提取动态照片视频，防止长按重复触发。
+     */
+    private boolean isLivePhotoExtracting = false;
 
     @Override
     public void onDestroyView() {
@@ -728,66 +752,89 @@ public class PhotoFragment extends BaseFragment {
 
     @OptIn(markerClass = Unstable.class)
     private void playLivePhotoVideo() {
-
-        try {
-            if (motionPhotoType == -1) {
-                return;
-            }
-
-            if (exoPlayer != null && exoPlayer.isPlaying()) {
-                return;
-            }
-
-            MediaSource source = buildMotionPhotoMediaSource(destinationFile);
-            if (source == null) {
-                return;
-            }
-
-            if (exoPlayer == null) {
-                exoPlayer = new ExoPlayer.Builder(requireContext()).build();
-                exoPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
-                exoPlayer.addListener(new Player.Listener() {
-                    @Override
-                    public void onPlaybackStateChanged(int playbackState) {
-                        switch (playbackState) {
-                            case Player.STATE_BUFFERING: //loading
-
-                                break;
-                            case Player.STATE_READY:
-                                binding.playerView.setVisibility(View.VISIBLE);
-                                binding.photoView.setVisibility(GONE);
-                                break;
-                            case Player.STATE_ENDED:
-                                binding.photoView.setVisibility(VISIBLE);
-                                binding.playerView.setVisibility(View.GONE);
-                                break;
-                        }
-                    }
-                });
-//                Glide.with(requireContext()).load(destinationFile)
-//                        .into(new CustomTarget<Drawable>() {
-//                            @Override
-//                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-//                                binding.playerView.setDefaultArtwork(resource);
-//                                binding.playerView.setArtworkDisplayMode(PlayerView.IMAGE_DISPLAY_MODE_FIT);
-//                            }
-//
-//                            @Override
-//                            public void onLoadCleared(@Nullable Drawable placeholder) {
-//                                binding.playerView.setDefaultArtwork(null);
-//                            }
-//                        });
-                binding.playerView.setPlayer(exoPlayer);
-            }
-
-            exoPlayer.setMediaSource(source);
-            exoPlayer.prepare();
-            exoPlayer.play();
-            //
-            vibrateOnce();
-        } catch (IOException | XMPException e) {
-            throw new RuntimeException(e);
+        if (motionPhotoType == -1 || motionPhotoType ==  HeicNative.MOTION_PHOTO_TYPE_NONE) {
+            return;
         }
+
+        if (exoPlayer != null && exoPlayer.isPlaying()) {
+            return;
+        }
+
+        if (HeicNative.isNativeUnavailable()) {
+            return;
+        }
+
+        if (isLivePhotoExtracting) {
+            return;
+        }
+
+        final File imageFile = destinationFile;
+        final String imagePath = currentLocalImagePath;
+        final int imageMotionPhotoType = motionPhotoType;
+        if (imageFile == null || !TextUtils.equals(imageFile.getAbsolutePath(), imagePath)) {
+            return;
+        }
+
+        isLivePhotoExtracting = true;
+        getViewModel().extractMotionPhotoVideo(imageFile, imageMotionPhotoType);
+    }
+
+    private void handleMotionPhotoVideoResult(PhotoViewModel.MotionPhotoVideoResult result) {
+        isLivePhotoExtracting = false;
+        if (result == null) {
+            return;
+        }
+
+        if (!isAdded() || getView() == null ||
+                !TextUtils.equals(currentLocalImagePath, result.imagePath)) {
+            FileUtils.delete(result.videoFile);
+            return;
+        }
+
+        if (result.videoFile == null) {
+            Toasts.show(R.string.not_available);
+            return;
+        }
+
+        startLivePhotoPlayback(result.videoFile);
+    }
+
+    private void startLivePhotoPlayback(File videoFile) {
+        if (livePhotoVideoFile != null && !livePhotoVideoFile.equals(videoFile)) {
+            FileUtils.delete(livePhotoVideoFile);
+        }
+
+        livePhotoVideoFile = videoFile;
+
+        if (exoPlayer == null) {
+            exoPlayer = new ExoPlayer.Builder(requireContext()).build();
+            exoPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+            exoPlayer.addListener(new Player.Listener() {
+                @Override
+                public void onPlaybackStateChanged(int playbackState) {
+                    switch (playbackState) {
+                        case Player.STATE_BUFFERING: //loading
+
+                            break;
+                        case Player.STATE_READY:
+                            binding.playerView.setVisibility(VISIBLE);
+                            binding.photoView.setVisibility(GONE);
+                            break;
+                        case Player.STATE_ENDED:
+                            binding.photoView.setVisibility(VISIBLE);
+                            binding.playerView.setVisibility(GONE);
+                            break;
+                    }
+                }
+            });
+            binding.playerView.setPlayer(exoPlayer);
+        }
+
+        exoPlayer.setMediaItem(MediaItem.fromUri(Uri.fromFile(videoFile)));
+        exoPlayer.prepare();
+        exoPlayer.play();
+        //
+        vibrateOnce();
     }
 
     private void vibrateOnce() {
@@ -806,10 +853,6 @@ public class PhotoFragment extends BaseFragment {
             return;
         }
 
-        if (!exoPlayer.isPlaying()) {
-            return;
-        }
-
         exoPlayer.stop();
         exoPlayer.clearMediaItems();
 
@@ -822,33 +865,11 @@ public class PhotoFragment extends BaseFragment {
             exoPlayer.release();
             exoPlayer = null;
         }
-    }
 
-
-    private MediaSource buildMotionPhotoMediaSource(File imageFile) throws IOException, XMPException {
-        if (motionPhotoType == -1) {
-            motionPhotoType = HeicNative.CheckMotionPhotoType(imageFile.getAbsolutePath());
+        if (livePhotoVideoFile != null) {
+            FileUtils.delete(livePhotoVideoFile);
+            livePhotoVideoFile = null;
         }
-
-        byte[] videoBytes = null;
-        if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_HEIC) {
-            videoBytes = HeicNative.ExtractHeicVideo(imageFile.getAbsolutePath());
-        } else if (motionPhotoType == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
-            videoBytes = HeicNative.ExtractJpegVideo(imageFile.getAbsolutePath());
-        }
-
-        if (videoBytes == null || videoBytes.length == 0) {
-            return null;
-        }
-
-        androidx.media3.datasource.DataSource.Factory factory = new MotionPhotoDataSourceFactory(videoBytes);
-
-        MediaItem mediaItem = new MediaItem.Builder()
-                .setUri(Uri.fromFile(imageFile))
-                .build();
-
-        return new ProgressiveMediaSource.Factory(factory)
-                .createMediaSource(mediaItem);
     }
 
 
@@ -878,6 +899,7 @@ public class PhotoFragment extends BaseFragment {
                 .into(binding.photoView);
     }
 
+    @SuppressWarnings("unused")
     private HashMap<String, String> loadExifMeta(String localPath) {
         HashMap<String, String> exifMap = new HashMap<>();
 
@@ -951,27 +973,35 @@ public class PhotoFragment extends BaseFragment {
             String fNumber = exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER);
             SLogs.d(TAG, "ExifData", "光圈数: " + fNumber);
             if (!TextUtils.isEmpty(fNumber)) {
-                double fDouble = Double.parseDouble(fNumber);
-                exifMap.put("_f_nubmer", String.format(Locale.getDefault(), "%.2f", fDouble));
+                try {
+                    double fDouble = Double.parseDouble(fNumber);
+                    exifMap.put("_f_nubmer", String.format(Locale.getDefault(), "%.2f", fDouble));
+                } catch (NumberFormatException e) {
+                    SLogs.d(TAG, "ExifData", "invalid f-number: " + fNumber);
+                }
             }
 
             // 8. 读取曝光时间
             String exposureTime = exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME);
             SLogs.d(TAG, "ExifData", "曝光时间: " + exposureTime);
-            if (TextUtils.isEmpty(exposureTime)) {
-                double exposureValue = Double.parseDouble(exposureTime);
+            if (!TextUtils.isEmpty(exposureTime)) {
+                try {
+                    double exposureValue = Double.parseDouble(exposureTime);
 
-                String formattedExposureTime;
-                if (exposureValue < 1.0) {
-                    double reciprocal = 1.0 / exposureValue;
-                    long roundedReciprocal = Math.round(reciprocal);
-                    formattedExposureTime = "1/" + roundedReciprocal;
-                } else {
-                    formattedExposureTime = String.format(Locale.getDefault(), "%.2f sec", exposureTime);
+                    String formattedExposureTime;
+                    if (exposureValue < 1.0) {
+                        double reciprocal = 1.0 / exposureValue;
+                        long roundedReciprocal = Math.round(reciprocal);
+                        formattedExposureTime = "1/" + roundedReciprocal;
+                    } else {
+                        formattedExposureTime = String.format(Locale.getDefault(), "%.2f sec", exposureValue);
+                    }
+
+                    SLogs.d(TAG, "ExifData", "Formatted Exposure Time: " + formattedExposureTime);
+                    exifMap.put("_exposure_time", formattedExposureTime);
+                } catch (NumberFormatException e) {
+                    SLogs.d(TAG, "ExifData", "invalid exposure time: " + exposureTime);
                 }
-
-                SLogs.d(TAG, "ExifData", "Formatted Exposure Time: " + formattedExposureTime);
-                exifMap.put("_exposure_time", formattedExposureTime);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

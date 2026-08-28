@@ -46,11 +46,14 @@ fi
 # Android API Level
 export ANDROID_API=34
 
+# x265 3.4 uses CMake policies removed in CMake 4. Use Android SDK's bundled
+# CMake 3.22.1 for all third-party native library builds.
+export CMAKE_BIN="${ANDROID_SDK_ROOT:-$ANDROID_HOME}/cmake/3.22.1/bin/cmake"
+
 # The schema to compile
 ABIS=(
     "armeabi-v7a"
     "arm64-v8a"
-#    "x86"
     "x86_64"
 )
 
@@ -59,6 +62,11 @@ LIBHEIF_VERSION="v1.22.2"
 
 # LibJpeg version
 LIBJPEG_VERSION="3.1.3"
+
+# x265 version. x265 is GPLv2-licensed; see the licensing note below before
+# distributing a libheif binary that links it.
+# The official GitHub mirror currently provides the 3.4 release tag.
+X265_VERSION="3.4"
 
 # ============================================
 # macos system configuration
@@ -125,10 +133,19 @@ check_environment() {
     fi
     log_success "Found project directory: $PROJECT_DIR"
 
-    # Check Homebrew tools
-    local tools=("cmake" "git" "ninja" "pkg-config")
+    # x265 3.4 is incompatible with CMake 4, so third-party builds use the
+    # CMake 3.22.1 bundle installed with the Android SDK.
+    if [ ! -x "$CMAKE_BIN" ]; then
+        log_error "Android SDK CMake 3.22.1 not found: $CMAKE_BIN"
+        log_error "Install it in Android Studio SDK Manager > SDK Tools > CMake 3.22.1."
+        exit 1
+    fi
+    log_success "Using Android SDK CMake: $CMAKE_BIN"
+
+    # Check remaining Homebrew tools
+    local tools=("git" "ninja" "pkg-config")
     for tool in "${tools[@]}"; do
-        if ! command -v $tool &> /dev/null; then
+        if ! command -v "$tool" &> /dev/null; then
             log_error "Tool not found: $tool"
             log_error "Please install using Homebrew: brew install $tool"
             exit 1
@@ -168,7 +185,7 @@ build_libjpeg() {
         rm -rf $BUILD_DIR
         mkdir -p $BUILD_DIR
         cd $BUILD_DIR
-        cmake .. \
+        "$CMAKE_BIN" .. \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
             -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
@@ -177,6 +194,7 @@ build_libjpeg() {
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
             -DENABLE_SHARED=ON \
+            -DWITH_SIMD=OFF \
             -DENABLE_STATIC=OFF
         ninja -j$NPROC
         ninja install
@@ -184,6 +202,69 @@ build_libjpeg() {
         log_success "libjpeg-turbo for $ABI build complete"
     done
     log_success "✅ libjpeg-turbo $LIBJPEG_VERSION build complete!"
+}
+
+# ============================================
+# Build x265
+# ============================================
+
+build_x265() {
+    log_info "=========================================="
+    log_info "Building x265 $X265_VERSION..."
+    log_info "=========================================="
+
+    cd "$SRC_DIR"
+    if [ ! -d "x265" ]; then
+        log_info "Cloning x265 source code..."
+        # The historical Bitbucket repository is no longer available. Use the
+        # official GitHub mirror, which retains the x265 release tags.
+        git clone --branch "$X265_VERSION" --depth 1 https://github.com/videolan/x265.git x265
+    else
+        log_info "x265 source code already exists, updating to $X265_VERSION"
+        cd x265
+        git fetch --tags
+        git checkout "$X265_VERSION"
+        cd ..
+    fi
+
+    cd x265
+    for ABI in "${ABIS[@]}"; do
+        log_info "Building x265 for $ABI..."
+        BUILD_DIR="build-$ABI"
+        INSTALL_DIR="$PREFIX_DIR/x265/$ABI"
+
+        # Reconfigure from scratch so the archive always matches the selected
+        # NDK, API level, ABI, and x265 version.
+        rm -rf "$BUILD_DIR"
+        mkdir -p "$BUILD_DIR"
+        "$CMAKE_BIN" -S source -B "$BUILD_DIR" -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
+            -DANDROID_ABI="$ABI" \
+            -DANDROID_PLATFORM="android-$ANDROID_API" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+            -DENABLE_CLI=OFF \
+            -DENABLE_SHARED=OFF \
+            -DENABLE_ASSEMBLY=OFF \
+            -DENABLE_PIC=ON \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+        ninja -C "$BUILD_DIR" -j"$NPROC"
+        ninja -C "$BUILD_DIR" install
+
+        # FindX265.cmake requires both headers at the include-directory root
+        # and libx265.a in the library directory; fail early if an upstream
+        # layout change prevents libheif from finding the static encoder.
+        if [ ! -f "$INSTALL_DIR/include/x265.h" ] || \
+           [ ! -f "$INSTALL_DIR/include/x265_config.h" ] || \
+           [ ! -f "$INSTALL_DIR/lib/libx265.a" ]; then
+            log_error "x265 installation for $ABI is incomplete: $INSTALL_DIR"
+            exit 1
+        fi
+        log_success "x265 for $ABI build complete"
+    done
+
+    log_success "✅ x265 $X265_VERSION build complete!"
 }
 
 # ============================================
@@ -238,7 +319,10 @@ build_libheif() {
         mkdir -p $BUILD_DIR
         cd $BUILD_DIR
 
-        cmake .. \
+        # FindX265.cmake derives X265_LIBRARIES from the singular X265_LIBRARY
+        # variable. Do not predefine the plural variable: libheif's legacy
+        # LibFindMacros treats that as an inconsistent configuration.
+        "$CMAKE_BIN" .. \
             -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
             -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
@@ -250,7 +334,9 @@ build_libheif() {
             -DWITH_EXAMPLES=OFF \
             -DBUILD_TESTING=OFF \
             -DWITH_LIBDE265=OFF \
-            -DWITH_X265=OFF \
+            -DWITH_X265=ON \
+            -DX265_INCLUDE_DIR="$PREFIX_DIR/x265/$ABI/include" \
+            -DX265_LIBRARY="$PREFIX_DIR/x265/$ABI/lib/libx265.a" \
             -DWITH_AOM_DECODER=OFF \
             -DWITH_AOM_ENCODER=OFF \
             -DWITH_DAV1D=OFF \
@@ -351,8 +437,12 @@ strip_libraries() {
             "arm64-v8a")
                 STRIP_TOOL="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/aarch64-linux-android-strip"
                 ;;
-            "x86")
-                STRIP_TOOL="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/i686-linux-android-strip"
+            "x86_64")
+                STRIP_TOOL="$ANDROID_NDK/toolchains/llvm/prebuilt/$STRIP_PREFIX/bin/x86_64-linux-android-strip"
+                ;;
+            *)
+                log_error "Unsupported ABI for stripping: $ABI"
+                exit 1
                 ;;
         esac
 
@@ -380,11 +470,13 @@ show_statistics() {
     TARGET_DIR="$PROJECT_DIR/app/src/main/cpp/libheif/lib"
 
     for ABI in "${ABIS[@]}"; do
-    if [ -d "$TARGET_DIR/$ABI" ]; then
-        log_info "Architecture: $ABI"
-            ls -lh $TARGET_DIR/$ABI/*.so
-        echo ""
-    fi
+        if [ -d "$TARGET_DIR/$ABI" ]; then
+            log_info "Architecture: $ABI"
+            ls -lh "$TARGET_DIR/$ABI"/*.so
+            echo ""
+        else
+            log_warn "No libraries copied for ABI: $ABI"
+        fi
     done
 
     log_info "Total size:"
@@ -428,7 +520,9 @@ check_needs() {
 
     local TARGET_LIB_DIR="$PROJECT_DIR/app/src/main/cpp/libheif/lib"
 
-    # Default libraries to build (currently only building libheif and libjpeg)
+    # libheif must be rebuilt whenever x265 is rebuilt: x265 is a static
+    # dependency and therefore has no separately copied runtime artifact.
+    NEED_X265=true
     NEED_LIBHEIF=true
     NEED_LIBJPEG=true
 
@@ -448,10 +542,10 @@ check_needs() {
     if check_lib_exists "libheif.so"; then APP_HAS_HEIF=true; else APP_HAS_HEIF=false; fi
     if check_lib_exists "libjpeg.so"; then APP_HAS_JPEG=true; else APP_HAS_JPEG=false; fi
 
-    # LibHeif check (currently doesn't depend on x265, libde265)
+    # Do not use an existing app libheif as a cache hit: it may have been
+    # built without the statically linked x265 encoder.
     if [ "$APP_HAS_HEIF" = "true" ]; then
-        NEED_LIBHEIF=false
-        log_info "libheif already exists, skipping build"
+        log_info "libheif already exists, rebuilding it with static x265"
     fi
 
     if [ "$APP_HAS_JPEG" = "true" ]; then
@@ -494,6 +588,12 @@ main() {
     # Build dependencies
     if [ "$NEED_LIBJPEG" = "true" ]; then
         build_libjpeg
+        echo ""
+    fi
+
+    # x265 is statically linked into libheif, so build it before libheif.
+    if [ "$NEED_X265" = "true" ]; then
+        build_x265
         echo ""
     fi
 
