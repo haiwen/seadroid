@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.framework.service;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.seafile.seadroid2.SeadroidApplication;
@@ -92,6 +94,16 @@ public class BackupThreadExecutor {
     private CompletableFuture<Void> albumBackupFuture;
     private CompletableFuture<Void> localFileUpdateFuture;
     private CompletableFuture<Void> shareFileUploadFuture;
+
+    /**
+     * Delay before the uploader starts after a scan completes. Gives a just-taken
+     * photo a moment to finish being written by the camera, so that the uploader's
+     * size check is not triggered spuriously. The delay is scheduled on the main
+     * looper (non-blocking), the upload itself still runs on the executor.
+     */
+    private static final long UPLOAD_START_DELAY_MS = 1000L;
+
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public boolean isFolderBackupRunning() {
         return folderBackupFuture != null && !folderBackupFuture.isDone();
@@ -265,37 +277,54 @@ public class BackupThreadExecutor {
 //            return;
 //        }
 
-        albumBackupFuture = runTask(new Runnable() {
-            @Override
-            public void run() {
-                boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-                if (!isEnable) {
-                    SafeLogs.e("album backup is disable");
-                    return;
-                }
+        // The scan starts immediately on the executor. The uploader is scheduled
+        // to start UPLOAD_START_DELAY_MS after the scan completes (non-blocking,
+        // via the main looper), giving a just-taken photo time to finish being
+        // written before the uploader checks its size.
+        CompletableFuture<Void>[] chain = new CompletableFuture[1];
+        chain[0] = CompletableFuture.supplyAsync(() -> runAlbumScan(isFullScan), _executor)
+                .thenComposeAsync(shouldUpload -> shouldUpload
+                                ? scheduleDelayedUpload(this::runAlbumUpload, chain)
+                                : CompletableFuture.completedFuture(null),
+                        _executor);
+        albumBackupFuture = chain[0];
+        chain[0].whenComplete((unused, throwable) -> albumBackupFuture = null);
+    }
 
-                MediaBackupScanner scanner = new MediaBackupScanner(getApplicationContext(), notificationDispatcher);
-                SeafException scanSeafException = scanner.scan(isFullScan);
-                if (scanSeafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "scan error: " + scanSeafException);
-                } else {
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "scan success");
-                }
+    private boolean runAlbumScan(boolean isFullScan) {
+        try {
+            boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
+            if (!isEnable) {
+                SafeLogs.e("album backup is disable");
+                return false;
+            }
 
-                MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
-                SeafException uploadSeafException = mediaBackupUploader.upload();
-                if (uploadSeafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "backup error: " + uploadSeafException);
-                } else {
-                    SafeLogs.d(TAG, "runAlbumBackupTask()", "backup complete");
-                }
+            MediaBackupScanner scanner = new MediaBackupScanner(getApplicationContext(), notificationDispatcher);
+            SeafException scanSeafException = scanner.scan(isFullScan);
+            if (scanSeafException != SeafException.SUCCESS) {
+                SafeLogs.d(TAG, "runAlbumBackupTask()", "scan error: " + scanSeafException);
+            } else {
+                SafeLogs.d(TAG, "runAlbumBackupTask()", "scan success");
             }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                albumBackupFuture = null;
+            return true;
+        } catch (Exception e) {
+            SafeLogs.e(TAG, "runAlbumScan()", e.getMessage());
+            return false;
+        }
+    }
+
+    private void runAlbumUpload() {
+        try {
+            MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
+            SeafException uploadSeafException = mediaBackupUploader.upload();
+            if (uploadSeafException != SeafException.SUCCESS) {
+                SafeLogs.d(TAG, "runAlbumBackupTask()", "backup error: " + uploadSeafException);
+            } else {
+                SafeLogs.d(TAG, "runAlbumBackupTask()", "backup complete");
             }
-        });
+        } catch (Exception e) {
+            SafeLogs.e(TAG, "runAlbumUpload()", e.getMessage());
+        }
     }
 
     public void stopFolderBackup() {
@@ -339,37 +368,91 @@ public class BackupThreadExecutor {
 //            return;
 //        }
 
-        folderBackupFuture = runTask(new Runnable() {
-            @Override
-            public void run() {
-                boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-                if (!isEnable) {
-                    SafeLogs.e("folder backup is disable");
-                    return;
-                }
+        // The scan starts immediately on the executor. The uploader is scheduled
+        // to start UPLOAD_START_DELAY_MS after the scan completes (non-blocking,
+        // via the main looper), giving a file that is still being written time to
+        // finish before the uploader checks its size.
+        CompletableFuture<Void>[] chain = new CompletableFuture[1];
+        chain[0] = CompletableFuture.supplyAsync(() -> runFolderScan(isFullScan), _executor)
+                .thenComposeAsync(shouldUpload -> shouldUpload
+                                ? scheduleDelayedUpload(this::runFolderUpload, chain)
+                                : CompletableFuture.completedFuture(null),
+                        _executor);
+        folderBackupFuture = chain[0];
+        chain[0].whenComplete((unused, throwable) -> folderBackupFuture = null);
+    }
 
-                FolderBackupScanner scanner = new FolderBackupScanner(getApplicationContext(), notificationDispatcher);
-                SeafException scanSeafException = scanner.scan(isFullScan);
-                if (scanSeafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runFolderBackupScanTask()", "scan error: " + scanSeafException);
-                } else {
-                    SafeLogs.d(TAG, "runFolderBackupScanTask()", "scan success");
-                }
+    private boolean runFolderScan(boolean isFullScan) {
+        try {
+            boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
+            if (!isEnable) {
+                SafeLogs.d(TAG, "runFolderScan()", "folder backup switch is off, skip scheduling uploader");
+                return false;
+            }
 
-                FolderBackupUploader folderBackupUploader = getTransmitter(FeatureDataSource.FOLDER_BACKUP);
-                SeafException uploadSeafException = folderBackupUploader.upload();
-                if (uploadSeafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runFolderBackupTask()", "backup error: " + uploadSeafException);
-                } else {
-                    SafeLogs.d(TAG, "runFolderBackupTask()", "backup complete");
-                }
+            FolderBackupScanner scanner = new FolderBackupScanner(getApplicationContext(), notificationDispatcher);
+            SeafException scanSeafException = scanner.scan(isFullScan);
+            if (scanSeafException != SeafException.SUCCESS) {
+                SafeLogs.d(TAG, "runFolderBackupScanTask()", "scan error: " + scanSeafException);
+            } else {
+                SafeLogs.d(TAG, "runFolderBackupScanTask()", "scan success");
             }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                folderBackupFuture = null;
+            return true;
+        } catch (Exception e) {
+            SafeLogs.e(TAG, "runFolderScan()", e.getMessage());
+            return false;
+        }
+    }
+
+    private void runFolderUpload() {
+        try {
+            FolderBackupUploader folderBackupUploader = getTransmitter(FeatureDataSource.FOLDER_BACKUP);
+            SeafException uploadSeafException = folderBackupUploader.upload();
+            if (uploadSeafException != SeafException.SUCCESS) {
+                SafeLogs.d(TAG, "runFolderBackupTask()", "backup error: " + uploadSeafException);
+            } else {
+                SafeLogs.d(TAG, "runFolderBackupTask()", "backup complete");
             }
-        });
+        } catch (Exception e) {
+            SafeLogs.e(TAG, "runFolderUpload()", e.getMessage());
+        }
+    }
+
+    /**
+     * Schedule the uploader to start after {@link #UPLOAD_START_DELAY_MS} without
+     * blocking any thread. The returned future completes when the upload finishes.
+     * <p>
+     * {@code chain} holds the task future; if the task was cancelled (stopped)
+     * during the delay window, the upload is skipped.
+     */
+    private CompletableFuture<Void> scheduleDelayedUpload(Runnable uploadAction, CompletableFuture<Void>[] chain) {
+        SafeLogs.d(TAG, "scheduleDelayedUpload()", "scan finished, schedule uploader to start in " + UPLOAD_START_DELAY_MS + "ms");
+        CompletableFuture<Void> uploadFuture = new CompletableFuture<>();
+        mainHandler.postDelayed(() -> {
+            // The task may have been stopped during the delay window.
+            if (chain[0] == null || chain[0].isCancelled()) {
+                SafeLogs.d(TAG, "scheduleDelayedUpload()", "task was cancelled during the delay window, skip uploader");
+                uploadFuture.complete(null);
+                return;
+            }
+            SafeLogs.d(TAG, "scheduleDelayedUpload()", "delay elapsed, start uploader on executor");
+            try {
+                _executor.execute(() -> {
+                    try {
+                        uploadAction.run();
+                        SafeLogs.d(TAG, "scheduleDelayedUpload()", "uploader finished");
+                        uploadFuture.complete(null);
+                    } catch (Throwable t) {
+                        SafeLogs.e(TAG, "scheduleDelayedUpload()", t.getMessage());
+                        uploadFuture.completeExceptionally(t);
+                    }
+                });
+            } catch (Throwable t) {
+                SafeLogs.e(TAG, "scheduleDelayedUpload()", t.getMessage());
+                uploadFuture.completeExceptionally(t);
+            }
+        }, UPLOAD_START_DELAY_MS);
+        return uploadFuture;
     }
 
     public void stopLocalFileUpdate() {

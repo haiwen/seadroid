@@ -134,6 +134,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private TransferModel currentTransferModel;
     private Call newCall;
 
+    /**
+     * File size recorded at scan time, captured when the transfer starts. It is
+     * used as the baseline of the size check: for a motion photo the model's
+     * file_size is later replaced by the HEIC size, so this snapshot is required.
+     */
+    private long scanFileSize = -1L;
+
     private UriStreamRequestBody uriRequestBody;
     private UriChunkRequestBody uriChunkRequestBody;
     private FileChunkRequestBody fileChunkRequestBody;
@@ -222,6 +229,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     public void clearWhenComplete(){
         currentTransferModel = null;
+        scanFileSize = -1L;
         newCall = null;
         uriRequestBody = null;
         uriChunkRequestBody = null;
@@ -243,6 +251,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
 
             currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
+            scanFileSize = currentTransferModel.file_size;
+            SafeLogs.d(TAG, "transfer()", "scan-time size baseline snapshot, scanFileSize=" + scanFileSize + ", path: " + currentTransferModel.full_path);
             SafeLogs.d(TAG, "transfer start, model:");
             SafeLogs.d(TAG, currentTransferModel.toString());
 
@@ -326,23 +336,25 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         Uri uploadUri = null;
         boolean uploadFromUri = false;
 
+        // For local files, re-check the size recorded at scan time BEFORE any
+        // (expensive) motion-photo conversion. A just-taken photo may still be
+        // being written; defer it to the next scan instead of converting or
+        // uploading a stale prefix. The scan-time size is kept in scanFileSize,
+        // because for a motion photo file_size is later replaced by the HEIC size.
+        if (!currentTransferModel.full_path.startsWith("content://") && scanFileSize > 0) {
+            verifySourceFileSize(new File(currentTransferModel.full_path), scanFileSize);
+        }
+
         currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
         if (currentTransferModel.hasExtraMotionPhoto()) {
-            File heicFile = new File(currentTransferModel.motion_photo_path);
-            if (!heicFile.exists() || heicFile.length() <= 0) {
-                throw SeafException.NOT_FOUND_EXCEPTION;
-            }
-            String fileName = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";
-            currentTransferModel.original_name = currentTransferModel.file_name;
-            currentTransferModel.file_name = fileName;
-            currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
-            uploadFile = heicFile;
-            currentTransferModel.file_size = heicFile.length();
+            // hasExtraMotionPhoto() already guarantees the HEIC file exists and is non-empty
+            uploadFile = new File(currentTransferModel.motion_photo_path);
+            currentTransferModel.file_size = uploadFile.length();
+            applyMotionPhotoFileName();
         } else if (currentTransferModel.full_path.startsWith("content://")) {
             uploadUri = Uri.parse(currentTransferModel.full_path);
             uploadFromUri = true;
-            boolean isHasPermission = FileUtils.isUriHasPermission(getContext(), uploadUri);
-            if (!isHasPermission) {
+            if (!FileUtils.isUriHasPermission(getContext(), uploadUri)) {
                 throw SeafException.PERMISSION_EXCEPTION;
             }
         } else {
@@ -352,22 +364,55 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             }
         }
 
-        if (currentTransferModel.full_path.startsWith("content://") && !currentTransferModel.hasExtraMotionPhoto()) {
+        // created time always comes from the source (uri or local file); for a
+        // motion photo the uploaded file is a converted HEIC, but the created
+        // time is still read from the original source.
+        if (currentTransferModel.full_path.startsWith("content://")) {
             Uri fileUri = Uri.parse(currentTransferModel.full_path);
-            currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), fileUri);
-            createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
-        } else if (!currentTransferModel.hasExtraMotionPhoto()) {
-            File originalFile = new File(currentTransferModel.full_path);
-            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), originalFile);
-        } else if (currentTransferModel.full_path.startsWith("content://")) {
-            Uri fileUri = Uri.parse(currentTransferModel.full_path);
+            if (!currentTransferModel.hasExtraMotionPhoto()) {
+                currentTransferModel.file_size = FileUploadUtils.resolveSize(getContext(), fileUri);
+            }
             createdTime = FileUtils.getCreatedTimeFromUri(getContext(), fileUri);
         } else {
-            File originalFile = new File(currentTransferModel.full_path);
-            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), originalFile);
+            createdTime = FileUtils.getCreatedTimeFromPath(getContext(), new File(currentTransferModel.full_path));
         }
 
         return new UploadSource(uploadFile, uploadUri, uploadFromUri, createdTime, currentTransferModel.file_size);
+    }
+
+    /**
+     * The file size was captured when the file was scanned. If the file has
+     * changed since then (e.g. a just-taken photo that was still being written),
+     * uploading the stale scan-time length would truncate it. Defer such files
+     * to the next scan instead.
+     */
+    private void verifySourceFileSize(@NonNull File file, long scanSize) throws SeafException {
+        long currentSize = file.length();
+        SafeLogs.d(TAG, "verifySourceFileSize()", "check size before upload: scan=" + scanSize + ", current=" + currentSize + ", path: " + file.getAbsolutePath());
+        if (currentSize == scanSize) {
+            SafeLogs.d(TAG, "verifySourceFileSize()", "size unchanged since scan, continue upload: path: " + file.getAbsolutePath());
+            return;
+        }
+
+        SafeLogs.e(TAG, "verifySourceFileSize()", "file size changed since scan, defer upload: scan=" + scanSize + ", current=" + currentSize + ", path: " + file.getAbsolutePath());
+
+        // discard any temp motion-photo file created above
+        if (!TextUtils.isEmpty(currentTransferModel.motion_photo_path)) {
+            com.blankj.utilcode.util.FileUtils.delete(currentTransferModel.motion_photo_path);
+            currentTransferModel.motion_photo_path = null;
+        }
+        throw new SeafException(SeafException.READ_FILE_EXCEPTION.getCode(),
+                "File size changed since scan, upload deferred: " + file.getAbsolutePath());
+    }
+
+    /**
+     * A motion photo is uploaded as its converted HEIC copy, so the transfer is
+     * renamed to the .heic name and the target path is rewritten accordingly.
+     */
+    private void applyMotionPhotoFileName() {
+        currentTransferModel.original_name = currentTransferModel.file_name;
+        currentTransferModel.file_name = FileUtils.getBaseName(currentTransferModel.file_name) + ".heic";
+        currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
     }
 
     private void notifyTransferStarted() {
