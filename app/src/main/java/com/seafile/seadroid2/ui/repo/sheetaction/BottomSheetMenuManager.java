@@ -8,8 +8,10 @@ import android.view.MenuItem;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.config.RepoType;
 import com.seafile.seadroid2.context.GlobalNavContext;
+import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
@@ -17,6 +19,8 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
 import com.seafile.seadroid2.ui.bottomsheetmenu.ActionMenu;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,36 +46,16 @@ public class BottomSheetMenuManager {
         bottomSheetView.setOnItemClickListener(listener);
     }
 
-    public void showMenu(List<BaseModel> selectedItems) {
-        List<Integer> disableMenuIds = getDisableMenuIds(selectedItems);
-        List<Integer> removedMenuIds = getWillBeRemovedMenuIds(selectedItems);
-        boolean isInRepo = GlobalNavContext.getCurrentNavContext().inRepo();
+    public void showMenu(String relatedAccount, String objKey, List<BaseModel> selectedItems) {
+        List<Integer> disableMenuIds = getDisableMenuIds(objKey, selectedItems);
+        List<Integer> removedMenuIds = getWillBeRemovedMenuIds(objKey, selectedItems);
 
-        if (CollectionUtils.isEmpty(selectedItems)) {
-            if (isInRepo) {
-                justInflateDirentMenu(context);
-            } else {
-                justInflateRepoMenu(context);
-            }
-            return;
-        }
-
-        BaseModel baseModel = selectedItems.get(0);
-        if (baseModel instanceof RepoModel) {
-            List<RepoModel> models = selectedItems.stream()
-                    .map(b -> (RepoModel) b)
-                    .collect(Collectors.toList());
-            inflateRepoMenuWithSelected(context, models, disableMenuIds, removedMenuIds);
-        } else if (baseModel instanceof DirentModel) {
-            List<DirentModel> models = selectedItems.stream()
-                    .map(b -> (DirentModel) b)
-                    .collect(Collectors.toList());
-            inflateDirentMenuWithSelected(context, models, disableMenuIds, removedMenuIds);
-        } else if (baseModel instanceof SearchModel) {
-            List<SearchModel> models = selectedItems.stream()
-                    .map(b -> (SearchModel) b)
-                    .collect(Collectors.toList());
-            inflateSearchMenuWithSelected(context, models, disableMenuIds, removedMenuIds);
+        if (StringUtils.equals(ObjKey.SEARCH, objKey)) {
+            inflateSearchMenuWithSelected(context, relatedAccount, selectedItems, disableMenuIds, removedMenuIds);
+        } else if (StringUtils.equals(ObjKey.REPO, objKey)) {
+            inflateRepoMenuWithSelected(context, relatedAccount, selectedItems, disableMenuIds, removedMenuIds);
+        } else if (StringUtils.equals(ObjKey.DIRENT, objKey)) {
+            inflateDirentMenuWithSelected(context, relatedAccount, selectedItems, disableMenuIds, removedMenuIds);
         }
     }
 
@@ -79,15 +63,6 @@ public class BottomSheetMenuManager {
         compositeDisposable.clear();
         bottomSheetView.dismiss();
     }
-
-    public void justInflateRepoMenu(Context context) {
-        toParseMenu(context, R.menu.bottom_sheet_op_repo, null, CollectionUtils.newArrayList(R.id.unstar));
-    }
-
-    public void justInflateDirentMenu(Context context) {
-        toParseMenu(context, R.menu.bottom_sheet_op_dirent, null, null, CollectionUtils.newArrayList(R.id.unstar));
-    }
-
 
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -98,65 +73,88 @@ public class BottomSheetMenuManager {
                 .subscribe(consumer));
     }
 
-    /**
-     * @param selectedRepoModels
-     */
-    public void inflateRepoMenuWithSelected(Context context, List<RepoModel> selectedRepoModels, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
-        if (CollectionUtils.isEmpty(selectedRepoModels)) {
-            justInflateRepoMenu(context);
+    public void inflateRepoMenuWithSelected(Context context, String relatedAccount, List<BaseModel> selectedItems, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
+        int menuId = R.menu.bottom_sheet_op_repo;
+
+        if (CollectionUtils.isEmpty(selectedItems)) {
+            toParseMenu(context, menuId, null, disableMenuIds, removedMenuIds);
             return;
         }
 
-        int menuId = R.menu.bottom_sheet_op_repo;
-        if (selectedRepoModels.size() == 1) {
-            RepoModel repoModel = selectedRepoModels.get(0);
-            if (!repoModel.hasManageRepoPermission()) {
-                // only-read permission
-                List<PermissionEntity> permissionEntities = CollectionUtils.newArrayList(new PermissionEntity(repoModel.repo_id, "r"));
-                toParseMenu(context, menuId, permissionEntities, disableMenuIds, removedMenuIds);
-            } else if (repoModel.isCustomPermission()) {
-                Single<List<PermissionEntity>> permissionSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoModel.repo_id, repoModel.getCustomPermissionNum());
-                compositeDisposable.add(permissionSingle
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Consumer<List<PermissionEntity>>() {
-                            @Override
-                            public void accept(List<PermissionEntity> permissionEntities) throws Exception {
-                                if (CollectionUtils.isEmpty(permissionEntities) || !permissionEntities.get(0).isValid()) {
-                                    toParseMenu(context, menuId, null, disableMenuIds, removedMenuIds);
-                                } else {
-                                    toParseMenu(context, menuId, permissionEntities, disableMenuIds, removedMenuIds);
-                                }
-                            }
-                        }));
-            } else {
-                List<PermissionEntity> permissionEntities = CollectionUtils.newArrayList(new PermissionEntity(repoModel.repo_id, repoModel.permission));
-                toParseMenu(context, menuId, permissionEntities, disableMenuIds, removedMenuIds);
-            }
+        List<RepoModel> models = selectedItems.stream()
+                .map(b -> (RepoModel) b)
+                .collect(Collectors.toList());
+
+        List<PermissionEntity> permissionList = CollectionUtils.newArrayList();
+
+        if (CollectionUtils.isEmpty(models)) {
+            toParseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
+        } else if (models.size() == 1) {
+            RepoModel repoModel = models.get(0);
+            Single<PermissionEntity> permissionSingle = getRepoPermission(relatedAccount, repoModel.repo_id);
+            addSingleDisposable(permissionSingle, new Consumer<PermissionEntity>() {
+                @Override
+                public void accept(PermissionEntity permissionEntity) {
+                    if (!repoModel.hasManageRepoPermission()) {
+                        // only-read permission
+                        permissionList.add(new PermissionEntity(repoModel.repo_id, "r"));
+                    } else if (repoModel.isCustomPermission()) {
+                        permissionList.add(permissionEntity);
+                    } else {
+                        permissionList.add(new PermissionEntity(repoModel.repo_id, repoModel.permission));
+                    }
+
+                    toParseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
+
+                }
+            });
         } else {
             //
-            List<PermissionEntity> permissionEntities = CollectionUtils.newArrayList();
-            for (RepoModel repoModel : selectedRepoModels) {
+            for (RepoModel repoModel : models) {
                 //NOTICE this is a special permission("r"), not a real permission
                 //because: currently, multiple repo lists cannot be deleted at the same time
-                //it will be fixed later
-                permissionEntities.add(new PermissionEntity(repoModel.repo_id, "r"));
+                permissionList.add(new PermissionEntity(repoModel.repo_id, "r"));
             }
+            toParseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
 
-            toParseMenu(context, menuId, permissionEntities, disableMenuIds, removedMenuIds);
         }
+
+
     }
 
-    public void inflateSearchMenuWithSelected(Context context, List<SearchModel> selectedDirentList, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
-        if (CollectionUtils.isEmpty(selectedDirentList)) {
-            justInflateDirentMenu(context);
+    public void inflateSearchMenuWithSelected(Context context, String relatedAccount, List<BaseModel> selectedItems, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
+        int menuId = R.menu.bottom_sheet_op_dirent;
+
+        if (CollectionUtils.isEmpty(selectedItems)) {
+            toParseMenu(context, menuId, null, disableMenuIds, removedMenuIds);
             return;
         }
 
-        SearchModel searchModel = selectedDirentList.get(0);
+        List<SearchModel> models = selectedItems.stream()
+                .map(b -> (SearchModel) b)
+                .collect(Collectors.toList());
 
-        Single<List<RepoModel>> rSingle = AppDatabase.getInstance().repoDao().getRepoById(searchModel.repo_id);
-        Single<PermissionEntity> permissionSingle = rSingle.flatMap(new Function<List<RepoModel>, SingleSource<PermissionEntity>>() {
+        SearchModel searchModel = models.get(0);
+
+        Single<PermissionEntity> permissionSingle = getRepoPermission(relatedAccount, searchModel.repo_id);
+
+        addSingleDisposable(permissionSingle, new Consumer<PermissionEntity>() {
+            @Override
+            public void accept(PermissionEntity permissionEntity) throws Exception {
+
+                List<PermissionEntity> permissionList = new ArrayList<>();
+                if (permissionEntity.isValid()) {
+                    permissionList.add(permissionEntity);
+                }
+
+                toParseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
+            }
+        });
+    }
+
+    private Single<PermissionEntity> getRepoPermission(String relatedAccount, String repoId) {
+        Single<List<RepoModel>> rSingle = AppDatabase.getInstance().repoDao().getRepoById(relatedAccount, repoId);
+        return rSingle.flatMap(new Function<List<RepoModel>, SingleSource<PermissionEntity>>() {
             @Override
             public SingleSource<PermissionEntity> apply(List<RepoModel> repoModels) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
@@ -165,7 +163,6 @@ public class BottomSheetMenuManager {
 
                 RepoModel repoModel = repoModels.get(0);
                 if (repoModel.isCustomPermission()) {
-
                     return AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoModel.repo_id, repoModel.getCustomPermissionNum())
                             .flatMap(new Function<List<PermissionEntity>, SingleSource<PermissionEntity>>() {
                                 @Override
@@ -183,77 +180,43 @@ public class BottomSheetMenuManager {
                 return Single.just(new PermissionEntity(repoModel.repo_id, repoModel.permission));
             }
         });
-
-
-        addSingleDisposable(permissionSingle, new Consumer<PermissionEntity>() {
-            @Override
-            public void accept(PermissionEntity permissionEntity) throws Exception {
-                int menuId = R.menu.bottom_sheet_op_dirent;
-
-                List<PermissionEntity> permissionList = new ArrayList<>();
-                if (permissionEntity.isValid()) {
-                    permissionList.add(permissionEntity);
-                }
-
-                toParseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
-            }
-        });
     }
 
+    public void inflateDirentMenuWithSelected(Context context, String relatedAccount, List<BaseModel> selectedItems, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
+        int menuId = R.menu.bottom_sheet_op_dirent;
 
-    public void inflateDirentMenuWithSelected(Context context, List<DirentModel> selectedDirentList, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
-        if (CollectionUtils.isEmpty(selectedDirentList)) {
-            justInflateDirentMenu(context);
+        if (CollectionUtils.isEmpty(selectedItems)) {
+            toParseMenu(context, menuId, null, disableMenuIds, removedMenuIds);
             return;
         }
 
-        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
-        Single<PermissionEntity> repoPermSingle;
-        if (repoModel.isCustomPermission()) {
-            Single<List<PermissionEntity>> permissionSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoModel.repo_id, repoModel.getCustomPermissionNum());
-            repoPermSingle = permissionSingle.flatMap(new Function<List<PermissionEntity>, SingleSource<PermissionEntity>>() {
-                @Override
-                public SingleSource<PermissionEntity> apply(List<PermissionEntity> permissionEntities) throws Exception {
-                    PermissionEntity repoPerm;
-                    if (CollectionUtils.isEmpty(permissionEntities)) {
-                        repoPerm = permissionEntities.get(0);
-                    } else {
-                        repoPerm = new PermissionEntity(repoModel.repo_id, "r");
-                    }
-                    return Single.just(repoPerm);
-                }
-            });
+        List<DirentModel> models = selectedItems.stream()
+                .map(b -> (DirentModel) b)
+                .collect(Collectors.toList());
 
-        } else {
-            repoPermSingle = Single.just(new PermissionEntity(repoModel.repo_id, repoModel.permission));
-        }
-
-        addSingleDisposable(repoPermSingle, new Consumer<PermissionEntity>() {
+        DirentModel direntModel = models.get(0);
+        Single<PermissionEntity> permissionSingle = getRepoPermission(relatedAccount, direntModel.repo_id);
+        addSingleDisposable(permissionSingle, new Consumer<PermissionEntity>() {
             @Override
-            public void accept(PermissionEntity repoPerm) throws Exception {
-                int menuId = R.menu.bottom_sheet_op_dirent;
-
-                if (selectedDirentList.size() == 1) {
-                    DirentModel direntModel = selectedDirentList.get(0);
-
-                    List<PermissionEntity> permissionList = null;
+            public void accept(PermissionEntity permissionEntity) throws Exception {
+                List<PermissionEntity> permissionList = CollectionUtils.newArrayList();
+                if (models.size() == 1) {
                     if (direntModel.isCustomPermission()) {
-                        if (direntModel.getCustomPermissionNum() == repoPerm.id) {
-                            permissionList = new ArrayList<>(CollectionUtils.newArrayList(repoPerm));
+                        if (direntModel.getCustomPermissionNum() == permissionEntity.id) {
+                            permissionList.add(permissionEntity);
                         } else {
 
                         }
-                    } else if (direntModel.permission.equals(repoPerm.name)) {
-                        permissionList = new ArrayList<>(CollectionUtils.newArrayList(repoPerm));
+                    } else if (direntModel.permission.equals(permissionEntity.name)) {
+                        permissionList.add(permissionEntity);
                     } else {
                         //dirent's permissions can only be one of these 5 permission: "rw"/"r"/"cloud-edit"/"cloud-preview"/"manage"
-                        permissionList = new ArrayList<>(CollectionUtils.newArrayList(new PermissionEntity(direntModel.repo_id, direntModel.permission)));
+                        permissionList.add(new PermissionEntity(direntModel.repo_id, direntModel.permission));
                     }
 
                     toParseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
                 } else {
-                    List<PermissionEntity> permissionList = new ArrayList<>();
-                    for (DirentModel direntModel : selectedDirentList) {
+                    for (DirentModel direntModel : models) {
                         if (direntModel.isCustomPermission()) {
                             //if selected size > 0, and direntModel is custom permission, set permission to "r":read-only
                             permissionList.add(new PermissionEntity(direntModel.repo_id, "r"));
@@ -270,11 +233,6 @@ public class BottomSheetMenuManager {
     private void toParseMenu(Context context, int menuId, List<PermissionEntity> permissionList, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
         List<MenuItem> items = parseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
 
-        bottomSheetView.show(items);
-    }
-
-    private void toParseMenu(Context context, int menuId, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
-        List<MenuItem> items = parseMenu(context, menuId, null, disableMenuIds, removedMenuIds);
         bottomSheetView.show(items);
     }
 
@@ -370,20 +328,18 @@ public class BottomSheetMenuManager {
     }
 
 
-    public List<Integer> getDisableMenuIds(List<BaseModel> selectedList) {
+    public List<Integer> getDisableMenuIds(String objKey, List<BaseModel> selectedList) {
         if (selectedList == null || selectedList.isEmpty()) {
             return null;
         }
+        if (StringUtils.isEmpty(objKey)) {
+            return null;
+        }
 
-        boolean isExistsSearchModel = selectedList.stream().anyMatch(m -> m instanceof SearchModel);
-        if (isExistsSearchModel) {
+        // search
+        if (StringUtils.equals(ObjKey.SEARCH, objKey)) {
             // Batch operations are not supported.
-            if (selectedList.size() > 1) {
-                return CollectionUtils.newArrayList(
-                        R.id.star, R.id.share, R.id.export, R.id.rename,
-                        R.id.delete, R.id.copy, R.id.move, R.id.upload,
-                        R.id.download, R.id.open_with, R.id.save_as, R.id.profile);
-            } else {
+            if (selectedList.size() == 1) {
                 SearchModel sm = (SearchModel) selectedList.get(0);
                 if (sm.isDir()) {
                     return CollectionUtils.newArrayList(
@@ -391,103 +347,126 @@ public class BottomSheetMenuManager {
                             R.id.upload, R.id.export, R.id.open_with,
                             R.id.download, R.id.save_as, R.id.profile);
                 } else {
-                    //Only supported: Export, Copy, Move, Download, Open With, Save As
+                    // Only supported: Export, Copy, Move, Download, Open With, Save As
                     return CollectionUtils.newArrayList(
                             R.id.star, R.id.share, R.id.rename,
                             R.id.delete, R.id.upload, R.id.profile);
                 }
+            } else {
+                return CollectionUtils.newArrayList(
+                        R.id.star, R.id.share, R.id.export, R.id.rename,
+                        R.id.delete, R.id.copy, R.id.move, R.id.upload,
+                        R.id.download, R.id.open_with, R.id.save_as, R.id.profile);
             }
-        }
-
-        if (selectedList.size() == 1) {
-            BaseModel baseModel = selectedList.get(0);
-            if (baseModel instanceof RepoModel m) {
-                if (m.encrypted){
+        } else if (StringUtils.equals(ObjKey.REPO, objKey)) {
+            // repo
+            if (selectedList.size() == 1) {
+                RepoModel m = (RepoModel) selectedList.get(0);
+                if (m.encrypted) {
                     return CollectionUtils.newArrayList(R.id.share);
                 }
-            } else if (baseModel instanceof DirentModel m) {
+            } else {
+                return CollectionUtils.newArrayList(R.id.rename, R.id.delete, R.id.share);
+            }
+        } else if (StringUtils.equals(ObjKey.DIRENT, objKey)) {
+            // dirent
+            if (selectedList.size() == 1) {
+                DirentModel m = (DirentModel) selectedList.get(0);
                 if (m.isDir()) {
                     return CollectionUtils.newArrayList(R.id.export, R.id.open_with, R.id.upload, R.id.save_as, R.id.profile);
                 }
+                // all supported
+                return null;
+            } else {
+                long selectedFolderCount = selectedList.stream()
+                        .filter(f -> f instanceof DirentModel)
+                        .map(m -> (DirentModel) m)
+                        .filter(DirentModel::isDir)
+                        .count();
+
+                // multi folder
+                if (selectedFolderCount > 0) {
+                    return CollectionUtils.newArrayList(
+                            R.id.share, R.id.export, R.id.open_with,
+                            R.id.rename, R.id.upload, R.id.save_as,
+                            R.id.profile);
+                }
+
+                return CollectionUtils.newArrayList(
+                        R.id.share, R.id.export, R.id.open_with,
+                        R.id.rename, R.id.save_as, R.id.profile);
             }
-
-            return null;
         }
 
-        long selectedRepoModelCount = selectedList.stream()
-                .filter(f -> f instanceof RepoModel)
-                .count();
-        if (selectedRepoModelCount > 0) {
-            return CollectionUtils.newArrayList(R.id.rename, R.id.delete, R.id.share);
-        }
-
-        long selectedFolderCount = selectedList.stream()
-                .filter(f -> f instanceof DirentModel)
-                .map(m -> (DirentModel) m)
-                .filter(DirentModel::isDir)
-                .count();
-
-        if (selectedFolderCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.upload, R.id.save_as, R.id.profile);
-        }
-
-        long selectedDirentModelCount = selectedList.stream()
-                .filter(f -> f instanceof DirentModel)
-                .count();
-        if (selectedDirentModelCount > 0) {
-            return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename, R.id.save_as, R.id.profile);
-        }
-
-        return CollectionUtils.newArrayList(R.id.share, R.id.export, R.id.open_with, R.id.rename);
+        return null;
     }
 
     /**
-     *
+     * Remove inappropriate menus
      */
-    public List<Integer> getWillBeRemovedMenuIds(List<BaseModel> selectedList) {
+    public List<Integer> getWillBeRemovedMenuIds(String objKey, List<BaseModel> selectedList) {
+        ArrayList<Integer> retList = CollectionUtils.newArrayList();
+
+        // default
         if (CollectionUtils.isEmpty(selectedList)) {
-            return CollectionUtils.newArrayList(R.id.unstar);
+            retList.add(R.id.unstar);
+            retList.add(R.id.leave_share);
+            return retList;
         }
 
-        boolean isExistsSearchModel = selectedList.stream().anyMatch(m -> m instanceof SearchModel);
-        if (isExistsSearchModel) {
-            return CollectionUtils.newArrayList(R.id.unstar);
-        }
+        if (StringUtils.equals(ObjKey.SEARCH, objKey)) {
+            retList.add(R.id.unstar);
+        } else if (StringUtils.equals(ObjKey.REPO, objKey)) {
+            if (selectedList.size() == 1) {
+                RepoModel m = (RepoModel) selectedList.get(0);
+                if (StringUtils.equals(RepoType.TYPE_SHARED, m.type)) {
+                    retList.add(R.id.share);
+                } else {
+                    retList.add(R.id.leave_share);
+                }
 
-        if (selectedList.size() == 1) {
-
-            BaseModel baseModel = selectedList.get(0);
-            if (baseModel instanceof RepoModel m) {
-                return CollectionUtils.newArrayList(m.starred ? R.id.star : R.id.unstar);
-            } else if (baseModel instanceof DirentModel m) {
-                return CollectionUtils.newArrayList(m.starred ? R.id.star : R.id.unstar);
+                if (m.starred) {
+                    retList.add(R.id.star);
+                } else {
+                    retList.add(R.id.unstar);
+                }
+            } else {
+                retList.add(R.id.unstar);
+                retList.add(R.id.leave_share);
             }
 
-            //remove all starred menu
-            return CollectionUtils.newArrayList(R.id.star, R.id.unstar, R.id.upload, R.id.download);
-        }
-
-        boolean isAllStarred = true;
-        for (BaseModel baseModel : selectedList) {
-            if (baseModel instanceof RepoModel m) {
+        } else if (StringUtils.equals(ObjKey.DIRENT, objKey)) {
+            if (selectedList.size() == 1) {
+                DirentModel m = (DirentModel) selectedList.get(0);
                 if (m.starred) {
-                    continue;
+                    retList.add(R.id.star);
+                } else {
+                    retList.add(R.id.unstar);
                 }
-                isAllStarred = false;
-                break;
-            } else if (baseModel instanceof DirentModel m) {
-                if (m.starred) {
-                    continue;
+            } else {
+                boolean isAllStarred = true;
+                for (BaseModel baseModel : selectedList) {
+                    if (baseModel instanceof RepoModel m) {
+                        if (m.starred) {
+                            continue;
+                        }
+                        isAllStarred = false;
+                        break;
+                    } else if (baseModel instanceof DirentModel m) {
+                        if (m.starred) {
+                            continue;
+                        }
+                        isAllStarred = false;
+                        break;
+                    }
                 }
-                isAllStarred = false;
-                break;
+                if (isAllStarred) {
+                    retList.add(R.id.star);
+                } else {
+                    retList.add(R.id.unstar);
+                }
             }
         }
-
-        if (isAllStarred) {
-            return CollectionUtils.newArrayList(R.id.star);
-        } else {
-            return CollectionUtils.newArrayList(R.id.unstar);
-        }
+        return retList;
     }
 }

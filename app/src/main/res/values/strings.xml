@@ -104,6 +104,7 @@
     <string name="file_action_download">Download</string>
     <string name="file_action_update">Upload</string>
     <string name="file_share">Share</string>
+    <string name="file_share_leave">Leave share</string>
     <string name="file_action_share_wechat">Share to WeChat</string>
     <string name="file_action_share_link">Share link</string>
     <string name="file_action_share_encrypt">Share link with password</string>
@@ -829,5 +830,6 @@
     <string name="tip_press_again_to_exit">Press again to exit</string>
     <string name="tip_publish_wiki_desc">The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.</string>
     <string name="tip_stop_transfer_when_switch_or_logout">Files are transferring, do you still want to switch/exit?</string>
+    <string name="tip_leave_share">Do you want to leave share?</string>
 
 </resources>
