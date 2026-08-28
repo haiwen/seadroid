@@ -118,7 +118,7 @@
             android:padding="8dp"
             android:src="@drawable/baseline_more_vert_24"
             android:visibility="visible"
-            app:tint="@color/item_subtitle_color" />
+            app:tint="@color/primary_icon_tint_color" />
 
         <ImageView
             android:id="@+id/item_multi_select"

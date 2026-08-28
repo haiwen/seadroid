@@ -66,15 +66,7 @@
             android:padding="8dp"
             android:src="@drawable/baseline_more_vert_24"
             android:visibility="visible"
-            app:tint="?attr/colorControlNormal" />
-
-<!--        <ImageView-->
-<!--            android:id="@+id/item_checkbox"-->
-<!--            android:layout_width="@dimen/lv_multi_select_width"-->
-<!--            android:layout_height="@dimen/lv_multi_select_height"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:padding="6dp"-->
-<!--            android:src="@drawable/ic_checkbox_checked" />-->
+            app:tint="@color/primary_icon_tint_color" />
     </FrameLayout>
 
 

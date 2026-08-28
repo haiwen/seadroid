@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.wiki;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -92,6 +93,10 @@ public class WikiAdapter extends BaseMultiAdapter<BaseModel> {
             holder.binding.itemWikiMore.setVisibility(View.GONE);
         }
 
+        //
+        holder.binding.itemIconText.setText(m.getIcon());
+        holder.binding.itemIconText.setTextColor(Color.parseColor(m.getOriginalColor()));
+        holder.binding.itemIconCard.setCardBackgroundColor(Color.parseColor(m.getColor()));
 
         // time
         long l = Times.convertMtime2Long(m.updated_at);
