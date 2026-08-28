@@ -90,7 +90,7 @@ public class WikiAdapter extends BaseMultiAdapter<BaseModel> {
         if (StringUtils.equalsIgnoreCase(m.type, WikiType.TYPE_MINE)) {
             holder.binding.itemWikiMore.setVisibility(View.VISIBLE);
         } else {
-            holder.binding.itemWikiMore.setVisibility(View.GONE);
+            holder.binding.itemWikiMore.setVisibility(View.INVISIBLE);
         }
 
         //
