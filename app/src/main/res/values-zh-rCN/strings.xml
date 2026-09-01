@@ -98,6 +98,7 @@
   <string name="file_action_download">下载</string>
   <string name="file_action_update">上传</string>
   <string name="file_share">分享</string>
+  <string name="file_share_leave">退出共享</string>
   <string name="file_action_share_wechat">分享到微信</string>
   <string name="file_action_share_link">分享链接</string>
   <string name="file_action_share_encrypt">分享高级链接</string>
@@ -779,4 +780,5 @@ Email: support@seafile.com<br>
   <string name="tip_press_again_to_exit">再按一次退出应用</string>
   <string name="tip_publish_wiki_desc">URL 的自定义部分长度必须在5到30个字符之间，并且只能包含字母（a-z），数字和连字符。</string>
   <string name="tip_stop_transfer_when_switch_or_logout">文件传输中，是否仍要切换或退出？</string>
+  <string name="tip_leave_share">确定退出共享吗？</string>
 </resources>
