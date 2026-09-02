@@ -446,11 +446,17 @@ public class Utils {
             return false;
         }
 
-        name = name.toLowerCase();
-        if (name.endsWith(Constants.FileExtensions.DOT_PDF)) {
+        String suffix = FilenameUtils.getExtension(name);
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
+        suffix = suffix.toLowerCase(Locale.ROOT);
+        if (TextUtils.equals("pdf", suffix)) {
             return true;
         }
-        return false;
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return TextUtils.equals(mime, "application/pdf");
     }
 
     @NonNull
