@@ -226,6 +226,11 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     }
 
     private void initView() {
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(v -> {
+            finish();
+        });
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(fileName);
         }
