@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.editor;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,10 +10,13 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.SystemBarStyle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -52,7 +56,7 @@ import io.reactivex.functions.Consumer;
  * Known issue: This page does not preview data properly if the text data is very large.
  *
  */
-public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implements Toolbar.OnMenuItemClickListener {
+public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
 
     private ActivityEditorBinding binding;
     private MarkdownEditText mMarkdownEditText;
@@ -83,8 +87,14 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // 蓝色 Toolbar 背景延伸进状态栏/导航栏区域，系统栏图标需保持浅色
+        EdgeToEdge.enable(this,
+                SystemBarStyle.dark(Color.TRANSPARENT),
+                SystemBarStyle.dark(Color.TRANSPARENT));
+
         binding = ActivityEditorBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
@@ -114,19 +124,24 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
             loadData();
         }
 
-        if (!TextUtils.isEmpty(localPath)) {
+        if (!TextUtils.isEmpty(localPath) && getSupportActionBar() != null) {
             getSupportActionBar().setTitle(new File(localPath).getName());
         }
     }
 
     private void initView() {
         Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isSave) {
+                    finish();
+                } else {
+                    saveFile();
+                }
+            }
+        });
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -304,24 +319,13 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            if (isSave) {
-                finish();
-            } else {
-                saveFile();
-            }
-        } else if (item.getItemId() == R.id.edit_undo) {
+        if (item.getItemId() == R.id.edit_undo) {
             mPerformEdit.undo();
         } else if (item.getItemId() == R.id.edit_redo) {
             mPerformEdit.redo();
         } else if (item.getItemId() == R.id.edit_save) {
             saveFile();
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
 
@@ -340,6 +344,7 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> implemen
 
 
     private File lockFile = null;
+
     private File getLockFile() {
         if (lockFile != null) {
             return lockFile;

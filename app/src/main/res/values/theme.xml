@@ -7,6 +7,9 @@
         <item name="android:windowBackground">@color/white</item>
     </style>
 
+    <style name="App.Theme" parent="BaseTheme.App.Toolbar">
+    </style>
+
     <style name="BaseTheme.App.Toolbar" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- app window background color -->
         <item name="android:windowBackground">@color/window_background_color</item>
@@ -55,7 +58,7 @@
         <item name="tabStyle">@style/App.Widget.TabLayout</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="materialButtonStyle">@style/App.Widget.Button</item>
-<!--        <item name="materialAlertDialogTheme">@style/App.AppCompat.AlertDialog</item>-->
+        <!--        <item name="materialAlertDialogTheme">@style/App.AppCompat.AlertDialog</item>-->
         <item name="bottomNavigationStyle">@style/App.Widget.BottomNavigationView</item>
         <item name="actionOverflowMenuStyle">@style/App.Widget.OverflowMenu</item>
         <item name="editTextStyle">@style/App.Widget.EditText</item>
@@ -84,7 +87,6 @@
 
 
     <style name="AppTheme.Editor" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/blue_500</item>
         <item name="colorPrimary">@color/blue_500</item>
         <item name="colorPrimaryDark">@color/blue_700</item>
         <item name="colorAccent">@color/blue_500</item>

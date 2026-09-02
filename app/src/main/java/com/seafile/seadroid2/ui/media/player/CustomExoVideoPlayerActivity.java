@@ -3,9 +3,11 @@ package com.seafile.seadroid2.ui.media.player;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.lifecycle.Observer;
@@ -52,7 +54,7 @@ import okhttp3.OkHttpClient;
 
 @UnstableApi
 public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewModel> {
-    private static final String KEY_FULL_SCREEN = "isFullScreen";
+    private static final String KEY_ORIENTATION_LOCKED = "isOrientationLocked";
     private static final String KEY_ITEM_INDEX = "startItemIndex";
     private static final String KEY_POSITION = "position";
     private static final String KEY_AUTO_PLAY = "auto_play";
@@ -66,7 +68,8 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private String repoId;
     private String filePath;
 
-    private boolean hasFullScreen = false;
+    /** 用户是否手动锁定了横屏；false 时走自动旋转（跟随系统设置） */
+    private boolean isOrientationLocked = false;
     private boolean startAutoPlay;
     private int startItemIndex;
     private long startPosition;
@@ -106,7 +109,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             filePath = savedInstanceState.getString("filePath");
 
             startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
-            hasFullScreen = savedInstanceState.getBoolean(KEY_FULL_SCREEN);
+            isOrientationLocked = savedInstanceState.getBoolean(KEY_ORIENTATION_LOCKED);
             startPosition = savedInstanceState.getLong(KEY_POSITION);
             startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
 
@@ -117,14 +120,19 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
                 }
             }
         } else {
-
             fileName = intent.getStringExtra("fileName");
             repoId = intent.getStringExtra("repoId");
             filePath = intent.getStringExtra("filePath");
             binding.videoSpeed.setText("1x");
 
-
             clearStartPosition();
+        }
+
+        // 默认自动旋转（跟随系统设置），若此前手动锁定了横屏则恢复锁定
+        if (isOrientationLocked) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         }
 
         initUI();
@@ -145,9 +153,9 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         exoPlayerView = binding.playerView;
 
         binding.back.setOnClickListener(v -> {
-            if (hasFullScreen) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                hasFullScreen = false;
+            if (isOrientationLocked) {
+                // 解锁横屏，回到自动旋转
+                unlockOrientation();
                 return;
             }
 
@@ -155,14 +163,10 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         });
 
         binding.fullscreen.setOnClickListener(v -> {
-            if (hasFullScreen) {
-                binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_enter);
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                hasFullScreen = false;
+            if (isOrientationLocked) {
+                unlockOrientation();
             } else {
-                binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                hasFullScreen = true;
+                lockToLandscape();
             }
         });
 
@@ -246,7 +250,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
 
         outState.putLong(KEY_POSITION, startPosition);
         outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
-        outState.putBoolean(KEY_FULL_SCREEN, hasFullScreen);
+        outState.putBoolean(KEY_ORIENTATION_LOCKED, isOrientationLocked);
         outState.putInt(KEY_ITEM_INDEX, startItemIndex);
 
         outState.putString("fileName", fileName);
@@ -261,6 +265,39 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
 
     private void setPlayIcon(boolean isPlay) {
         binding.playPause.setImageResource(isPlay ? R.drawable.ic_play_fill : R.drawable.ic_pause_fill);
+    }
+
+    /** 手动锁定横屏，同时更新图标 */
+    private void lockToLandscape() {
+        isOrientationLocked = true;
+        binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
+
+    /** 解除横屏锁定，回到自动旋转；根据当前设备方向更新全屏图标 */
+    private void unlockOrientation() {
+        isOrientationLocked = false;
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+        updateFullscreenIcon();
+    }
+
+    /** 根据当前设备方向同步全屏按钮图标 */
+    private void updateFullscreenIcon() {
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
+        } else {
+            binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_enter);
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // 自动旋转引起的方向变化：同步全屏图标
+        if (!isOrientationLocked) {
+            updateFullscreenIcon();
+        }
     }
 
     @OptIn(markerClass = UnstableApi.class)

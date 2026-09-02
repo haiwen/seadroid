@@ -36,6 +36,7 @@ import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 
+import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
@@ -115,6 +116,7 @@ public class FileProfileEditorActivity extends BaseActivityWithVM<SDocViewModel>
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
@@ -152,21 +154,14 @@ public class FileProfileEditorActivity extends BaseActivityWithVM<SDocViewModel>
     }
 
     private void initView() {
-        Toolbar toolbar = bindingOfToolbar.toolbarActionbar;
-
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
-        toolbar.setTitle(R.string.edit);
-
-        toolbar.setNavigationOnClickListener(v -> {
-            finish();
-        });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.edit);
+        }
 
         binding.container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 clearFocus();
-
             }
         });
     }

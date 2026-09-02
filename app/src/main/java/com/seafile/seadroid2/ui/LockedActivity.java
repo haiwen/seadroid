@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +39,14 @@ public class LockedActivity extends AppCompatActivity {
         splashScreen.setKeepOnScreenCondition(() -> true);
 
         showBiometricPrompt();
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Don't allow back to bypass the lock
+                finishAffinity();
+            }
+        });
     }
 
     private void showBiometricPrompt() {
@@ -80,11 +89,5 @@ public class LockedActivity extends AppCompatActivity {
         targetIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(targetIntent);
         finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Don't allow back to bypass the lock
-        finishAffinity();
     }
 }

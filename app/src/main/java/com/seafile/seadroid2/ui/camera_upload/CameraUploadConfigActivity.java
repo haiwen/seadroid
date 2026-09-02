@@ -63,8 +63,9 @@ public class CameraUploadConfigActivity extends BaseActivity {
 
         applyEdgeToEdge(binding.getRoot());
 
-        if (getSupportActionBar() != null)
+        if (getSupportActionBar() != null){
             getSupportActionBar().hide();
+        }
 
         isChooseRepoPage = getIntent().getBooleanExtra(CAMERA_UPLOAD_REMOTE_LIBRARY, false);
         isChooseDirPage = getIntent().getBooleanExtra(CAMERA_UPLOAD_LOCAL_DIRECTORIES, false);

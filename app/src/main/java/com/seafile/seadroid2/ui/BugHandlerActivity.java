@@ -26,13 +26,11 @@ public class BugHandlerActivity extends BaseActivity {
 
         binding = ActivityBugHandlerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
         applyEdgeToEdge(binding.getRoot());
+
         Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Crash log");
-        }
+        toolbar.setTitle("Crash log");
 
         String exception = getIntent().getStringExtra("exception_message");
         String threadName = getIntent().getStringExtra("thread_name");

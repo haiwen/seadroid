@@ -90,9 +90,22 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
 
         binding = ActivitySelectorObjBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
 
+        initIntent();
+
+        initView();
+
+        initViewModel();
+
+        initRv();
+
+        checkLoginState();
+    }
+
+    private void initIntent() {
         Intent intent = getIntent();
         if (intent == null) {
             throw new IllegalArgumentException("Intent is null");
@@ -118,31 +131,6 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
             }
         }
 
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                stepBack();
-            }
-        });
-
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stepBack();
-            }
-        });
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.app_name);
-        }
-
-        initView();
-        initViewModel();
-        initRv();
-
-        checkLoginState();
     }
 
     @Override
@@ -191,6 +179,25 @@ public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel
     }
 
     private void initView() {
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                stepBack();
+            }
+        });
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stepBack();
+            }
+        });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(null);
+        }
+
         binding.swipeRefreshLayout.setOnRefreshListener(this::loadData);
         binding.ok.setOnClickListener(new View.OnClickListener() {
             @Override

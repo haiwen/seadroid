@@ -8,27 +8,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -95,8 +86,7 @@ public class MainActivity extends BaseActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
-
-        setSupportActionBar(getActionBarToolbar());
+        initToolbar();
 
         curAccount = SupportAccountManager.getInstance().getCurrentAccount();
         if (curAccount == null || !curAccount.hasValidToken()) {
@@ -104,7 +94,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        applyEdgeToEdgeInsets();
+        applyEdgeToEdge(binding.getRoot());
 
         initSettings();
 
@@ -134,18 +124,6 @@ public class MainActivity extends BaseActivity {
 
     private void resetOverflowIcon() {
         binding.toolbarActionbar.setOverflowIcon(AppCompatResources.getDrawable(this, R.drawable.icon_more_vertical_32_18));
-    }
-
-    private void applyEdgeToEdgeInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, 0, systemBars.right, 0);
-
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) binding.statusBarGuideline.getLayoutParams();
-            params.height = systemBars.top;
-            binding.statusBarGuideline.setLayoutParams(params);
-            return insets;
-        });
     }
 
     private void restoreNavContext() {

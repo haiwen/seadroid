@@ -45,7 +45,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/light_grey" />
+        app:tint="@color/primary_icon_tint_color" />
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"

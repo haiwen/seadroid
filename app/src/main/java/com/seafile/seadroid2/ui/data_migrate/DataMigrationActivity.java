@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
 import android.widget.Space;
 
@@ -1056,13 +1055,5 @@ public class DataMigrationActivity extends BaseActivity {
         setResult(RESULT_OK);
 
         finish();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            return true; //do not back
-        }
-        return super.onKeyDown(keyCode, event);
     }
 }

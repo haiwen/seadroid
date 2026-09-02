@@ -54,7 +54,7 @@ import java.security.cert.X509Certificate;
 /**
  * Single sign on Authorize page, use cookie to get authorized data
  */
-public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountViewModel> implements Toolbar.OnMenuItemClickListener {
+public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountViewModel>  {
     public final String TAG = "SingleSignOnAuthorizeActivity";
 
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";
@@ -69,8 +69,33 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
         binding = SingleSignOnAuthorizeLayoutBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
+        initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
+
+        //toolbar
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.shib_login_title);
+        }
+
+        initWebView();
+
+        //view model
+        initViewModel();
+
+        String url = getIntent().getStringExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL);
+        CookieManager.getInstance().removeAllCookie();
+        openAuthorizePage(url);
+    }
+
+    private void initWebView() {
 
         //web settings
         WebSettings webSettings = binding.webview.getSettings();
@@ -96,20 +121,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
 
         CustomWebviewClient client = new CustomWebviewClient();
         binding.webview.setWebViewClient(client);
-
-        //toolbar
-        Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
-        toolbar.setOnMenuItemClickListener(this);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.shib_login_title);
-
-        //view model
-        initViewModel();
-
-        String url = getIntent().getStringExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL);
-        CookieManager.getInstance().removeAllCookie();
-        openAuthorizePage(url);
     }
 
     private void openAuthorizePage(String url) {
@@ -228,20 +239,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivityWithVM<AccountVie
             binding.singleSignOnLoadingLl.setVisibility(View.VISIBLE);
             binding.webview.setVisibility(View.INVISIBLE);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return true;
     }
 
     private void displaySSLError() {

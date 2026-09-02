@@ -33,7 +33,6 @@ import java.util.List;
 public class FolderBackupSelectedPathActivity extends BaseActivity {
     private RecyclerView mRecyclerView;
     private FolderBackupSelectedPathAdapter mAdapter;
-    private QuickAdapterHelper helper;
     private List<String> initBackupSelectPaths;
 
     private ActivityResultLauncher<Intent> folderBackupConfigLauncher;
@@ -49,35 +48,21 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.folder_backup_selected_path_activity);
+        initToolbar();
 
         applyEdgeToEdge(findViewById(R.id.root_layout));
+
+        initView();
+
+        initRv();
+
+        initData(savedInstanceState);
+
         registerFolderBackupConfigLauncher();
-        initOnBackPressedDispatcher();
 
-        findViewById(R.id.add_backup_folder).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(FolderBackupSelectedPathActivity.this, FolderBackupConfigActivity.class);
-                folderBackupConfigLauncher.launch(intent);
-            }
-        });
+    }
 
-        Toolbar toolbar = getActionBarToolbar();
-        if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(v -> {
-                setFinishPage();
-            });
-        }
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.settings_folder_backup_select_title);
-        }
-
-        mRecyclerView = findViewById(R.id.lv_search);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-
-        initAdapter();
-
+    private void initData(Bundle savedInstanceState) {
         List<String> items;
         if (savedInstanceState != null) {
             initBackupSelectPaths = savedInstanceState.getStringArrayList("initBackupSelectPaths");
@@ -92,7 +77,31 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
             initBackupSelectPaths = new ArrayList<>();
         }
         mAdapter.submitList(items);
+    }
 
+    private void initView() {
+        findViewById(R.id.add_backup_folder).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(FolderBackupSelectedPathActivity.this, FolderBackupConfigActivity.class);
+                folderBackupConfigLauncher.launch(intent);
+            }
+        });
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setNavigationOnClickListener(v -> {
+            setFinishPage();
+        });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.settings_folder_backup_select_title);
+        }
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                setFinishPage();
+            }
+        });
     }
 
     private void registerFolderBackupConfigLauncher() {
@@ -116,14 +125,16 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
     }
 
 
-    private void initAdapter() {
+    private void initRv() {
+        mRecyclerView = findViewById(R.id.lv_search);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+
         mAdapter = new FolderBackupSelectedPathAdapter();
         mAdapter.setStateViewEnable(false);
         mAdapter.setOnItemClickListener((baseQuickAdapter, view, i) -> showBottomDialog(mAdapter.getItems().get(i)));
         mAdapter.addOnItemChildClickListener(R.id.more, (baseQuickAdapter, view, i) -> showRepoBottomSheet(i));
 
-        helper = new QuickAdapterHelper.Builder(mAdapter).build();
-        mRecyclerView.setAdapter(helper.getAdapter());
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     private void showRepoBottomSheet(int position) {
@@ -147,24 +158,6 @@ public class FolderBackupSelectedPathActivity extends BaseActivity {
                 .setTitle(text)
                 .setCancelable(true)
                 .show(getSupportFragmentManager());
-    }
-
-    private void initOnBackPressedDispatcher() {
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                setFinishPage();
-            }
-        });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            getOnBackPressedDispatcher().onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private boolean isSettingsChanged() {
