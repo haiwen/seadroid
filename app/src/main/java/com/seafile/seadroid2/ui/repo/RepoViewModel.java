@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.reactivex.Flowable;
@@ -69,6 +70,7 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.RequestBody;
 
 public class RepoViewModel extends BaseViewModel {
@@ -227,7 +229,7 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    public void loadData(NavContext context, RefreshStatusEnum refreshStatus, boolean isBlank) {
+    public void loadData(NavContext context, RefreshStatusEnum refreshStatus, boolean isBlank, Runnable onRemoteLoadSuccess) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return;
@@ -236,28 +238,28 @@ public class RepoViewModel extends BaseViewModel {
         if (RefreshStatusEnum.ONLY_REMOTE == refreshStatus) {
             //delete/new/starred/rename/refresh/... -> ONLY_REMOTE
             if (context.inRepo()) {
-                loadDirentsFromRemote(account, context);
+                loadDirentsFromRemote(account, context, onRemoteLoadSuccess);
             } else {
-                loadReposFromRemote(account);
+                loadReposFromRemote(account, onRemoteLoadSuccess);
             }
         } else if (RefreshStatusEnum.LOCAL_THEN_REMOTE == refreshStatus) {
             //first load data
             if (context.inRepo()) {
-                loadDirentsFromLocal(account, context, true, isBlank);
+                loadDirentsFromLocal(account, context, true, isBlank, onRemoteLoadSuccess);
             } else {
-                loadReposFromLocal(account, true, isBlank);
+                loadReposFromLocal(account, true, isBlank, onRemoteLoadSuccess);
             }
         } else if (RefreshStatusEnum.ONLY_LOCAL == refreshStatus) {
             //back/sort/page_change -> ONLY_LOCAL
             if (context.inRepo()) {
-                loadDirentsFromLocal(account, context, false, isBlank);
+                loadDirentsFromLocal(account, context, false, isBlank, null);
             } else {
-                loadReposFromLocal(account, false, isBlank);
+                loadReposFromLocal(account, false, isBlank, null);
             }
         }
     }
 
-    private void loadReposFromLocal(Account account, boolean isLoadRemoteData, boolean isBlank) {
+    private void loadReposFromLocal(Account account, boolean isLoadRemoteData, boolean isBlank, Runnable onRemoteLoadSuccess) {
         //clear list
         if (isBlank) {
             getObjListLiveData().setValue(null);
@@ -305,7 +307,7 @@ public class RepoViewModel extends BaseViewModel {
                 getObjListLiveData().setValue(list);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {
-                    loadReposFromRemote(account);
+                    loadReposFromRemote(account, onRemoteLoadSuccess);
                 } else {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(list));
                 }
@@ -318,7 +320,7 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadReposFromRemote(Account account) {
+    private void loadReposFromRemote(Account account, Runnable onRemoteLoadSuccess) {
         if (!NetworkUtils.isConnected()) {
             getRefreshLiveData().setValue(false);
             return;
@@ -335,6 +337,9 @@ public class RepoViewModel extends BaseViewModel {
                 getObjListLiveData().setValue(models);
                 getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(models));
                 getRefreshLiveData().setValue(false);
+                if (onRemoteLoadSuccess != null) {
+                    onRemoteLoadSuccess.run();
+                }
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -354,7 +359,7 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData, boolean isBlank) {
+    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData, boolean isBlank, Runnable onRemoteLoadSuccess) {
         //clear list
         if (isBlank) {
             getObjListLiveData().setValue(null);
@@ -367,7 +372,7 @@ public class RepoViewModel extends BaseViewModel {
                     @Override
                     public SingleSource<List<BaseModel>> apply(List<DirentModel> direntModels) throws Exception {
                         if (fileViewType == FileViewType.GALLERY) {
-                            List<DirentModel> ds = direntModels.stream().filter(new java.util.function.Predicate<DirentModel>() {
+                            List<DirentModel> ds = direntModels.stream().filter(new Predicate<DirentModel>() {
                                 @Override
                                 public boolean test(DirentModel direntModel) {
                                     return Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name);
@@ -400,7 +405,7 @@ public class RepoViewModel extends BaseViewModel {
                 getObjListLiveData().setValue(results);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {
-                    loadDirentsFromRemote(account, navContext);
+                    loadDirentsFromRemote(account, navContext, onRemoteLoadSuccess);
                 } else {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(results));
                 }
@@ -441,7 +446,7 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadDirentsFromRemote(Account account, NavContext navContext) {
+    private void loadDirentsFromRemote(Account account, NavContext navContext, Runnable onRemoteLoadSuccess) {
         if (!NetworkUtils.isConnected()) {
             getRefreshLiveData().setValue(false);
             return;
@@ -468,7 +473,7 @@ public class RepoViewModel extends BaseViewModel {
                 List<BaseModel> results = new ArrayList<>();
 
                 if (FileViewType.GALLERY == fileViewType) {
-                    List<DirentModel> ds = direntModels.stream().filter(new java.util.function.Predicate<DirentModel>() {
+                    List<DirentModel> ds = direntModels.stream().filter(new Predicate<DirentModel>() {
                         @Override
                         public boolean test(DirentModel direntModel) {
                             return Utils.isViewableImage(direntModel.name) || Utils.isVideoFile(direntModel.name);
@@ -483,6 +488,9 @@ public class RepoViewModel extends BaseViewModel {
                 getObjListLiveData().setValue(results);
                 getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(results));
                 getRefreshLiveData().setValue(false);
+                if (onRemoteLoadSuccess != null) {
+                    onRemoteLoadSuccess.run();
+                }
             }
         }, new Consumer<Throwable>() {
             @Override
@@ -548,7 +556,7 @@ public class RepoViewModel extends BaseViewModel {
      */
     private Single<Pair<RepoModel, PermissionEntity>> getSingleForLoadRepoModelAndAllPermission(String repoId) {
         Single<List<RepoModel>> repoSingle = AppDatabase.getInstance().repoDao().getRepoById(repoId);
-        return repoSingle.flatMap(new io.reactivex.functions.Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
+        return repoSingle.flatMap(new Function<List<RepoModel>, SingleSource<Pair<RepoModel, PermissionEntity>>>() {
             @Override
             public SingleSource<Pair<RepoModel, PermissionEntity>> apply(List<RepoModel> repoModels) throws Exception {
                 if (CollectionUtils.isEmpty(repoModels)) {
@@ -561,7 +569,7 @@ public class RepoViewModel extends BaseViewModel {
                 }
 
                 Single<List<PermissionEntity>> pSingle = AppDatabase.getInstance().permissionDAO().getByRepoAndIdAsync(repoId, repoModel.getCustomPermissionNum());
-                return pSingle.flatMap((io.reactivex.functions.Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>) pList -> {
+                return pSingle.flatMap((Function<List<PermissionEntity>, SingleSource<Pair<RepoModel, PermissionEntity>>>) pList -> {
                     //no data in local db
                     if (CollectionUtils.isEmpty(pList)) {
                         return Single.just(new Pair<>(repoModel, new PermissionEntity(repoModel.repo_id, "r")));
@@ -838,7 +846,7 @@ public class RepoViewModel extends BaseViewModel {
                     });
 
                 }, true, 8)
-                .observeOn(io.reactivex.schedulers.Schedulers.io())
+                .observeOn(Schedulers.io())
                 .doOnNext(result -> {
 
                     if (!CollectionUtils.isEmpty(result.files)) {
