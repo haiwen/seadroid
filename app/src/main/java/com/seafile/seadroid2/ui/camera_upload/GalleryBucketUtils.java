@@ -88,14 +88,25 @@ public class GalleryBucketUtils {
      * @return the list of buckets.
      */
     public static List<Bucket> getMediaBuckets(Context context) {
+        return getMediaBuckets(context, false);
+    }
+
+    /**
+     * Fetch the list of buckets, optionally excluding media cached by Seafile.
+     *
+     * @param context
+     * @param excludeSeafileCache whether to exclude media under Seafile's cache directory
+     * @return the list of buckets.
+     */
+    public static List<Bucket> getMediaBuckets(Context context, boolean excludeSeafileCache) {
         List<Bucket> videos;
         List<Bucket> images;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             videos = getVideoBucketsBelowAndroid10Api29(context);
             images = getImageBucketsBelowAndroid10Api29(context);
         } else {
-            videos = getVideoBuckets(context);
-            images = getImageBuckets(context);
+            videos = getVideoBuckets(context, excludeSeafileCache);
+            images = getImageBuckets(context, excludeSeafileCache);
         }
 
         List<Bucket> merged = new ArrayList<>();
@@ -228,12 +239,13 @@ public class GalleryBucketUtils {
         return buckets;
     }
 
-    private static List<Bucket> getVideoBuckets(Context context) {
+    private static List<Bucket> getVideoBuckets(Context context, boolean excludeSeafileCache) {
         Uri images = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         String[] projection = new String[]{
                 MediaStore.Video.Media._ID,
                 MediaStore.Video.Media.BUCKET_ID,
-                MediaStore.Video.Media.BUCKET_DISPLAY_NAME
+                MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Video.Media.DATA
         };
         String sortOrder = MediaStore.Video.Media.DATE_ADDED + " DESC";
         Cursor cursor = context.getContentResolver().query(images,
@@ -248,6 +260,8 @@ public class GalleryBucketUtils {
         if (cursor == null) {
             return buckets;
         }
+
+        String localCacheAbsPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
 
         try {
             while (cursor.moveToNext()) {
@@ -271,6 +285,11 @@ public class GalleryBucketUtils {
 
                 b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.bucketName.toUpperCase());
 
+                String localPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                if (excludeSeafileCache && localPath != null && localPath.startsWith(localCacheAbsPath)) {
+                    continue;
+                }
+
                 buckets.add(b);
             }
         } catch (IllegalArgumentException e) {
@@ -282,18 +301,20 @@ public class GalleryBucketUtils {
         return buckets;
     }
 
-    private static List<Bucket> getImageBuckets(Context context) {
+    private static List<Bucket> getImageBuckets(Context context, boolean excludeSeafileCache) {
         Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         // Android 13+
         String[] projection = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ? new String[]{
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN  // 添加时间戳字段
+                MediaStore.Images.Media.DATE_TAKEN,  // 添加时间戳字段
+                MediaStore.Images.Media.DATA
         } : new String[]{
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.BUCKET_ID,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.DATA
         };
 
         String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
@@ -310,6 +331,9 @@ public class GalleryBucketUtils {
         if (cursor == null) {
             return buckets;
         }
+
+        String localCacheAbsPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
+
         try {
             while (cursor.moveToNext()) {
                 Bucket b = new Bucket();
@@ -331,6 +355,11 @@ public class GalleryBucketUtils {
                 }
 
                 b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.bucketName.toUpperCase());
+
+                String localPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                if (excludeSeafileCache && localPath != null && localPath.startsWith(localCacheAbsPath)) {
+                    continue;
+                }
 
                 buckets.add(b);
             }

@@ -70,7 +70,7 @@ public class BucketsFragment extends Fragment {
 
         mRadioGroup.setOnCheckedChangeListener(onCheckedChangeListener);
 
-        buckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
+        buckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext(), true);
         if (buckets == null) {
             SLogs.e("BucketsFragment", "buckets is null");
             Toasts.show(R.string.permission_not_granted);
