@@ -22,9 +22,6 @@ import com.chad.library.adapter4.BaseQuickAdapter;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.FragmentSelectorCollaboratorBinding;
 import com.seafile.seadroid2.databinding.ItemTagSelectorBinding;
-import com.seafile.seadroid2.databinding.ItemTextRoundOptionalBinding;
-import com.seafile.seadroid2.databinding.LayoutDetailTagBinding;
-import com.seafile.seadroid2.databinding.ToolbarActionbarForSelectorBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarForSelectorWithDragBinding;
 import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
@@ -47,10 +44,10 @@ public class TagSelectorFragment extends BaseBottomSheetDialogFragment {
     private SDocViewModel sDocViewModel;
 
     public static TagSelectorFragment newInstance(String columnKey, String title, boolean isSingleSelect, List<OptionTagModel> tags, List<OptionTagModel> selectedTags) {
-        TransportHolder.get().put("columnKey", columnKey);
-        TransportHolder.get().put("tags", tags);
-        TransportHolder.get().put("selectedTags", selectedTags);
-        TransportHolder.get().put("isSingleSelect", isSingleSelect);
+        TransportHolder.getInstance().put("columnKey", columnKey);
+        TransportHolder.getInstance().put("tags", tags);
+        TransportHolder.getInstance().put("selectedTags", selectedTags);
+        TransportHolder.getInstance().put("isSingleSelect", isSingleSelect);
 
         return new TagSelectorFragment();
     }
@@ -59,14 +56,9 @@ public class TagSelectorFragment extends BaseBottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        columnKey = TransportHolder.get().get("columnKey");
-        optionsModels = TransportHolder.get().get("tags");
-        selectedOptionsModels = TransportHolder.get().get("selectedTags");
-
-        TransportHolder.get().remove("columnKey");
-        TransportHolder.get().remove("tags");
-        TransportHolder.get().remove("selectedTags");
-        TransportHolder.get().remove("isSingleSelect");
+        columnKey = TransportHolder.getInstance().getAndRemove("columnKey");
+        optionsModels = TransportHolder.getInstance().getAndRemove("tags");
+        selectedOptionsModels = TransportHolder.getInstance().getAndRemove("selectedTags");
 
         sDocViewModel = new ViewModelProvider(requireActivity()).get(SDocViewModel.class);
 

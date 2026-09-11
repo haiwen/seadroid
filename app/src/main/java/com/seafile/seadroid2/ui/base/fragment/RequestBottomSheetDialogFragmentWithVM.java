@@ -19,6 +19,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentManager;
 
 import com.blankj.utilcode.util.KeyboardUtils;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -171,15 +172,29 @@ public abstract class RequestBottomSheetDialogFragmentWithVM<VM extends BaseView
 
 
     public void dismissDialogWithIme() {
-        KeyboardUtils.hideSoftInput(getDialog().getWindow());
-        dismiss();
+        Dialog dialog = getDialog();
+        if (dialog != null && dialog.getWindow() != null) {
+            KeyboardUtils.hideSoftInput(dialog.getWindow());
+        }
+
+        dismissSafely();
+    }
+
+    public void dismissSafely() {
+        FragmentManager fragmentManager = getParentFragmentManager();
+
+        if (fragmentManager.isStateSaved()) {
+            dismissAllowingStateLoss();
+        } else {
+            dismiss();
+        }
     }
 
     private void initRootView() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             ViewCompat.setWindowInsetsAnimationCallback(rootView.getRootView(), new WindowInsetsAnimationCompat.Callback(WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP) {
 
-//                        private boolean lastImeVisible = false;
+                        //                        private boolean lastImeVisible = false;
                         private int startHeight = 0;
                         private int lastDiffH = 0;
 

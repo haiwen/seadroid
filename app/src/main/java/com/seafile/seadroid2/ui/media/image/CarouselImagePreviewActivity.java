@@ -5,10 +5,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
@@ -338,7 +340,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
 
     private void initPager() {
         pagerAdapter = new ViewPager2Adapter(this);
-        binding.pager.setOffscreenPageLimit(7);
+        binding.pager.setOffscreenPageLimit(1);
         binding.pager.setAdapter(pagerAdapter);
         binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -439,7 +441,7 @@ public class CarouselImagePreviewActivity extends BaseActivityWithVM<ImagePrevie
         }
 
         pagerAdapter.addFragments(fragments);
-        pagerAdapter.notifyItemRangeInserted(0, direntList.size());
+        pagerAdapter.notifyItemRangeInserted(0,fragments.size());
 
         List<DirentModel> newList = new ArrayList<>();
 

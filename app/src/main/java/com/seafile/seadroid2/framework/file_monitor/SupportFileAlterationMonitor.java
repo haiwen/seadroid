@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.framework.file_monitor;
 
+import com.seafile.seadroid2.framework.util.SLogs;
+
 import org.apache.commons.io.ThreadUtils;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
@@ -120,20 +122,32 @@ public class SupportFileAlterationMonitor implements Runnable {
      */
     @Override
     public void run() {
-        try {
-            for (final FileAlterationObserver observer : observers) {
+        for (final FileAlterationObserver observer : observers) {
+            try {
                 observer.initialize();
+            } catch (Exception e) {
+                // This directory may contain invalid path characters; this will log the issue but will not affect monitoring of other directories.
+                SLogs.w(e);
+                observers.remove(observer);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
 
 
         while (running) {
-            observers.forEach(FileAlterationObserver::checkAndNotify);
+            for (final FileAlterationObserver observer : observers) {
+                try {
+                    observer.checkAndNotify();
+                } catch (Exception e) {
+                    // The file may be renamed to illegal characters between two scans, or there may be I/O problems.
+                    SLogs.w(e);
+                    observers.remove(observer);
+                }
+            }
+
             if (!running) {
                 break;
             }
+
             try {
                 ThreadUtils.sleep(Duration.ofMillis(intervalMillis));
             } catch (final InterruptedException ignored) {

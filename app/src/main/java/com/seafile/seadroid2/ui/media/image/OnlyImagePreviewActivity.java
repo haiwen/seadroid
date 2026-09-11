@@ -120,19 +120,6 @@ public class OnlyImagePreviewActivity extends BaseActivityWithVM<ImagePreviewVie
         adapter.addFragments(fragments);
 
         binding.pager.setAdapter(adapter);
-//        binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-//            @Override
-//            public void onPageSelected(int position) {
-//                super.onPageSelected(position);
-//
-//                String fs = String.format(Locale.ROOT, "%d/%d", (position + 1), direntList.size());
-//                binding.galleryPageIndex.setText(fs);
-//
-//                DirentModel model = direntList.get(position);
-//                binding.galleryPageName.setText(model.name);
-//            }
-//        });
-
         binding.pager.setCurrentItem(position);
 
     }
@@ -140,8 +127,6 @@ public class OnlyImagePreviewActivity extends BaseActivityWithVM<ImagePreviewVie
     private boolean showToolBar = false;
 
     private void hideOrShowToolBar() {
-//        binding.galleryToolBar.setVisibility(!showToolBar ? View.VISIBLE : View.GONE);
-//        binding.pageIndexContainer.setVisibility(!showToolBar ? View.VISIBLE : View.GONE);
         showToolBar = !showToolBar;
     }
 }

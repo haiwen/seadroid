@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.repo;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -525,12 +526,12 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemTitle.setText(model.name);
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
-
-        if (model.isDir()) {
-            holder.binding.itemOutline.setVisibility(View.GONE);
-        } else {
-            holder.binding.itemOutline.setVisibility(View.VISIBLE);
-        }
+//
+//        if (model.isDir()) {
+//            holder.binding.itemOutline.setVisibility(View.GONE);
+//        } else {
+//            holder.binding.itemOutline.setVisibility(View.VISIBLE);
+//        }
 
         if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);

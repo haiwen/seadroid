@@ -45,6 +45,10 @@ public class BaseFragment extends Fragment {
     }
 
     public void showLoadingDialog() {
+        if (!isAdded() || isRemoving()) {
+            return;
+        }
+
         if (dialog == null) {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
             builder.setView(R.layout.layout_dialog_progress_bar);

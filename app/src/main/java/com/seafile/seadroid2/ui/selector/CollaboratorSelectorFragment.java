@@ -18,21 +18,14 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.bumptech.glide.Glide;
 import com.chad.library.adapter4.BaseQuickAdapter;
-import com.chad.library.adapter4.QuickAdapterHelper;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.FragmentSelectorCollaboratorBinding;
-import com.seafile.seadroid2.databinding.ItemAvatarUserOptionalBinding;
-import com.seafile.seadroid2.databinding.ItemUserAvatarBinding;
 import com.seafile.seadroid2.databinding.ItemUserSelectorBinding;
-import com.seafile.seadroid2.databinding.ToolbarActionbarForSelectorBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarForSelectorWithDragBinding;
-import com.seafile.seadroid2.framework.model.sdoc.OptionTagModel;
 import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
-import com.seafile.seadroid2.ui.adapter.CustomLoadMoreAdapter;
 import com.seafile.seadroid2.ui.base.fragment.BaseBottomSheetDialogFragment;
-import com.seafile.seadroid2.ui.media.image.ImagePreviewViewModel;
 import com.seafile.seadroid2.ui.sdoc.SDocViewModel;
 import com.seafile.seadroid2.view.LeftMarginDividerItemDecoration;
 
@@ -53,9 +46,9 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     private SDocViewModel sDocViewModel;
 
     public static CollaboratorSelectorFragment newInstance(String columnKey, List<UserModel> userList, List<UserModel> checkedUserList) {
-        TransportHolder.get().put("columnKey", columnKey);
-        TransportHolder.get().put("user_list", userList);
-        TransportHolder.get().put("checked_user_list", checkedUserList);
+        TransportHolder.getInstance().put("columnKey", columnKey);
+        TransportHolder.getInstance().put("user_list", userList);
+        TransportHolder.getInstance().put("checked_user_list", checkedUserList);
 
         return new CollaboratorSelectorFragment();
     }
@@ -64,13 +57,9 @@ public class CollaboratorSelectorFragment extends BaseBottomSheetDialogFragment 
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        columnKey = TransportHolder.get().get("columnKey");
-        userList = TransportHolder.get().get("user_list");
-        checkedUserList = TransportHolder.get().get("checked_user_list");
-
-        TransportHolder.get().remove("columnKey");
-        TransportHolder.get().remove("user_list");
-        TransportHolder.get().remove("checked_user_list");
+        columnKey = TransportHolder.getInstance().getAndRemove("columnKey");
+        userList = TransportHolder.getInstance().getAndRemove("user_list");
+        checkedUserList = TransportHolder.getInstance().getAndRemove("checked_user_list");
 
         sDocViewModel = new ViewModelProvider(requireActivity()).get(SDocViewModel.class);
 

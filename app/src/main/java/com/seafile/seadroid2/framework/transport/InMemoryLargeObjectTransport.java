@@ -18,15 +18,14 @@ public final class InMemoryLargeObjectTransport implements LargeObjectTransport 
         CACHE.put(key, new SoftReference<>(data));
     }
 
+
+
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T get(String key) {
+    public <T> T getAndRemove(String key) {
         SoftReference<Object> ref = CACHE.get(key);
+        CACHE.remove(key);
         return ref != null ? (T) ref.get() : null;
     }
 
-    @Override
-    public void remove(String key) {
-        CACHE.remove(key);
-    }
 }

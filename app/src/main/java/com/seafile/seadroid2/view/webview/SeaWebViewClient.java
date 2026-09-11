@@ -86,7 +86,14 @@ public class SeaWebViewClient extends BridgeWebViewClient {
 //            return true;
 //        }
 
-        return super.shouldOverrideUrlLoading(wb, request);
+        try {
+            return super.shouldOverrideUrlLoading(wb, request);
+        } catch (IllegalArgumentException e) {
+            // JsBridge decodes its custom URLs internally. A malformed percent escape in a
+            // bridge payload must not crash the app while handling a WebView navigation.
+            SLogs.e("Ignoring malformed WebView bridge URL: " + url, e);
+            return true;
+        }
     }
 
 

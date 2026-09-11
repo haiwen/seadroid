@@ -39,8 +39,8 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
     private boolean canNotEdit;
 
     public static FileProfileDialog newInstance(FileProfileConfigModel configModel, boolean canNotEdit) {
-        TransportHolder.get().put("config_model", configModel);
-        TransportHolder.get().put("canNotEdit", canNotEdit);
+        TransportHolder.getInstance().put("config_model", configModel);
+        TransportHolder.getInstance().put("canNotEdit", canNotEdit);
         return new FileProfileDialog();
     }
 
@@ -48,10 +48,8 @@ public class FileProfileDialog extends BottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        configModel = TransportHolder.get().get("config_model");
-        canNotEdit = TransportHolder.get().get("canNotEdit");
-        TransportHolder.get().remove("config_model");
-        TransportHolder.get().remove("canNotEdit");
+        configModel = TransportHolder.getInstance().getAndRemove("config_model");
+        canNotEdit = TransportHolder.getInstance().getAndRemove("canNotEdit");
 
         if (configModel == null) {
             throw new IllegalArgumentException("configModel is null");

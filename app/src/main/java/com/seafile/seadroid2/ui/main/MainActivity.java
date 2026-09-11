@@ -629,28 +629,9 @@ public class MainActivity extends BaseActivity {
             return;
         }
         AppCompatDelegate.setDefaultNightMode(nightMode);
-
-//        Settings.NIGHT_MODE.putValue(nightMode);
-
         recreate();
-
-//        restartThis();
     }
 
-
-    //todo replace by recreate()
-    private void restartThis() {
-        Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
-        if (intent == null) {
-            ActivityUtils.finishToActivity(MainActivity.class, false);
-            return;
-        }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
 
     private final Observer<NavContext> navContextObserver = new Observer<NavContext>() {
         @Override

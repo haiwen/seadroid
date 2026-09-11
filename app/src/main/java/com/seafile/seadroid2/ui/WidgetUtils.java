@@ -10,6 +10,7 @@ import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -64,13 +65,17 @@ public class WidgetUtils {
         PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
         List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
 
-        // Remove seafile app from the list
-        String seadroidPackageName = SeadroidApplication.getAppContext().getPackageName();
-        ResolveInfo info;
+        String seadroidPackageName =
+                SeadroidApplication.getAppContext().getPackageName();
+
         Iterator<ResolveInfo> iter = infos.iterator();
         while (iter.hasNext()) {
-            info = iter.next();
-            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
+            ResolveInfo info = iter.next();
+            ActivityInfo activityInfo = info.activityInfo;
+
+            if (activityInfo == null
+                    || !activityInfo.exported
+                    || activityInfo.packageName.equals(seadroidPackageName)) {
                 iter.remove();
             }
         }
@@ -276,7 +281,11 @@ public class WidgetUtils {
                 String packageName = appInfo.activityInfo.packageName;
                 shareIntent.setClassName(packageName, className);
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareLinkModel.link);
-                context.startActivity(shareIntent);
+                try {
+                    context.startActivity(shareIntent);
+                } catch (SecurityException e) {
+                    Toasts.show(R.string.no_app_available);
+                }
                 dialog.dismiss();
             }
 

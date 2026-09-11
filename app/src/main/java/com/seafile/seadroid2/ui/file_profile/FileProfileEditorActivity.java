@@ -36,7 +36,6 @@ import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 
-import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.TimeUtils;
 import com.seafile.seadroid2.R;
@@ -93,15 +92,15 @@ public class FileProfileEditorActivity extends BaseActivityWithVM<SDocViewModel>
     private final String CHILD_CONTAINER_TAG_PREFIX = "Container:";
 
     public static Intent getIntent(Context context, String repoId, String path) {
-        TransportHolder.get().put("repoId", repoId);
-        TransportHolder.get().put("path", path);
+        TransportHolder.getInstance().put("repoId", repoId);
+        TransportHolder.getInstance().put("path", path);
 
         return new Intent(context, FileProfileEditorActivity.class);
     }
 
     public static Intent getIntent(Context context, String repoId, FileProfileConfigModel configModel) {
-        TransportHolder.get().put("config_model", configModel);
-        TransportHolder.get().put("repoId", repoId);
+        TransportHolder.getInstance().put("config_model", configModel);
+        TransportHolder.getInstance().put("repoId", repoId);
 
         return new Intent(context, FileProfileEditorActivity.class);
     }
@@ -140,13 +139,9 @@ public class FileProfileEditorActivity extends BaseActivityWithVM<SDocViewModel>
     }
 
     private void init() {
-        repoId = TransportHolder.get().get("repoId");
-        path = TransportHolder.get().get("path");
-        configModel = TransportHolder.get().get("config_model");
-        TransportHolder.get().remove("repoId");
-        TransportHolder.get().remove("path");
-        TransportHolder.get().remove("config_model");
-
+        repoId = TransportHolder.getInstance().getAndRemove("repoId");
+        path = TransportHolder.getInstance().getAndRemove("path");
+        configModel = TransportHolder.getInstance().getAndRemove("config_model");
 
         if (StringUtils.isEmpty(repoId)) {
             throw new IllegalArgumentException("intent params is null");

@@ -113,7 +113,7 @@ public class ObjSelectorViewModel extends BaseViewModel {
 
     public void loadDirentsFromNet(Account account, NavContext context) {
         getRefreshLiveData().setValue(true);
-        if (context.getRepoModel() == null) {
+        if (context == null || context.getRepoModel() == null) {
             return;
         }
 

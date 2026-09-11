@@ -2,10 +2,8 @@ package com.seafile.seadroid2.ui.file;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
@@ -27,8 +25,6 @@ import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.transport.LargeObjectIntent;
-import com.seafile.seadroid2.framework.transport.LargeObjectTransport;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
@@ -77,7 +73,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> {
         Intent starter = new Intent(context, FileActivity.class);
         starter.putExtra("action", actionEnum.name());
         //
-        TransportHolder.get().put("dirent", direntModel);
+        TransportHolder.getInstance().put("dirent", direntModel);
         return starter;
     }
 
@@ -119,8 +115,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> {
 
         action = intent.getStringExtra("action");
 
-        direntModel = TransportHolder.get().get("dirent");
-        TransportHolder.get().remove("dirent");
+        direntModel = TransportHolder.getInstance().getAndRemove("dirent");
 
         if (null == direntModel) {
             SLogs.e("missing dirent args, finishing FileActivity");

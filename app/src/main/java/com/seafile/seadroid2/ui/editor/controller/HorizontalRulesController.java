@@ -32,17 +32,17 @@ public class HorizontalRulesController {
             mRxMDEditText.getText().removeSpan(mdHorizontalRulesSpan);
             mRxMDEditText.getText().delete(spanStart, spanEnd);
         } else {
-            char c0 = mRxMDEditText.getText().charAt(start <= 0 ? 0 : start - 1);
-            char c1 = mRxMDEditText.getText().charAt(end >= mRxMDEditText.length() - 1 ? mRxMDEditText.length() - 1 : end + 1);
+            Editable editable = mRxMDEditText.getText();
+            int textLength = editable.length();
             StringBuilder sb = new StringBuilder();
-            if (c0 != '\n' && start != 0) {
+            if (start > 0 && editable.charAt(start - 1) != '\n') {
                 sb.append("\n");
             }
             sb.append("---");
-            if (c1 != '\n' || end >= mRxMDEditText.length()) {
+            if (end >= textLength || editable.charAt(end) != '\n') {
                 sb.append("\n");
             }
-            mRxMDEditText.getText().insert(start, sb.toString());
+            editable.insert(start, sb.toString());
         }
     }
 }

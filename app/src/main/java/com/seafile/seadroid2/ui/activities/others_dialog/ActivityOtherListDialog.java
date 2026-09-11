@@ -20,10 +20,7 @@ import com.seafile.seadroid2.databinding.DialogSdocDirectoryBinding;
 import com.seafile.seadroid2.framework.model.activities.ActivityDetailModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.transport.TransportHolder;
-import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.listener.OnItemClickListener2;
-
-import java.util.List;
 
 public class ActivityOtherListDialog extends BottomSheetDialogFragment {
     private final static String PARAMS_KEY = "activity_other_data_list";
@@ -41,7 +38,7 @@ public class ActivityOtherListDialog extends BottomSheetDialogFragment {
         ActivityOtherListDialog fragment = new ActivityOtherListDialog();
         fragment.setArguments(args);
 
-        TransportHolder.get().put(PARAMS_KEY, activityModel);
+        TransportHolder.getInstance().put(PARAMS_KEY, activityModel);
 
         return fragment;
     }
@@ -51,8 +48,7 @@ public class ActivityOtherListDialog extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
 
 
-        activityModel = TransportHolder.get().get(PARAMS_KEY);
-        TransportHolder.get().remove(PARAMS_KEY);
+        activityModel = TransportHolder.getInstance().getAndRemove(PARAMS_KEY);
 
         if (activityModel == null) {
             throw new IllegalArgumentException("ActivityModel param must not be null");

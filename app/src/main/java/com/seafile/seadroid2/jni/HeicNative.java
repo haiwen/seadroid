@@ -3,6 +3,7 @@ package com.seafile.seadroid2.jni;
 import android.util.Log;
 
 import com.seafile.seadroid2.annotation.Todo;
+import com.seafile.seadroid2.framework.util.SLogs;
 
 @Todo
 public class HeicNative {
@@ -16,10 +17,6 @@ public class HeicNative {
     public static final int MOTION_PHOTO_TYPE_HEIC = 1;  // HEIC motion photo
     public static final int MOTION_PHOTO_TYPE_NONE = 2;  // Not a motion photo
 
-    /**
-     * 原生库加载失败（如 32 位设备缺对应 ABI 的库）时为 true，
-     * 调用方应跳过所有原生调用，避免 UnsatisfiedLinkError。
-     */
     private static volatile boolean nativeUnavailable = false;
 
     static {
@@ -27,7 +24,7 @@ public class HeicNative {
             System.loadLibrary("heicgen");
         } catch (Throwable t) {
             nativeUnavailable = true;
-            Log.w(TAG, "failed to load heicgen, motion photo feature disabled", t);
+            SLogs.w(TAG, "failed to load heicgen, motion photo feature disabled", t);
         }
     }
 

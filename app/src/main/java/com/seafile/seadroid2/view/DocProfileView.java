@@ -53,11 +53,15 @@ public class DocProfileView extends LinearLayout {
 
     private void init() {
         setOrientation(LinearLayout.VERTICAL);
+        setSaveEnabled(false);
+        setSaveFromParentEnabled(false);
     }
 
     private FileProfileConfigModel configModel;
 
     public void parseData(FileProfileConfigModel configModel) {
+        removeAllViews();
+
         this.configModel = configModel;
 
         if (configModel == null) {
@@ -155,6 +159,9 @@ public class DocProfileView extends LinearLayout {
     }
 
     private void addViewToThis(View view) {
+        view.setSaveEnabled(false);
+        view.setSaveFromParentEnabled(false);
+
         LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(-1, -2);
         ll.topMargin = DP_8;
         this.addView(view, ll);

@@ -200,13 +200,21 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     }
 
     private void launchSingleSignOnFlow() {
+        Intent sourceIntent = getIntent();
         Intent intent = new Intent(this, SingleSignOnActivity.class);
-        Account account = new Account(getIntent().getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_NAME), Constants.Account.ACCOUNT_TYPE);
+        String accountName = sourceIntent.getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_NAME);
+        String serverUrl = sourceIntent.getStringExtra(Constants.AccountKeys.ARG_SERVER_URI);
 
-        String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
+        // An SSO sign-in can be launched for a new account, where no Android Account exists yet.
+        // Only look up stored account data when a valid account name was supplied.
+        if (!TextUtils.isEmpty(accountName)) {
+            Account account = new Account(accountName, Constants.Account.ACCOUNT_TYPE);
+            serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
+        }
+
         intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
-        if (getIntent() != null) {
-            intent.putExtras(getIntent().getExtras());
+        if (sourceIntent.getExtras() != null) {
+            intent.putExtras(sourceIntent.getExtras());
         }
         launchAuthFlow(intent, FLOW_SSO);
     }

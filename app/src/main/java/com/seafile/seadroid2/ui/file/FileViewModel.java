@@ -78,6 +78,20 @@ public class FileViewModel extends BaseViewModel {
                 public Publisher<Long[]> apply(String url) throws Exception {
                     return downloadBinary(url, tempFile);
                 }
+            }).doOnComplete(() -> {
+                if (Files.exists(tempFile.toPath())) {
+                    Files.move(
+                            tempFile.toPath(),
+                            destinationFile.toPath(),
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                    );
+                }
+            }).doOnError(throwable -> {
+                try {
+                    Files.deleteIfExists(tempFile.toPath());
+                } catch (IOException cleanupError) {
+                    SLogs.e(cleanupError);
+                }
             });
 
             addFlowableDisposable(flowable, new Consumer<Long[]>() {
@@ -88,22 +102,12 @@ public class FileViewModel extends BaseViewModel {
             }, new Consumer<Throwable>() {
                 @Override
                 public void accept(Throwable throwable) throws Exception {
-
-                    java.nio.file.Files.deleteIfExists(tempFile.toPath());
-
                     SeafException seafException = getSeafExceptionByThrowable(throwable);
                     getSeafExceptionLiveData().setValue(seafException);
                 }
             }, new Action() {
                 @Override
                 public void run() throws Exception {
-                    //important
-                    if (java.nio.file.Files.exists(tempFile.toPath())) {
-                        Path path = java.nio.file.Files.move(tempFile.toPath(), destinationFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                        boolean isSuccess = path.toFile().exists();
-                        SLogs.d("download file: " + isSuccess);
-                    }
-
                     getOutFileLiveData().setValue(destinationFile);
                 }
             });
@@ -117,7 +121,7 @@ public class FileViewModel extends BaseViewModel {
         return Flowable.create(new FlowableOnSubscribe<Long[]>() {
             @Override
             public void subscribe(FlowableEmitter<Long[]> emitter) throws Exception {
-                if (emitter == null || emitter.isCancelled()){
+                if (emitter == null || emitter.isCancelled()) {
                     return;
                 }
 

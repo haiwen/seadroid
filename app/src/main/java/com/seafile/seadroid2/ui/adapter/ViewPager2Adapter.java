@@ -1,11 +1,8 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import androidx.annotation.NonNull;
-import androidx.collection.LongSparseArray;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.blankj.utilcode.util.CollectionUtils;
@@ -15,11 +12,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ViewPager2Adapter extends FragmentStateAdapter {
+    private static final AtomicLong NEXT_ID = new AtomicLong();
+
     private final List<Fragment> fragments = new ArrayList<>();
     private final List<Long> fragmentIds = new ArrayList<>();
-
-    private final SparseLongCompat itemIds = new SparseLongCompat();
-    private static final AtomicLong nextId = new AtomicLong();
 
     public ViewPager2Adapter(FragmentActivity fa) {
         super(fa);
@@ -29,15 +25,15 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
         this.fragments.clear();
         this.fragmentIds.clear();
 
-        for (int i = 0; i < fts.size(); i++) {
-            this.fragments.add(fts.get(i));
-            this.fragmentIds.add(itemIds.get(i));
+        for (Fragment fragment : fts) {
+            this.fragments.add(fragment);
+            this.fragmentIds.add(NEXT_ID.getAndIncrement());
         }
     }
 
     public void addFragment(Fragment ft) {
         this.fragments.add(ft);
-        this.fragmentIds.add(itemIds.get(this.fragments.size()));
+        this.fragmentIds.add(NEXT_ID.getAndIncrement());
     }
 
     public List<Fragment> getFragments() {
@@ -127,20 +123,4 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
         return fragmentIds.contains(itemId);
     }
 
-    private static class SparseLongCompat {
-        private final LongSparseArray<Long> mKeyToIdMap = new LongSparseArray<>();
-        private final LongSparseArray<Integer> mIdToKeyMap = new LongSparseArray<>();
-
-        public long get(int key) {
-            int index = mKeyToIdMap.indexOfKey(key);
-            if (index >= 0) {
-                return mKeyToIdMap.valueAt(index);
-            }
-
-            long id = nextId.getAndIncrement();
-            mKeyToIdMap.put(key, id);
-            mIdToKeyMap.put(id, key);
-            return id;
-        }
-    }
 }
