@@ -34,6 +34,7 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.file.InvalidPathException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +121,8 @@ public class FileSyncService extends Service {
         return mBinder;
     }
 
-    private final IBinder mBinder = new FileSyncService.FileSyncBinder(this);;
+    private final IBinder mBinder = new FileSyncBinder(this);
+    ;
 
     public static class FileSyncBinder extends Binder {
         private final WeakReference<FileSyncService> serviceRef;
@@ -133,7 +135,6 @@ public class FileSyncService extends Service {
             return serviceRef.get();
         }
     }
-
 
 
     /**
@@ -262,22 +263,21 @@ public class FileSyncService extends Service {
         List<String> pathList = initFolderMonitorPath();
 
         if (CollectionUtils.isEmpty(pathList)) {
+            SLogs.w(TAG, "startFolderMonitor() pathList is empty");
             return;
         }
 
         try {
             List<FileAlterationObserver> observerList = new ArrayList<>();
             for (String str : pathList) {
-                boolean isExists = FileUtils.isFileExists(str);
-                if (!isExists) {
-                    SLogs.d(TAG, "startFolderMonitor()", "backup path not exists: " + str);
+                if (!isValidFileSystemPath(str)) {
+                    SLogs.e(TAG, "startFolderMonitor() invalid backup path: " + str);
                     continue;
                 }
-
                 SLogs.d(TAG, "startFolderMonitor()", "backup path: " + str);
-                FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
 
-                observer.addListener(new FileSyncService.FolderStateChangedListener());
+                FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
+                observer.addListener(new FolderStateChangedListener());
                 observerList.add(observer);
             }
 
@@ -292,6 +292,32 @@ public class FileSyncService extends Service {
         } catch (Exception e) {
             SLogs.w(e);
         }
+    }
+
+    private boolean isValidFileSystemPath(String path) {
+        if (TextUtils.isEmpty(path)) {
+            return false;
+        }
+
+        try {
+            File file = new File(path);
+            String normalizedPath = file.toPath().toString();
+            if (TextUtils.isEmpty(normalizedPath)) {
+                SLogs.w(TAG, "isValidFileSystemPath() invalid path: " + path);
+                return false;
+            }
+        } catch (InvalidPathException | SecurityException e) {
+            SLogs.w(TAG, "isValidFileSystemPath() Invalid file system path: " + path, e);
+            return false;
+        }
+
+        boolean isExists = FileUtils.isFileExists(path);
+        if (!isExists) {
+            SLogs.w(TAG, "isValidFileSystemPath() backup path not exists: " + path);
+            return false;
+        }
+
+        return true;
     }
 
     private List<String> initFolderMonitorPath() {
