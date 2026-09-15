@@ -246,7 +246,8 @@ android {
         // optional - ReactiveStreams support for LiveData
         //implementation "androidx.lifecycle:lifecycle-reactivestreams:$lifecycle_version"
 
-        implementation "androidx.work:work-runtime:2.9.1"
+        // Includes foreground-service timeout and shutdown race fixes.
+        implementation "androidx.work:work-runtime:2.10.5"
 //        implementation "androidx.work:work-rxjava2:$work_version"
 
         //squareup
@@ -375,4 +376,3 @@ android {
     }
 
 }
-

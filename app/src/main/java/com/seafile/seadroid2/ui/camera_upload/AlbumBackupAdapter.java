@@ -72,6 +72,13 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
         Account seafileAccount = SupportAccountManager.getInstance().getSeafileAccount(account);
 
         // this should never occur, as camera upload is supposed to be disabled once the camera upload account signs out.
+        if (seafileAccount == null) {
+            // A queued sync can outlive logout or account restoration after process death.
+            SLogs.d(TAG, "onPerformSync()", "Sync account is no longer available");
+            syncResult.stats.numAuthExceptions++;
+            return;
+        }
+
         if (!seafileAccount.hasValidToken()) {
             SLogs.d(TAG, "onPerformSync()", "This account has no auth token. Disable camera upload.");
             syncResult.stats.numAuthExceptions++;
