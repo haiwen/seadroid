@@ -1097,7 +1097,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         if (navContext.inRepo()) {
             RepoModel repoModel = navContext.getRepoModel();
             if (repoModel == null) {
-                getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess);
+                getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess, () -> isCurrentPath(requestedPathKey));
             } else {
                 decryptRepo(repoModel, repoDecryptResult -> {
                     if (!isCurrentPath(requestedPathKey)) {
@@ -1105,16 +1105,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     }
 
                     if (repoDecryptResult) {
-                        getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess);
+                        getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess, () -> isCurrentPath(requestedPathKey));
                     } else {
                         // Return to the home list only if the requested path is still current.
                         GlobalNavContext.popAll();
-                        getViewModel().loadData(GlobalNavContext.getCurrentNavContext(), refreshStatus, isBlank, onRemoteLoadSuccess);
+                        NavContext rootNavContext = GlobalNavContext.getCurrentNavContext();
+                        String rootPathKey = getPathCacheKey(rootNavContext);
+                        Runnable rootOnRemoteLoadSuccess = refreshStatus == RefreshStatusEnum.ONLY_LOCAL
+                                ? null
+                                : () -> markRemoteLoadSuccess(rootPathKey);
+                        getViewModel().loadData(rootNavContext, refreshStatus, isBlank, rootOnRemoteLoadSuccess, () -> isCurrentPath(rootPathKey));
                     }
                 });
             }
         } else {
-            getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess);
+            getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess, () -> isCurrentPath(requestedPathKey));
         }
     }
 

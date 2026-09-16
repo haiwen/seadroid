@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -229,7 +230,7 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    public void loadData(NavContext context, RefreshStatusEnum refreshStatus, boolean isBlank, Runnable onRemoteLoadSuccess) {
+    public void loadData(NavContext context, RefreshStatusEnum refreshStatus, boolean isBlank, Runnable onRemoteLoadSuccess, BooleanSupplier isCurrentRequest) {
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
             return;
@@ -238,28 +239,28 @@ public class RepoViewModel extends BaseViewModel {
         if (RefreshStatusEnum.ONLY_REMOTE == refreshStatus) {
             //delete/new/starred/rename/refresh/... -> ONLY_REMOTE
             if (context.inRepo()) {
-                loadDirentsFromRemote(account, context, onRemoteLoadSuccess);
+                loadDirentsFromRemote(account, context, onRemoteLoadSuccess, isCurrentRequest);
             } else {
-                loadReposFromRemote(account, onRemoteLoadSuccess);
+                loadReposFromRemote(account, onRemoteLoadSuccess, isCurrentRequest);
             }
         } else if (RefreshStatusEnum.LOCAL_THEN_REMOTE == refreshStatus) {
             //first load data
             if (context.inRepo()) {
-                loadDirentsFromLocal(account, context, true, isBlank, onRemoteLoadSuccess);
+                loadDirentsFromLocal(account, context, true, isBlank, onRemoteLoadSuccess, isCurrentRequest);
             } else {
-                loadReposFromLocal(account, true, isBlank, onRemoteLoadSuccess);
+                loadReposFromLocal(account, true, isBlank, onRemoteLoadSuccess, isCurrentRequest);
             }
         } else if (RefreshStatusEnum.ONLY_LOCAL == refreshStatus) {
             //back/sort/page_change -> ONLY_LOCAL
             if (context.inRepo()) {
-                loadDirentsFromLocal(account, context, false, isBlank, null);
+                loadDirentsFromLocal(account, context, false, isBlank, null, isCurrentRequest);
             } else {
-                loadReposFromLocal(account, false, isBlank, null);
+                loadReposFromLocal(account, false, isBlank, null, isCurrentRequest);
             }
         }
     }
 
-    private void loadReposFromLocal(Account account, boolean isLoadRemoteData, boolean isBlank, Runnable onRemoteLoadSuccess) {
+    private void loadReposFromLocal(Account account, boolean isLoadRemoteData, boolean isBlank, Runnable onRemoteLoadSuccess, BooleanSupplier isCurrentRequest) {
         //clear list
         if (isBlank) {
             getObjListLiveData().setValue(null);
@@ -304,10 +305,14 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(single, new Consumer<List<BaseModel>>() {
             @Override
             public void accept(List<BaseModel> list) {
+                if (!isCurrentRequest.getAsBoolean()) {
+                    return;
+                }
+
                 getObjListLiveData().setValue(list);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {
-                    loadReposFromRemote(account, onRemoteLoadSuccess);
+                    loadReposFromRemote(account, onRemoteLoadSuccess, isCurrentRequest);
                 } else {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(list));
                 }
@@ -320,13 +325,17 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadReposFromRemote(Account account, Runnable onRemoteLoadSuccess) {
+    private void loadReposFromRemote(Account account, Runnable onRemoteLoadSuccess, BooleanSupplier isCurrentRequest) {
         if (!NetworkUtils.isConnected()) {
-            getRefreshLiveData().setValue(false);
+            if (isCurrentRequest.getAsBoolean()) {
+                getRefreshLiveData().setValue(false);
+            }
             return;
         }
 
-        getRefreshLiveData().setValue(true);
+        if (isCurrentRequest.getAsBoolean()) {
+            getRefreshLiveData().setValue(true);
+        }
 
         //load net data and load local data
         Single<List<BaseModel>> resultSingle = Objs.getReposSingleFromServer(account);
@@ -334,6 +343,10 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(resultSingle, new Consumer<List<BaseModel>>() {
             @Override
             public void accept(List<BaseModel> models) throws Exception {
+                if (!isCurrentRequest.getAsBoolean()) {
+                    return;
+                }
+
                 getObjListLiveData().setValue(models);
                 getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(models));
                 getRefreshLiveData().setValue(false);
@@ -344,6 +357,10 @@ public class RepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
+                if (!isCurrentRequest.getAsBoolean()) {
+                    return;
+                }
+
                 getRefreshLiveData().setValue(false);
 
                 SeafException seafException = getSeafExceptionByThrowable(throwable);
@@ -359,7 +376,7 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData, boolean isBlank, Runnable onRemoteLoadSuccess) {
+    private void loadDirentsFromLocal(Account account, NavContext navContext, boolean isLoadRemoteData, boolean isBlank, Runnable onRemoteLoadSuccess, BooleanSupplier isCurrentRequest) {
         //clear list
         if (isBlank) {
             getObjListLiveData().setValue(null);
@@ -401,11 +418,14 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(r, new Consumer<List<BaseModel>>() {
             @Override
             public void accept(List<BaseModel> results) throws Exception {
+                if (!isCurrentRequest.getAsBoolean()) {
+                    return;
+                }
 
                 getObjListLiveData().setValue(results);
 
                 if (isLoadRemoteData && NetworkUtils.isConnected()) {
-                    loadDirentsFromRemote(account, navContext, onRemoteLoadSuccess);
+                    loadDirentsFromRemote(account, navContext, onRemoteLoadSuccess, isCurrentRequest);
                 } else {
                     getShowEmptyViewLiveData().setValue(CollectionUtils.isEmpty(results));
                 }
@@ -446,13 +466,17 @@ public class RepoViewModel extends BaseViewModel {
         });
     }
 
-    private void loadDirentsFromRemote(Account account, NavContext navContext, Runnable onRemoteLoadSuccess) {
+    private void loadDirentsFromRemote(Account account, NavContext navContext, Runnable onRemoteLoadSuccess, BooleanSupplier isCurrentRequest) {
         if (!NetworkUtils.isConnected()) {
-            getRefreshLiveData().setValue(false);
+            if (isCurrentRequest.getAsBoolean()) {
+                getRefreshLiveData().setValue(false);
+            }
             return;
         }
 
-        getRefreshLiveData().setValue(true);
+        if (isCurrentRequest.getAsBoolean()) {
+            getRefreshLiveData().setValue(true);
+        }
 
         RepoModel repoModel = navContext.getRepoModel();
         String repoId = repoModel.repo_id;
@@ -467,6 +491,9 @@ public class RepoViewModel extends BaseViewModel {
         addSingleDisposable(direntSingle, new Consumer<List<DirentModel>>() {
             @Override
             public void accept(List<DirentModel> direntModels) throws Exception {
+                if (!isCurrentRequest.getAsBoolean()) {
+                    return;
+                }
 
                 FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
 
@@ -495,6 +522,10 @@ public class RepoViewModel extends BaseViewModel {
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
+                if (!isCurrentRequest.getAsBoolean()) {
+                    return;
+                }
+
                 getRefreshLiveData().setValue(false);
 
                 SeafException seafException = getSeafExceptionByThrowable(throwable);
