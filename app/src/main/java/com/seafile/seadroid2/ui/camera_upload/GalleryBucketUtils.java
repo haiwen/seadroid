@@ -14,7 +14,9 @@ import androidx.core.content.ContextCompat;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -161,7 +163,7 @@ public class GalleryBucketUtils {
 
                 // ignore buckets created by Seadroid
                 String localPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
-                if (localPath != null && localPath.startsWith(localCacheAbsPath)) {
+                if (isSeafileCachePath(localPath, localCacheAbsPath)) {
                     continue;
                 }
 
@@ -224,7 +226,7 @@ public class GalleryBucketUtils {
 
                 // ignore buckets created by Seadroid
                 String localPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                if (localPath != null && localPath.startsWith(localCacheAbsPath)) {
+                if (isSeafileCachePath(localPath, localCacheAbsPath)) {
                     continue;
                 }
 
@@ -286,7 +288,7 @@ public class GalleryBucketUtils {
                 b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.bucketName.toUpperCase());
 
                 String localPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
-                if (excludeSeafileCache && localPath != null && localPath.startsWith(localCacheAbsPath)) {
+                if (excludeSeafileCache && isSeafileCachePath(localPath, localCacheAbsPath)) {
                     continue;
                 }
 
@@ -357,7 +359,7 @@ public class GalleryBucketUtils {
                 b.isCameraBucket = CAMERA_BUCKET_NAMES_LIST.contains(b.bucketName.toUpperCase());
 
                 String localPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                if (excludeSeafileCache && localPath != null && localPath.startsWith(localCacheAbsPath)) {
+                if (excludeSeafileCache && isSeafileCachePath(localPath, localCacheAbsPath)) {
                     continue;
                 }
 
@@ -371,4 +373,21 @@ public class GalleryBucketUtils {
 
         return buckets;
     }
+
+    private static boolean isSeafileCachePath(String localPath, String localCacheAbsPath) {
+        String normalizedLocalPath = UnicodePathUtils.normalize(localPath);
+        String normalizedLocalCacheAbsPath = UnicodePathUtils.normalize(localCacheAbsPath);
+        if (normalizedLocalPath == null || normalizedLocalCacheAbsPath == null) {
+            return false;
+        }
+
+        if (normalizedLocalCacheAbsPath.endsWith(File.separator)
+                && normalizedLocalCacheAbsPath.length() > File.separator.length()) {
+            normalizedLocalCacheAbsPath = normalizedLocalCacheAbsPath.substring(0, normalizedLocalCacheAbsPath.length() - File.separator.length());
+        }
+
+        return normalizedLocalPath.equals(normalizedLocalCacheAbsPath)
+                || normalizedLocalPath.startsWith(normalizedLocalCacheAbsPath + File.separator);
+    }
+
 }
