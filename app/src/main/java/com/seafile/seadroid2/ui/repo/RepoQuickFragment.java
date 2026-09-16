@@ -126,6 +126,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -612,38 +613,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private int SPAN_COUNT = 1;
+    private boolean layoutInRepo;
 
     private GridLayoutManager getGridLayoutManager() {
         FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
-        if (FileViewType.LIST == fileViewType) {
-            SPAN_COUNT = 1;
-        } else if (FileViewType.GRID == fileViewType) {
-            SPAN_COUNT = 2;
-        } else if (FileViewType.GALLERY == fileViewType) {
-            SPAN_COUNT = 4;
-        }
-
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), SPAN_COUNT);
-        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int i) {
-                List<BaseModel> list = adapter.getItems();
-                if (CollectionUtils.isEmpty(list)) {
-                    return SPAN_COUNT;
-                }
-
-                if (list.get(i) instanceof GroupItemModel) {
-                    return SPAN_COUNT;
-                } else if (list.get(i) instanceof Account) {
-                    return SPAN_COUNT;
-                } else if (list.get(i) instanceof RepoModel) {
-                    return SPAN_COUNT;
-                }
-
-                return 1;
-            }
-        });
-
+        layoutInRepo = GlobalNavContext.getCurrentNavContext().inRepo();
+        GridLayoutManager gridLayoutManager = new RepoGridLayoutManager(requireContext(), layoutInRepo,
+                fileViewType, () -> adapter == null ? Collections.emptyList() : adapter.getItems());
+        SPAN_COUNT = gridLayoutManager.getSpanCount();
         return gridLayoutManager;
     }
 
@@ -1030,8 +1007,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             spanCount = 4;
         }
 
-        if (spanCount == SPAN_COUNT) {
+        if (newViewType == lastViewType) {
             return;
+        }
+
+        if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
+            spanCount = 1;
         }
 
         SPAN_COUNT = spanCount;
@@ -1088,6 +1069,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void notifyDataChanged(List<BaseModel> models) {
+        if (layoutInRepo != GlobalNavContext.getCurrentNavContext().inRepo()) {
+            // File grids and full-width library rows have different span geometry.
+            // Discard pre-layout state from the previous screen before applying its diff.
+            binding.rv.stopScroll();
+            if (binding.rv.getItemAnimator() != null) {
+                binding.rv.getItemAnimator().endAnimations();
+            }
+            binding.rv.setLayoutManager(getGridLayoutManager());
+        }
         if (CollectionUtils.isEmpty(models)) {
             adapter.notifyDataChanged(models);
         } else {
