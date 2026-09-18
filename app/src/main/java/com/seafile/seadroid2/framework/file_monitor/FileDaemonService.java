@@ -24,6 +24,7 @@ import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePr
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.BackgroundExecutionPolicy;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.main.MainActivity;
@@ -58,14 +59,21 @@ public class FileDaemonService extends Service {
         }
 
         try {
+            if (BackgroundExecutionPolicy.shouldDefer(this)) {
+                cleanupServiceState();
+                stopSelf();
+                return START_NOT_STICKY;
+            }
             startNotify();
             startPeriodicScanTask();
-            return START_STICKY;
+            // Do not recreate a killed foreground service while background launches
+            // are restricted. MainActivity starts it again on the next app launch.
+            return START_NOT_STICKY;
 
         } catch (ForegroundServiceStartNotAllowedException e) {
             SLogs.e(TAG, "Cannot start foreground service from background", e);
 
-            STARTED.set(false);
+            cleanupServiceState();
             stopSelf();
             return START_NOT_STICKY;
 
