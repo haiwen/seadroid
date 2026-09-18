@@ -560,7 +560,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         // content disposition
         if (chunkedMode) {
             String encoded = buildSafeFilename(currentTransferModel.file_name);
-            requestBuilder.addHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encoded);
+            requestBuilder.addHeader("Content-Disposition", "attachment; filename=\"" + encoded + "\"");
         }
 
         // content range
