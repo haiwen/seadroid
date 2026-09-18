@@ -70,7 +70,7 @@ import okhttp3.ResponseBody;
 public abstract class ParentEventUploader extends ParentEventTransfer {
     public static final String TAG = "Foreground-Thread-Uploader";//ParentEventUploader
     private static final long CHUNK_SIZE_BYTES = 8 * 1024 * 1024L; // 8MB
-    private static final long CHUNK_TRIGGER_SIZE_BYTES = 1024 * 1024 * 100L; // 100MB
+    private static final long CHUNK_TRIGGER_SIZE_BYTES = 1024 * 1024 * 1024L; // 1GB
     private static final long CHUNK_UPLOAD_READ_TIMEOUT_SECONDS = 600L; // 10 min
 
     public ParentEventUploader(Context context, ITransferNotification n) {
