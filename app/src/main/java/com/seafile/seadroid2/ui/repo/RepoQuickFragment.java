@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.DocumentsContract;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -128,6 +129,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -148,6 +150,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private static final String TAG = "RepoQuickFragment";
 
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
+    private static final long REMOTE_REFRESH_INTERVAL_MS = 10_000L;
+    private static final long RESUME_REMOTE_REFRESH_INTERVAL_MS = 15 * 60 * 1000L;
+    private static final int PATH_LOAD_TIME_CACHE_MAX_SIZE = 100;
     private final int PADDING_128 = Constants.DP.DP_128;
 
     private LayoutFastRvBinding binding;
@@ -156,9 +161,15 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private MainViewModel mainViewModel;
 
     private final Map<String, ScrollState> scrollPositionMap = Maps.newHashMap();
-    private final Map<String, Long> pathLoadTimeMap = Maps.newHashMap();
+    private final Map<String, Long> pathLoadTimeMap = new LinkedHashMap<>(PATH_LOAD_TIME_CACHE_MAX_SIZE, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Entry<String, Long> eldest) {
+            return size() > PATH_LOAD_TIME_CACHE_MAX_SIZE;
+        }
+    };
     private AppCompatActivity activity;
     private ActionMode actionMode;
+    private long lastVisibleElapsedRealtime;
 
     //result launcher
     private ActivityResultLauncher<String> cameraPermissionLauncher;
@@ -266,7 +277,23 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onOtherResume() {
         super.onOtherResume();
 
-        loadData(RefreshStatusEnum.ONLY_LOCAL, false);
+        if (hasBeenBackgroundedLongEnough()) {
+            loadData(RefreshStatusEnum.ONLY_REMOTE, false);
+        } else {
+//            loadData(RefreshStatusEnum.ONLY_LOCAL, false);
+        }
+        lastVisibleElapsedRealtime = SystemClock.elapsedRealtime();
+    }
+
+    @Override
+    public void onPause() {
+        lastVisibleElapsedRealtime = SystemClock.elapsedRealtime();
+        super.onPause();
+    }
+
+    private boolean hasBeenBackgroundedLongEnough() {
+        return lastVisibleElapsedRealtime > 0
+                && SystemClock.elapsedRealtime() - lastVisibleElapsedRealtime >= RESUME_REMOTE_REFRESH_INTERVAL_MS;
     }
 
     private StickyItemDecoration decoration;
@@ -1043,28 +1070,37 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     public void loadData(RefreshStatusEnum refreshStatus, boolean isBlank) {
         NavContext navContext = GlobalNavContext.getCurrentNavContext();
+        String requestedPathKey = getPathCacheKey(navContext);
+        Runnable onRemoteLoadSuccess = refreshStatus == RefreshStatusEnum.ONLY_LOCAL
+                ? null
+                : () -> markRemoteLoadSuccess(requestedPathKey);
+
         if (navContext.inRepo()) {
             RepoModel repoModel = navContext.getRepoModel();
             if (repoModel == null) {
-                getViewModel().loadData(navContext, refreshStatus, isBlank);
+                getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess, () -> isCurrentPath(requestedPathKey));
             } else {
-                decryptRepo(repoModel, new androidx.core.util.Consumer<Boolean>() {
-                    @Override
-                    public void accept(Boolean repoDecryptResult) {
-                        if (repoDecryptResult) {
-                            getViewModel().loadData(navContext, refreshStatus, isBlank);
-                        } else {
-                            // return to home list
-                            GlobalNavContext.popAll();
-                            navContext.clear();
-                            getViewModel().loadData(navContext, refreshStatus, isBlank);
-                        }
+                decryptRepo(repoModel, repoDecryptResult -> {
+                    if (!isCurrentPath(requestedPathKey)) {
+                        return;
+                    }
+
+                    if (repoDecryptResult) {
+                        getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess, () -> isCurrentPath(requestedPathKey));
+                    } else {
+                        // Return to the home list only if the requested path is still current.
+                        GlobalNavContext.popAll();
+                        NavContext rootNavContext = GlobalNavContext.getCurrentNavContext();
+                        String rootPathKey = getPathCacheKey(rootNavContext);
+                        Runnable rootOnRemoteLoadSuccess = refreshStatus == RefreshStatusEnum.ONLY_LOCAL
+                                ? null
+                                : () -> markRemoteLoadSuccess(rootPathKey);
+                        getViewModel().loadData(rootNavContext, refreshStatus, isBlank, rootOnRemoteLoadSuccess, () -> isCurrentPath(rootPathKey));
                     }
                 });
-
             }
         } else {
-            getViewModel().loadData(navContext, refreshStatus, isBlank);
+            getViewModel().loadData(navContext, refreshStatus, isBlank, onRemoteLoadSuccess, () -> isCurrentPath(requestedPathKey));
         }
     }
 
@@ -1218,30 +1254,31 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private RefreshStatusEnum getRefreshStatus() {
-        String key;
-        RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
-        if (repoModel == null) {
-            key = "/";
-        } else {
-            String repoId = repoModel.repo_id;
-            String path = GlobalNavContext.getCurrentNavContext().getNavPath();
-            key = repoId + path;
-        }
-
-        Long d = pathLoadTimeMap.getOrDefault(key, 0L);
-        if (d == null || d == 0) {
-            pathLoadTimeMap.put(key, System.currentTimeMillis());
-            return RefreshStatusEnum.LOCAL_THEN_REMOTE;
-        }
-
-        long s = System.currentTimeMillis();
-        long diff = s - d;
-        if (diff < 10000) {
+        Long lastRemoteLoadTime = pathLoadTimeMap.get(getPathCacheKey(GlobalNavContext.getCurrentNavContext()));
+        if (lastRemoteLoadTime != null
+                && System.currentTimeMillis() - lastRemoteLoadTime < REMOTE_REFRESH_INTERVAL_MS) {
             return RefreshStatusEnum.ONLY_LOCAL;
         }
-
-        pathLoadTimeMap.put(key, s);
         return RefreshStatusEnum.LOCAL_THEN_REMOTE;
+    }
+
+    private String getPathCacheKey(NavContext navContext) {
+        RepoModel repoModel = navContext.getRepoModel();
+        Account account = getCurrentAccount();
+        String accountKey = account == null ? "" : account.getSignature();
+        String repoId = repoModel == null ? "" : repoModel.repo_id;
+        String path = navContext.getNavPath();
+        return accountKey + "|" + repoId + "|" + (path == null ? "/" : path);
+    }
+
+    private boolean isCurrentPath(String pathKey) {
+        return TextUtils.equals(pathKey, getPathCacheKey(GlobalNavContext.getCurrentNavContext()));
+    }
+
+    private void markRemoteLoadSuccess(String pathKey) {
+        if (isCurrentPath(pathKey)) {
+            pathLoadTimeMap.put(pathKey, System.currentTimeMillis());
+        }
     }
 
     private void navTo(BaseModel model) {
@@ -1352,13 +1389,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     /**
      * true: can continue to back
      */
-    public boolean backTo() {
+    public void backTo() {
         if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
-            return false;
+            return;
         }
 
         if (adapter == null) {
-            return false;
+            return;
         }
 
         if (adapter.isOnActionMode()) {
@@ -1375,7 +1412,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             loadData(RefreshStatusEnum.ONLY_LOCAL, true);
         }
 
-        return true;
     }
 
     /**
@@ -1598,8 +1634,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private Account getCurrentAccount() {
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        return account;
+        return SupportAccountManager.getInstance().getCurrentAccount();
     }
 
     /************ Files ************/
@@ -2102,8 +2137,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     private CopyMoveContext copyMoveContext = null;
 
-//SearchModel supported
-
     /**
      * Choose copy/move destination for multiple files
      */
@@ -2515,8 +2548,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
     }
 
-    //0 camera
-//1 video
+    /**
+     * 0 camera, 1 video
+     * */
     private int permission_media_select_type = -1;
 
     private void takePhoto() {
@@ -2657,10 +2691,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 }
             }
         });
-    }
-
-    private void checkMotionPhoto() {
-
     }
 
     private void showFileExistDialog(final Uri uri, String fileName) {
