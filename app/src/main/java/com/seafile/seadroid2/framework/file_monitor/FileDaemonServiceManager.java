@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat;
 
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.BackgroundExecutionPolicy;
 
 public class FileDaemonServiceManager {
     private static final String TAG = "FileDaemonServiceManager";
@@ -30,6 +31,10 @@ public class FileDaemonServiceManager {
     public boolean startService() {
         synchronized (lock) {
             try {
+                if (BackgroundExecutionPolicy.shouldDefer(SeadroidApplication.getAppContext())) {
+                    SLogs.d(TAG, "Background service deferred by system restrictions");
+                    return false;
+                }
                 Intent intent = new Intent(SeadroidApplication.getAppContext(), FileDaemonService.class);
                 ContextCompat.startForegroundService(SeadroidApplication.getAppContext(), intent);
 
