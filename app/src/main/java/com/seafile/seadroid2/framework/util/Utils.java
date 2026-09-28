@@ -364,6 +364,7 @@ public class Utils {
             return false;
         }
 
+        suffix = suffix.toLowerCase(Locale.ROOT);
         if (suffix.equals("flv")) {
             return true;
         }
