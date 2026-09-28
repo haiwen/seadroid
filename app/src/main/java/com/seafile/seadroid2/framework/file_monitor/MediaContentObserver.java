@@ -49,6 +49,21 @@ public class MediaContentObserver extends ContentObserver {
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);
 
+        // Queued provider callbacks may arrive after unregister or while backup is off.
+        if (onMediaContentObserverListener == null || !AlbumBackupSharePreferenceHelper.readBackupSwitch()) {
+            return;
+        }
+
+        try {
+            dispatchMediaChange();
+        } catch (RuntimeException e) {
+            // The provider/account can become unavailable as background access changes.
+            SLogs.e("Media change could not be processed; a later scan will retry", e);
+        }
+    }
+
+    private void dispatchMediaChange() {
+
         String newVersion = MediaStore.getVersion(SeadroidApplication.getAppContext());
         String lastVersion = AlbumBackupSharePreferenceHelper.readLastMediaVersion();
 

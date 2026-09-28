@@ -20,6 +20,7 @@ import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
 import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.util.BackgroundExecutionPolicy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -265,6 +266,10 @@ public class BackupThreadExecutor {
     }
 
     public void runAlbumBackupTask(boolean isFullScan) {
+        if (BackgroundExecutionPolicy.shouldDefer(getApplicationContext())) {
+            SafeLogs.d(TAG, "Album backup deferred by system background restrictions");
+            return;
+        }
         SafeLogs.d(TAG, "runAlbumBackupTask()", "isFullScan: " + isFullScan);
 
         if (albumBackupFuture != null && !albumBackupFuture.isDone()) {
@@ -315,6 +320,9 @@ public class BackupThreadExecutor {
 
     private void runAlbumUpload() {
         try {
+            if (BackgroundExecutionPolicy.shouldDefer(getApplicationContext())) {
+                return;
+            }
             MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
             SeafException uploadSeafException = mediaBackupUploader.upload();
             if (uploadSeafException != SeafException.SUCCESS) {
@@ -356,6 +364,10 @@ public class BackupThreadExecutor {
     }
 
     public void runFolderBackupFuture(boolean isFullScan) {
+        if (BackgroundExecutionPolicy.shouldDefer(getApplicationContext())) {
+            SafeLogs.d(TAG, "Folder backup deferred by system background restrictions");
+            return;
+        }
         SafeLogs.d(TAG, "runFolderBackupFuture()", "isFullScan: " + isFullScan);
 
         if (folderBackupFuture != null && !folderBackupFuture.isDone()) {
@@ -406,6 +418,9 @@ public class BackupThreadExecutor {
 
     private void runFolderUpload() {
         try {
+            if (BackgroundExecutionPolicy.shouldDefer(getApplicationContext())) {
+                return;
+            }
             FolderBackupUploader folderBackupUploader = getTransmitter(FeatureDataSource.FOLDER_BACKUP);
             SeafException uploadSeafException = folderBackupUploader.upload();
             if (uploadSeafException != SeafException.SUCCESS) {

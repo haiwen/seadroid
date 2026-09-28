@@ -1,12 +1,13 @@
 package com.seafile.seadroid2.framework.file_monitor;
 
-import org.apache.commons.io.ThreadUtils;
+import com.seafile.seadroid2.framework.util.SLogs;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
@@ -120,25 +121,46 @@ public class SupportFileAlterationMonitor implements Runnable {
      */
     @Override
     public void run() {
+        Set<FileAlterationObserver> initialized = new HashSet<>();
         try {
-            for (final FileAlterationObserver observer : observers) {
-                observer.initialize();
+            while (running) {
+                for (FileAlterationObserver observer : observers) {
+                    if (!running) {
+                        break;
+                    }
+                    try {
+                        if (!initialized.contains(observer)) {
+                            observer.initialize();
+                            initialized.add(observer);
+                        }
+                        observer.checkAndNotify();
+                    } catch (Exception e) {
+                        // Storage can disappear or permissions can change while idle.
+                        // Retry on the next poll; one folder must not kill the process
+                        // or prevent the remaining folders from being checked.
+                        SLogs.e("File monitor failed for " + observer.getDirectory(), e);
+                    }
+                }
+                if (!running) {
+                    break;
+                }
+                try {
+                    Thread.sleep(intervalMillis);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-
-        while (running) {
-            observers.forEach(FileAlterationObserver::checkAndNotify);
-            if (!running) {
-                break;
+        } finally {
+            // Destroy only after polling has finished, on the polling thread.
+            for (FileAlterationObserver observer : initialized) {
+                try {
+                    observer.destroy();
+                } catch (Exception e) {
+                    SLogs.e("Failed to close file monitor for " + observer.getDirectory(), e);
+                }
             }
-            try {
-                ThreadUtils.sleep(Duration.ofMillis(intervalMillis));
-            } catch (final InterruptedException ignored) {
-                // ignore
-            }
+            running = false;
         }
     }
 
@@ -157,7 +179,7 @@ public class SupportFileAlterationMonitor implements Runnable {
      * @throws Exception if an error occurs initializing the observer
      */
     public synchronized void start() throws Exception {
-        if (running) {
+        if (running || (thread != null && thread.isAlive())) {
             throw new IllegalStateException("Monitor is already running");
         }
         running = true;
@@ -199,13 +221,11 @@ public class SupportFileAlterationMonitor implements Runnable {
 
         running = false;
 
-        for (final FileAlterationObserver observer : observers) {
-            observer.destroy();
-        }
-
         try {
             thread.interrupt();
-            thread.join(stopInterval);
+            if (thread != Thread.currentThread()) {
+                thread.join(stopInterval);
+            }
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
