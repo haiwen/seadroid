@@ -44,9 +44,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.annotation.Todo;
-import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.ObjKey;
@@ -54,6 +52,7 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.NetworkMode;
 import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
@@ -136,6 +135,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Preference mTransferDownloadState;
     private Preference mTransferUploadState;
     private Preference cacheLocationPref;
+    private Preference downloadFolderPref;
 
     private TextSwitchPreference mBiometricLockSwitch;
     private SimpleMenuPreference mLockTimeoutPref;
@@ -223,6 +223,11 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             @Override
             public void onChanged(Boolean aBoolean) {
                 loadCacheLocationPrefInfo();
+                loadDownloadFolderPrefInfo();
+                calculateCacheSize();
+
+                // send to main activity
+                mainViewModel.getRestartFileSyncMonitorLiveData().setValue(true);
             }
         });
     }
@@ -233,6 +238,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         // Reinforce biometric switch on every resume (e.g., returning from another tab)
         syncBiometricSwitchState();
+
+        loadDownloadFolderPrefInfo();
 
         loadData();
     }
@@ -510,6 +517,82 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 cacheLocationPref.setVisible(false);
             }
         }
+
+        downloadFolderPref = findPreference(getString(R.string.pref_key_download_folder));
+        if (downloadFolderPref != null) {
+            loadDownloadFolderPrefInfo();
+            downloadFolderPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(@NonNull Preference preference) {
+                    SLogs.d(TAG, "initCachePref, downloadFolderPref clicked");
+                    showDownloadFolderOptions();
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void loadDownloadFolderPrefInfo() {
+        boolean isCustom = StorageManager.getInstance().isUsingCustomMediaDir();
+
+        if (downloadFolderPref != null) {
+            if (!isCustom) {
+                downloadFolderPref.setSummary(R.string.settings_download_folder_default);
+            } else {
+                String path = StorageManager.getCustomMediaDir(AppDataManager.getCustomStorageDir()).getAbsolutePath();
+                StorageManager.Location location = StorageManager.getInstance().getSelectedStorageLocation();
+                if (location.id == StorageManager.CUSTOM_LOCATION_ID) {
+                    downloadFolderPref.setSummary(path);
+                } else {
+                    downloadFolderPref.setSummary(getString(R.string.storage_manager_storage_description_not_available, path));
+                }
+            }
+        }
+
+        if (cacheLocationPref != null) {
+            cacheLocationPref.setEnabled(!isCustom);
+        }
+    }
+
+    private void showDownloadFolderOptions() {
+        if (!StorageManager.getInstance().isUsingCustomMediaDir()) {
+            requestModifyStoragePermission();
+            return;
+        }
+
+        String[] options = {
+                getString(R.string.settings_download_folder_choose),
+                getString(R.string.settings_download_folder_reset)
+        };
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.settings_download_folder_title)
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        requestModifyStoragePermission();
+                    } else {
+                        showModifyStorageLocationDialog(null);
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * @param path null means the default location
+     */
+    private void showModifyStorageLocationDialog(String path) {
+        String msg;
+        if (TextUtils.isEmpty(path)) {
+            msg = getString(R.string.settings_download_folder_reset_confirm);
+        } else {
+            msg = getString(R.string.settings_download_folder_move_confirm, StorageManager.getCustomMediaDir(path).getAbsolutePath());
+        }
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.settings_download_folder_title)
+                .setMessage(msg)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.ok, (dialog, which) -> viewModel.modifyStorageLocation(requireContext(), path))
+                .show();
     }
 
 
@@ -1342,8 +1425,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                     return;
                 }
 
-//                List<String> paths = o.getData().getStringArrayListExtra(FolderSelectorActivity.FOLDER_SELECTED_PATHS);
-//                changeStorageLocation(paths);
+                List<String> paths = o.getData().getStringArrayListExtra(FolderSelectorActivity.FOLDER_SELECTED_PATHS);
+                changeStorageLocation(paths);
             }
         });
 
@@ -1494,7 +1577,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void loadCacheLocationPrefInfo() {
-        StorageManager.Location location = StorageManager.getInstance().getSelectedStorageLocation();
+        StorageManager.Location location = StorageManager.getInstance().getSelectedVolumeLocation();
         if (location == null) {
             return;
         }
@@ -1504,14 +1587,12 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
     }
 
-    @NotSupport
-    @Unstable
     private void changeStorageLocation(List<String> paths) {
         if (paths == null || paths.isEmpty()) {
             return;
         }
 
-        viewModel.modifyStorageLocation(requireContext(), paths.get(0));
+        showModifyStorageLocationDialog(paths.get(0));
     }
 
     private final Observer<String> mediaMountBusObserver = new Observer<String>() {
