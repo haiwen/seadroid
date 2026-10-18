@@ -9,8 +9,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.NotSupport;
-import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
@@ -112,34 +110,39 @@ public class SettingsFragmentViewModel extends BaseViewModel {
         return modifyStorageLocationLiveData;
     }
 
-    @NotSupport
-    @Unstable
+    /**
+     * @param newStoragePath empty means the default location
+     */
     public void modifyStorageLocation(Context context, String newStoragePath) {
-
-        if (TextUtils.isEmpty(newStoragePath)) {
-            return;
-        }
 
         StorageManager.Location location = StorageManager.getInstance().getSelectedStorageLocation();
         String curPath = location.mediaPath.getAbsolutePath();
         curPath = Utils.pathJoin(curPath, "/");
-        if (TextUtils.equals(newStoragePath, curPath)) {
-            return;
+
+        File newMediaDir;
+        if (TextUtils.isEmpty(newStoragePath)) {
+            newMediaDir = StorageManager.getInstance().getSelectedVolumeLocation().mediaPath;
+        } else {
+            newMediaDir = StorageManager.getCustomMediaDir(newStoragePath);
         }
-        
-        File oldStorageFolder = new File(curPath);
-        if (!oldStorageFolder.exists()) {
-            Toasts.show(context.getString(R.string.storage_manager_storage_description_not_available, oldStorageFolder.getName()));
+        String newPath = Utils.pathJoin(newMediaDir.getAbsolutePath(), "/");
+
+        if (TextUtils.equals(newPath, curPath)) {
+            AppDataManager.writeCustomStorageDir(newStoragePath);
+            StorageManager.resetInstance();
+            getModifyStorageLocationLiveData().setValue(true);
             return;
         }
 
-        File newStorageFolder = new File(newStoragePath);
+        //can not move into itself
+        if (newPath.startsWith(curPath) || curPath.startsWith(newPath)) {
+            Toasts.show(R.string.settings_download_folder_invalid);
+            return;
+        }
+
+        File newStorageFolder = newMediaDir.getParentFile();
         if (!com.seafile.seadroid2.framework.util.FileUtils.isAvailable(newStorageFolder)) {
             Toasts.show(context.getString(R.string.storage_manager_storage_description_not_available, newStorageFolder.getName()));
-            return;
-        }
-
-        if (!com.blankj.utilcode.util.FileUtils.isDir(newStoragePath)) {
             return;
         }
 
@@ -150,12 +153,15 @@ public class SettingsFragmentViewModel extends BaseViewModel {
 
         String finalNewStoragePath = newStoragePath;
         String finalCurPath = curPath;
+        File finalNewMediaDir = newMediaDir;
         Single<Boolean> s = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
 
                 //copy
-                FileUtils.copyDirectoryToDirectory(location.mediaPath, new File(finalNewStoragePath));
+                if (location.mediaPath.exists()) {
+                    FileUtils.copyDirectory(location.mediaPath, finalNewMediaDir);
+                }
                 emitter.onSuccess(true);
             }
         }).flatMap(new Function<Boolean, SingleSource<Boolean>>() {
@@ -169,7 +175,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
         }).flatMap(new Function<Boolean, SingleSource<? extends Boolean>>() {
             @Override
             public SingleSource<? extends Boolean> apply(Boolean aBoolean) throws Exception {
-                return migrateCachePathInPages(finalCurPath, finalNewStoragePath);
+                return migrateCachePathInPages(finalCurPath, newPath);
             }
         }).flatMap(new Function<Boolean, SingleSource<Boolean>>() {
             @Override

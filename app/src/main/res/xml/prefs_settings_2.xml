@@ -306,6 +306,15 @@
             app:radiusPosition="top" />
 
         <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
+            android:key="@string/pref_key_download_folder"
+            android:title="@string/settings_download_folder_title"
+            app:backgroundColor="@color/pref_background_color"
+            app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:radiusPosition="none" />
+
+        <com.seafile.seadroid2.widget.prefs.TextTitleSummaryPreference
             android:key="@string/pref_key_cache_location"
             android:title="@string/settings_cache_location_title"
             app:backgroundColor="@color/pref_background_color"

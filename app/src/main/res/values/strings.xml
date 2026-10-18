@@ -497,6 +497,13 @@
     <string name="storage_manager_secondary_storage">Secondary storage</string>
     <string name="storage_manager_storage_description">%1$s (%2$s free/%3$s total)</string>
     <string name="storage_manager_storage_description_not_available">%1$s (unavailable)</string>
+    <string name="settings_download_folder_title">Download folder</string>
+    <string name="settings_download_folder_default">App storage</string>
+    <string name="settings_download_folder_choose">Choose another folder</string>
+    <string name="settings_download_folder_reset">Use app storage</string>
+    <string name="settings_download_folder_move_confirm">Existing files will be moved to %1$s. This might take a while.</string>
+    <string name="settings_download_folder_reset_confirm">Existing files will be moved to the app storage, it will be deleted when the app is uninstalled.</string>
+    <string name="settings_download_folder_invalid">This folder can\'t be used for downloads</string>
     <!--pull to refresh-->
     <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
     <string name="pull_to_refresh_release_label">Release to refresh…</string>
