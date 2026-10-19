@@ -406,6 +406,7 @@
   <string name="settings_camera_upload_advanced_custom_directories">选择上传相册</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">选择备份相册</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">自动扫描设备</string>
+  <string name="settings_camera_auto_upload_pause">暂停自动上传</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">配置助手</string>
   <string name="settings_cuc_welcome_text">感谢使用照片上传配置助手，\n在开始使用上传服务之前，将会引导你如何进行配置。</string>

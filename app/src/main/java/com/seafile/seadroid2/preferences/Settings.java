@@ -14,7 +14,6 @@ import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.enums.NetworkMode;
 import com.seafile.seadroid2.preferences.livedata.BooleanSettingLiveData;
 import com.seafile.seadroid2.preferences.livedata.EnumSettingLiveData;
-import com.seafile.seadroid2.preferences.livedata.IntegerSettingLiveData;
 import com.seafile.seadroid2.preferences.livedata.LongSettingLiveData;
 import com.seafile.seadroid2.preferences.livedata.StringSettingLiveData;
 
@@ -67,6 +66,7 @@ public class Settings {
 
     //album backup
     public static SettingsLiveData<Boolean> ALBUM_BACKUP_SWITCH;
+    public static SettingsLiveData<Boolean> ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH;
     public static SettingsLiveData<String> ALBUM_BACKUP_SELECTED_REPO;
     public static SettingsLiveData<String> ALBUM_BACKUP_STATE;
 
@@ -158,6 +158,7 @@ public class Settings {
         BACKUP_SETTINGS_BACKGROUND_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_backup_settings_turn_on_background_switch);
         //album backup advance
         ALBUM_BACKUP_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_switch);
+        ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(),R.string.pref_key_album_backup_pause_switch);
         ALBUM_BACKUP_SELECTED_REPO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_repo_select, Resources.ID_NULL);
         ALBUM_BACKUP_STATE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_state, R.string.done);
         //album backup advance
@@ -195,6 +196,7 @@ public class Settings {
 //        REGISTER_LIST.add(USER_GESTURE_LOCK_TIMESTAMP);
 //        REGISTER_LIST.add(CLIENT_ENCRYPT_SWITCH);
         REGISTER_LIST.add(ALBUM_BACKUP_SWITCH);
+        REGISTER_LIST.add(ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH);
         REGISTER_LIST.add(ALBUM_BACKUP_SELECTED_REPO);
         REGISTER_LIST.add(ALBUM_BACKUP_STATE);
         REGISTER_LIST.add(ALBUM_BACKUP_ADVANCE_DATA_PLAN_SWITCH);

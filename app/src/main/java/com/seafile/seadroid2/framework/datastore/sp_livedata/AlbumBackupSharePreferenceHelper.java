@@ -39,6 +39,14 @@ public class AlbumBackupSharePreferenceHelper {
         return Settings.ALBUM_BACKUP_SWITCH.queryValue();
     }
 
+    public static boolean readBackupAutoPauseSwitch() {
+        if (Settings.ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH == null) {
+            return false;
+        }
+
+        return Settings.ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH.queryValue();
+    }
+
     public static void writeLastScanTime(long time) {
         SharedPreferences sp = Settings.getCurrentAccountSharedPreferences();
         if (sp == null) {

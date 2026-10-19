@@ -429,6 +429,8 @@
     <string name="settings_camera_upload_advanced_custom_directories">Custom Upload Albums</string>
     <string name="settings_camera_upload_advanced_custom_directories_on">Pick photo albums</string>
     <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan device</string>
+    <string name="settings_camera_auto_upload_pause">Pause auto uploading</string>
+
     <!--Camera Upload Configuration View-->
     <string name="settings_cuc_title">Configuration Helper</string>
     <string name="settings_cuc_welcome_text">Thanks for using the camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps.</string>
