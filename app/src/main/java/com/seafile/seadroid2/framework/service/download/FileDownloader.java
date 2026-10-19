@@ -83,6 +83,7 @@ public class FileDownloader extends ParentEventDownloader {
 
         SeafException resultSeafException = SeafException.SUCCESS;
         while (true) {
+            if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel transferModel = GlobalTransferCacheList.DOWNLOAD_QUEUE.pick();
             if (transferModel == null) {
                 break;
@@ -112,8 +113,7 @@ public class FileDownloader extends ParentEventDownloader {
             Toasts.show(R.string.download_completed);
         }
 
-        // clear all notifications
-        getTransferNotificationDispatcher().clearDelay();
+        // Producer scope owns its result notification.
 
 
         sendCompleteEvent(FeatureDataSource.DOWNLOAD, errorMsg, totalPendingCount);

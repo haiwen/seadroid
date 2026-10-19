@@ -52,7 +52,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
     public abstract FeatureDataSource getFeatureDataSource();
 
-    private final FileTransferProgressListener transferProgressListener = new FileTransferProgressListener((transferModel, percent, transferredSize, totalSize) -> {
+    private FileTransferProgressListener transferProgressListener = new FileTransferProgressListener((transferModel, percent, transferredSize, totalSize) -> {
         SafeLogs.d(TAG, "onProgressNotify()", transferModel.file_name + " -> progress：" + percent);
         transferModel.transferred_size = transferredSize;
         GlobalTransferCacheList.updateTransferModel(transferModel);
@@ -72,7 +72,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
     private final int retryMaxCount = 1;
     private TransferModel currentTransferModel;
-    private Call newCall;
+    private volatile Call newCall;
     private OkHttpClient primaryHttpClient;
     private OkHttpClient fallbackHttpClient;
 
@@ -94,7 +94,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         return currentTransferModel;
     }
 
-    private boolean isStop = false;
+    private volatile boolean isStop = false;
 
     /**
      * Stop downloading the model
@@ -105,20 +105,22 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         SafeLogs.d(TAG, "stop()", "stop download");
         isStop = true;
 
-        if (primaryHttpClient != null) {
-            primaryHttpClient.dispatcher().cancelAll();
-        }
-
-        if (fallbackHttpClient != null) {
-            fallbackHttpClient.dispatcher().cancelAll();
-        }
-
+        // Only the owned request may be cancelled; clients can be shared across businesses.
         if (newCall != null) {
             newCall.cancel();
         }
     }
 
     public void transfer(Account account, TransferModel transferModel) throws SeafException {
+        final String fileId = transferModel.getId();
+        beginNotificationFile(getFeatureDataSource(), transferModel);
+        final java.util.concurrent.atomic.AtomicLong sequence = new java.util.concurrent.atomic.AtomicLong();
+        transferProgressListener = new FileTransferProgressListener((model, percent, transferred, total) -> {
+            notificationProgress(getFeatureDataSource(), sequence.incrementAndGet(), total > 0 ? percent : -1);
+            model.transferred_size = transferred;
+            GlobalTransferCacheList.updateTransferModel(model);
+            sendProgressEvent(getFeatureDataSource(), model);
+        });
         try {
 
             if (isStop) {
@@ -145,6 +147,8 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
             } finally {
                 sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
             }
+        } finally {
+            finishNotificationFile(getFeatureDataSource(), fileId, currentTransferModel != null && currentTransferModel.transfer_status == TransferStatus.SUCCEEDED, isStop);
         }
     }
 
@@ -182,10 +186,9 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     private String getDownloadLink(boolean isReUsed) throws SeafException {
         retrofit2.Response<String> res;
         try {
-            res = HttpManager.getCurrentHttp()
+            res = ExecutionCancellation.execute(HttpManager.getCurrentHttp()
                     .execute(FileService.class)
-                    .getFileDownloadLinkSync(currentTransferModel.repo_id, currentTransferModel.full_path, isReUsed ? 1 : 0)
-                    .execute();
+                    .getFileDownloadLinkSync(currentTransferModel.repo_id, currentTransferModel.full_path, isReUsed ? 1 : 0));
 
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
@@ -234,6 +237,10 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         cancelCurrentCallIfExecuted("download()");
 
         newCall = getPrimaryHttpClient(account).newCall(request);
+        if (isExecutionCancelled() || isStop) {
+            newCall.cancel();
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        }
 
         boolean canFallback = false;
         try (Response response = newCall.execute()) {
@@ -308,6 +315,10 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         SafeLogs.d(TAG, "onFallbackDownload()", "use fallback client to download file");
 
         newCall = getFallbackHttpClient(account).newCall(request);
+        if (isExecutionCancelled() || isStop) {
+            newCall.cancel();
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        }
         try (Response response = newCall.execute()) {
             onRes(account, response);
         } catch (IOException e) {
@@ -430,15 +441,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
 
     public void notifyError(SeafException seafException) {
-        if (seafException == SeafException.NETWORK_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.network_error, R.string.download);
-        } else if (seafException == SeafException.NOT_FOUND_USER_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception, R.string.download);
-        } else if (seafException == SeafException.USER_CANCELLED_EXCEPTION) {
-            //do nothing
-        } else {
-            getGeneralNotificationHelper().showErrorNotification(seafException.getMessage(), R.string.download);
-        }
+        // Errors remain in the download business notification, not a second notification.
     }
 
     private GeneralNotificationHelper generalNotificationHelper;

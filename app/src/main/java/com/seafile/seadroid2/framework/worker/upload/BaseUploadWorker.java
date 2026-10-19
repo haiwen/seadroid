@@ -84,7 +84,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
     public abstract FeatureDataSource getFeatureDataSource();
 
-    private Call newCall;
+    private volatile Call newCall;
 
     private UriStreamRequestBody uriRequestBody;
     private FileStreamRequestBody fileRequestBody;
@@ -113,8 +113,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
 
 
     @Override
-    public void onStopped() {
-        super.onStopped();
+    protected void cancelOwnedIO() {
 
         SLogs.d(TAG, "onStopped()");
 
@@ -127,17 +126,9 @@ public abstract class BaseUploadWorker extends TransferWorker {
             fileRequestBody.setStop(true);
         }
 
-        if (primaryHttpClient != null) {
-            primaryHttpClient.dispatcher().cancelAll();
-        }
-
-        if (fallbackHttpClient != null) {
-            fallbackHttpClient.dispatcher().cancelAll();
-        }
-
+        // HTTP clients are shared with UI transfers: cancel this Worker's Call only.
         if (newCall != null) {
             newCall.cancel();
-            newCall = null;
         }
 
         if (currentTransferModel != null) {
@@ -150,7 +141,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
             _fileTransferProgressListener.setProgressListener(null);
         }
 
-        currentTransferModel = null;
+        // The execution thread owns this model until its finally/return path.
+        // Clearing it here races with response/error handling.
 
 //        if (okHttpClient != null) {
 //            okHttpClient.dispatcher().executorService().shutdownNow();
@@ -158,15 +150,24 @@ public abstract class BaseUploadWorker extends TransferWorker {
 //        }
     }
 
+    @Override protected void retainInterruptedAttempt() {
+        GlobalTransferCacheList.retryInterrupted(currentTransferModel);
+    }
     private TransferModel currentTransferModel;
+    private Object noticeAttempt;
+    private long noticeSequence;
 
     public void transfer(Account account, TransferModel transferModel) throws SeafException {
+        noticeAttempt = noticeFile(transferModel);
+        noticeSequence = 0;
+        boolean success = false;
         try {
             currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
             SafeLogs.d(TAG, "transfer start, model:");
             SafeLogs.d(TAG, currentTransferModel.toString());
 
             transferFile(account);
+            success = true;
 
             sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
 
@@ -177,6 +178,9 @@ public abstract class BaseUploadWorker extends TransferWorker {
             //send an event, update transfer entity first.
             sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
             throw seafException;
+        } finally {
+            noticeFileFinished(noticeAttempt, success);
+            noticeAttempt = null;
         }
     }
 
@@ -191,8 +195,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
             throw SeafException.UNAUTHORIZED_EXCEPTION;
         }
 
-        if (isStopped()) {
-            return;
+        if (isTransferStopped()) {
+            throw SeafException.USER_CANCELLED_EXCEPTION;
         }
 
         SLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
@@ -293,9 +297,14 @@ public abstract class BaseUploadWorker extends TransferWorker {
         SafeLogs.d(TAG, "upload content-Type: " + requestBody.contentType());
         SafeLogs.d(TAG, "start upload, url: " + uploadUrl);
 
-        newCall = getPrimaryHttpClient(account).newCall(request);
+        Call call = getPrimaryHttpClient(account).newCall(request);
+        newCall = call;
+        if (isTransferStopped()) {
+            call.cancel();
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        }
 
-        try (Response response = newCall.execute()) {
+        try (Response response = call.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
 
@@ -307,11 +316,8 @@ public abstract class BaseUploadWorker extends TransferWorker {
             throw SeafException.NETWORK_EXCEPTION;
         } finally {
             //
-            if (newCall != null) {
-                SafeLogs.d(TAG, "transferFile()", "reset newCall object");
-                newCall.cancel();
-                newCall = null;
-            }
+            call.cancel();
+            if (newCall == call) newCall = null;
         }
     }
 
@@ -369,15 +375,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
         retrofit2.Response<String> res;
         try {
             if (isUpdate) {
-                res = HttpManager.getHttpWithAccount(account)
-                        .execute(FileService.class)
-                        .getFileUpdateLink(repoId)
-                        .execute();
+                res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(HttpManager.getHttpWithAccount(account)
+                        .execute(FileService.class).getFileUpdateLink(repoId));
             } else {
-                res = HttpManager.getHttpWithAccount(account)
-                        .execute(FileService.class)
-                        .getFileUploadLink(repoId, "/")
-                        .execute();
+                res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(HttpManager.getHttpWithAccount(account)
+                        .execute(FileService.class).getFileUploadLink(repoId, "/"));
             }
         } catch (IOException e) {
             SafeLogs.e(TAG, e.getMessage());
@@ -446,30 +448,10 @@ public abstract class BaseUploadWorker extends TransferWorker {
     }
 
     private void notifyProgress(String fileName, int percent) {
-        if (getNotification() == null) {
-            return;
-        }
-
-        BaseTransferNotificationHelper notification = getNotification();
-        ForegroundInfo f = notification.getForegroundProgressNotification(fileName, percent);
-        showForegroundAsync(f);
+        noticeProgress(noticeAttempt, ++noticeSequence, percent);
     }
 
     public void notifyError(SeafException seafException) {
-        if (getNotification() == null) {
-            return;
-        }
-
-        if (seafException == SeafException.OUT_OF_QUOTA) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.above_quota, getNotification().getDefaultTitle());
-        } else if (seafException == SeafException.NETWORK_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.network_error, getNotification().getDefaultTitle());
-        } else if (seafException == SeafException.NOT_FOUND_USER_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception, getNotification().getDefaultTitle());
-        } else if (seafException == SeafException.USER_CANCELLED_EXCEPTION) {
-            //do nothing
-        } else {
-            getGeneralNotificationHelper().showErrorNotification(seafException.getMessage(), getNotification().getDefaultTitle());
-        }
+        // File outcomes are reported to the single business session, never General/A/B notices.
     }
 }

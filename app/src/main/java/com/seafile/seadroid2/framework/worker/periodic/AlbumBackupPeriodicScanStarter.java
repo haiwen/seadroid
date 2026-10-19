@@ -39,7 +39,7 @@ import com.seafile.seadroid2.ui.main.MainActivity;
 
 import java.util.UUID;
 
-public class AlbumBackupPeriodicScanStarter extends Worker {
+public class AlbumBackupPeriodicScanStarter extends com.seafile.seadroid2.framework.worker.BaseWorker {
     public static final String TAG = "AlbumBackupPeriodicScanStarter";
     public static final UUID UID = UUID.nameUUIDFromBytes(AlbumBackupPeriodicScanStarter.class.getSimpleName().getBytes());
     private final AlbumBackupScanNotificationHelper notificationManager;
@@ -56,31 +56,15 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
         return !isRunning;
     }
 
-    private void showNotification() {
-        String title = getApplicationContext().getString(R.string.settings_camera_upload_info_title);
-        String subTitle = getApplicationContext().getString(R.string.is_scanning);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            try {
-                ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification(title, subTitle);
-                setForegroundAsync(foregroundInfo);
-            } catch (ForegroundServiceStartNotAllowedException e) {
-                SLogs.e(e.getMessage());
-            }
-        } else {
-            ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification(title, subTitle);
-            setForegroundAsync(foregroundInfo);
-        }
-    }
+    // Legacy notification signature only; periodic work does not own new business notifications.
+    private void showNotification() { }
 
     @NonNull
     @Override
     public Result doWork() {
+
         SLogs.d(TAG, "doWork()", "started execution");
-        if (!canExc()) {
-            SafeLogs.e(TAG, "doWork()", "The album scan task was not started, because the album backup thread is running");
-            return Result.success();
-        }
+        if (isTransferStopped()) return Result.retry();
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -132,9 +116,7 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
         boolean hasResult = AlbumScanHelper.readMediaResult(getApplicationContext(), account, repoConfig);
         SLogs.d(TAG, "periodic album scan task complete", "hasResult: " + hasResult);
 
-        if (hasResult) {
-            showScanResultNotification();
-        }
+        // Scan-only: do not claim upload completion or publish an empty-transfer summary.
 
         //
         return returnSuccess();
@@ -144,32 +126,6 @@ public class AlbumBackupPeriodicScanStarter extends Worker {
         return Result.success();
     }
 
-    private void showScanResultNotification() {
-        Context context = getApplicationContext();
-
-        NotificationManager manager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-        String title = context.getString(R.string.settings_camera_upload_info_title);
-        String subTitle = context.getString(R.string.settings_camera_upload_info_title);
-
-        Intent intent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent, FLAG_IMMUTABLE);
-
-        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.FILE_TRANSFER_CHANNEL)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle(title)
-                .setContentText(subTitle)
-                .setOngoing(true)
-                .setAutoCancel(false)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(pendingIntent)
-                .build();
-
-        manager.notify(NotificationUtils.NID_SCAN_RESULT, notification);
-    }
+    // Legacy independent scan-result publishing intentionally removed.
 
 }

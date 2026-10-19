@@ -20,6 +20,8 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.EncKeyCacheEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ResultModel;
+import com.seafile.seadroid2.framework.notification.NotificationKey;
+import com.seafile.seadroid2.framework.notification.TransferNotifications;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
@@ -47,6 +49,7 @@ public class ParentEventTransfer {
 
     private final Context context;
     private final ITransferNotification notificationDispatcher;
+    private volatile boolean notificationCancelled;
 
     public ParentEventTransfer(Context context, ITransferNotification n) {
         this.context = context;
@@ -62,6 +65,27 @@ public class ParentEventTransfer {
 
     public ITransferNotification getTransferNotificationDispatcher() {
         return notificationDispatcher;
+    }
+
+    public final void requestNotificationCancellation() {
+        notificationCancelled = true;
+    }
+
+    protected final boolean isExecutionCancelled() {
+        return notificationCancelled;
+    }
+
+    protected final void beginNotificationFile(FeatureDataSource source, TransferModel model) throws SeafException {
+        if (notificationCancelled) throw SeafException.USER_CANCELLED_EXCEPTION;
+        TransferNotifications.get().startFile(NotificationKey.from(source), model.file_name);
+    }
+
+    protected final void notificationProgress(FeatureDataSource source, long sequence, int percent) {
+        TransferNotifications.get().progress(NotificationKey.from(source), sequence, percent);
+    }
+
+    protected final void finishNotificationFile(FeatureDataSource source, String fileId, boolean success, boolean cancelled) {
+        TransferNotifications.get().fileFinished(NotificationKey.from(source), fileId, success, notificationCancelled || cancelled);
     }
 
     @FunctionalInterface

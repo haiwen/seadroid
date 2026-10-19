@@ -122,12 +122,10 @@ public class MediaBackupScanWorker extends BaseScanWorker {
     @NonNull
     @Override
     public Result doWork() {
+
         SLogs.d(TAG, "doWork()", "started execution");
 
-        if (!canExc()) {
-            SafeLogs.e(TAG, "doWork()", "The album scan task was not started, because the album backup thread is running");
-            return Result.success();
-        }
+        if (isTransferStopped()) return Result.retry();
 
         setIsRunning(true);
 
@@ -183,6 +181,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
 
         SeafException seafException = AlbumScanHelper.loadMedia(getApplicationContext(), account, repoConfig, lastScanTime);
         if (seafException != SeafException.SUCCESS) {
+            noticeScanFailed();
             SafeLogs.d(TAG, "doWork()", "loadMedia() failed：" + seafException.getMessage());
             send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
             return returnSuccess();

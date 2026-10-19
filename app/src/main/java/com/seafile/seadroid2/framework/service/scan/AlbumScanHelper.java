@@ -284,6 +284,7 @@ public class AlbumScanHelper {
 
         // load them one by one
         while (cursor.moveToNext()) {
+            com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
             int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
             String bucketName = cursor.getString(bucketColumn);
 
@@ -344,11 +345,9 @@ public class AlbumScanHelper {
 
         // load them one by one
         while (cursor.moveToNext()) {
+            com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
 
-            if (!canExc()) {
-                SafeLogs.d(TAG, "iterateCursorResult()", "can not exc");
-                return false;
-            }
+            // Shared host admission already serializes UI and persistent scans.
 
 //            int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
 //            String bucketName = cursor.getString(bucketColumn);
@@ -415,6 +414,7 @@ public class AlbumScanHelper {
         createBucketDirectoryIfNecessary(context, repoId, "/", BASE_DIR);
 
         for (String bucketName : keys) {
+            com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
             createBucketDirectoryIfNecessary(context, repoId, "/" + BASE_DIR, bucketName);
         }
     }
@@ -478,6 +478,7 @@ public class AlbumScanHelper {
         }
 
         for (TransferModel transferModel : pendingList) {
+            com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
             String filename = transferModel.getFileName();
 
             String prefix, suffix;
@@ -513,7 +514,7 @@ public class AlbumScanHelper {
             Call<DirentWrapperModel> call = HttpManager.getCurrentHttp()
                     .execute(RepoService.class)
                     .getDirentsSync(repoId, parentPath);
-            res = call.execute();
+            res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(call);
         } catch (IOException e) {
             SafeLogs.d(TAG, "getDirentWrapper()", "request dirents failed", e.getMessage());
             throw SeafException.NETWORK_EXCEPTION;
@@ -551,7 +552,7 @@ public class AlbumScanHelper {
             Call<String> call = HttpManager.getCurrentHttp()
                     .execute(FileService.class)
                     .mkDirCall(repoId, path, requestBodyMap);
-            res = call.execute();
+            res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(call);
         } catch (IOException e) {
             SafeLogs.d(TAG, "mkdirRemote()", "mkdir failed", e.getMessage());
             throw SeafException.NETWORK_EXCEPTION;
@@ -579,7 +580,7 @@ public class AlbumScanHelper {
             Call<String> call = HttpManager.getCurrentHttp()
                     .execute(FileService.class)
                     .renameFileCall(repoId, fullPath, requestBodyMap);
-            res = call.execute();
+            res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(call);
         } catch (IOException e) {
             SafeLogs.d(TAG, "renameRemoteFile()", "renameRemoteFile failed", e.getMessage());
             throw SeafException.NETWORK_EXCEPTION;

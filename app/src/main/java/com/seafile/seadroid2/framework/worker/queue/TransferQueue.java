@@ -261,7 +261,7 @@ public class TransferQueue {
      *
      * @param model transfer model
      */
-    public void put(TransferModel model) {
+    public synchronized void put(TransferModel model) {
         if (isEnableCategory) {
             throw new IllegalArgumentException("isEnableCategory = true, please use another put()");
         }
@@ -290,7 +290,7 @@ public class TransferQueue {
      * @param categoryKey bucketName
      * @param model       transfer model
      */
-    public void put(String categoryKey, TransferModel model) {
+    public synchronized void put(String categoryKey, TransferModel model) {
         if (!isEnableCategory) {
             throw new IllegalArgumentException("isEnableCategory = false, please use another put()");
         }
@@ -337,10 +337,19 @@ public class TransferQueue {
         }
     }
 
-    public void clear() {
+    public synchronized void clear() {
         getCategoryMap().clear();
         getTransferMap().clear();
         getTransferQueue().clear();
+    }
+
+    /** Restore an owned, interrupted attempt without replacing a newer UI submission. */
+    public synchronized void retryInterrupted(TransferModel model) {
+        if (model == null || model.transfer_status == com.seafile.seadroid2.enums.TransferStatus.SUCCEEDED) return;
+        TransferModel current = getTransferMap().get(model.getId());
+        if (current == null || getTransferQueue().contains(model.getId())) return;
+        current.transfer_status = com.seafile.seadroid2.enums.TransferStatus.WAITING;
+        getTransferQueue().addFirst(model.getId());
     }
 
     public boolean isQueueEmpty() {

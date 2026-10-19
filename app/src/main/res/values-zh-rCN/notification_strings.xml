@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transfer_notice_manual">手动上传</string>
+    <string name="transfer_notice_share">分享上传</string>
+    <string name="transfer_notice_local">本地文件回传</string>
+    <string name="transfer_notice_scanning">正在扫描</string>
+    <string name="transfer_notice_preparing">准备传输</string>
+    <string name="transfer_notice_uploading">正在上传</string>
+    <string name="transfer_notice_downloading">正在下载</string>
+    <string name="transfer_notice_success">传输完成</string>
+    <string name="transfer_notice_empty">已完成，未传输文件</string>
+    <string name="transfer_notice_failed">传输失败，请打开传输列表查看详情</string>
+    <string name="transfer_notice_cancelled">传输已取消</string>
+    <string name="transfer_notice_counts">已完成 %1$d 个 · 失败 %2$d 个</string>
+</resources>

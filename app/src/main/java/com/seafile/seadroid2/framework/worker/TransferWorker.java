@@ -55,11 +55,8 @@ public abstract class TransferWorker extends BaseWorker {
         return generalNotificationHelper;
     }
 
-    public void showForegroundAsync(ForegroundInfo foregroundInfo) {
-        if (foregroundInfo != null) {
-            setForegroundAsync(foregroundInfo);
-        }
-    }
+    /** Legacy foreground entry point retained only for source compatibility. */
+    public void showForegroundAsync(ForegroundInfo foregroundInfo) { }
 
     protected void mkdirRemote(String repoId, String path) throws IOException {
         Map<String, String> requestDataMap = new HashMap<>();
@@ -68,10 +65,8 @@ public abstract class TransferWorker extends BaseWorker {
 
         Map<String, RequestBody> requestBodyMap = HttpUtils.generateRequestBody(requestDataMap);
 
-        Response<String> response = HttpManager.getCurrentHttp()
-                .execute(FileService.class)
-                .mkDirCall(repoId, path, requestBodyMap)
-                .execute();
+        Response<String> response = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(HttpManager.getCurrentHttp()
+                .execute(FileService.class).mkDirCall(repoId, path, requestBodyMap));
 
         if (response.isSuccessful()) {
             SLogs.d(TAG, "mkdirRemote()", "folder create success：" + path);

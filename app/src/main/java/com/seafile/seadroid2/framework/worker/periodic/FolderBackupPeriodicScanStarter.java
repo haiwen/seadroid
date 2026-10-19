@@ -21,6 +21,7 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupScanNotificationHelper;
 import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
@@ -38,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.UUID;
 
-public class FolderBackupPeriodicScanStarter extends Worker {
+public class FolderBackupPeriodicScanStarter extends com.seafile.seadroid2.framework.worker.BaseWorker {
     public static final String TAG = "FolderBackupScanStarter";
     public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupPeriodicScanStarter.class.getSimpleName().getBytes());
     private final FolderBackupScanNotificationHelper notificationManager;
@@ -49,23 +50,8 @@ public class FolderBackupPeriodicScanStarter extends Worker {
         notificationManager = new FolderBackupScanNotificationHelper(context);
     }
 
-    private void showNotification() {
-        //
-        String title = getApplicationContext().getString(R.string.settings_folder_backup_info_title);
-        String subTitle = getApplicationContext().getString(R.string.is_scanning);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            try {
-                ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification(title, subTitle);
-                setForegroundAsync(foregroundInfo);
-            } catch (ForegroundServiceStartNotAllowedException e) {
-                SLogs.e(e.getMessage());
-            }
-        } else {
-            ForegroundInfo foregroundInfo = notificationManager.getForegroundNotification(title, subTitle);
-            setForegroundAsync(foregroundInfo);
-        }
-    }
+    // Legacy notification signature only; periodic work does not own new business notifications.
+    private void showNotification() { }
 
     private static boolean canExc() {
         boolean isRunning = BackupThreadExecutor.getInstance().isFolderBackupRunning();
@@ -75,12 +61,10 @@ public class FolderBackupPeriodicScanStarter extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+
         SLogs.e(TAG, "文件夹扫描 Worker 启动");
 
-        if (!canExc()) {
-            SLogs.e(TAG, "The folder scan task was not started, because the folder backup task is running");
-            return returnSuccess();
-        }
+        if (isTransferStopped()) return Result.retry();
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
         if (account == null) {
@@ -133,9 +117,7 @@ public class FolderBackupPeriodicScanStarter extends Worker {
         int count = FolderScanHelper.onlyTraverseBackupPathFileCount(backupPaths, account, repoConfig);
         SLogs.d(TAG, "periodic folder scan task complete", "count: " + count);
 
-        if (count > 0) {
-            showScanResultNotification();
-        }
+        // Scan-only: no transfer result until the separate upload Worker actually runs.
 
         return returnSuccess();
     }
@@ -145,31 +127,5 @@ public class FolderBackupPeriodicScanStarter extends Worker {
     }
 
 
-    private void showScanResultNotification() {
-        Context context = getApplicationContext();
-
-        NotificationManager manager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-        String title = context.getString(R.string.settings_folder_backup_info_title);
-        String subTitle = context.getString(R.string.settings_folder_backup_info_title);
-
-        Intent intent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent, FLAG_IMMUTABLE);
-
-        Notification notification = new NotificationCompat.Builder(context, NotificationUtils.FILE_TRANSFER_CHANNEL)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle(title)
-                .setContentText(subTitle)
-                .setOngoing(true)
-                .setAutoCancel(false)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(pendingIntent)
-                .build();
-
-        manager.notify(NotificationUtils.NID_SCAN_RESULT, notification);
-    }
+    // Legacy independent scan-result publishing intentionally removed.
 }

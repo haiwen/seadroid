@@ -119,6 +119,7 @@ public class MediaBackupUploader extends ParentEventUploader {
         SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
+            if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel transferModel = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.pick();
             if (transferModel == null) {
                 break;
@@ -151,8 +152,7 @@ public class MediaBackupUploader extends ParentEventUploader {
 
         clearWhenComplete();
 
-        // clear all notifications
-        getTransferNotificationDispatcher().clearDelay();
+        // Producer scope owns its result notification.
 
 
         if (interruptException != SeafException.SUCCESS) {

@@ -90,10 +90,8 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
     @NonNull
     @Override
     public ListenableWorker.Result doWork() {
-        if (!canExc()) {
-            SafeLogs.e(TAG, "doWork()", "The album scan task was not started, because the album backup thread is running");
-            return Result.success();
-        }
+
+        if (isTransferStopped()) return Result.retry();
 
         setIsRunning(true);
 
@@ -155,6 +153,7 @@ public class MediaBackupUploadWorker extends BaseUploadWorker {
         SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
+            if (isTransferStopped()) return Result.failure();
             TransferModel transferModel = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.pick();
             if (transferModel == null) {
                 break;

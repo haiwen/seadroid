@@ -83,7 +83,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     /**
      * listener
      */
-    private final FileTransferProgressListener _fileTransferProgressListener = new FileTransferProgressListener();
+    private FileTransferProgressListener _fileTransferProgressListener = new FileTransferProgressListener();
 
     /**
      * progress listener
@@ -109,17 +109,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     }
 
     public void notifyError(SeafException seafException) {
-        if (seafException == SeafException.OUT_OF_QUOTA) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.above_quota);
-        } else if (seafException == SeafException.NETWORK_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.network_error);
-        } else if (seafException == SeafException.NOT_FOUND_USER_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception);
-        } else if (seafException == SeafException.USER_CANCELLED_EXCEPTION) {
-            //do nothing
-        } else {
-            getGeneralNotificationHelper().showErrorNotification(seafException.getMessage());
-        }
+        // The file/producer result updates its own business notification; no separate error ID.
     }
 
     private GeneralNotificationHelper generalNotificationHelper;
@@ -132,7 +122,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     }
 
     private TransferModel currentTransferModel;
-    private Call newCall;
+    private volatile Call newCall;
 
     /**
      * File size recorded at scan time, captured when the transfer starts. It is
@@ -146,7 +136,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private FileChunkRequestBody fileChunkRequestBody;
     private FileStreamRequestBody fileRequestBody;
 
-    private boolean isStop = false;
+    private volatile boolean isStop = false;
     private OkHttpClient primaryHttpClient;
     private OkHttpClient chunkUploadHttpClient;
 
@@ -210,21 +200,12 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             fileChunkRequestBody.setStop(true);
         }
 
-        if (primaryHttpClient != null) {
-            primaryHttpClient.dispatcher().cancelAll();
-        }
-
-        if (chunkUploadHttpClient != null) {
-            chunkUploadHttpClient.dispatcher().cancelAll();
-        }
-
+        // Cancel only the request owned by this transfer, never another business's shared client.
         if (newCall != null) {
             newCall.cancel();
         }
 
-        if (getTransferNotificationDispatcher() != null) {
-            getTransferNotificationDispatcher().clearDelay();
-        }
+        // Lifecycle cleanup is exclusively session-owned.
     }
 
     public void clearWhenComplete(){
@@ -245,6 +226,14 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     }
 
     public void transfer(Account account, TransferModel transferModel) throws SeafException {
+        final String fileId = transferModel.getId();
+        beginNotificationFile(getFeatureDataSource(), transferModel);
+
+        final java.util.concurrent.atomic.AtomicLong sequence = new java.util.concurrent.atomic.AtomicLong();
+        _fileTransferProgressListener = new FileTransferProgressListener((model, percent, transferred, total) -> {
+            notificationProgress(getFeatureDataSource(), sequence.incrementAndGet(), total > 0 ? percent : -1);
+            progressListener.onProgressNotify(model, percent, transferred, total);
+        });
         try {
             if (isStop) {
                 isStop = false;
@@ -283,6 +272,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             //send an event, update transfer entity first.
             sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
             throw seafException;
+        } finally {
+            finishNotificationFile(getFeatureDataSource(), fileId, currentTransferModel != null && currentTransferModel.transfer_status == TransferStatus.SUCCEEDED, isStop);
         }
     }
 
@@ -602,6 +593,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private void executeUploadRequest(@NonNull Account account, @NonNull Request request, boolean chunkedMode, boolean markSuccess) throws SeafException {
         OkHttpClient client = chunkedMode ? getChunkUploadHttpClient(account) : getPrimaryHttpClient(account);
         newCall = client.newCall(request);
+        if (isExecutionCancelled() || isStop) {
+            newCall.cancel();
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        }
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
@@ -821,15 +816,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         retrofit2.Response<String> res;
         try {
             if (isUpdate) {
-                res = HttpManager.getHttpWithAccount(account)
-                        .execute(FileService.class)
-                        .getFileUpdateLink(repoId)
-                        .execute();
+                res = ExecutionCancellation.execute(HttpManager.getHttpWithAccount(account)
+                        .execute(FileService.class).getFileUpdateLink(repoId));
             } else {
-                res = HttpManager.getHttpWithAccount(account)
-                        .execute(FileService.class)
-                        .getFileUploadLink(repoId, "/")
-                        .execute();
+                res = ExecutionCancellation.execute(HttpManager.getHttpWithAccount(account)
+                        .execute(FileService.class).getFileUploadLink(repoId, "/"));
             }
         } catch (Exception e) {
             SafeLogs.e(TAG, "getFileUploadUrl", e.getMessage());
