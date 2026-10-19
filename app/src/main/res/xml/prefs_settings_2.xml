@@ -155,7 +155,7 @@
             app:dividerPosition="none"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
-            app:radiusPosition="none" />
+            app:radiusPosition="bottom" />
 
         <!--        <com.seafile.seadroid2.widget.prefs.TextMorePreference-->
         <!--            android:key="@string/pref_key_album_backup_advanced"-->

@@ -723,6 +723,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean) {
+                    BackupThreadExecutor.getInstance().stopAlbumBackup();
                     // stop backup
                     mAlbumBackupPauseSwitch.setSwitchDesc(R.string.paused);
                 } else {
@@ -1057,6 +1058,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         boolean videoSwitch = Settings.ALBUM_BACKUP_ADVANCE_ALLOW_VIDEO_SWITCH.queryValue();
         if (mAlbumBackupAdvancedVideoSwitch != null) {
             mAlbumBackupAdvancedVideoSwitch.setChecked(videoSwitch);
+        }
+        boolean pauseSwitch = Settings.ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH.queryValue();
+        if (mAlbumBackupPauseSwitch != null) {
+            if (pauseSwitch) {
+                mAlbumBackupPauseSwitch.setSwitchDesc(R.string.paused);
+            } else {
+                mAlbumBackupPauseSwitch.setSwitchDesc("");
+            }
         }
 
         if (mAlbumBackupAdvancedSelectedBucket != null) {

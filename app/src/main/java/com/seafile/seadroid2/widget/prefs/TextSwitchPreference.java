@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.widget.prefs;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -16,7 +17,7 @@ import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundSwitchPrefer
 public class TextSwitchPreference extends BackgroundSwitchPreference {
 
     private MaterialSwitch mMaterialSwitch;
-    private TextView mSwitchWidgetDesc;
+    private CharSequence mSwitchDesc = "";
 
     public TextSwitchPreference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -44,26 +45,32 @@ public class TextSwitchPreference extends BackgroundSwitchPreference {
         super.onBindViewHolder(holder);
 
         mMaterialSwitch = (MaterialSwitch) holder.findViewById(android.R.id.switch_widget);
-        mSwitchWidgetDesc = (TextView) holder.findViewById(R.id.switch_widget_desc);
-
         // SwitchPreferenceCompat.syncSwitchView() does not reliably propagate
         // mChecked to a MaterialSwitch in a custom layout. Force it here.
         if (mMaterialSwitch != null) {
             mMaterialSwitch.setChecked(isChecked());
             mMaterialSwitch.setClickable(false);
         }
+
+        TextView descView = (TextView) holder.findViewById(R.id.switch_widget_desc);
+        if (descView != null) {
+            descView.setText(mSwitchDesc);
+        }
+
     }
 
-    public void setSwitchDesc(String descStr) {
-        if (mSwitchWidgetDesc != null) {
-            mSwitchWidgetDesc.setText(descStr);
+    public void setSwitchDesc(@Nullable CharSequence desc) {
+        CharSequence newDesc = desc == null ? "" : desc;
+        if (TextUtils.equals(mSwitchDesc, newDesc)) {
+            return;
         }
+
+        mSwitchDesc = newDesc;
+        notifyChanged();
     }
 
-    public void setSwitchDesc(@StringRes int descStr) {
-        if (mSwitchWidgetDesc != null) {
-            mSwitchWidgetDesc.setText(descStr);
-        }
+    public void setSwitchDesc(@StringRes int descRes) {
+        setSwitchDesc(getContext().getText(descRes));
     }
 
     @Override

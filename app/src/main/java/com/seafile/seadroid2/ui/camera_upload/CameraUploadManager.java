@@ -37,31 +37,24 @@ public class CameraUploadManager {
      * Initiate a camera sync immediately.
      */
     public void performSync() {
-        Account cameraAccount = getCameraAccount();
-        if (cameraAccount == null) {
-            SLogs.d(TAG, "No one has turned on album backup");
-            return;
-        }
         SLogs.d(TAG, "performSync()");
-        Bundle settingsBundle = new Bundle();
-        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, settingsBundle);
+        performSync(false);
     }
 
     public void performSync(boolean isFullScan) {
 
         SLogs.d(TAG, "performSyncByStatus()");
-
-        Bundle b = new Bundle();
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        b.putBoolean(KEY_IS_FULL_SCAN, isFullScan);
-
         Account cameraAccount = getCameraAccount();
-        if (cameraAccount != null) {
-            ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, b);
+        if (cameraAccount == null) {
+            SLogs.d(TAG, "No one has turned on album backup");
+            return;
         }
+
+        Bundle settingsBundle = new Bundle();
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        settingsBundle.putBoolean(KEY_IS_FULL_SCAN, isFullScan);
+        ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, settingsBundle);
     }
 
     /**

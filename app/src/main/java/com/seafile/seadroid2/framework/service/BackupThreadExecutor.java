@@ -179,6 +179,11 @@ public class BackupThreadExecutor {
     }
 
     public void stopDownload() {
+        FileDownloader fileDownloader = getTransmitter(FeatureDataSource.DOWNLOAD);
+        if (fileDownloader != null) {
+            fileDownloader.stop();
+        }
+
         if (fileDownloadFuture != null && !fileDownloadFuture.isDone()) {
             fileDownloadFuture.cancel(true);
         }
@@ -258,6 +263,11 @@ public class BackupThreadExecutor {
                 runAlbumBackupTask(true);
             }
         } else {
+            MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
+            if (mediaBackupUploader != null) {
+                mediaBackupUploader.stop();
+            }
+
             if (albumBackupFuture != null && !albumBackupFuture.isDone()) {
                 albumBackupFuture.cancel(true);
             }
@@ -349,6 +359,11 @@ public class BackupThreadExecutor {
                 runFolderBackupFuture(true);
             }
         } else {
+            FolderBackupUploader folderBackupUploader = getTransmitter(FeatureDataSource.FOLDER_BACKUP);
+            if (folderBackupUploader != null) {
+                folderBackupUploader.stop();
+            }
+
             if (folderBackupFuture != null && !folderBackupFuture.isDone()) {
                 folderBackupFuture.cancel(true);
             }

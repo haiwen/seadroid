@@ -91,7 +91,6 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
         boolean isAutoUploadPause = AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch();
         if (isAutoUploadPause) {
             SLogs.d(TAG, "onPerformSync()", "Automatic uploading has been paused.");
-            Toasts.show("Automatic uploading has been paused");
             return;
         }
 
