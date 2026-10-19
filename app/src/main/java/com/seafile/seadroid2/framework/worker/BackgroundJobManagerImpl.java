@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.framework.worker;
 
-import android.app.job.JobScheduler;
-import android.content.Context;
 import android.provider.MediaStore;
 
 import androidx.work.BackoffPolicy;

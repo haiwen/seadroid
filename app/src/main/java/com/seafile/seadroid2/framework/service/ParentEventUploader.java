@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.EncryptUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -25,10 +24,8 @@ import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
-import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
-import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -53,7 +50,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.Normalizer;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -103,22 +99,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     };
 
     private void notifyProgress(String fileName, int percent) {
-        if (getTransferNotificationDispatcher() != null) {
-            getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
-        }
     }
 
     public void notifyError(SeafException seafException) {
         // The file/producer result updates its own business notification; no separate error ID.
-    }
-
-    private GeneralNotificationHelper generalNotificationHelper;
-
-    public GeneralNotificationHelper getGeneralNotificationHelper() {
-        if (generalNotificationHelper == null) {
-            this.generalNotificationHelper = new GeneralNotificationHelper(getContext());
-        }
-        return generalNotificationHelper;
     }
 
     private TransferModel currentTransferModel;

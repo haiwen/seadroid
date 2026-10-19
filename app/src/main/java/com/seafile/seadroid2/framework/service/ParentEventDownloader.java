@@ -2,12 +2,10 @@ package com.seafile.seadroid2.framework.service;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
 import com.blankj.utilcode.util.CloneUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.config.Constants;
@@ -18,9 +16,7 @@ import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.HttpManager;
-import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
@@ -64,9 +60,6 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     });
 
     private void notifyProgress(String fileName, int percent) {
-        if (getTransferNotificationDispatcher() != null) {
-            getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
-        }
     }
 
 
@@ -442,15 +435,6 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
     public void notifyError(SeafException seafException) {
         // Errors remain in the download business notification, not a second notification.
-    }
-
-    private GeneralNotificationHelper generalNotificationHelper;
-
-    public GeneralNotificationHelper getGeneralNotificationHelper() {
-        if (generalNotificationHelper == null) {
-            this.generalNotificationHelper = new GeneralNotificationHelper(getContext());
-        }
-        return generalNotificationHelper;
     }
 
 }

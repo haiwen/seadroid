@@ -48,12 +48,14 @@ public class ParentEventTransfer {
     public static final String KEY_TRANSFER_COUNT = "key_transfer_count";
 
     private final Context context;
-    private final ITransferNotification notificationDispatcher;
     private volatile boolean notificationCancelled;
 
-    public ParentEventTransfer(Context context, ITransferNotification n) {
+    public ParentEventTransfer(Context context, Object ignored) {
+        this(context);
+    }
+
+    public ParentEventTransfer(Context context) {
         this.context = context;
-        this.notificationDispatcher = n;
     }
 
     public Context getContext() {
@@ -61,10 +63,6 @@ public class ParentEventTransfer {
             throw new RuntimeException("Context is null");
         }
         return context;
-    }
-
-    public ITransferNotification getTransferNotificationDispatcher() {
-        return notificationDispatcher;
     }
 
     public final void requestNotificationCancellation() {

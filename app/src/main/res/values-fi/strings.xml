@@ -98,6 +98,7 @@
   <string name="file_action_download">Lataa</string>
   <string name="file_action_update">Lähetä</string>
   <string name="file_share">Jako</string>
+  <string name="file_share_leave">Jätä jakaa</string>
   <string name="file_action_share_wechat">Jaa WeChatille</string>
   <string name="file_action_share_link">Jaa linkki</string>
   <string name="file_action_share_encrypt">Jaa linkki salasanan kanssa</string>
@@ -217,6 +218,7 @@
   <string name="seahub_url_hint">Huom: Palvelimen osoitteen pitäisi sisältää myös käytettävä portti. Esimerkiksi. www.example.com:8000</string>
   <string name="copy_link">Kopioi linkki</string>
   <string name="share_link_no_permission">Ei oikeutta jakaa linkkiä</string>
+  <string name="share_repo_link">Jaa linkki tähän resurssikirjastoon</string>
   <string name="share_file_link">Jaa linkki tähän tiedostoon</string>
   <string name="share_dir_link">Jaa linkki tähän kansioon</string>
   <string name="share_input_password">Syötä jaon salasana</string>
@@ -733,6 +735,7 @@
   <string name="image_dimensions">Kuvan mitat</string>
   <string name="image_color_space_uncalibrated">Värispace kalibroimaton</string>
   <string name="image_color_space_undefined">Värispace määrittelemätön</string>
+  <string name="not_found">Ei löytynyt</string>
   <string name="canceled">Peruutettu</string>
   <string name="offline">Offline-tilassa</string>
   <string name="start">Aloita</string>
@@ -771,4 +774,6 @@
   <!--Tips-->
   <string name="tip_press_again_to_exit">Paina uudelleen poistuaksesi</string>
   <string name="tip_publish_wiki_desc">Julkaise wikisivu julkiseksi</string>
+  <string name="tip_stop_transfer_when_switch_or_logout">Tiedostoja siirretään, haluatko silti vaihtaa/poistua?</string>
+  <string name="tip_leave_share">Haluatko jättää jakamisen?</string>
 </resources>

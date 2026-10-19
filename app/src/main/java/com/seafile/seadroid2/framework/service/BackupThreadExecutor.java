@@ -95,24 +95,13 @@ public final class BackupThreadExecutor {
     }
 
     private ParentEventTransfer create(FeatureDataSource source) {
-        // A new instance per scope prevents old network callbacks from observing a later session.
-        ITransferNotification silent = new ITransferNotification() {
-            public void showTransferNotification(FeatureDataSource s, String text) {
-            }
-
-            public void showProgress(FeatureDataSource s, String name, int percent) {
-            }
-
-            public void clearDelay(FeatureDataSource... s) {
-            }
-        };
         return switch (source) {
-            case MANUAL_FILE_UPLOAD -> new FileUploader(context, silent);
-            case ALBUM_BACKUP -> new MediaBackupUploader(context, silent);
-            case FOLDER_BACKUP -> new FolderBackupUploader(context, silent);
-            case SHARE_FILE_TO_SEAFILE -> new ShareToSeafileUploader(context, silent);
-            case AUTO_UPDATE_LOCAL_FILE -> new LocalFileUpdater(context, silent);
-            case DOWNLOAD -> new FileDownloader(context, silent);
+            case MANUAL_FILE_UPLOAD -> new FileUploader(context, null);
+            case ALBUM_BACKUP -> new MediaBackupUploader(context, null);
+            case FOLDER_BACKUP -> new FolderBackupUploader(context, null);
+            case SHARE_FILE_TO_SEAFILE -> new ShareToSeafileUploader(context, null);
+            case AUTO_UPDATE_LOCAL_FILE -> new LocalFileUpdater(context, null);
+            case DOWNLOAD -> new FileDownloader(context, null);
         };
     }
 
