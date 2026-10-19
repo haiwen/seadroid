@@ -33,6 +33,7 @@ import java.util.UUID;
 /**
  * Worker Tag:
  */
+@Deprecated
 public class MediaBackupUploadWorker extends BaseUploadWorker {
     private static final String TAG = "MediaBackupUploadWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());

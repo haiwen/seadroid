@@ -21,6 +21,7 @@ import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 import java.util.UUID;
 
+@Deprecated
 public class AlbumBackupPeriodicScanStarter extends com.seafile.seadroid2.framework.worker.BaseWorker {
     public static final String TAG = "AlbumBackupPeriodicScanStarter";
     public static final UUID UID = UUID.nameUUIDFromBytes(AlbumBackupPeriodicScanStarter.class.getSimpleName().getBytes());
@@ -39,7 +40,8 @@ public class AlbumBackupPeriodicScanStarter extends com.seafile.seadroid2.framew
     }
 
     // Legacy notification signature only; periodic work does not own new business notifications.
-    private void showNotification() { }
+    private void showNotification() {
+    }
 
     @NonNull
     @Override

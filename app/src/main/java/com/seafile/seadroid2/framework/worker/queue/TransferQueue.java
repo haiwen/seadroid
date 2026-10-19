@@ -1,13 +1,12 @@
 package com.seafile.seadroid2.framework.worker.queue;
 
-import android.text.TextUtils;
-
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.enums.TransferStatus;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -160,8 +159,9 @@ public class TransferQueue {
     }
 
     public synchronized TransferModel pick(boolean isRemoveFromMap) {
+        com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
         String uploadId = getTransferQueue().pollFirst();
-        if (TextUtils.isEmpty(uploadId)) {
+        if (uploadId == null || uploadId.isEmpty()) {
             return null;
         }
 
@@ -186,7 +186,8 @@ public class TransferQueue {
     /**
      * @param categoryKey bucketName
      */
-    public void remove(String categoryKey, TransferModel model) {
+    public synchronized void remove(String categoryKey, TransferModel model) {
+        com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
         if (model == null) {
             return;
         }
@@ -206,20 +207,21 @@ public class TransferQueue {
             return;
         }
 
-        boolean e = getTransferQueue().stream().anyMatch(a -> TextUtils.equals(model.getId(), a));
+        boolean e = getTransferQueue().stream().anyMatch(a -> Objects.equals(model.getId(), a));
         if (!e) {
             return;
         }
 
         List<String> li = getTransferQueue().stream()
-                .filter(f -> !TextUtils.equals(model.getId(), f))
+                .filter(f -> !Objects.equals(model.getId(), f))
                 .collect(Collectors.toList());
 
         addAllIntoQueueClearOld(li);
     }
 
-    public void remove(String modelId) {
-        if (TextUtils.isEmpty(modelId)) {
+    public synchronized void remove(String modelId) {
+        com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
+        if (modelId == null || modelId.isEmpty()) {
             return;
         }
 
@@ -231,7 +233,8 @@ public class TransferQueue {
         remove(transferModel);
     }
 
-    public void remove(TransferModel model) {
+    public synchronized void remove(TransferModel model) {
+        com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
         if (model == null) {
             return;
         }
@@ -244,13 +247,13 @@ public class TransferQueue {
             return;
         }
 
-        boolean e = getTransferQueue().stream().anyMatch(a -> TextUtils.equals(model.getId(), a));
+        boolean e = getTransferQueue().stream().anyMatch(a -> Objects.equals(model.getId(), a));
         if (!e) {
             return;
         }
 
         List<String> li = getTransferQueue().stream()
-                .filter(f -> !TextUtils.equals(model.getId(), f))
+                .filter(f -> !Objects.equals(model.getId(), f))
                 .collect(Collectors.toList());
 
         addAllIntoQueueClearOld(li);
@@ -262,6 +265,8 @@ public class TransferQueue {
      * @param model transfer model
      */
     public synchronized void put(TransferModel model) {
+        // Serialize admission with clear(): a stopped scanner cannot repopulate the queue.
+        com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
         if (isEnableCategory) {
             throw new IllegalArgumentException("isEnableCategory = true, please use another put()");
         }
@@ -270,7 +275,7 @@ public class TransferQueue {
             return;
         }
 
-        if (TextUtils.isEmpty(model.getId())) {
+        if (model.getId() == null || model.getId().isEmpty()) {
             throw new IllegalArgumentException("model.id is empty");
         }
 
@@ -291,6 +296,7 @@ public class TransferQueue {
      * @param model       transfer model
      */
     public synchronized void put(String categoryKey, TransferModel model) {
+        com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
         if (!isEnableCategory) {
             throw new IllegalArgumentException("isEnableCategory = false, please use another put()");
         }
@@ -299,11 +305,11 @@ public class TransferQueue {
             return;
         }
 
-        if (TextUtils.isEmpty(categoryKey)) {
+        if (categoryKey == null || categoryKey.isEmpty()) {
             return;
         }
 
-        if (TextUtils.isEmpty(model.getId())) {
+        if (model.getId() == null || model.getId().isEmpty()) {
             throw new IllegalArgumentException("model.id is empty");
         }
 
@@ -338,6 +344,8 @@ public class TransferQueue {
     }
 
     public synchronized void clear() {
+        // Also reject late scan-error cleanup from a cancelled execution.
+        com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
         getCategoryMap().clear();
         getTransferMap().clear();
         getTransferQueue().clear();
@@ -347,7 +355,7 @@ public class TransferQueue {
     public synchronized void retryInterrupted(TransferModel model) {
         if (model == null || model.transfer_status == com.seafile.seadroid2.enums.TransferStatus.SUCCEEDED) return;
         TransferModel current = getTransferMap().get(model.getId());
-        if (current == null || getTransferQueue().contains(model.getId())) return;
+        if (current != model || getTransferQueue().contains(model.getId())) return;
         current.transfer_status = com.seafile.seadroid2.enums.TransferStatus.WAITING;
         getTransferQueue().addFirst(model.getId());
     }

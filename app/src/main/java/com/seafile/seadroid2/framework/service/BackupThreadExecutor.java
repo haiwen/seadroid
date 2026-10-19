@@ -27,8 +27,8 @@ public final class BackupThreadExecutor {
         final CompletableFuture<Void> completion = new CompletableFuture<>();
         final ExecutionCancellation cancellation = new ExecutionCancellation();
         final ParentEventTransfer transfer;
-        boolean discardQueueOnCompletion;
-        private boolean cancelled, repeat, fullScan, completed;
+        private final RunRequests requests = new RunRequests();
+        private boolean completed;
         private TransferNotifications.ResultState result = TransferNotifications.ResultState.SUCCESS;
 
         Run(ParentEventTransfer transfer) {
@@ -36,30 +36,27 @@ public final class BackupThreadExecutor {
         }
 
         synchronized void trigger(boolean full) {
-            if (cancelled || completed) return;
-            repeat = true;
-            fullScan |= full;
+            if (!completed) requests.trigger(full);
         }
 
         synchronized boolean takeRepeat() {
-            if (cancelled || completed || !repeat) return false;
-            repeat = false;
-            return true;
+            return !completed && requests.takeRepeat();
         }
 
         synchronized boolean isFullScan() {
-            return fullScan;
+            return requests.isFullScan();
         }
 
         synchronized boolean isCancelled() {
-            return cancelled;
+            return requests.isCancelled();
         }
 
         synchronized void cancel() {
-            if (!completed) {
-                cancelled = true;
-                repeat = false;
-            }
+            if (!completed) requests.cancel();
+        }
+
+        synchronized Boolean takeRestart() {
+            return requests.takeRestart();
         }
 
         synchronized void record(TransferNotifications.ResultState result) {
@@ -70,7 +67,7 @@ public final class BackupThreadExecutor {
         }
 
         synchronized TransferNotifications.ResultState result() {
-            return cancelled ? TransferNotifications.ResultState.CANCELLED : result;
+            return requests.isCancelled() ? TransferNotifications.ResultState.CANCELLED : result;
         }
 
         synchronized void complete() {
@@ -167,6 +164,9 @@ public final class BackupThreadExecutor {
                                     : new FolderBackupScanner(context, null).scan(run.isFullScan());
                             result = outcome(scanned);
                             TransferNotifications.get().prepared(key);
+                            if (result == TransferNotifications.ResultState.SUCCESS) {
+                                ExecutionCancellation.await(1000);
+                            }
                         }
                         if (!run.isCancelled() && result == TransferNotifications.ResultState.SUCCESS) {
                             SeafException transferred = switch (source) {
@@ -180,13 +180,13 @@ public final class BackupThreadExecutor {
                             result = outcome(transferred);
                         }
                     } catch (Throwable error) {
-                        android.util.Log.w("BackupThreadExecutor", "Transfer chain failed: " + source, error);
-                        result = TransferNotifications.ResultState.FAILED;
+                        if (!run.isCancelled()) android.util.Log.w("BackupThreadExecutor", "Transfer chain failed: " + source, error);
+                        result = run.isCancelled() ? TransferNotifications.ResultState.CANCELLED
+                                : TransferNotifications.ResultState.FAILED;
                     }
                     synchronized (BackupThreadExecutor.this) {
                         run.record(result);
                         if (!run.takeRepeat()) {
-                            finish(source, run, result);
                             break;
                         }
                         scanNext = source == FeatureDataSource.ALBUM_BACKUP || source == FeatureDataSource.FOLDER_BACKUP;
@@ -220,13 +220,17 @@ public final class BackupThreadExecutor {
     private synchronized void finish(FeatureDataSource source, Run run, TransferNotifications.ResultState result) {
         if (running.get(source) != run) return;
         run.record(result);
-        if (run.discardQueueOnCompletion) clearQueue(source);
         try {
             TransferNotifications.get().finish(NotificationKey.from(source), run.result());
         } finally {
             // Notification failures must not strand ownership or block an explicit restart.
             running.remove(source);
+            Boolean restart = run.takeRestart();
             run.complete();
+            if (restart != null) {
+                start(source, source == FeatureDataSource.ALBUM_BACKUP
+                        || source == FeatureDataSource.FOLDER_BACKUP, restart);
+            }
         }
     }
 
@@ -237,7 +241,7 @@ public final class BackupThreadExecutor {
             return;
         }
         cancelIO(run);
-        if (rerun) run.completion.thenRun(() -> start(source, true, true));
+        if (rerun) run.trigger(true);
         // Never cancel the future: that does not terminate synchronous Retrofit/OkHttp execution.
     }
 
@@ -246,8 +250,6 @@ public final class BackupThreadExecutor {
         for (FeatureDataSource source : FeatureDataSource.values()) {
             stop(source, false);
             clearQueue(source);
-            Run run = running.get(source);
-            if (run != null) run.discardQueueOnCompletion = true;
         }
     }
 

@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated
 public class FolderBackupScanWorker extends BaseScanWorker {
     public static final String TAG = "FolderBackupScanWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());

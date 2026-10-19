@@ -24,6 +24,7 @@ public final class ExecutionCancellation {
 
     public synchronized void cancel() {
         cancelled = true;
+        notifyAll();
         if (call != null) call.cancel();
     }
 
@@ -34,9 +35,36 @@ public final class ExecutionCancellation {
         }
     }
 
+    /**
+     * Wait on the background execution, waking immediately when its owner is cancelled.
+     */
+    public static void await(long millis) {
+        ExecutionCancellation token = CURRENT.get();
+        if (token == null) token = new ExecutionCancellation();
+        token.awaitDelay(millis);
+    }
+
+    private synchronized void awaitDelay(long millis) {
+        long remaining = java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(millis);
+        long deadline = System.nanoTime() + remaining;
+        while (!cancelled && remaining > 0) {
+            try {
+                java.util.concurrent.TimeUnit.NANOSECONDS.timedWait(this, remaining);
+            } catch (InterruptedException error) {
+                Thread.currentThread().interrupt();
+                throw new CancellationException("Execution interrupted");
+            }
+            remaining = deadline - System.nanoTime();
+        }
+        if (cancelled) throw new CancellationException("Execution stopped");
+    }
+
     public static <T> Response<T> execute(Call<T> call) throws IOException {
         ExecutionCancellation token = CURRENT.get();
-        if (token == null) return call.execute();
+        if (token == null) {
+            return call.execute();
+        }
+
         synchronized (token) {
             if (token.cancelled) {
                 call.cancel();
@@ -48,7 +76,9 @@ public final class ExecutionCancellation {
             return call.execute();
         } finally {
             synchronized (token) {
-                if (token.call == call) token.call = null;
+                if (token.call == call) {
+                    token.call = null;
+                }
             }
         }
     }

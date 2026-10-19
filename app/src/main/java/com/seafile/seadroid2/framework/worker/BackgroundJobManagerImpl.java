@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @NoLongerSupported
+@Deprecated
 public class BackgroundJobManagerImpl {
     private static final String TAG = "BackgroundJobManagerImpl";
     public static final String TAG_ALL = "*";

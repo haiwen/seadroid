@@ -52,6 +52,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+@Deprecated
 public abstract class BaseUploadWorker extends TransferWorker {
     private final String TAG = "Background-Thread-Uploader";//BaseUploadWorker
 
@@ -150,9 +151,11 @@ public abstract class BaseUploadWorker extends TransferWorker {
 //        }
     }
 
-    @Override protected void retainInterruptedAttempt() {
+    @Override
+    protected void retainInterruptedAttempt() {
         GlobalTransferCacheList.retryInterrupted(currentTransferModel);
     }
+
     private TransferModel currentTransferModel;
     private Object noticeAttempt;
     private long noticeSequence;

@@ -1,44 +1,28 @@
 package com.seafile.seadroid2.framework.worker.periodic;
 
-import static android.app.PendingIntent.FLAG_IMMUTABLE;
-
-import android.app.ForegroundServiceStartNotAllowedException;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-import androidx.work.ForegroundInfo;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.notification.FolderBackupScanNotificationHelper;
-import com.seafile.seadroid2.framework.notification.base.NotificationUtils;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.service.scan.FolderScanHelper;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
-import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
-import com.seafile.seadroid2.ui.main.MainActivity;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated
 public class FolderBackupPeriodicScanStarter extends com.seafile.seadroid2.framework.worker.BaseWorker {
     public static final String TAG = "FolderBackupScanStarter";
     public static final UUID UID = UUID.nameUUIDFromBytes(FolderBackupPeriodicScanStarter.class.getSimpleName().getBytes());

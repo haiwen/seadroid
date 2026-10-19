@@ -26,6 +26,7 @@ import java.util.Map;
 import okhttp3.RequestBody;
 import retrofit2.Response;
 
+@Deprecated
 public abstract class TransferWorker extends BaseWorker {
     private final String TAG = "TransferWorker";
     public static final int SEGMENT_SIZE = 8192;

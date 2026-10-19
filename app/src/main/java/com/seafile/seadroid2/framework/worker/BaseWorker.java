@@ -14,6 +14,7 @@ import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 /**
  * Legacy synchronous Worker. Its original doWork and WorkManager Result remain authoritative.
  */
+@Deprecated
 public abstract class BaseWorker extends Worker {
     private final Account currentAccount;
 

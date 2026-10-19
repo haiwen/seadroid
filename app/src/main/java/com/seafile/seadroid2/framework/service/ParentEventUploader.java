@@ -68,6 +68,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private static final long CHUNK_SIZE_BYTES = 8 * 1024 * 1024L; // 8MB
     private static final long CHUNK_TRIGGER_SIZE_BYTES = 1024 * 1024 * 200L; // 200MB
     private static final long CHUNK_UPLOAD_READ_TIMEOUT_SECONDS = 600L; // 10 min
+    public static final String BASE_DIR = "My Photos";
 
     public ParentEventUploader(Context context, ITransferNotification n) {
         super(context, n);

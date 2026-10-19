@@ -89,8 +89,5 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
 
         //start
         AlbumBackupAdapterBridge.syncAlbumBackup(getContext(), isFullScan);
-
-        // start
-//        BackgroundWorkScheduler.getInstance().startAlbumBackupTransferService(getContext());
     }
 }

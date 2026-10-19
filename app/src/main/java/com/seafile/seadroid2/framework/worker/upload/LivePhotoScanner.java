@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class LivePhotoScanner extends Worker {
 
     public LivePhotoScanner(@NonNull Context context, @NonNull WorkerParameters workerParams) {

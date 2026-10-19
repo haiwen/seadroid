@@ -130,6 +130,19 @@ public class MediaBackupUploader extends ParentEventUploader {
             transferModel.repo_name = repoConfig.getRepoName();
 
             try {
+                if (!com.seafile.seadroid2.framework.service.BackupFileStability.awaitStable(
+                        new java.io.File(transferModel.full_path))) {
+                    // Leave pending, without persisting a successful backup for a changing source.
+                    GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.retryInterrupted(transferModel);
+                    return new SeafException(SeafException.CODE_FAILED,
+                            "Source file is changing; deferred until the next backup");
+                }
+            } catch (java.util.concurrent.CancellationException cancelled) {
+                GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.retryInterrupted(transferModel);
+                return SeafException.USER_CANCELLED_EXCEPTION;
+            }
+
+            try {
 
                 transfer(account, transferModel);
 
