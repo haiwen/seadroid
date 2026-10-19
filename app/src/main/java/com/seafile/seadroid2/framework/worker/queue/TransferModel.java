@@ -9,9 +9,9 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
-import com.seafile.seadroid2.framework.worker.upload.MediaBackupScanWorker;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -157,7 +157,7 @@ public class TransferModel implements Comparable<TransferModel> {
     public static TransferModel convert(File file, String bucketName, long bucketId) {
 
         // /My Photos/{bucketName}/
-        String p = Utils.pathJoin("/", MediaBackupScanWorker.BASE_DIR, "/", bucketName, "/");
+        String p = Utils.pathJoin("/", ParentEventUploader.BASE_DIR, "/", bucketName, "/");
 
         TransferModel entity = new TransferModel();
         entity.created_at = System.nanoTime();

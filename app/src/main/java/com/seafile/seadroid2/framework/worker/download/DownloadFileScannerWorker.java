@@ -38,6 +38,12 @@ import java.util.List;
 public class DownloadFileScannerWorker extends TransferWorker {
     private final String TAG = "DownloadFileScannerWorker";
     private final DownloadNotificationHelper notificationHelper;
+    private volatile retrofit2.Call<List<DirentRecursiveModel>> recursiveCall;
+
+    @Override protected void cancelOwnedIO() {
+        retrofit2.Call<List<DirentRecursiveModel>> call = recursiveCall;
+        if (call != null) call.cancel();
+    }
 
     public DownloadFileScannerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -48,6 +54,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
     @NonNull
     @Override
     public Result doWork() {
+
         SLogs.d(TAG, "doWork()", "started execution");
 
         Account account = SupportAccountManager.getInstance().getCurrentAccount();
@@ -77,6 +84,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
         }
 
         for (DirentModel direntModel : direntModels) {
+            if (isTransferStopped()) return Result.failure();
             try {
                 if (direntModel.isDir()) {
                     List<DirentRecursiveModel> list = fetchRecursiveFiles(direntModel);
@@ -85,6 +93,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
                     insertIntoDbWhenDirentIsFile(account, direntModel);
                 }
             } catch (IOException e) {
+                noticeScanFailed();
                 SLogs.e(e);
             }
         }
@@ -105,6 +114,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
      */
     private void insertIntoDbWhenDirentIsFile(Account account, DirentModel pendingModel) throws IOException {
 
+        if (isTransferStopped()) return;
         TransferModel transferModel = new TransferModel();
         transferModel.save_to = SaveTo.DB;
         transferModel.repo_id = pendingModel.repo_id;
@@ -140,6 +150,7 @@ public class DownloadFileScannerWorker extends TransferWorker {
         }
 
         for (DirentRecursiveModel model : list) {
+            if (isTransferStopped()) return;
             TransferModel transferModel = new TransferModel();
             transferModel.save_to = SaveTo.DB;
             transferModel.repo_id = parentDirent.repo_id;
@@ -172,7 +183,15 @@ public class DownloadFileScannerWorker extends TransferWorker {
      * get recursive files from server
      */
     private List<DirentRecursiveModel> fetchRecursiveFiles(DirentModel direntModel) throws IOException {
-        retrofit2.Response<List<DirentRecursiveModel>> res = HttpManager.getCurrentHttp().execute(FileService.class).getDirRecursiveFileCall(direntModel.repo_id, direntModel.full_path).execute();
+        retrofit2.Call<List<DirentRecursiveModel>> call = HttpManager.getCurrentHttp().execute(FileService.class).getDirRecursiveFileCall(direntModel.repo_id, direntModel.full_path);
+        recursiveCall = call;
+        if (isTransferStopped()) {
+            call.cancel();
+            throw new IOException("Worker stopped");
+        }
+        retrofit2.Response<List<DirentRecursiveModel>> res;
+        try { res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(call); }
+        finally { if (recursiveCall == call) recursiveCall = null; }
         if (!res.isSuccessful()) {
             return Collections.emptyList();
         }

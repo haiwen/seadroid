@@ -1,527 +1,336 @@
 package com.seafile.seadroid2.framework.service;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.TextUtils;
 
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.executor.TaskExecutor;
+import com.seafile.seadroid2.framework.notification.NotificationKey;
+import com.seafile.seadroid2.framework.notification.TransferNotifications;
 import com.seafile.seadroid2.framework.service.download.FileDownloader;
-import com.seafile.seadroid2.framework.service.upload.FileUploader;
-import com.seafile.seadroid2.framework.service.upload.FolderBackupScanner;
-import com.seafile.seadroid2.framework.service.upload.FolderBackupUploader;
-import com.seafile.seadroid2.framework.service.upload.LocalFileUpdater;
-import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
-import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
-import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
-import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.service.upload.*;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 
-public class BackupThreadExecutor {
-    private final String TAG = "BackupThreadExecutor";
+/**
+ * One real execution chain per business, including scan, delayed preparation and synchronous IO.
+ */
+public final class BackupThreadExecutor {
+    private static volatile BackupThreadExecutor singleton;
+    private final Map<FeatureDataSource, Run> running = new EnumMap<>(FeatureDataSource.class);
+    private final Context context = SeadroidApplication.getAppContext();
 
-    private static volatile BackupThreadExecutor singleton = null;
-    private final Map<FeatureDataSource, ParentEventTransfer> transmitterMap = new HashMap<>();
+    private static final class Run {
+        final CompletableFuture<Void> completion = new CompletableFuture<>();
+        final ExecutionCancellation cancellation = new ExecutionCancellation();
+        final ParentEventTransfer transfer;
+        private final RunRequests requests = new RunRequests();
+        private boolean completed;
+        private TransferNotifications.ResultState result = TransferNotifications.ResultState.SUCCESS;
 
-    private final AtomicInteger runningTaskCount = new AtomicInteger(0);
-    private final ThreadPoolExecutor _executor;
+        Run(ParentEventTransfer transfer) {
+            this.transfer = transfer;
+        }
 
-    private final BackupThreadNotificationDispatcher notificationDispatcher = new BackupThreadNotificationDispatcher(SeadroidApplication.getAppContext());
+        synchronized void trigger(boolean full) {
+            if (!completed) requests.trigger(full);
+        }
 
-    private BackupThreadExecutor() {
-        _executor = TaskExecutor.getInstance().getExecutor();
+        synchronized boolean takeRepeat() {
+            return !completed && requests.takeRepeat();
+        }
 
-        if (transmitterMap.isEmpty()) {
-            FileUploader fileUploader = new FileUploader(getApplicationContext(), notificationDispatcher);
-            MediaBackupUploader mediaBackupUploader = new MediaBackupUploader(getApplicationContext(), notificationDispatcher);
-            FolderBackupUploader folderBackupUploader = new FolderBackupUploader(getApplicationContext(), notificationDispatcher);
-            ShareToSeafileUploader shareToSeafileUploader = new ShareToSeafileUploader(getApplicationContext(), notificationDispatcher);
-            FileDownloader downloader = new FileDownloader(getApplicationContext(), notificationDispatcher);
-            LocalFileUpdater localFileUpdater = new LocalFileUpdater(getApplicationContext(), notificationDispatcher);
+        synchronized boolean isFullScan() {
+            return requests.isFullScan();
+        }
 
-            transmitterMap.put(FeatureDataSource.MANUAL_FILE_UPLOAD, fileUploader);
-            transmitterMap.put(FeatureDataSource.ALBUM_BACKUP, mediaBackupUploader);
-            transmitterMap.put(FeatureDataSource.FOLDER_BACKUP, folderBackupUploader);
-            transmitterMap.put(FeatureDataSource.DOWNLOAD, downloader);
-            transmitterMap.put(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, localFileUpdater);
-            transmitterMap.put(FeatureDataSource.SHARE_FILE_TO_SEAFILE, shareToSeafileUploader);
+        synchronized boolean isCancelled() {
+            return requests.isCancelled();
+        }
+
+        synchronized void cancel() {
+            if (!completed) requests.cancel();
+        }
+
+        synchronized Boolean takeRestart() {
+            return requests.takeRestart();
+        }
+
+        synchronized void record(TransferNotifications.ResultState result) {
+            if (completed) return;
+            if (result == TransferNotifications.ResultState.FAILED || this.result == TransferNotifications.ResultState.SUCCESS) {
+                this.result = result;
+            }
+        }
+
+        synchronized TransferNotifications.ResultState result() {
+            return requests.isCancelled() ? TransferNotifications.ResultState.CANCELLED : result;
+        }
+
+        synchronized void complete() {
+            if (completed) return;
+            completed = true;
+            completion.complete(null);
         }
     }
 
-    private <T extends ParentEventTransfer> T getTransmitter(FeatureDataSource dataSource) {
-        if (!transmitterMap.containsKey(dataSource)) {
-            throw new RuntimeException("You must provide a valid data source.");
-        }
-        return (T) transmitterMap.get(dataSource);
+    private BackupThreadExecutor() {
     }
 
     public static BackupThreadExecutor getInstance() {
-        if (singleton == null) {
-            synchronized (BackupThreadExecutor.class) {
-                if (singleton == null) {
-                    singleton = new BackupThreadExecutor();
-                }
-            }
+        if (singleton == null) synchronized (BackupThreadExecutor.class) {
+            if (singleton == null) singleton = new BackupThreadExecutor();
         }
         return singleton;
     }
 
-    private Context context;
-
     public Context getApplicationContext() {
-        if (context == null) {
-            context = SeadroidApplication.getAppContext();
-        }
         return context;
     }
 
+    private ParentEventTransfer create(FeatureDataSource source) {
+        return switch (source) {
+            case MANUAL_FILE_UPLOAD -> new FileUploader(context, null);
+            case ALBUM_BACKUP -> new MediaBackupUploader(context, null);
+            case FOLDER_BACKUP -> new FolderBackupUploader(context, null);
+            case SHARE_FILE_TO_SEAFILE -> new ShareToSeafileUploader(context, null);
+            case AUTO_UPDATE_LOCAL_FILE -> new LocalFileUpdater(context, null);
+            case DOWNLOAD -> new FileDownloader(context, null);
+        };
+    }
 
-    //future
-    private CompletableFuture<Void> fileDownloadFuture;
-    private CompletableFuture<Void> manualFileUploadFuture;
-    private CompletableFuture<Void> folderBackupFuture;
-    private CompletableFuture<Void> albumBackupFuture;
-    private CompletableFuture<Void> localFileUpdateFuture;
-    private CompletableFuture<Void> shareFileUploadFuture;
+    public synchronized boolean isFolderBackupRunning() {
+        return running.containsKey(FeatureDataSource.FOLDER_BACKUP);
+    }
+
+    public synchronized boolean isAlbumBackupRunning() {
+        return running.containsKey(FeatureDataSource.ALBUM_BACKUP);
+    }
+
+    public synchronized boolean isDownloading() {
+        return running.containsKey(FeatureDataSource.DOWNLOAD);
+    }
+
+    public synchronized boolean isUploading() {
+        for (FeatureDataSource source : running.keySet()) if (source != FeatureDataSource.DOWNLOAD) return true;
+        return false;
+    }
+
+    public synchronized boolean isTransferring() {
+        return !running.isEmpty();
+    }
 
     /**
-     * Delay before the uploader starts after a scan completes. Gives a just-taken
-     * photo a moment to finish being written by the camera, so that the uploader's
-     * size check is not triggered spuriously. The delay is scheduled on the main
-     * looper (non-blocking), the upload itself still runs on the executor.
+     * The returned completion is not a cancellation handle. Execution ownership ends only in finish().
      */
-    private static final long UPLOAD_START_DELAY_MS = 1000L;
-
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
-
-    public boolean isFolderBackupRunning() {
-        return folderBackupFuture != null && !folderBackupFuture.isDone();
-    }
-
-    public boolean isAlbumBackupRunning() {
-        return albumBackupFuture != null && !albumBackupFuture.isDone();
-    }
-
-    public boolean isUploading() {
-        return (manualFileUploadFuture != null && !manualFileUploadFuture.isDone())
-                || (shareFileUploadFuture != null && !shareFileUploadFuture.isDone())
-                || (localFileUpdateFuture != null && !localFileUpdateFuture.isDone())
-                || (folderBackupFuture != null && !folderBackupFuture.isDone())
-                || (albumBackupFuture != null && !albumBackupFuture.isDone());
-    }
-
-    public boolean isDownloading() {
-        return fileDownloadFuture != null && !fileDownloadFuture.isDone();
-    }
-
-    public boolean isTransferring() {
-        return isUploading() || isDownloading();
-    }
-
-    public void stopAll() {
-        MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
-        if (mediaBackupUploader != null) {
-            mediaBackupUploader.stop();
+    private synchronized CompletableFuture<Void> start(FeatureDataSource source, boolean scan, boolean full) {
+        Run existing = running.get(source);
+        if (existing != null) {
+            // Merge triggers, including the narrow queue-drained/completion race.
+            existing.trigger(full);
+            return existing.completion;
         }
-
-        FolderBackupUploader folderBackupUploader = getTransmitter(FeatureDataSource.FOLDER_BACKUP);
-        if (folderBackupUploader != null) {
-            folderBackupUploader.stop();
-        }
-
-        FileUploader fileUploader = getTransmitter(FeatureDataSource.MANUAL_FILE_UPLOAD);
-        if (fileUploader != null) {
-            fileUploader.stop();
-        }
-
-        FileDownloader fileDownloader = getTransmitter(FeatureDataSource.DOWNLOAD);
-        if (fileDownloader != null) {
-            fileDownloader.stop();
-        }
-
-        // clear all notification
-        notificationDispatcher.clearDelay();
+        ParentEventTransfer transfer = create(source);
+        Run run = new Run(transfer);
+        run.trigger(full);
+        run.takeRepeat();
+        running.put(source, run);
+        submit(source, run, scan);
+        return run.completion;
     }
 
-    public void stopSpecialTransmitter(String modelId, FeatureDataSource dataSource) {
-        if (TextUtils.isEmpty(modelId)) {
-            throw new RuntimeException("You must provide a valid parameter.");
-        }
-
-        if (FeatureDataSource.ALBUM_BACKUP == dataSource) {
-            MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
-            mediaBackupUploader.stopById(modelId);
-        } else if (FeatureDataSource.FOLDER_BACKUP == dataSource) {
-            FolderBackupUploader folderBackupUploader = getTransmitter(FeatureDataSource.FOLDER_BACKUP);
-            folderBackupUploader.stopById(modelId);
-        } else if (FeatureDataSource.MANUAL_FILE_UPLOAD == dataSource) {
-            FileUploader fileUploader = getTransmitter(FeatureDataSource.MANUAL_FILE_UPLOAD);
-            fileUploader.stopById(modelId);
-        } else if (FeatureDataSource.DOWNLOAD == dataSource) {
-            FileDownloader fileDownloader = getTransmitter(FeatureDataSource.DOWNLOAD);
-            fileDownloader.stopById(modelId);
-        } else {
-            throw new RuntimeException("You must provide a valid data source.");
-        }
-
-        SafeLogs.d(TAG, "stopById()", "stopped: " + modelId);
-    }
-
-    public void stopDownload() {
-        if (fileDownloadFuture != null && !fileDownloadFuture.isDone()) {
-            fileDownloadFuture.cancel(true);
-        }
-    }
-
-    public void runDownloadTask() {
-        fileDownloadFuture = runTask(new Runnable() {
-            @Override
-            public void run() {
-                FileDownloader fileDownloader = getTransmitter(FeatureDataSource.DOWNLOAD);
-                SeafException seafException = fileDownloader.download();
-
-                if (seafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runDownloadTask()", "download error: " + seafException);
-                } else {
-                    SafeLogs.d(TAG, "runDownloadTask()", "download success");
-                }
+    private void submit(FeatureDataSource source, Run run, boolean scan) {
+        TaskExecutor.getInstance().getExecutor().execute(() -> {
+            if (run.isCancelled()) {
+                finish(source, run, TransferNotifications.ResultState.CANCELLED);
+                return;
             }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                fileDownloadFuture = null;
+
+            ExecutionCancellation.enter(run.cancellation);
+            final NotificationKey key = NotificationKey.from(source);
+            try {
+                TransferNotifications.get().begin(key);
+                boolean scanNext = scan;
+                while (true) {
+                    TransferNotifications.ResultState result = TransferNotifications.ResultState.SUCCESS;
+                    try {
+                        if (scanNext) {
+                            TransferNotifications.get().scanning(key);
+                            SeafException scanned = source == FeatureDataSource.ALBUM_BACKUP
+                                    ? new MediaBackupScanner(context, null).scan(run.isFullScan())
+                                    : new FolderBackupScanner(context, null).scan(run.isFullScan());
+                            result = outcome(scanned);
+                            TransferNotifications.get().prepared(key);
+                            if (result == TransferNotifications.ResultState.SUCCESS) {
+                                ExecutionCancellation.await(1000);
+                            }
+                        }
+                        if (!run.isCancelled() && result == TransferNotifications.ResultState.SUCCESS) {
+                            SeafException transferred = switch (source) {
+                                case ALBUM_BACKUP -> ((MediaBackupUploader) run.transfer).upload();
+                                case FOLDER_BACKUP -> ((FolderBackupUploader) run.transfer).upload();
+                                case MANUAL_FILE_UPLOAD -> ((FileUploader) run.transfer).upload();
+                                case SHARE_FILE_TO_SEAFILE -> ((ShareToSeafileUploader) run.transfer).upload();
+                                case AUTO_UPDATE_LOCAL_FILE -> ((LocalFileUpdater) run.transfer).upload();
+                                case DOWNLOAD -> ((FileDownloader) run.transfer).download();
+                            };
+                            result = outcome(transferred);
+                        }
+                    } catch (Throwable error) {
+                        if (!run.isCancelled()) android.util.Log.w("BackupThreadExecutor", "Transfer chain failed: " + source, error);
+                        result = run.isCancelled() ? TransferNotifications.ResultState.CANCELLED
+                                : TransferNotifications.ResultState.FAILED;
+                    }
+                    synchronized (BackupThreadExecutor.this) {
+                        run.record(result);
+                        if (!run.takeRepeat()) {
+                            break;
+                        }
+                        scanNext = source == FeatureDataSource.ALBUM_BACKUP || source == FeatureDataSource.FOLDER_BACKUP;
+                    }
+                }
+            } catch (Throwable error) {
+                android.util.Log.w("BackupThreadExecutor", "Execution failed: " + source, error);
+                run.record(TransferNotifications.ResultState.FAILED);
+            } finally {
+                ExecutionCancellation.leave();
+                // Also release ownership if setup or notification attachment failed.
+                finish(source, run, run.result());
             }
         });
     }
 
-    public void stopManualFileUpload() {
-        if (manualFileUploadFuture != null && !manualFileUploadFuture.isDone()) {
-            manualFileUploadFuture.cancel(true);
+    private void cancelIO(Run run) {
+        run.cancel();
+        run.cancellation.cancel();
+        run.transfer.requestNotificationCancellation();
+        if (run.transfer instanceof ParentEventUploader) ((ParentEventUploader) run.transfer).stopThis();
+        if (run.transfer instanceof ParentEventDownloader) ((ParentEventDownloader) run.transfer).stopThis();
+    }
+
+    private TransferNotifications.ResultState outcome(SeafException result) {
+        if (result == SeafException.SUCCESS) return TransferNotifications.ResultState.SUCCESS;
+        return result == SeafException.USER_CANCELLED_EXCEPTION
+                ? TransferNotifications.ResultState.CANCELLED : TransferNotifications.ResultState.FAILED;
+    }
+
+    private synchronized void finish(FeatureDataSource source, Run run, TransferNotifications.ResultState result) {
+        if (running.get(source) != run) return;
+        run.record(result);
+        try {
+            TransferNotifications.get().finish(NotificationKey.from(source), run.result());
+        } finally {
+            // Notification failures must not strand ownership or block an explicit restart.
+            running.remove(source);
+            Boolean restart = run.takeRestart();
+            run.complete();
+            if (restart != null) {
+                start(source, source == FeatureDataSource.ALBUM_BACKUP
+                        || source == FeatureDataSource.FOLDER_BACKUP, restart);
+            }
         }
+    }
+
+    private synchronized void stop(FeatureDataSource source, boolean rerun) {
+        Run run = running.get(source);
+        if (run == null) {
+            if (rerun) start(source, true, true);
+            return;
+        }
+        cancelIO(run);
+        if (rerun) run.trigger(true);
+        // Never cancel the future: that does not terminate synchronous Retrofit/OkHttp execution.
+    }
+
+    public synchronized void stopAll() {
+        // Preserve legacy stop(): clear pending models AND stop owned IO, even without an active run.
+        for (FeatureDataSource source : FeatureDataSource.values()) {
+            stop(source, false);
+            clearQueue(source);
+        }
+    }
+
+    private void clearQueue(FeatureDataSource source) {
+        switch (source) {
+            case ALBUM_BACKUP -> com.seafile.seadroid2.framework.worker.GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.clear();
+            case FOLDER_BACKUP -> com.seafile.seadroid2.framework.worker.GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.clear();
+            case MANUAL_FILE_UPLOAD -> com.seafile.seadroid2.framework.worker.GlobalTransferCacheList.FILE_UPLOAD_QUEUE.clear();
+            case SHARE_FILE_TO_SEAFILE -> com.seafile.seadroid2.framework.worker.GlobalTransferCacheList.SHARE_FILE_TO_SEAFILE_QUEUE.clear();
+            case AUTO_UPDATE_LOCAL_FILE -> com.seafile.seadroid2.framework.worker.GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.clear();
+            case DOWNLOAD -> com.seafile.seadroid2.framework.worker.GlobalTransferCacheList.DOWNLOAD_QUEUE.clear();
+        }
+    }
+
+    public synchronized void stopSpecialTransmitter(String modelId, FeatureDataSource source) {
+        Run run = running.get(source);
+        if (run == null) return;
+        switch (source) {
+            case ALBUM_BACKUP -> ((MediaBackupUploader) run.transfer).stopById(modelId);
+            case FOLDER_BACKUP -> ((FolderBackupUploader) run.transfer).stopById(modelId);
+            case MANUAL_FILE_UPLOAD -> ((FileUploader) run.transfer).stopById(modelId);
+            case SHARE_FILE_TO_SEAFILE -> ((ShareToSeafileUploader) run.transfer).stopById(modelId);
+            case DOWNLOAD -> ((FileDownloader) run.transfer).stopById(modelId);
+            case AUTO_UPDATE_LOCAL_FILE -> ((LocalFileUpdater) run.transfer).stopThis();
+        }
+    }
+    // Only this direct thread-pool path owns these scopes; legacy Workers are independent.
+
+    public void runDownloadTask() {
+        start(FeatureDataSource.DOWNLOAD, false, false);
     }
 
     public void runManualFileUploadTask() {
-        if (manualFileUploadFuture != null && !manualFileUploadFuture.isDone()) {
-            SafeLogs.e(TAG, "album backup task is running, please wait");
-            return;
-        }
+        start(FeatureDataSource.MANUAL_FILE_UPLOAD, false, false);
+    }
 
-        manualFileUploadFuture = runTask(new Runnable() {
-            @Override
-            public void run() {
-                FileUploader fileUploader = getTransmitter(FeatureDataSource.MANUAL_FILE_UPLOAD);
-                SeafException seafException = fileUploader.upload();
-                if (seafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runFileUploadTask()", "upload error: " + seafException);
-                } else {
-                    SafeLogs.d(TAG, "runFileUploadTask()", "upload success");
-                }
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                manualFileUploadFuture = null;
-            }
-        });
+    public void runLocalFileUpdateTask() {
+        start(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, false, false);
+    }
+
+    public void runShareToSeafileUploadTask() {
+        start(FeatureDataSource.SHARE_FILE_TO_SEAFILE, false, false);
+    }
+
+    public void runAlbumBackupTask(boolean full) {
+        start(FeatureDataSource.ALBUM_BACKUP, true, full);
+    }
+
+    public void runFolderBackupFuture(boolean full) {
+        start(FeatureDataSource.FOLDER_BACKUP, true, full);
+    }
+
+    public void stopDownload() {
+        stop(FeatureDataSource.DOWNLOAD, false);
+    }
+
+    public void stopManualFileUpload() {
+        stop(FeatureDataSource.MANUAL_FILE_UPLOAD, false);
+    }
+
+    public void stopLocalFileUpdate() {
+        stop(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE, false);
+    }
+
+    public void stopShareToSeafileUpload() {
+        stop(FeatureDataSource.SHARE_FILE_TO_SEAFILE, false);
     }
 
     public void stopAlbumBackup() {
         stopAlbumBackup(false);
     }
 
-    public void stopAlbumBackup(boolean reRun) {
-        SafeLogs.d(TAG, "stopAlbumBackup()", "reRun: " + reRun);
-
-        if (reRun) {
-            if (albumBackupFuture != null && !albumBackupFuture.isDone()) {
-                albumBackupFuture.cancel(true);
-
-                albumBackupFuture.whenComplete(new BiConsumer<Void, Throwable>() {
-                    @Override
-                    public void accept(Void unused, Throwable throwable) {
-                        SafeLogs.e(TAG, "album backup task complete");
-                        runAlbumBackupTask(true);
-                    }
-                });
-            } else {
-                runAlbumBackupTask(true);
-            }
-        } else {
-            if (albumBackupFuture != null && !albumBackupFuture.isDone()) {
-                albumBackupFuture.cancel(true);
-            }
-        }
-    }
-
-    public void runAlbumBackupTask(boolean isFullScan) {
-        SafeLogs.d(TAG, "runAlbumBackupTask()", "isFullScan: " + isFullScan);
-
-        if (albumBackupFuture != null && !albumBackupFuture.isDone()) {
-            SafeLogs.e(TAG, "album backup task is running, please wait");
-            return;
-        }
-
-//        if (BackgroundJobManagerImpl.getInstance().getAlbumModuleRunning()) {
-//            SafeLogs.e(TAG, "album backup worker is running, please wait");
-//            return;
-//        }
-
-        // The scan starts immediately on the executor. The uploader is scheduled
-        // to start UPLOAD_START_DELAY_MS after the scan completes (non-blocking,
-        // via the main looper), giving a just-taken photo time to finish being
-        // written before the uploader checks its size.
-        CompletableFuture<Void>[] chain = new CompletableFuture[1];
-        chain[0] = CompletableFuture.supplyAsync(() -> runAlbumScan(isFullScan), _executor)
-                .thenComposeAsync(shouldUpload -> shouldUpload
-                                ? scheduleDelayedUpload(this::runAlbumUpload, chain)
-                                : CompletableFuture.completedFuture(null),
-                        _executor);
-        albumBackupFuture = chain[0];
-        chain[0].whenComplete((unused, throwable) -> albumBackupFuture = null);
-    }
-
-    private boolean runAlbumScan(boolean isFullScan) {
-        try {
-            boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-            if (!isEnable) {
-                SafeLogs.e("album backup is disable");
-                return false;
-            }
-
-            MediaBackupScanner scanner = new MediaBackupScanner(getApplicationContext(), notificationDispatcher);
-            SeafException scanSeafException = scanner.scan(isFullScan);
-            if (scanSeafException != SeafException.SUCCESS) {
-                SafeLogs.d(TAG, "runAlbumBackupTask()", "scan error: " + scanSeafException);
-            } else {
-                SafeLogs.d(TAG, "runAlbumBackupTask()", "scan success");
-            }
-            return true;
-        } catch (Exception e) {
-            SafeLogs.e(TAG, "runAlbumScan()", e.getMessage());
-            return false;
-        }
-    }
-
-    private void runAlbumUpload() {
-        try {
-            MediaBackupUploader mediaBackupUploader = getTransmitter(FeatureDataSource.ALBUM_BACKUP);
-            SeafException uploadSeafException = mediaBackupUploader.upload();
-            if (uploadSeafException != SeafException.SUCCESS) {
-                SafeLogs.d(TAG, "runAlbumBackupTask()", "backup error: " + uploadSeafException);
-            } else {
-                SafeLogs.d(TAG, "runAlbumBackupTask()", "backup complete");
-            }
-        } catch (Exception e) {
-            SafeLogs.e(TAG, "runAlbumUpload()", e.getMessage());
-        }
+    public void stopAlbumBackup(boolean rerun) {
+        stop(FeatureDataSource.ALBUM_BACKUP, rerun);
     }
 
     public void stopFolderBackup() {
         stopFolderBackup(false);
     }
 
-    public void stopFolderBackup(boolean reRun) {
-        SafeLogs.d(TAG, "stopFolderBackup()");
-
-        if (reRun) {
-            if (folderBackupFuture != null && !folderBackupFuture.isDone()) {
-                folderBackupFuture.cancel(true);
-
-                folderBackupFuture.whenComplete(new BiConsumer<Void, Throwable>() {
-                    @Override
-                    public void accept(Void unused, Throwable throwable) {
-                        SafeLogs.e(TAG, "folder backup task complete");
-                        runFolderBackupFuture(true);
-                    }
-                });
-            } else {
-                runFolderBackupFuture(true);
-            }
-        } else {
-            if (folderBackupFuture != null && !folderBackupFuture.isDone()) {
-                folderBackupFuture.cancel(true);
-            }
-        }
-    }
-
-    public void runFolderBackupFuture(boolean isFullScan) {
-        SafeLogs.d(TAG, "runFolderBackupFuture()", "isFullScan: " + isFullScan);
-
-        if (folderBackupFuture != null && !folderBackupFuture.isDone()) {
-            SafeLogs.e(TAG, "folder backup task is running, please wait");
-            return;
-        }
-
-//        if (BackgroundJobManagerImpl.getInstance().getFolderModuleRunning()) {
-//            SafeLogs.e(TAG, "folder backup worker is running, please wait");
-//            return;
-//        }
-
-        // The scan starts immediately on the executor. The uploader is scheduled
-        // to start UPLOAD_START_DELAY_MS after the scan completes (non-blocking,
-        // via the main looper), giving a file that is still being written time to
-        // finish before the uploader checks its size.
-        CompletableFuture<Void>[] chain = new CompletableFuture[1];
-        chain[0] = CompletableFuture.supplyAsync(() -> runFolderScan(isFullScan), _executor)
-                .thenComposeAsync(shouldUpload -> shouldUpload
-                                ? scheduleDelayedUpload(this::runFolderUpload, chain)
-                                : CompletableFuture.completedFuture(null),
-                        _executor);
-        folderBackupFuture = chain[0];
-        chain[0].whenComplete((unused, throwable) -> folderBackupFuture = null);
-    }
-
-    private boolean runFolderScan(boolean isFullScan) {
-        try {
-            boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-            if (!isEnable) {
-                SafeLogs.d(TAG, "runFolderScan()", "folder backup switch is off, skip scheduling uploader");
-                return false;
-            }
-
-            FolderBackupScanner scanner = new FolderBackupScanner(getApplicationContext(), notificationDispatcher);
-            SeafException scanSeafException = scanner.scan(isFullScan);
-            if (scanSeafException != SeafException.SUCCESS) {
-                SafeLogs.d(TAG, "runFolderBackupScanTask()", "scan error: " + scanSeafException);
-            } else {
-                SafeLogs.d(TAG, "runFolderBackupScanTask()", "scan success");
-            }
-            return true;
-        } catch (Exception e) {
-            SafeLogs.e(TAG, "runFolderScan()", e.getMessage());
-            return false;
-        }
-    }
-
-    private void runFolderUpload() {
-        try {
-            FolderBackupUploader folderBackupUploader = getTransmitter(FeatureDataSource.FOLDER_BACKUP);
-            SeafException uploadSeafException = folderBackupUploader.upload();
-            if (uploadSeafException != SeafException.SUCCESS) {
-                SafeLogs.d(TAG, "runFolderBackupTask()", "backup error: " + uploadSeafException);
-            } else {
-                SafeLogs.d(TAG, "runFolderBackupTask()", "backup complete");
-            }
-        } catch (Exception e) {
-            SafeLogs.e(TAG, "runFolderUpload()", e.getMessage());
-        }
-    }
-
-    /**
-     * Schedule the uploader to start after {@link #UPLOAD_START_DELAY_MS} without
-     * blocking any thread. The returned future completes when the upload finishes.
-     * <p>
-     * {@code chain} holds the task future; if the task was cancelled (stopped)
-     * during the delay window, the upload is skipped.
-     */
-    private CompletableFuture<Void> scheduleDelayedUpload(Runnable uploadAction, CompletableFuture<Void>[] chain) {
-        SafeLogs.d(TAG, "scheduleDelayedUpload()", "scan finished, schedule uploader to start in " + UPLOAD_START_DELAY_MS + "ms");
-        CompletableFuture<Void> uploadFuture = new CompletableFuture<>();
-        mainHandler.postDelayed(() -> {
-            // The task may have been stopped during the delay window.
-            if (chain[0] == null || chain[0].isCancelled()) {
-                SafeLogs.d(TAG, "scheduleDelayedUpload()", "task was cancelled during the delay window, skip uploader");
-                uploadFuture.complete(null);
-                return;
-            }
-            SafeLogs.d(TAG, "scheduleDelayedUpload()", "delay elapsed, start uploader on executor");
-            try {
-                _executor.execute(() -> {
-                    try {
-                        uploadAction.run();
-                        SafeLogs.d(TAG, "scheduleDelayedUpload()", "uploader finished");
-                        uploadFuture.complete(null);
-                    } catch (Throwable t) {
-                        SafeLogs.e(TAG, "scheduleDelayedUpload()", t.getMessage());
-                        uploadFuture.completeExceptionally(t);
-                    }
-                });
-            } catch (Throwable t) {
-                SafeLogs.e(TAG, "scheduleDelayedUpload()", t.getMessage());
-                uploadFuture.completeExceptionally(t);
-            }
-        }, UPLOAD_START_DELAY_MS);
-        return uploadFuture;
-    }
-
-    public void stopLocalFileUpdate() {
-        if (localFileUpdateFuture != null && !localFileUpdateFuture.isDone()) {
-            localFileUpdateFuture.cancel(true);
-        }
-    }
-
-    public void runLocalFileUpdateTask() {
-        localFileUpdateFuture = runTask(new Runnable() {
-            @Override
-            public void run() {
-                LocalFileUpdater localFileUpdater = getTransmitter(FeatureDataSource.AUTO_UPDATE_LOCAL_FILE);
-                SeafException seafException = localFileUpdater.upload();
-
-                if (seafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "runLocalFileUpdateTask()", "upload error: " + seafException);
-                } else {
-                    SafeLogs.d(TAG, "runLocalFileUpdateTask()", "upload success");
-                }
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                localFileUpdateFuture = null;
-            }
-        });
-    }
-
-    public void stopShareToSeafileUpload() {
-        if (shareFileUploadFuture != null && !shareFileUploadFuture.isDone()) {
-            shareFileUploadFuture.cancel(true);
-        }
-    }
-
-    public void runShareToSeafileUploadTask() {
-        shareFileUploadFuture = runTask(new Runnable() {
-            @Override
-            public void run() {
-                ShareToSeafileUploader shareToSeafileUploader = getTransmitter(FeatureDataSource.SHARE_FILE_TO_SEAFILE);
-                SeafException seafException = shareToSeafileUploader.upload();
-
-                if (seafException != SeafException.SUCCESS) {
-                    SafeLogs.d(TAG, "ShareToSeafile", "upload error: " + seafException);
-                } else {
-                    SafeLogs.d(TAG, "ShareToSeafile", "upload success");
-                }
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                shareFileUploadFuture = null;
-            }
-        });
-    }
-
-    private CompletableFuture<Void> runTask(Runnable runnable, Runnable onComplete) {
-        runningTaskCount.incrementAndGet();
-        return CompletableFuture
-                .runAsync(runnable, _executor)
-                .whenComplete(new BiConsumer<Void, Throwable>() {
-                    @Override
-                    public void accept(Void unused, Throwable throwable) {
-                        if (onComplete != null) onComplete.run();
-                        int currentCount = runningTaskCount.decrementAndGet();
-                        if (currentCount == 0) {
-                            SafeLogs.e(TAG, "all task complete");
-                        }
-                    }
-                });
+    public void stopFolderBackup(boolean rerun) {
+        stop(FeatureDataSource.FOLDER_BACKUP, rerun);
     }
 }

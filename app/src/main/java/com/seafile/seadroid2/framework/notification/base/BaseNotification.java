@@ -50,6 +50,8 @@ public abstract class BaseNotification {
 
     @Nullable
     public NotificationCompat.Builder getNotificationBuilder(String title, String content, Intent intent) {
+        // Old transfer helpers retain signatures only, including notification construction.
+        if (NotificationUtils.FILE_TRANSFER_CHANNEL.equals(getChannelId())) return null;
         if (!hasPermission) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 int i = ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS);
@@ -111,6 +113,7 @@ public abstract class BaseNotification {
     }
 
     public void showNotification(int nid, String title, String content, Intent intent) {
+        if (NotificationUtils.FILE_TRANSFER_CHANNEL.equals(getChannelId())) return;
         Notification notification = getNotification(title, content, intent);
         if (notification != null) {
             getNotificationManager().notify(nid, notification);
@@ -171,6 +174,8 @@ public abstract class BaseNotification {
     }
 
     public ForegroundInfo getForegroundNotification(int nid, String title, String content, Intent intent) {
+        // Legacy transfer helpers are compatibility shells, not foreground notification owners.
+        if (NotificationUtils.FILE_TRANSFER_CHANNEL.equals(getChannelId())) return null;
         if (!hasPermission) {
             return null;
         }
@@ -207,6 +212,7 @@ public abstract class BaseNotification {
      * Delay for a while before cancel notification in order user can see the result
      */
     public void cancel(int nid, long delayInMillis) {
+        if (NotificationUtils.FILE_TRANSFER_CHANNEL.equals(getChannelId())) return;
         if (delayInMillis <= 0) {
             getNotificationManager().cancel(nid);
         } else {

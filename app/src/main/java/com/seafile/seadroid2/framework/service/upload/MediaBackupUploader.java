@@ -119,6 +119,7 @@ public class MediaBackupUploader extends ParentEventUploader {
         SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
+            if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel transferModel = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.pick();
             if (transferModel == null) {
                 break;
@@ -127,6 +128,19 @@ public class MediaBackupUploader extends ParentEventUploader {
             transferModel.related_account = account.getSignature();
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();
+
+            try {
+                if (!com.seafile.seadroid2.framework.service.BackupFileStability.awaitStable(
+                        new java.io.File(transferModel.full_path))) {
+                    // Leave pending, without persisting a successful backup for a changing source.
+                    GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.retryInterrupted(transferModel);
+                    return new SeafException(SeafException.CODE_FAILED,
+                            "Source file is changing; deferred until the next backup");
+                }
+            } catch (java.util.concurrent.CancellationException cancelled) {
+                GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.retryInterrupted(transferModel);
+                return SeafException.USER_CANCELLED_EXCEPTION;
+            }
 
             try {
 
@@ -151,8 +165,7 @@ public class MediaBackupUploader extends ParentEventUploader {
 
         clearWhenComplete();
 
-        // clear all notifications
-        getTransferNotificationDispatcher().clearDelay();
+        // Producer scope owns its result notification.
 
 
         if (interruptException != SeafException.SUCCESS) {

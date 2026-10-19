@@ -30,6 +30,7 @@ import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated
 public class FolderBackupUploadWorker extends BaseUploadWorker {
     private static final String TAG = "FolderBackupUploadWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());
@@ -103,10 +104,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         SLogs.d(TAG, "start()", "started execution");
 
 
-        if (!canExc()) {
-            SLogs.e(TAG, "The folder scan task was not started, because the folder backup task is running");
-            return Result.success();
-        }
+        if (isTransferStopped()) return Result.retry();
 
         setIsRunning(true);
 
@@ -174,6 +172,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
+            if (isTransferStopped()) return Result.failure();
             TransferModel transferModel = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.pick();
             if (transferModel == null) {
                 break;

@@ -47,18 +47,18 @@ public class HeicNative {
     /**
      * Stream the MP4 video embedded in the JPEG Motion Photo to a temporary file (avoiding the Java heap to prevent large byte[] OOM).
      *
-     * @param inputFilePath  原图路径
-     * @param outputFilePath 输出视频文件路径
-     * @return 是否提取成功
+     * @param inputFilePath  original image path
+     * @param outputFilePath output video file path
+     * @return was_the_extraction_successful
      */
     public static native boolean ExtractJpegVideoToFile(String inputFilePath, String outputFilePath);
 
     /**
-     * 将 HEIC Motion Photo 中内嵌的 MP4 视频流式写入临时文件（不经过 Java 堆，避免大 byte[] OOM）。
+     * The MP4 video embedded in HEIC Motion Photo is streamed to a temporary file (without going through the Java heap to avoid large byte[] OOM).
      *
-     * @param inputFilePath  原图路径
-     * @param outputFilePath 输出视频文件路径
-     * @return 是否提取成功
+     * @param inputFilePath  original image path
+     * @param outputFilePath output video file path
+     * @return was_the_extraction_successful
      */
     public static native boolean ExtractHeicVideoToFile(String inputFilePath, String outputFilePath);
 

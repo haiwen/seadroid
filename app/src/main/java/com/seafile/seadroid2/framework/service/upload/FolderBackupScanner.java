@@ -91,7 +91,8 @@ public class FolderBackupScanner extends ParentEventTransfer {
 
         if (seafException != SeafException.SUCCESS) {
             SafeLogs.e(TAG, "scan failed");
-            return returnSuccess();
+            send(FeatureDataSource.FOLDER_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
+            return seafException;
         }
 
         int totalPendingCount = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.getPendingCount();

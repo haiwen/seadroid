@@ -77,6 +77,7 @@ public class LocalFileUpdater extends ParentEventUploader {
         SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
+            if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel missFieldDataTransferModel = GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.pick(true);
             if (missFieldDataTransferModel == null) {
                 SafeLogs.d(TAG, "model is null");
@@ -127,8 +128,7 @@ public class LocalFileUpdater extends ParentEventUploader {
 
         clearWhenComplete();
 
-        // clear all notifications
-        getTransferNotificationDispatcher().clearDelay();
+        // Producer scope owns its result notification.
 
         if (interruptException != SeafException.SUCCESS) {
             resultException = interruptException;
@@ -200,7 +200,7 @@ public class LocalFileUpdater extends ParentEventUploader {
         try {
             //get parent dirent list from remote
             Call<DirentFileModel> call = HttpManager.getCurrentHttp().execute(FileService.class).getFileDetailCall(repoId, path);
-            res = call.execute();
+            res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(call);
         } catch (IOException e) {
             throw SeafException.NETWORK_EXCEPTION;
         }

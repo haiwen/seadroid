@@ -66,6 +66,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     private final DownloadNotificationHelper notificationHelper;
     private final FileTransferProgressListener transferProgressListener;
     private TransferModel currentTransferModel;
+    private volatile Call newCall;
 
     @Override
     public BaseNotification getNotification() {
@@ -82,8 +83,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);
 
-            ForegroundInfo foregroundInfo = notificationHelper.getForegroundProgressNotification(transferModel.file_name, percent);
-            showForegroundAsync(foregroundInfo);
+            noticeProgress(noticeAttempt, ++noticeSequence, percent);
 
             //
             sendProgressEvent(FeatureDataSource.DOWNLOAD, transferModel);
@@ -91,18 +91,18 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     @Override
-    public void onStopped() {
-        super.onStopped();
+    protected void cancelOwnedIO() {
 
-        if (notificationHelper != null) {
-            notificationHelper.cancel();
-        }
+        // Cancel only this Worker's request, never a UI-owned execution chain.
+        if (newCall != null) newCall.cancel();
+
 
     }
 
     @NonNull
     @Override
     public Result doWork() {
+
         SLogs.d(TAG, "doWork()", "started execution");
 
         Account account = getCurrentAccount();
@@ -126,7 +126,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
         String interruptibleExceptionMsg = null;
         while (true) {
-            if (isStopped()) {
+            if (isTransferStopped()) {
                 break;
             }
 
@@ -139,7 +139,13 @@ public class DownloadWorker extends BaseDownloadWorker {
                 int p = GlobalTransferCacheList.DOWNLOAD_QUEUE.getPendingCount();
                 SLogs.d(TAG, "doWork()", "pending count: " + p + ", download start：" + transferModel.full_path);
                 currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
-                transferFile(account);
+                noticeAttempt = noticeFile(currentTransferModel);
+                noticeSequence = 0;
+                try { transferFile(account); }
+                finally {
+                    noticeFileFinished(noticeAttempt, currentTransferModel.transfer_status == TransferStatus.SUCCEEDED);
+                    noticeAttempt = null;
+                }
 
             } catch (Exception e) {
 
@@ -184,6 +190,11 @@ public class DownloadWorker extends BaseDownloadWorker {
         send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_COMPLETE);
     }
 
+    private Object noticeAttempt;
+    private long noticeSequence;
+    @Override protected void retainInterruptedAttempt() {
+        GlobalTransferCacheList.retryInterrupted(currentTransferModel);
+    }
     private final int retryMaxCount = 1;
 
     private void transferFile(Account account) throws Exception {
@@ -255,10 +266,9 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     private Pair<String, String> getDownloadLink(boolean isReUsed) throws SeafException, IOException {
-        retrofit2.Response<String> res = HttpManager.getCurrentHttp()
+        retrofit2.Response<String> res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(HttpManager.getCurrentHttp()
                 .execute(FileService.class)
-                .getFileDownloadLinkSync(currentTransferModel.repo_id, currentTransferModel.full_path, isReUsed ? 1 : 0)
-                .execute();
+                .getFileDownloadLinkSync(currentTransferModel.repo_id, currentTransferModel.full_path, isReUsed ? 1 : 0));
 
         if (!res.isSuccessful()) {
             throw SeafException.REQUEST_URL_EXCEPTION;
@@ -304,7 +314,11 @@ public class DownloadWorker extends BaseDownloadWorker {
             okHttpClient = HttpManager.getCurrentHttp().getSafeClient().getOkClient();
         }
 
-        Call newCall = okHttpClient.newCall(request);
+        newCall = okHttpClient.newCall(request);
+        if (isTransferStopped()) {
+            newCall.cancel();
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        }
 
         try (Response response = newCall.execute()) {
             if (!response.isSuccessful()) {
@@ -346,7 +360,7 @@ public class DownloadWorker extends BaseDownloadWorker {
                     int bytesRead;
                     byte[] buffer = new byte[SEGMENT_SIZE];
                     while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) != -1) {
-                        if (isStopped()) {
+                        if (isTransferStopped()) {
                             throw SeafException.USER_CANCELLED_EXCEPTION;
                         }
 
@@ -412,15 +426,7 @@ public class DownloadWorker extends BaseDownloadWorker {
     }
 
     public void notifyError(SeafException seafException) {
-        if (seafException == SeafException.NETWORK_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.network_error, R.string.download);
-        } else if (seafException == SeafException.NOT_FOUND_USER_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception, R.string.download);
-        } else if (seafException == SeafException.USER_CANCELLED_EXCEPTION) {
-            //do nothing
-        } else {
-            getGeneralNotificationHelper().showErrorNotification(seafException.getMessage(), R.string.download);
-        }
+        // The business session retains file failures; no additional error notification.
     }
 
 
@@ -457,7 +463,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         requestDataMap.put("password", password);
 
         retrofit2.Call<ResultModel> setPasswordCall = HttpManager.getCurrentHttp().execute(DialogService.class).setPasswordSync(repoId, requestDataMap);
-        retrofit2.Response<ResultModel> res = setPasswordCall.execute();
+        retrofit2.Response<ResultModel> res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(setPasswordCall);
         if (res.isSuccessful()) {
             ResultModel resultModel = res.body();
             SLogs.d(TAG, "setPassword()", "set password success");
