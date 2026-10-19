@@ -13,17 +13,28 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginVertical="16dp"
+        android:layout_marginEnd="4dp"
         android:layout_weight="1"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@android:id/switch_widget"
+        app:layout_constraintEnd_toStartOf="@+id/switch_widget_desc"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/switch_widget_desc"
+        style="@style/ListItemSubTitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@android:id/switch_widget"
+        app:layout_constraintStart_toEndOf="@android:id/title"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@android:id/switch_widget"
-        style="@style/ListItemSubTitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"

@@ -141,13 +141,21 @@
             android:key="@string/pref_key_album_backup_advanced_buckets_select"
             android:summary="@string/settings_camera_upload_dir_auto_scan"
             android:title="@string/settings_camera_upload_choose_dir"
-
             app:backgroundColor="@color/pref_background_color"
             app:dividerColor="@color/pref_divider_color"
+            app:dividerPosition="bottom"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
+            app:radiusPosition="none" />
+
+        <com.seafile.seadroid2.widget.prefs.TextSwitchPreference
+            android:key="@string/pref_key_album_backup_pause_switch"
+            android:title="@string/settings_camera_auto_upload_pause"
+            app:backgroundColor="@color/pref_background_color"
             app:dividerPosition="none"
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="false"
-            app:radiusPosition="bottom" />
+            app:radiusPosition="none" />
 
         <!--        <com.seafile.seadroid2.widget.prefs.TextMorePreference-->
         <!--            android:key="@string/pref_key_album_backup_advanced"-->

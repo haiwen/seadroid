@@ -20,6 +20,7 @@ import java.util.List;
  */
 public class CameraUploadManager {
     private final String TAG = "CameraUploadManager";
+    public static final String KEY_IS_FULL_SCAN = "com.seafile.seadroid2.key_is_full_scan";
     private static final CameraUploadManager INSTANCE = new CameraUploadManager();
 
     public static CameraUploadManager getInstance() {
@@ -53,7 +54,10 @@ public class CameraUploadManager {
         SLogs.d(TAG, "performSyncByStatus()");
 
         Bundle b = new Bundle();
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, isFullScan);
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        b.putBoolean(KEY_IS_FULL_SCAN, isFullScan);
+
         Account cameraAccount = getCameraAccount();
         if (cameraAccount != null) {
             ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, b);

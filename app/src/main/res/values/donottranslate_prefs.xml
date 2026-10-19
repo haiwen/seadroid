@@ -82,6 +82,7 @@
     <string name="pref_key_album_backup_advanced_buckets_switch">key_album_backup_advanced_buckets_switch</string>
     <string name="pref_key_album_backup_advanced_buckets_select">key_album_backup_advanced_buckets_select</string>
     <string name="pref_key_album_backup_advanced_selected_buckets_string">key_album_backup_advanced_selected_buckets_string</string>
+    <string name="pref_key_album_backup_pause_switch">key_album_backup_pause_switch</string>
 
     <!-- folder backup -->
     <string name="pref_key_folder_backup_switch">key_folder_backup_switch</string>

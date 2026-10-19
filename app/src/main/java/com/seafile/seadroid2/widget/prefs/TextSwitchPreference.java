@@ -2,9 +2,11 @@ package com.seafile.seadroid2.widget.prefs;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.preference.PreferenceViewHolder;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -14,6 +16,7 @@ import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundSwitchPrefer
 public class TextSwitchPreference extends BackgroundSwitchPreference {
 
     private MaterialSwitch mMaterialSwitch;
+    private TextView mSwitchWidgetDesc;
 
     public TextSwitchPreference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -41,11 +44,25 @@ public class TextSwitchPreference extends BackgroundSwitchPreference {
         super.onBindViewHolder(holder);
 
         mMaterialSwitch = (MaterialSwitch) holder.findViewById(android.R.id.switch_widget);
+        mSwitchWidgetDesc = (TextView) holder.findViewById(R.id.switch_widget_desc);
+
         // SwitchPreferenceCompat.syncSwitchView() does not reliably propagate
         // mChecked to a MaterialSwitch in a custom layout. Force it here.
         if (mMaterialSwitch != null) {
             mMaterialSwitch.setChecked(isChecked());
             mMaterialSwitch.setClickable(false);
+        }
+    }
+
+    public void setSwitchDesc(String descStr) {
+        if (mSwitchWidgetDesc != null) {
+            mSwitchWidgetDesc.setText(descStr);
+        }
+    }
+
+    public void setSwitchDesc(@StringRes int descStr) {
+        if (mSwitchWidgetDesc != null) {
+            mSwitchWidgetDesc.setText(descStr);
         }
     }
 
