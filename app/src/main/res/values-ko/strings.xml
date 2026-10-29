@@ -17,6 +17,7 @@
   <string name="delete_repo_title">라이브러리 삭제</string>
   <string name="delete_wiki_title">위키 삭제</string>
   <string name="delete_file_f">파일 삭제</string>
+  <string name="deleted_some_files">삭제함: 파일 %d개</string>
   <string name="delete_local_file_sametime">로컬 파일을 동시에 삭제</string>
   <string name="recover_library">라이브러리 복구</string>
   <string name="recover_file">파일 복구</string>
@@ -25,6 +26,7 @@
   <string name="recover_folder">폴더 복구</string>
   <string name="move_folder">폴더 이동</string>
   <string name="delete_dir">폴더 삭제</string>
+  <string name="delete_some_dirs">삭제함: 폴더 %d개</string>
   <string name="name_hint">이름</string>
   <string name="server">서버</string>
   <string name="server_hint">서버 주소</string>
@@ -96,6 +98,7 @@
   <string name="file_action_download">다운로드</string>
   <string name="file_action_update">업로드</string>
   <string name="file_share">공유</string>
+  <string name="file_share_leave">공유 받기 멈춤</string>
   <string name="file_action_share_wechat">위챗에 공유</string>
   <string name="file_action_share_link">링크 공유</string>
   <string name="file_action_share_encrypt">암호로 보호한 링크 공유</string>
@@ -160,6 +163,7 @@
   <string name="not_supported">현재 지원하지 않습니다</string>
   <string name="not_supported_share">이 공유 형식은 지원하지 않습니다</string>
   <string name="not_supported_feature">현재 지원하지 않는 기능입니다</string>
+  <string name="operation_timeout">처리 시간이 지났습니다</string>
   <string name="edit">편집</string>
   <string name="select">선택</string>
   <string name="create_draft">초안 만들기</string>
@@ -192,8 +196,12 @@
   <string name="create_new_folder_success">%s 폴더 만들기에 성공했습니다</string>
   <string name="create_new_file_success">%s 파일 만들기에 성공했습니다</string>
   <string name="create_new_file">새 파일 만들기</string>
+  <string name="create_some_files">만듦: 파일 %d개</string>
   <string name="create_files">파일 만들기</string>
   <string name="create_new_dir">새 폴더 만들기</string>
+  <string name="create_some_dirs">만듦: 폴더 %d개</string>
+  <string name="and_other_folders"> 그리고 기타 폴더 %d개</string>
+  <string name="and_other_files">그리고 기타 파일 %d개</string>
   <string name="camera">여기에 사진 넣기</string>
   <string name="take_photo">사진 촬영</string>
   <string name="download">다운로드</string>
@@ -209,6 +217,7 @@
   <string name="seahub_url_hint">참고: 서버 주소에 포트를 적어야 합니다. 예, www.example.com:8000</string>
   <string name="copy_link">링크 복사</string>
   <string name="share_link_no_permission">이 동작을 수행할 권한이 없습니다.</string>
+  <string name="share_repo_link">이 라이브러리에 링크 공유</string>
   <string name="share_file_link">이 파일 링크 공유</string>
   <string name="share_dir_link">이 폴더 링크 공유</string>
   <string name="share_input_password">공유 암호를 입력하세요</string>
@@ -320,6 +329,17 @@
   <string name="gesture_lock_on">제스처 잠금 켬</string>
   <string name="gesture_lock_off">제스처 잠금 끔</string>
   <!--Biometric lock-->
+  <string name="biometric_lock">앱 잠그기</string>
+  <string name="biometric_lock_on">지문, 안면인식 또는 장치 PIN으로 잠금 해제</string>
+  <string name="biometric_lock_off">앱을 보호하지 않았습니다</string>
+  <string name="biometric_prompt_title">Seafile 잠금 해제</string>
+  <string name="biometric_prompt_subtitle">계속하려면 인증하세요</string>
+  <string name="lock_timeout_title">다음 시간 후 잠금</string>
+  <string name="lock_timeout_immediately">즉시</string>
+  <string name="lock_timeout_1_min">1분</string>
+  <string name="lock_timeout_5_min">5분</string>
+  <string name="lock_timeout_15_min">15분</string>
+  <string name="lock_timeout_30_min">30분</string>
   <string name="lockscreen_access_pattern_hint">제스처 잠금 패턴을 그리세요</string>
   <string name="lockscreen_access_pattern_start">그리기 시작</string>
   <string name="lockscreen_access_pattern_cleared">패턴 지움</string>
@@ -386,6 +406,7 @@
   <string name="settings_camera_upload_advanced_custom_directories">개별 업로드 앨범</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">사진 앨범 선택</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">자동으로 검색할 장치</string>
+  <string name="settings_camera_auto_upload_pause">자동 업로드 일시 정지</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">설정 도우미</string>
   <string name="settings_cuc_welcome_text">카메라 업로드 설정 도우미 사용에 감사드립니다. \n카메라 업로드 서비스를 시작을 도와드리기 위해 몇가지 단계로 안내해드립니다.</string>
@@ -719,6 +740,7 @@
   <string name="image_dimensions">차원</string>
   <string name="image_color_space_uncalibrated">보정 안함</string>
   <string name="image_color_space_undefined">정의 안함</string>
+  <string name="not_found">없음</string>
   <string name="canceled">취소함</string>
   <string name="offline">오프라인</string>
   <string name="start">시작</string>
@@ -757,4 +779,6 @@
   <!--Tips-->
   <string name="tip_press_again_to_exit">다시 한번 눌러서 종료하세요</string>
   <string name="tip_publish_wiki_desc">위키를 공개하세요</string>
+  <string name="tip_stop_transfer_when_switch_or_logout">파일을 전송중입니다. 그래도 앱을 전환하거나 나가시겠습니까?</string>
+  <string name="tip_leave_share">공유 받기를 그만둘까요?</string>
 </resources>
