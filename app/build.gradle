@@ -157,7 +157,7 @@ android {
                                     versionName = prefix + "(" + suffix + ")"
                                 }
 
-                                def newOutputFileName = "seafile_${versionName}_patch${buildCount}.apk"
+                                def newOutputFileName = "seafile_${versionName}_buildcount${buildCount}.apk"
                                 newOutputFileName = newOutputFileName.replace(" ", "_").replace("-", "_")
                                 def apkFile = output.outputFile
                                 def newApkFile = new File(apkFile.parent, newOutputFileName)
