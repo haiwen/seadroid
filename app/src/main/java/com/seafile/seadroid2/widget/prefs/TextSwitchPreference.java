@@ -1,10 +1,13 @@
 package com.seafile.seadroid2.widget.prefs;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.preference.PreferenceViewHolder;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -14,6 +17,7 @@ import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundSwitchPrefer
 public class TextSwitchPreference extends BackgroundSwitchPreference {
 
     private MaterialSwitch mMaterialSwitch;
+    private CharSequence mSwitchDesc = "";
 
     public TextSwitchPreference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -47,6 +51,26 @@ public class TextSwitchPreference extends BackgroundSwitchPreference {
             mMaterialSwitch.setChecked(isChecked());
             mMaterialSwitch.setClickable(false);
         }
+
+        TextView descView = (TextView) holder.findViewById(R.id.switch_widget_desc);
+        if (descView != null) {
+            descView.setText(mSwitchDesc);
+        }
+
+    }
+
+    public void setSwitchDesc(@Nullable CharSequence desc) {
+        CharSequence newDesc = desc == null ? "" : desc;
+        if (TextUtils.equals(mSwitchDesc, newDesc)) {
+            return;
+        }
+
+        mSwitchDesc = newDesc;
+        notifyChanged();
+    }
+
+    public void setSwitchDesc(@StringRes int descRes) {
+        setSwitchDesc(getContext().getText(descRes));
     }
 
     @Override

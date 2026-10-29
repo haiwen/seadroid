@@ -12,6 +12,7 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 
 /**
  * Sync adapter for media upload.
@@ -66,7 +67,7 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
                               ContentProviderClient provider,
                               SyncResult syncResult) {
 
-        boolean isFullScan = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL);
+        boolean isFullScan = extras.getBoolean(CameraUploadManager.KEY_IS_FULL_SCAN, false);
         SLogs.d(TAG, "onPerformSync()", " isFullScan = " + isFullScan);
 
         Account seafileAccount = SupportAccountManager.getInstance().getSeafileAccount(account);
@@ -87,10 +88,13 @@ public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
             return;
         }
 
+        boolean isAutoUploadPause = AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch();
+        if (isAutoUploadPause) {
+            SLogs.d(TAG, "onPerformSync()", "Automatic uploading has been paused.");
+            return;
+        }
+
         //start
         AlbumBackupAdapterBridge.syncAlbumBackup(getContext(), isFullScan);
-
-        // start
-//        BackgroundWorkScheduler.getInstance().startAlbumBackupTransferService(getContext());
     }
 }
