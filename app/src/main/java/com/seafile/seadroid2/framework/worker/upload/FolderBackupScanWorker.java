@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated
 public class FolderBackupScanWorker extends BaseScanWorker {
     public static final String TAG = "FolderBackupScanWorker";
     public static final UUID UID = UUID.nameUUIDFromBytes(TAG.getBytes());
@@ -88,12 +89,10 @@ public class FolderBackupScanWorker extends BaseScanWorker {
     @NonNull
     @Override
     public Result doWork() {
+
         SLogs.d(TAG, "doWork()", "started execution");
 
-        if (!canExc()) {
-            SLogs.e(TAG, "The folder scan task was not started, because the folder backup task is running");
-            return Result.success();
-        }
+        if (isTransferStopped()) return Result.retry();
 
         setIsRunning(true);
 
@@ -151,6 +150,7 @@ public class FolderBackupScanWorker extends BaseScanWorker {
         long lastScanTime = FolderBackupSharePreferenceHelper.readLastScanTime();
         SeafException seafException = FolderScanHelper.traverseBackupPath(backupPaths, account, repoConfig, lastScanTime);
         if (seafException != SeafException.SUCCESS) {
+            noticeScanFailed();
             SafeLogs.e(TAG, "scan failed");
             return returnSuccess();
         }

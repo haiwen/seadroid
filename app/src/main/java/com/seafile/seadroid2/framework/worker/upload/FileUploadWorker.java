@@ -93,7 +93,7 @@ public class FileUploadWorker extends BaseUploadWorker {
 
         while (true) {
             SLogs.d(TAG, "start()", "start upload file worker");
-            if (isStopped()) {
+            if (isTransferStopped()) {
                 break;
             }
 

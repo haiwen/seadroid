@@ -79,6 +79,7 @@ public class FileUploader extends ParentEventUploader {
         SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
+            if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel transferModel = GlobalTransferCacheList.FILE_UPLOAD_QUEUE.pick();
             if (transferModel == null) {
                 break;
@@ -86,11 +87,6 @@ public class FileUploader extends ParentEventUploader {
 
             try {
                 Account specialAccount = SupportAccountManager.getInstance().getSpecialAccount(transferModel.related_account);
-                if (specialAccount == null) {
-                    SafeLogs.d(TAG, "startUpload()", "special account is null: " + transferModel.related_account);
-                    continue;
-                }
-
                 transfer(specialAccount, transferModel);
 
             } catch (SeafException seafException) {
@@ -134,8 +130,7 @@ public class FileUploader extends ParentEventUploader {
 
         clearWhenComplete();
 
-        // clear all notifications
-        getTransferNotificationDispatcher().clearDelay();
+        // Producer scope owns its result notification.
 
         sendCompleteEvent(FeatureDataSource.MANUAL_FILE_UPLOAD, errorMsg, totalPendingCount);
         return resultException;

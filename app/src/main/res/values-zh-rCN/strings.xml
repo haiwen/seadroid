@@ -561,6 +561,18 @@ Email: support@seafile.com<br>
   <string name="notification_background_file_monitor_desc">用于 Seafile 后台文件监控持久通知</string>
   <string name="notification_background_file_monitor_title">Seafile 文件监控服务</string>
   <string name="notification_background_file_monitor_content">Seafile 正在后台监控文件变化和自动上传文件</string>
+  <string name="transfer_notice_manual">手动上传</string>
+  <string name="transfer_notice_share">分享文件</string>
+  <string name="transfer_notice_local">更新本地文件</string>
+  <string name="transfer_notice_scanning">正在扫描</string>
+  <string name="transfer_notice_preparing">准备传输</string>
+  <string name="transfer_notice_uploading">正在上传</string>
+  <string name="transfer_notice_downloading">正在下载</string>
+  <string name="transfer_notice_success">传输完成</string>
+  <string name="transfer_notice_empty">已完成，未传输文件</string>
+  <string name="transfer_notice_failed">传输失败，请打开传输列表查看详情</string>
+  <string name="transfer_notice_cancelled">传输已取消</string>
+  <string name="transfer_notice_counts">已完成 %1$d 个 · 失败 %2$d 个</string>
   <!--Gallery-->
   <string name="gallery_load_photos_error">加载图片错误</string>
   <string name="gallery_encrypted_repo_not_supported">不支持加密资料库</string>

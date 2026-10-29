@@ -590,6 +590,20 @@
     <string name="notification_background_file_monitor_desc">Used for Seafile background file monitoring persistent notifications</string>
     <string name="notification_background_file_monitor_title">Seafile file monitoring service</string>
     <string name="notification_background_file_monitor_content">Seafile is monitoring file changes in the background and uploading automatically.</string>
+
+    <string name="transfer_notice_manual">Manual upload</string>
+    <string name="transfer_notice_share">Share upload</string>
+    <string name="transfer_notice_local">Local file update</string>
+    <string name="transfer_notice_scanning">Scanning</string>
+    <string name="transfer_notice_preparing">Preparing transfer</string>
+    <string name="transfer_notice_uploading">Uploading</string>
+    <string name="transfer_notice_downloading">Downloading</string>
+    <string name="transfer_notice_success">Transfer completed</string>
+    <string name="transfer_notice_empty">Completed, no files transferred</string>
+    <string name="transfer_notice_failed">Transfer failed. Open the transfer list for details.</string>
+    <string name="transfer_notice_cancelled">Transfer cancelled</string>
+    <string name="transfer_notice_counts">Completed %1$d · Failed %2$d</string>
+
     <!--Gallery-->
     <string name="gallery_load_photos_error">Load photos error</string>
     <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
@@ -833,5 +847,7 @@
     <string name="tip_publish_wiki_desc">The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.</string>
     <string name="tip_stop_transfer_when_switch_or_logout">Files are transferring, do you still want to switch/exit?</string>
     <string name="tip_leave_share">Do you want to leave share?</string>
+
+
 
 </resources>

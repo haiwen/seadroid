@@ -31,7 +31,7 @@ public class AccountUtils {
         //
         CertsManager.instance().deleteCertForAccount(account);
 
-        NotificationUtils.cancelAll();
+        // Transfer cancellation is scoped by BackupThreadExecutor; never remove APK/service notifications here.
 
         // stop all transfer service
         BackupThreadExecutor.getInstance().stopAll();
@@ -73,7 +73,7 @@ public class AccountUtils {
             return;
         }
 
-        NotificationUtils.cancelAll();
+        // Transfer cancellation is scoped by BackupThreadExecutor; never remove APK/service notifications here.
 
         //
         FileDaemonServiceManager.getInstance().stopService();

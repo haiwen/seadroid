@@ -117,20 +117,7 @@ public class FileDaemonService extends Service {
 
     private Notification buildNotification() {
 
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, intent, FLAG_IMMUTABLE);
-
-        return new NotificationCompat.Builder(this, NotificationUtils.FILE_MONITOR_CHANNEL)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle(getString(R.string.notification_background_file_monitor_title))
-                .setContentText(getString(R.string.notification_background_file_monitor_content))
-                .setOngoing(true)
-                .setAutoCancel(false)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(pendingIntent)
-                .build();
+        return com.seafile.seadroid2.framework.notification.PersistentNotificationFactory.fileMonitor(this);
     }
 
     private final Handler periodicHandler = new Handler(Looper.getMainLooper());

@@ -98,6 +98,7 @@
   <string name="file_action_download">Herunterladen</string>
   <string name="file_action_update">Hochladen</string>
   <string name="file_share">Freigeben</string>
+  <string name="file_share_leave">Teilen lassen</string>
   <string name="file_action_share_wechat">Freigeben für WeChat</string>
   <string name="file_action_share_link">Link freigeben</string>
   <string name="file_action_share_encrypt">Freigabe-Link mit Passwort</string>
@@ -789,4 +790,5 @@ Zum Aktualisieren einmal antippen</string>
   <string name="tip_press_again_to_exit">Drücken Sie erneut, um zu verlassen</string>
   <string name="tip_publish_wiki_desc">Wiki veröffentlichen</string>
   <string name="tip_stop_transfer_when_switch_or_logout">Übertragung stoppt bei Wechsel oder Abmeldung</string>
+  <string name="tip_leave_share">Möchten Sie Share verlassen?</string>
 </resources>
