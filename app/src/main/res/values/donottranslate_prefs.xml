@@ -107,6 +107,7 @@
     <!-- cache -->
     <string name="pref_key_cache_info">key_cache_info</string>
     <string name="pref_key_cache_location">key_cache_location</string>
+    <string name="pref_key_download_folder">key_download_folder</string>
     <string name="pref_key_cache_clear">key_clear_cache</string>
 
     <!-- about -->
