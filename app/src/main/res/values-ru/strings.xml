@@ -98,6 +98,7 @@
   <string name="file_action_download">Скачать</string>
   <string name="file_action_update">Загрузить</string>
   <string name="file_share">Поделиться</string>
+  <string name="file_share_leave">Покинуть общий доступ</string>
   <string name="file_action_share_wechat">Поделиться в WeChat</string>
   <string name="file_action_share_link">Общедоступная ссылка</string>
   <string name="file_action_share_encrypt">Общедоступная ссылка с паролем</string>
@@ -417,6 +418,7 @@
   <string name="settings_camera_upload_advanced_custom_directories">Пользовательская загрузка альбомов</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Выбрать фотоальбомы</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Автоматическое сканирование устройства</string>
+  <string name="settings_camera_auto_upload_pause">Приостановить автоматическую загрузку</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Помощник по настройке</string>
   <string name="settings_cuc_welcome_text">Спасибо за использование помощника по настройке загрузки фото. \nЧтобы освоиться с сервисом загрузки фото, вам нужно пройти всего лишь несколько шагов.</string>
@@ -805,4 +807,5 @@
   <string name="tip_press_again_to_exit">Нажмите еще раз, чтобы выйти</string>
   <string name="tip_publish_wiki_desc">Пользовательская часть URL-адреса должна иметь длину от 5 до 30 символов и может содержать только буквы (a-z), цифры и дефисы.</string>
   <string name="tip_stop_transfer_when_switch_or_logout">Файлы передаются, все еще хотите переключиться/выйти?</string>
+  <string name="tip_leave_share">Вы хотите покинуть общий доступ?</string>
 </resources>
