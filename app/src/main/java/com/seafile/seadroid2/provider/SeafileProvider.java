@@ -81,6 +81,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -111,6 +113,12 @@ public class SeafileProvider extends DocumentsProvider {
     public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(AUTHORITY_OF_DOCUMENTS);
     private final ConcurrentHashMap<String, CompletableFuture<Void>> pendingWrites = new ConcurrentHashMap<>();
     private static final long WRITE_WAIT_TIMEOUT_MINUTES = 5;
+
+    /**
+     * Cached thread pool is required: a task waiting for a previous upload must
+     * not occupy the only thread that could drain another document's pipe.
+     */
+    private static final ExecutorService WRITE_EXECUTOR = Executors.newCachedThreadPool();
 
     private static final String[] SUPPORTED_ROOT_PROJECTION = new String[]{
             Root.COLUMN_ROOT_ID,
@@ -432,22 +440,6 @@ public class SeafileProvider extends DocumentsProvider {
         }
     }
 
-    private CompletableFuture<Void> registerWrite(String documentId) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        pendingWrites.put(documentId, future);
-        return future;
-    }
-
-    private void completeWrite(String documentId, CompletableFuture<Void> future, Exception error) {
-        if (error == null) {
-            future.complete(null);
-        } else {
-            future.completeExceptionally(error);
-        }
-
-        pendingWrites.remove(documentId, future);
-    }
-
     /**
      * Waits for a pending write operation of the specified document.
      *
@@ -532,19 +524,31 @@ public class SeafileProvider extends DocumentsProvider {
         });
 
         try {
-            CompletableFuture.runAsync(() -> {
+            WRITE_EXECUTOR.execute(() -> {
+
+                File spoolFile = null;
 
                 try {
+                    // Drain the pipe immediately, independently of any previous
+                    // upload. The external application blocks once the pipe
+                    // buffer is full, so waiting for an upload before consuming
+                    // the stream can deadlock when two write descriptors for the
+                    // same document are open at the same time.
+                    spoolFile = DataManager.createTempFile();
+                    try (InputStream in = new FileInputStream(readFd.getFileDescriptor());
+                         OutputStream out = new FileOutputStream(spoolFile)) {
+                        IOUtils.copy(in, out);
+                    }
+
+                    // Only the upload and the local cache commit are serialized.
                     CompletableFuture<Void> previousWrite = previousWriteRef.get();
 
-                    // Serialize writes for the same document.
                     // A previous failure must not permanently block a new write.
                     if (previousWrite != null) {
                         previousWrite.handle((result, error) -> null).join();
                     }
 
-                    // Read the data written by the external application.
-                    try (InputStream in = new FileInputStream(readFd.getFileDescriptor())) {
+                    try (InputStream in = new FileInputStream(spoolFile)) {
 
                         OpenDocumentWriter.uploadStreamToCloud(
                                 account,
@@ -559,6 +563,12 @@ public class SeafileProvider extends DocumentsProvider {
 
                     // Upload and local cache update completed successfully.
                     currentWrite.complete(null);
+
+                    // Only remove this operation if it is still the latest one.
+                    //
+                    // This prevents an older write from accidentally removing
+                    // a newer write registered for the same document.
+                    pendingWrites.remove(documentId, currentWrite);
 
                     SLogs.d(
                             TAG,
@@ -581,6 +591,11 @@ public class SeafileProvider extends DocumentsProvider {
 
                     currentWrite.completeExceptionally(e);
 
+                    // The failed future is intentionally kept in pendingWrites
+                    // (when it is still the latest one) so that a following read
+                    // observes the failure instead of returning stale content.
+                    // A later write for the same document replaces this state.
+
                 } finally {
 
                     try {
@@ -588,11 +603,14 @@ public class SeafileProvider extends DocumentsProvider {
                     } catch (IOException ignored) {
                     }
 
-                    // Only remove this operation if it is still the latest one.
-                    //
-                    // This prevents an older write from accidentally removing
-                    // a newer write registered for the same document.
-                    pendingWrites.remove(documentId, currentWrite);
+                    if (spoolFile != null && !spoolFile.delete()) {
+                        SLogs.d(
+                                TAG,
+                                "writeDocumentAsync()",
+                                "Failed to delete spool file",
+                                "path = " + spoolFile.getAbsolutePath()
+                        );
+                    }
                 }
 
             });
@@ -600,8 +618,8 @@ public class SeafileProvider extends DocumentsProvider {
         } catch (RuntimeException e) {
 
             // Executor rejected the task or task scheduling failed.
+            // Keep the exceptional future observable, as done for upload failures.
             currentWrite.completeExceptionally(e);
-            pendingWrites.remove(documentId, currentWrite);
 
             try {
                 readFd.close();
