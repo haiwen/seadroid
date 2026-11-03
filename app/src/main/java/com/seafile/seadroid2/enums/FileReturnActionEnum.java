@@ -7,5 +7,6 @@ public enum FileReturnActionEnum {
     SHARE,
     DOWNLOAD_VIDEO,
     OPEN_TEXT_MIME,
+    OPEN_PDF,
     SAVE_AS;
 }

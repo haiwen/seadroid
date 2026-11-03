@@ -106,6 +106,7 @@ import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
+import com.seafile.seadroid2.ui.previewer.pdf.PdfPreviewActivity;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
@@ -1750,6 +1751,17 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
+        if (Utils.isPdfFile(fileName)) {
+            File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
+            if (local.exists()) {
+                PdfPreviewActivity.start(requireContext(),local.getAbsolutePath());
+            } else {
+                Intent intent = FileActivity.start(requireContext(), dirent, FileReturnActionEnum.OPEN_PDF);
+                fileActivityLauncher.launch(intent);
+            }
+            return;
+        }
+
         if (Utils.isVideoFile(fileName)) {
             File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
             if (local.exists()) {
@@ -2237,6 +2249,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
 
                     MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+
+                } else if (TextUtils.equals(FileReturnActionEnum.OPEN_PDF.name(), action)) {
+
+                    PdfPreviewActivity.start(requireContext(),localFullPath);
 
                 } else if (TextUtils.equals(FileReturnActionEnum.SAVE_AS.name(), action)) {
                     checkMotionPhotoAndExport(destinationFile, FileReturnActionEnum.SAVE_AS);

@@ -329,6 +329,13 @@ android {
         //thanks: https://github.com/Baseflow/PhotoView
 //        implementation 'com.github.Chrisbanes:PhotoView:2.3.0'
 
+        //https://github.com/DImuthuUpe/AndroidPdfViewer
+        implementation('com.github.DImuthuUpe:AndroidPdfViewer:3.0.0-beta.2') {
+            exclude group: 'com.github.barteksc', module: 'pdfium-android'
+        }
+        // 16 KB page size compatible fork of PdfiumAndroid
+        implementation 'io.github.oothp:pdfium-android:1.9.5-beta01'
+
         //https://jitpack.io
         implementation 'com.github.haiwen:MarkdownView:v0.19.4'
         implementation 'com.github.yydcdut.RxMarkdown:markdown-processor:v0.1.3'

@@ -133,6 +133,9 @@
                 android:value=".ui.account.AccountsActivity" />
         </activity>
 
+        <activity
+            android:name=".ui.previewer.pdf.PdfPreviewActivity"
+            android:exported="false" />
 
         <activity android:name=".ui.camera_upload.CameraUploadConfigActivity" />
         <activity android:name=".ui.folder_backup.FolderBackupConfigActivity" />
