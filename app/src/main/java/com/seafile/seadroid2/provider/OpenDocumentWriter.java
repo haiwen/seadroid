@@ -197,8 +197,20 @@ public class OpenDocumentWriter {
                         }
                     }
                 } else {
-                    String resStr = new String(response.body().bytes());
-                    SLogs.e("Upload failed: " + resStr);
+                    String errorMessage = "";
+
+                    ResponseBody errorBody = response.body();
+
+                    if (errorBody != null) {
+                        errorMessage = errorBody.string();
+                    }
+
+                    throw new IOException(
+                            "Upload failed. HTTP code: "
+                                    + response.code()
+                                    + ", message: "
+                                    + errorMessage
+                    );
                 }
             }
         } catch (IOException e) {
