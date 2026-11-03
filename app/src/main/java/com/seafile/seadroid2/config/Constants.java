@@ -68,15 +68,15 @@ public class Constants {
         public static final String DOT_DRAW = ".draw";
         public static final String DOT_DOC = ".doc";
         public static final String DOT_DOCX = ".docx";
-        public static final String DOT_ODT = ".odt";
         public static final String DOT_XLSX = ".xlsx";
         public static final String DOT_XLS = ".xls";
-        public static final String DOT_ODS = ".ods";
         public static final String DOT_PPT = ".ppt";
         public static final String DOT_PPTX = ".pptx";
         public static final String DOT_PPSX = ".ppsx";
+        // collabora
+        public static final String DOT_ODS = ".ods";
+        public static final String DOT_ODT = ".odt";
         public static final String DOT_ODP = ".odp";
-        public static final String DOT_PDF = ".pdf";
     }
 
     public static class DP {

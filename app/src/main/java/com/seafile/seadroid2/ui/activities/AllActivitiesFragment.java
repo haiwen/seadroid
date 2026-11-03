@@ -39,7 +39,6 @@ import com.seafile.seadroid2.framework.model.activities.ActivityDetailModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.listener.OnItemClickListener;
 import com.seafile.seadroid2.listener.OnItemClickListener2;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activities.others_dialog.ActivityOtherListDialog;
@@ -458,7 +457,7 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
         } else if (activityModel.name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name, false);
 
-        } else if (Utils.isOnlyOfficeFile(activityModel.name) && serverInfo.isEnableOnlyOffice()) {
+        } else if (Utils.isOfficeFile(activityModel.name) && serverInfo.isEnableOnlyOffice()) {
             OfficeDocumentWebActivity.openDocument(getContext(), activityModel.repo_name, activityModel.repo_id, activityModel.path, activityModel.name);
 
         } else if (Utils.isVideoFile(activityModel.name)) {

@@ -1744,10 +1744,12 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         }
 
         ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
-        if (Utils.isOnlyOfficeFile(fileName) && serverInfo.isEnableOnlyOffice()) {
-            String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
-            OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
-            return;
+        if (Utils.isOfficeFile(fileName) || Utils.isCollaboraOfficeExtends(fileName)) {
+            if (serverInfo.isEnableOnlyOffice() || serverInfo.isEnableCollaboraOffice()) {
+                String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
+                OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
+                return;
+            }
         }
 
         if (Utils.isVideoFile(fileName)) {

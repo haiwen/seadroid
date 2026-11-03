@@ -27,7 +27,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 
@@ -404,7 +403,7 @@ public class Utils {
         return false;
     }
 
-    public static boolean isOnlyOfficeFile(String name) {
+    public static boolean isOfficeFile(String name) {
         if (TextUtils.isEmpty(name)) {
             return false;
         }
@@ -431,13 +430,28 @@ public class Utils {
         if (name.endsWith(Constants.FileExtensions.DOT_PPT)) {
             return true;
         }
+
         if (name.endsWith(Constants.FileExtensions.DOT_PPTX)) {
             return true;
         }
+
         if (name.endsWith(Constants.FileExtensions.DOT_PPSX)) {
             return true;
         }
 
+        return false;
+    }
+
+    public static boolean isCollaboraOfficeExtends(String name) {
+        if (name.endsWith(Constants.FileExtensions.DOT_ODP)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_ODS)) {
+            return true;
+        }
+        if (name.endsWith(Constants.FileExtensions.DOT_ODT)) {
+            return true;
+        }
         return false;
     }
 
@@ -634,7 +648,6 @@ public class Utils {
 
         return null;
     }
-
 
 
     public static String getStackTrace(Exception e) {

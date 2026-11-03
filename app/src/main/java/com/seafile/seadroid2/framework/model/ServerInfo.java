@@ -79,6 +79,10 @@ public class ServerInfo implements Parcelable {
         return features != null && features.contains("onlyoffice");
     }
 
+    public boolean isEnableCollaboraOffice() {
+        return features != null && features.contains("collaboraonline");
+    }
+
     public boolean isSearchEnabled() {
         return features != null && features.contains("file-search");
     }

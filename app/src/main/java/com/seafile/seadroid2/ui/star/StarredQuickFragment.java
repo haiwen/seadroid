@@ -31,11 +31,9 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.databinding.FragmentStarredBinding;
-import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.enums.FileReturnActionEnum;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
-import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
@@ -468,7 +466,7 @@ public class StarredQuickFragment extends BaseFragmentWithVM<StarredViewModel> {
         } else if (model.obj_name.endsWith(Constants.FileExtensions.DOT_SDOC)) {
             SDocWebViewActivity.openSdoc(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name, false);
 
-        } else if (Utils.isOnlyOfficeFile(model.obj_name) && serverInfo.isEnableOnlyOffice()) {
+        } else if (Utils.isOfficeFile(model.obj_name) && serverInfo.isEnableOnlyOffice()) {
             OfficeDocumentWebActivity.openDocument(getContext(), model.repo_name, model.repo_id, model.path, model.obj_name);
 
         } else if (Utils.isVideoFile(model.obj_name)) {
