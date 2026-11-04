@@ -19,6 +19,7 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.WikiType;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.model.BaseModel;
+import com.seafile.seadroid2.framework.model.wiki.GroupWikiModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiGroupModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiInfoModel;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -80,11 +81,16 @@ public class WikiFragment extends BaseFragmentWithVM<WikiViewModel> {
                 }
 
                 BaseModel model = adapter.getItems().get(i);
+
+                if (model instanceof WikiGroupModel) {
+                    return;
+                }
+
                 WikiInfoModel wikiInfoModel = (WikiInfoModel) model;
                 String url;
                 if (StringUtils.equalsIgnoreCase(wikiInfoModel.type, WikiType.TYPE_OLD)) {
                     url = Utils.pathJoin(account.getServer(), "published", wikiInfoModel.slug);
-                }else {
+                } else {
                     url = Utils.pathJoin(account.getServer(), "wikis", wikiInfoModel.id);
                 }
 
