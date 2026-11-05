@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.wiki;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter4.BaseQuickAdapter;
 import com.seafile.seadroid2.R;
@@ -39,6 +41,7 @@ import java.util.List;
 public class WikiFragment extends BaseFragmentWithVM<WikiViewModel> {
     private LayoutFrameSwipeRvBinding binding;
     private WikiAdapter adapter;
+    private Runnable spanUpdate;
 
     public static WikiFragment newInstance() {
 
@@ -107,7 +110,7 @@ public class WikiFragment extends BaseFragmentWithVM<WikiViewModel> {
             public int getSpanSize(int position) {
                 BaseModel model = adapter.getItems().get(position);
                 if (model instanceof WikiGroupModel) {
-                    return 2;
+                    return manager.getSpanCount();
                 }
                 return 1;
             }
@@ -116,6 +119,55 @@ public class WikiFragment extends BaseFragmentWithVM<WikiViewModel> {
         binding.rv.setLayoutManager(manager);
         binding.rv.setClipToPadding(false);
         binding.rv.setPadding(Constants.DP.DP_8, Constants.DP.DP_8, Constants.DP.DP_8, Constants.DP.DP_8);
+
+        RecyclerView recyclerView = binding.rv;
+        Runnable update = () -> updateSpanCount(recyclerView, manager);
+        spanUpdate = update;
+        recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (binding == null || binding.rv != recyclerView) {
+                return;
+            }
+            recyclerView.removeCallbacks(update);
+            recyclerView.post(update);
+        });
+    }
+
+    private void updateSpanCount(RecyclerView recyclerView, GridLayoutManager manager) {
+        if (binding == null || binding.rv != recyclerView || recyclerView.getLayoutManager() != manager) {
+            return;
+        }
+        if (recyclerView.isComputingLayout()) {
+            recyclerView.postOnAnimation(spanUpdate);
+            return;
+        }
+
+        int availableWidth = recyclerView.getWidth() - recyclerView.getPaddingLeft() - recyclerView.getPaddingRight();
+        float widthDp = availableWidth / recyclerView.getResources().getDisplayMetrics().density;
+        int spanCount = availableWidth > 0 ? Math.max(2, Math.min(6, (int) (widthDp / 180))) : 2;
+        if (spanCount == manager.getSpanCount()) {
+            return;
+        }
+
+        int anchorPosition = manager.findFirstVisibleItemPosition();
+        View anchor = manager.findViewByPosition(anchorPosition);
+        int offset = 0;
+        if (anchor != null) {
+            Rect bounds = new Rect();
+            manager.getDecoratedBoundsWithMargins(anchor, bounds);
+            offset = bounds.top - recyclerView.getPaddingTop();
+        }
+        manager.setSpanCount(spanCount);
+        if (anchor != null && anchorPosition != RecyclerView.NO_POSITION) {
+            manager.scrollToPositionWithOffset(anchorPosition, offset);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        binding.rv.removeCallbacks(spanUpdate);
+        spanUpdate = null;
+        binding = null;
+        super.onDestroyView();
     }
 
     private void initLiveData() {

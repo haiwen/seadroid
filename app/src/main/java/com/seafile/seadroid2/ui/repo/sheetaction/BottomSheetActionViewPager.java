@@ -16,42 +16,35 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.blankj.utilcode.util.CollectionUtils;
-import com.blankj.utilcode.util.ScreenUtils;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.listener.OnBottomSheetItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BottomSheetActionViewPager {
     private final Activity context;
-    private final int columnCount = 5;
-    private final int rowCount = 2;
-    private final int screenWidth = ScreenUtils.getAppScreenWidth();
-    private final int itemWidth = screenWidth / columnCount;
-    public final int layoutHeight = (int) (itemWidth * 2.5);
+    private static final int COLUMN_COUNT_FALLBACK = 5;
+    private static final int ROW_COUNT = 2;
+    private int columnCount = COLUMN_COUNT_FALLBACK;
+    private int itemWidth;
+    public int layoutHeight;
     private int currentPage = 0;
-    private BottomSheetActionView.OnBottomSheetItemClickListener itemClickListener;
+    private OnBottomSheetItemClickListener itemClickListener;
 
     public BottomSheetActionViewPager(Activity context) {
         this.context = context;
     }
 
-    public interface OnBottomSheetItemClickListener {
-        void onItemClick(MenuItem item);
-    }
-
-    public void setOnItemClickListener(BottomSheetActionView.OnBottomSheetItemClickListener listener) {
+    public void setOnItemClickListener(OnBottomSheetItemClickListener listener) {
         this.itemClickListener = listener;
     }
 
@@ -66,7 +59,12 @@ public class BottomSheetActionViewPager {
             return;
         }
 
-        int perPageItemCount = columnCount * rowCount;
+        int availableWidth = BottomSheetActionLayoutHelper.getAvailableWidth(context);
+        columnCount = BottomSheetActionLayoutHelper.getColumnCount(context, availableWidth);
+        itemWidth = BottomSheetActionLayoutHelper.getItemWidth(availableWidth, columnCount);
+        layoutHeight = (int) (itemWidth * 2.5f);
+
+        int perPageItemCount = columnCount * ROW_COUNT;
         int pageCount;
         if (menuItems.size() % perPageItemCount == 0) {
             pageCount = menuItems.size() / perPageItemCount;
@@ -77,6 +75,12 @@ public class BottomSheetActionViewPager {
 
         if (floatingView != null && pager != null && floatingView.isAttachedToWindow()) {
             pager.removeAllViews();
+
+            ViewGroup.LayoutParams layoutParams = floatingView.getLayoutParams();
+            if (layoutParams != null) {
+                layoutParams.height = layoutHeight;
+                floatingView.setLayoutParams(layoutParams);
+            }
 
             pagerAdapter = new ViewPagerAdapter(pageCount, vs);
             pager.setAdapter(pagerAdapter);
@@ -118,7 +122,7 @@ public class BottomSheetActionViewPager {
 
     private List<View> getViews(List<MenuItem> menuItems, int pageCount) {
 
-        int perPageItemCount = columnCount * rowCount;
+        int perPageItemCount = columnCount * ROW_COUNT;
 
         List<View> views = new ArrayList<>();
         for (int i = 0; i < pageCount; i++) {
@@ -206,7 +210,8 @@ public class BottomSheetActionViewPager {
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
             View view = views.get(position);
-            ViewGroup.LayoutParams vl = new ViewGroup.LayoutParams(itemWidth, itemWidth);
+            ViewGroup.LayoutParams vl = new ViewGroup.LayoutParams(
+                    itemWidth, itemWidth * ROW_COUNT);
             container.addView(view, vl);
             return view;
         }

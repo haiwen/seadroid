@@ -3,54 +3,60 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar_actionbar"
-        style="@style/App.Widget.ToolBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/libraries" />
-
-    <com.google.android.material.divider.MaterialDivider
-        android:id="@+id/toolbar_divider"
+    <com.google.android.material.navigationrail.NavigationRailView
+        android:id="@+id/nav_rail"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:dividerColor="@color/divider_color"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_actionbar" />
-
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_weight="1"
-        android:layout_height="0dp"
-        android:background="@color/window_background_color"
-        app:layout_constraintBottom_toTopOf="@+id/pager_divider"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_divider" />
-
-    <com.google.android.material.divider.MaterialDivider
-        android:id="@+id/pager_divider"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:dividerColor="@color/divider_color"
-        app:layout_constraintBottom_toTopOf="@+id/nav_bottom_view"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_bottom_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_navigation_menu" />
-</LinearLayout>
 
+    <View
+        android:id="@+id/rail_divider"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/divider_color"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/content_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_actionbar"
+            style="@style/App.Widget.ToolBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:title="@string/libraries" />
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/toolbar_divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:dividerColor="@color/divider_color" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/window_background_color" />
+
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/pager_divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:dividerColor="@color/divider_color" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/nav_bottom_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/bottom_navigation_menu" />
+
+    </LinearLayout>
+</LinearLayout>
