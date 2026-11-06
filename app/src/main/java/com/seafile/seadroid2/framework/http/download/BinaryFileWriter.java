@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.framework.http.download;
 
+import android.os.SystemClock;
+
 import com.seafile.seadroid2.framework.http.callback.ProgressCallback;
 
 import java.io.BufferedInputStream;
@@ -17,7 +19,7 @@ public class BinaryFileWriter implements AutoCloseable {
         this.callback = callback;
     }
 
-    private long temp = System.currentTimeMillis();
+    private long temp = SystemClock.elapsedRealtime();
 
     public long write(InputStream inputStream, long totalSize) throws IOException {
         try (BufferedInputStream input = new BufferedInputStream(inputStream)) {
@@ -32,7 +34,7 @@ public class BinaryFileWriter implements AutoCloseable {
                     outputStream.write(dataBuffer, 0, readBytes);
                 }
 
-                long now = System.currentTimeMillis();
+                long now = SystemClock.elapsedRealtime();
                 if (now - temp > 250) {
                     temp = now;
                     //

@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.framework.util;
 
+import android.os.SystemClock;
+
 import androidx.biometric.BiometricManager;
 
 import com.seafile.seadroid2.SeadroidApplication;
@@ -62,7 +64,7 @@ public final class AppLockManager {
      */
     public static void onAppBackgrounded() {
         if (isLockFeatureEnabled()) {
-            sLastBackgroundTimestamp = System.currentTimeMillis();
+            sLastBackgroundTimestamp = SystemClock.elapsedRealtime();
         }
     }
 
@@ -78,7 +80,7 @@ public final class AppLockManager {
             // First foreground after cold start — already handled by lockIfEnabled()
             return;
         }
-        long elapsed = System.currentTimeMillis() - sLastBackgroundTimestamp;
+        long elapsed = SystemClock.elapsedRealtime() - sLastBackgroundTimestamp;
         long timeoutMs = getLockTimeoutMs();
         if (timeoutMs == 0 || elapsed >= timeoutMs) {
             sLocked = true;

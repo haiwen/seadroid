@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.provider;
 
+import android.os.SystemClock;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +18,7 @@ public class DocumentCache {
             return true;//not found, need to re-load
         }
 
-        if (expireTimeLong + CACHE_EXPIRATION < System.currentTimeMillis()) {
+        if (expireTimeLong + CACHE_EXPIRATION < SystemClock.elapsedRealtime()) {
             return true;//expired, need to re-load
         }
 
@@ -25,7 +27,7 @@ public class DocumentCache {
 
 
     public void put(String documentId) {
-        mCache.put(documentId, System.currentTimeMillis());
+        mCache.put(documentId, SystemClock.elapsedRealtime());
     }
 
     public void remove(String documentId) {

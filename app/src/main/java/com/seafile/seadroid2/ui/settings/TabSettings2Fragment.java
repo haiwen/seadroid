@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.View;
@@ -1580,7 +1581,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         }
         if (!dialog.isShowing()) {
             dialog.show();
-            dialogShowTimestamp = System.currentTimeMillis();
+            dialogShowTimestamp = SystemClock.elapsedRealtime();
         }
     }
 
@@ -1589,7 +1590,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             return;
         }
 
-        long elapsed = System.currentTimeMillis() - dialogShowTimestamp;
+        long elapsed = SystemClock.elapsedRealtime() - dialogShowTimestamp;
         if (elapsed >= MIN_DIALOG_SHOW_TIME) {
             dialog.dismiss();
         } else {

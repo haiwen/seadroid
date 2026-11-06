@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.framework.worker.body;
 
+import android.os.SystemClock;
+
 import androidx.annotation.NonNull;
 
 import com.seafile.seadroid2.framework.worker.TransferWorker;
@@ -44,7 +46,7 @@ public class FileChunkRequestBody extends BaseRequestBody {
                  Source source = Okio.source(inputStream);
                  Buffer buffer = new Buffer()) {
                 long fileLength = file.length();
-                long lastUpdateTime = System.currentTimeMillis();
+                long lastUpdateTime = SystemClock.elapsedRealtime();
                 long totalReadForChunk = 0;
 
                 while (totalReadForChunk < chunkSize) {
@@ -65,7 +67,7 @@ public class FileChunkRequestBody extends BaseRequestBody {
                     sink.write(buffer, readCount);
                     totalReadForChunk += readCount;
 
-                    long now = System.currentTimeMillis();
+                    long now = SystemClock.elapsedRealtime();
                     if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
                         dispatchProgress(offset + totalReadForChunk, fileLength);
                         lastUpdateTime = now;
