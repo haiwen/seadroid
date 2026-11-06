@@ -4,12 +4,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Objects;
+import com.google.gson.annotations.SerializedName;
 
 public class UserModel implements Parcelable {
+    @SerializedName("email")
     private String email;
+    @SerializedName("name")
     private String name;
+    @SerializedName("contact_email")
     private String contact_email;
+    @SerializedName("avatar_url")
     private String avatar_url;
+    @SerializedName("isSelected")
     private boolean isSelected;
 
     public boolean isSelected() {

@@ -1,11 +1,19 @@
 package com.seafile.seadroid2.framework.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class StorageInfo {
+    @SerializedName("path")
     public String path;           // 真实路径
+    @SerializedName("label")
     public String label;          // 用户可读的标签，如“内部存储”“SD 卡”“U盘”
+    @SerializedName("isRemovable")
     public boolean isRemovable;   // 是否是可移除存储（如 SD 卡、OTG）
+    @SerializedName("isPrimary")
     public boolean isPrimary;     // 是否为主存储（如 /storage/emulated/0）
+    @SerializedName("isAvailable")
     public boolean isAvailable;     // 是否可用
+    @SerializedName("type")
     public Type type;
 
     public StorageInfo() {

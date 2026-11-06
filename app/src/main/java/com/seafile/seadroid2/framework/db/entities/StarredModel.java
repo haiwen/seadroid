@@ -13,29 +13,45 @@ import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.google.gson.annotations.SerializedName;
 
 @Entity(tableName = "starred_dirents")
 public class StarredModel extends BaseModel implements Parcelable {
+    @SerializedName("uid")
     @PrimaryKey(autoGenerate = true)
     public long uid;
 
+    @SerializedName("related_account")
     public String related_account;  //related account
+    @SerializedName("repo_id")
     public String repo_id;
+    @SerializedName("repo_name")
     public String repo_name;
+    @SerializedName("repo_encrypted")
     public boolean repo_encrypted;
+    @SerializedName("is_dir")
     public boolean is_dir;
+    @SerializedName("deleted")
     public boolean deleted;
 
+    @SerializedName("mtime")
     public String mtime;
+    @SerializedName("path")
     public String path;
+    @SerializedName("obj_name")
     public String obj_name;
+    @SerializedName("user_email")
     public String user_email;
+    @SerializedName("user_name")
     public String user_name;
+    @SerializedName("user_contact_email")
     public String user_contact_email;
 
     //image thumbnail url
+    @SerializedName("encoded_thumbnail_src")
     public String encoded_thumbnail_src;
 
+    @SerializedName("mtime_long")
     @Ignore
     public long mtime_long;
 

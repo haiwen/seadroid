@@ -1,8 +1,10 @@
 package com.seafile.seadroid2.framework.model.dirents;
 
 import com.seafile.seadroid2.framework.model.ResultModel;
+import com.google.gson.annotations.SerializedName;
 
 public class DeleteDirentModel extends ResultModel {
+    @SerializedName("commit_id")
     public String commit_id;
 
     @Override

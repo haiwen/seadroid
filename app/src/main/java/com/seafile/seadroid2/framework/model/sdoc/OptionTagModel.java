@@ -4,17 +4,25 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.room.Ignore;
+import com.google.gson.annotations.SerializedName;
 
 public class OptionTagModel {
+    @SerializedName("type")
     public String type;// tag/single-select/muilt-select
+    @SerializedName("borderColor")
     public String borderColor;
 
     //default #EED5FF
+    @SerializedName("color")
     public String color = "#EED5FF";
+    @SerializedName("id")
     public String id;
+    @SerializedName("name")
     public String name;
+    @SerializedName("textColor")
     public String textColor = "#202428";
 
+    @SerializedName("isSelected")
     @Ignore
     public boolean isSelected;
 

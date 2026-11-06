@@ -120,6 +120,9 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-project.txt'
+
 
             resValue "string", "authorities", defaultConfig.applicationId + '.cameraupload.provider'
             resValue "string", "account_type", defaultConfig.applicationId + ".account.api2"
@@ -127,8 +130,6 @@ android {
             buildConfigField "String", "ACCOUNT_TYPE", '"' + defaultConfig.applicationId + '.account.api2"'
             buildConfigField "String", "FILE_PROVIDER_AUTHORITIES", '"' + defaultConfig.applicationId + '.fileprovider"'
 
-
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
                     if (variant.name == "release") {
@@ -230,7 +231,6 @@ android {
         implementation "androidx.preference:preference:1.2.1"
 //        implementation "androidx.datastore:datastore-preferences:1.0.0"
 //        implementation "androidx.datastore:datastore-preferences-rxjava2:1.0.0"
-        implementation "androidx.core:core-splashscreen:1.0.1"
         implementation "androidx.webkit:webkit:1.12.1"
         implementation 'com.google.android.flexbox:flexbox:3.0.0'
 
@@ -305,8 +305,6 @@ android {
         implementation 'commons-io:commons-io:2.16.1'
         //https://github.com/apache/commons-lang
         implementation 'com.github.apache:commons-lang:rel~commons-lang-3.12.0'
-        //https://github.com/apache/commons-imaging
-        implementation 'com.github.apache:commons-imaging:sanselan-0.97-incubator'
 
 
         //Rxjava
