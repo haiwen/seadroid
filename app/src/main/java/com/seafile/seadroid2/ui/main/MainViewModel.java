@@ -9,11 +9,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -25,6 +28,7 @@ import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.UnicodePathUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
@@ -165,20 +169,21 @@ public class MainViewModel extends BaseViewModel {
                         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                     }
                 } else {
-                    for (Uri uri : uris) {
-                        Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri);
-                        // nfc form
-                        String fileName = UnicodePathUtils.normalize(jpegPair.first);
+                    boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch();
 
-                        boolean isExists;
-                        if (jpegPair.second) { // is jpeg mp?
-                            String baseName = FilenameUtils.getBaseName(fileName);
-                            //convert extend format jpeg to heic
-                            String heicName = baseName + ".heic";
-                            isExists = wrapperModel.dirent_list.stream().anyMatch(f -> TextUtils.equals(f.name, heicName));
-                        } else {
-                            isExists = wrapperModel.dirent_list.stream().anyMatch(f -> TextUtils.equals(f.name, fileName));
+                    for (Uri uri : uris) {
+                        String fileName = Utils.getFilenameFromUri(context, uri);
+                        fileName = UnicodePathUtils.normalize(fileName);// nfc form
+
+                        if (!isUploadOriginalMotionPhoto){
+                            Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri,fileName);
+                            if (jpegPair.second) { // is jpeg motion photo?
+                                fileName = FilenameUtils.getBaseName(fileName) + ".heic";
+                            }
                         }
+
+                        String finalFileName = fileName;
+                        boolean isExists = wrapperModel.dirent_list.stream().anyMatch(f -> TextUtils.equals(f.name, finalFileName));
 
                         TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isExists);
                         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
@@ -201,59 +206,48 @@ public class MainViewModel extends BaseViewModel {
         });
     }
 
-    public void checkRemoteDirent(String repoId, String fullPath, java.util.function.Consumer<DirentFileModel> consumer) {
-        Single<DirentFileModel> detailSingle = HttpManager.getCurrentHttp()
-                .execute(FileService.class)
-                .getFileDetail(repoId, fullPath);
-        addSingleDisposable(detailSingle, new Consumer<DirentFileModel>() {
-            @Override
-            public void accept(DirentFileModel direntFileModel) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(direntFileModel);
-                }
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(null);
-                }
-            }
-        });
-    }
-
-    public void checkRemoteDirent(String repoId, String destinationPath1, String destinationPath2, java.util.function.Consumer<DirentFileModel> consumer) {
-        if (TextUtils.isEmpty(destinationPath2)) {
-            checkRemoteDirent(repoId, destinationPath1, consumer);
+    public void checkRemoteDirent(Context context, String repoId, Uri uri, java.util.function.Consumer<Pair<String, DirentFileModel>> consumer) {
+        if (context == null) {
             return;
         }
 
+        String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
+        String fileName = Utils.getFilenameFromUri(context, uri);
+        fileName = UnicodePathUtils.normalize(fileName);// nfc form
 
-        Single<DirentFileModel> detailSingle1 = HttpManager.getCurrentHttp()
+        boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch();
+        if (!isUploadOriginalMotionPhoto) {
+            Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri, fileName);
+            if (jpegPair.second) {
+                fileName = FilenameUtils.getBaseName(fileName) + ".heic";
+            }
+        }
+
+        // destination path
+        String destinationPath = Utils.pathJoin(parent_dir, fileName);
+
+        Single<DirentFileModel> winner = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
-                .getFileDetail(repoId, destinationPath1)
-                .onErrorResumeNext(Single.never());
+                .getFileDetail(repoId, destinationPath);
 
-        Single<DirentFileModel> detailSingle2 = HttpManager.getCurrentHttp()
-                .execute(FileService.class)
-                .getFileDetail(repoId, destinationPath2)
-                .onErrorResumeNext(Single.never());
-
-        Single<DirentFileModel> winner = Single.ambArray(detailSingle1, detailSingle2)
-                .timeout(10, TimeUnit.SECONDS);
-
+        String finalFileName = fileName;
         addSingleDisposable(winner, new Consumer<DirentFileModel>() {
             @Override
             public void accept(DirentFileModel direntFileModel) throws Exception {
                 if (consumer != null) {
-                    consumer.accept(direntFileModel);
+                    consumer.accept(new Pair<>(finalFileName, direntFileModel));
                 }
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
-                if (consumer != null) {
-                    consumer.accept(null);
+                SeafException seafException = getSeafExceptionByThrowable(throwable);
+                if (seafException == SeafException.NOT_FOUND_EXCEPTION) {
+                    if (consumer != null) {
+                        consumer.accept(new Pair<>(finalFileName, null));
+                    }
+                } else {
+                    Toasts.show(seafException.getMessage());
                 }
             }
         });

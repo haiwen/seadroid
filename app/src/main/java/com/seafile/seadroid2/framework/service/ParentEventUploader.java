@@ -326,8 +326,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         // This also means that if the motion_photo_path field is empty,
         // then subsequent code related to animated photos will not be executed.
         // This file will only be treated as a regular file, and hasExtraMotionPhoto function is false.
-        boolean isUploadOriginalPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch();
-        if (isUploadOriginalPhoto) {
+        boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch();
+        if (!isUploadOriginalMotionPhoto) {
             currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
         }
 
@@ -393,6 +393,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     /**
      * A motion photo is uploaded as its converted HEIC copy, so the transfer is
      * renamed to the .heic name and the target path is rewritten accordingly.
+     * <p>
+     * It's possible that the extended format has already been changed to "heic" in MainViewModel, but it doesn't matter.
      */
     private void applyMotionPhotoFileName() {
         currentTransferModel.original_name = currentTransferModel.file_name;

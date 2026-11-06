@@ -220,6 +220,10 @@ public class Utils {
 
     public static Pair<String, Boolean> isJpegMotionPhoto(Context context, Uri uri) {
         String fileName = Utils.getFilenameFromUri(context, uri);
+        return isJpegMotionPhoto(context, uri, fileName);
+    }
+
+    public static Pair<String, Boolean> isJpegMotionPhoto(Context context, Uri uri, String fileName) {
         if (StringUtils.isEmpty(fileName)) {
             return new Pair<>(fileName, false);
         }
@@ -231,6 +235,7 @@ public class Utils {
         MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(context, uri);
         return new Pair<>(fileName, descriptor.isMotionPhoto());
     }
+
 
     public static boolean isJpeg(String name) {
         String suffix = FilenameUtils.getExtension(name);
@@ -634,7 +639,6 @@ public class Utils {
 
         return null;
     }
-
 
 
     public static String getStackTrace(Exception e) {

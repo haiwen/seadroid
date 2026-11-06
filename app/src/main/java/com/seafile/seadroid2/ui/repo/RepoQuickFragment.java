@@ -68,6 +68,7 @@ import com.seafile.seadroid2.enums.RefreshStatusEnum;
 import com.seafile.seadroid2.enums.RepoDecryptResult;
 import com.seafile.seadroid2.enums.SortBy;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -2617,43 +2618,23 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         showLoadingDialog();
 
-        String parent_dir = GlobalNavContext.getCurrentNavContext().getNavPath();
-
-        Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(requireContext(), uri);
-
-        // nfc form
-        String fileName = UnicodePathUtils.normalize(jpegPair.first);
-        // destination path
-        String destinationPath = Utils.pathJoin(parent_dir, fileName);
-
-        String heicPath = null;
-        if (jpegPair.second) {
-            String baseName = FilenameUtils.getBaseName(fileName);
-            //convert extend format jpeg to heic
-            heicPath = Utils.pathJoin(parent_dir, baseName) + ".heic";
-        }
-
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
-
         if (repoModel == null) {
             Toasts.show(R.string.op_unable_to_with_exception);
             return;
         }
 
-        mainViewModel.checkRemoteDirent(repoModel.repo_id, destinationPath, heicPath, new java.util.function.Consumer<DirentFileModel>() {
+        mainViewModel.checkRemoteDirent(requireContext(), repoModel.repo_id, uri, new java.util.function.Consumer<Pair<String, DirentFileModel>>() {
             @Override
-            public void accept(DirentFileModel direntFileModel) {
+            public void accept(Pair<String, DirentFileModel> pair) {
                 dismissLoadingDialog();
 
-                if (!NetworkUtils.isConnected()) {
-                    Toasts.show(R.string.network_error);
-                    return;
-                }
-
+                DirentFileModel direntFileModel = pair.second;
                 if (direntFileModel != null) {
-                    showFileExistDialog(uri, FilenameUtils.getName(destinationPath));
+                    showFileExistDialog(uri, pair.first);
                 } else {
-                    addUploadTask(repoModel, GlobalNavContext.getCurrentNavContext().getNavPath(), uri, fileName, false);
+                    String targetDir = GlobalNavContext.getCurrentNavContext().getNavPath();
+                    addUploadTask(repoModel, targetDir, uri, pair.first, false);
                 }
             }
         });

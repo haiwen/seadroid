@@ -386,7 +386,7 @@
   <string name="settings_contacts_upload_start_backup">開始上傳聯繫人</string>
   <string name="settings_contacts_upload_start_backup_hint">點擊開始上傳聯繫人</string>
   <!--Camera Upload Preference-->
-  <string name="settings_camera_upload_info_title">上傳照片</string>
+  <string name="settings_camera_upload_info_title">照片備份</string>
   <string name="settings_camera_upload_service_started">上傳服務已啓動</string>
   <string name="settings_camera_upload_service_stopped">上傳服務已關閉</string>
   <string name="settings_camera_upload_allow_data_plan">允許使用移動流量套餐</string>
@@ -397,7 +397,7 @@
   <string name="settings_camera_upload_videos_allowed">支持視頻上傳</string>
   <string name="settings_camera_upload_change_repo_title">上傳資料庫</string>
   <string name="settings_camera_upload_repo_hint">請先選擇一個資料庫來上傳照片</string>
-  <string name="settings_camera_upload_turn_on">打開照片上傳</string>
+  <string name="settings_camera_upload_turn_on">打開備份</string>
   <string name="settings_camera_upload_choose_dir">更改相冊</string>
   <string name="settings_camera_upload_dir_auto_scan">默認自動掃描照片</string>
   <string name="settings_camera_upload_lib_not_found">資料庫不存在</string>
@@ -406,6 +406,7 @@
   <string name="settings_camera_upload_advanced_custom_directories">選擇上傳相冊</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">選擇備份相冊</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">自動掃描設備</string>
+  <string name="settings_camera_auto_upload_pause">暫停自動上傳</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">配置助手</string>
   <string name="settings_cuc_welcome_text">感謝使用照片上傳配置助手，\n在開始使用上傳服務之前，將會引導你如何進行配置。</string>
@@ -622,8 +623,8 @@
   <string name="required_password">需要密碼</string>
   <string name="weak_password">弱密碼</string>
   <!--Folder backup Preference-->
-  <string name="settings_folder_backup_info_title">相冊備份信息</string>
-  <string name="settings_folder_backup_switch_title">啟用相冊備份</string>
+  <string name="settings_folder_backup_info_title">文件夾備份</string>
+  <string name="settings_folder_backup_switch_title">打開備份</string>
   <string name="settings_folder_backup_service_started">相冊備份服務已啟動</string>
   <string name="settings_folder_backup_service_stopped">相冊備份服務已停止</string>
   <string name="settings_select_backup_folder_title">選擇備份文件夾</string>

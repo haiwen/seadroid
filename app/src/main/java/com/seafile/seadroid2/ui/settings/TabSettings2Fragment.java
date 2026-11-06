@@ -1012,23 +1012,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private void switchAlbumBackupState(boolean isEnable) {
         mAlbumBackupSwitch.setChecked(isEnable);
 
-        if (isEnable) {
-            //all
-            mAlbumBackupSwitch.setRadiusPosition(RadiusPositionEnum.TOP);
-            mAlbumBackupSwitch.setDividerPosition(DividerPositionEnum.BOTTOM);
-        } else {
-            mAlbumBackupSwitch.setRadiusPosition(RadiusPositionEnum.ALL);
-            mAlbumBackupSwitch.setDividerPosition(DividerPositionEnum.NONE);
-        }
-
-        //change UI
-        mAlbumBackupRepo.setVisible(isEnable);
-        mAlbumBackupAdvancedDataPlanSwitch.setVisible(isEnable);
-        mAlbumBackupAdvancedVideoSwitch.setVisible(isEnable);
-        mAlbumBackupAdvancedSelectedBucket.setVisible(isEnable);
-        mAlbumBackupUploadOriginalPhotoSwitch.setVisible(isEnable);
-        mAlbumBackupPauseSwitch.setVisible(isEnable);
-
         runMainThreadDelay(new Runnable() {
             @Override
             public void run() {
@@ -1049,7 +1032,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         if (repoConfig != null) {
             mAlbumBackupRepo.setSummary(repoConfig.getRepoName());
         } else {
-            mAlbumBackupRepo.setSummary(getString(R.string.folder_backup_select_repo_hint));
+            mAlbumBackupRepo.setSummary(getString(R.string.settings_camera_upload_repo_hint));
         }
 
         boolean dataSwitch = Settings.ALBUM_BACKUP_ADVANCE_DATA_PLAN_SWITCH.queryValue();
@@ -1082,8 +1065,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             List<String> bucketIds = AlbumBackupSharePreferenceHelper.readBucketIds();
             if (CollectionUtils.isEmpty(bucketIds)) {
                 mAlbumBackupAdvancedSelectedBucket.setSummary(R.string.settings_camera_upload_dir_auto_scan);
-                int color = ContextCompat.getColor(requireContext(), R.color.light_grey);
-                mAlbumBackupAdvancedSelectedBucket.setSummaryTextColor(color);
             } else {
                 List<String> bucketNames = new ArrayList<>();
                 List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
