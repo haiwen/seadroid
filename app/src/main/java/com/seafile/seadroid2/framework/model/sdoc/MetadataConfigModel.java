@@ -8,14 +8,18 @@ import androidx.annotation.Nullable;
 import com.blankj.utilcode.util.GsonUtils;
 import com.seafile.seadroid2.framework.model.profile.DetailsSettingsColumnModel;
 import com.seafile.seadroid2.framework.model.profile.DetailsSettingsKeyModel;
+import com.google.gson.annotations.SerializedName;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
 public class MetadataConfigModel implements Parcelable {
+    @SerializedName("enabled")
     public boolean enabled = false;
+    @SerializedName("details_settings")
     public String details_settings;
+    @SerializedName("tags_enabled")
     public boolean tags_enabled = false;
 //    public String tags_lang;
 //    public boolean show_view;

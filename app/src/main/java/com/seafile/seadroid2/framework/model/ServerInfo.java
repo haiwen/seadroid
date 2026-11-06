@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,9 +16,13 @@ import org.json.JSONObject;
  */
 public class ServerInfo implements Parcelable {
 
+    @SerializedName("url")
     private String url;
+    @SerializedName("version")
     private String version;
+    @SerializedName("features")
     private String features;
+    @SerializedName("encrypted_library_version")
     private String encrypted_library_version;
 
     public ServerInfo(String url, String version, String features, String encrypted_library_version) {

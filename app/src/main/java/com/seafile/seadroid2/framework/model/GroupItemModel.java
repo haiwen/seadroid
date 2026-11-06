@@ -5,20 +5,25 @@ import androidx.annotation.StringRes;
 import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class GroupItemModel extends BaseModel {
+    @SerializedName("name")
     @StringRes
     private int name;
 
+    @SerializedName("title")
     public String title;
 
+    @SerializedName("is_expanded")
     public boolean is_expanded = true;
 
     //
+    @SerializedName("repo_list")
     public final List<RepoModel> repo_list = new ArrayList<>();
 
     public void addAllRepoList(List<RepoModel> repoList) {

@@ -1,155 +1,138 @@
-# To enable ProGuard in your project, edit project.properties
-# to define the proguard.config property as described in that file.
+# ============================================================================
+# Seafile Android R8/ProGuard rules
 #
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in ${sdk.dir}/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the ProGuard
-# include property in project.properties.
+# Goal: meet Google Play's 25% minimum for Optimization, Obfuscation, and
+# Shrinking when the uncompressed DEX size exceeds 10 MB.
 #
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Principles:
+# 1. Do not keep the whole application; let R8 shrink and obfuscate it.
+# 2. Keep only entry points required by reflection, serialization, JNI,
+#    WebView, Gson, and similar mechanisms.
+# 3. Prefer consumer rules shipped with third-party AAR/JAR dependencies.
+# 4. AGP writes the mapping file to build/outputs/mapping automatically.
+# ============================================================================
 
-# Add any project specific keep options here:
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-#utilcode
--dontwarn com.blankj.utilcode.**
--keepclassmembers class * {
-    @com.blankj.utilcode.util.BusUtils$Bus <methods>;
-}
--keep public class * extends com.blankj.utilcode.util.ApiUtils$BaseApi
--keep,allowobfuscation @interface com.blankj.utilcode.util.ApiUtils$Api
--keep @com.blankj.utilcode.util.ApiUtils$Api class *
-
-
-
--dontusemixedcaseclassnames
--dontskipnonpubliclibraryclasses
--dontoptimize
--dontpreverify
-
-#
--verbose
--printmapping proguardMapping.txt
-#输出apk包内所有的class的内部结构
--dump dump.txt
-#未混淆的类和成员
--printseeds seeds.txt
-#列出从apk中删除的代码
--printusage unused.txt
-
-
+# ------------------------------ Basic attributes ------------------------------
+# Reflection libraries such as Gson rely on generic signatures
+-keepattributes Signature
+# Keep runtime annotations (@SerializedName, @JsonAdapter, Room, Retrofit, etc.)
 -keepattributes *Annotation*
--keep public class com.google.vending.licensing.ILicensingService
--keep public class com.android.vending.licensing.ILicensingService
+# Keep inner-class and enclosing-method metadata for Gson/reflection
+-keepattributes InnerClasses,EnclosingMethod
+# Keep source file and line numbers for readable crash stack traces
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
-# For native methods, see http://proguard.sourceforge.net/manual/examples.html#native
+# Allow R8 to change access modifiers for better optimization
+-allowaccessmodification
+
+# ------------------------------ General Android rules ------------------------------
+# JNI method names must not be shrunk or obfuscated
 -keepclasseswithmembernames class * {
     native <methods>;
 }
 
-# keep setters in Views so that animations can still work.
-# see http://proguard.sourceforge.net/manual/examples.html#beans
--keepclassmembers public class * extends android.view.View {
-   void set*(***);
-   *** get*();
-}
-
-# We want to keep methods in Activity that could be used in the XML attribute onClick
+# Methods bound through android:onClick in XML layouts
 -keepclassmembers class * extends android.app.Activity {
-   public void *(android.view.View);
+    public void *(android.view.View);
 }
 
-# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+# Custom View setters/getters used by property animation
+-keepclassmembers class * extends android.view.View {
+    void set*(***);
+    *** get*();
+}
+
+# Enum values()/valueOf() are called reflectively
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
 
--keep class * implements android.os.Parcelable {
-  public static final android.os.Parcelable$Creator *;
+# Parcelable CREATOR fields are accessed reflectively
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator CREATOR;
 }
 
+# Serializable fields and serialization callbacks
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    !static !transient <fields>;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+# Resource fields
 -keepclassmembers class **.R$* {
     public static <fields>;
 }
 
-# The support library contains references to newer platform versions.
-# Don't warn about those in case this app is linking against an older
-# platform version.  We know about them, and they are safe.
--dontwarn android.support.**
-
--ignorewarnings
--dontoptimize
--dontobfuscate
--dontskipnonpubliclibraryclasses
-
--ignorewarnings
-
--renamesourcefileattribute SourceFile
-
--keepattributes SourceFile,LineNumberTable,*Annotation*
-
-
-
--keepnames class *
-
--keepclassmembers enum * { public static **[] values(); public static ** valueOf(java.lang.String); }
-
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.content.ContentProvider
--keep public class * extends android.view.View { public <init>(android.content.Context); public <init>(android.content.Context, android.util.AttributeSet); public <init>(android.content.Context, android.util.AttributeSet, int); public void set*(...); }
-
--keepclassmembers class * extends android.app.Activity { public void *(android.view.View); }
--keepclassmembers class android.support.v4.app.Fragment { *** getActivity(); public *** onCreate(); public *** onCreateOptionsMenu(...); }
-# support v7
--dontwarn android.support.v7.**
--keep class android.support.v7.** { *; }
--keep interface android.support.v7.** { *; }
-# support design
--dontwarn android.support.design.**
--keep class android.support.design.** { *; }
--keep interface android.support.design.** { *; }
--keep public class android.support.design.R$* { *; }
-
--keepclassmembers class com.google.** {
-    private void finalizeReferent();
-    protected void finalizeReferent();
-    public void finalizeReferent();
-    void finalizeReferent();
-
-    private *** startFinalizer(java.lang.Class,java.lang.Object);
-    protected *** startFinalizer(java.lang.Class,java.lang.Object);
-    public *** startFinalizer(java.lang.Class,java.lang.Object);
-    *** startFinalizer(java.lang.Class,java.lang.Object);
+# Methods exposed to JavaScript through WebView
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
 }
--dontwarn com.google.**
 
--keep class com.seafile.seadroid2.**
--keepclassmembers class com.seafile.seadroid2.** { *; }
--keepclassmembers class com.seafile.seadroid2.** { public <init>(...); }
+# ------------------------------ Gson ------------------------------
+# Field names annotated with @SerializedName are JSON keys; keep the fields
+# themselves so Gson can access them, but allow their Java names to be obfuscated.
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
 
--keep class tv.danmaku.ijk.** { *; }
--dontwarn tv.danmaku.ijk.**
--keep class com.shuyu.gsyvideoplayer.** { *; }
--dontwarn com.shuyu.gsyvideoplayer.**
+# TypeToken reads generic type information through reflection
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken { *; }
 
--dontwarn com.jeremyliao.liveeventbus.**
--keep class com.jeremyliao.liveeventbus.** { *; }
--keep class androidx.lifecycle.** { *; }
--keep class androidx.arch.core.** { *; }
--keep class androidx.appcompat.widget.** { *; }
--keep class com.google.android.material.** { *; }
+# Application models: fields are annotated with @SerializedName, so their Java
+# names may be obfuscated; keep default constructors for Gson.
+-keepclassmembers,allowobfuscation class com.seafile.seadroid2.framework.model.** {
+    @com.google.gson.annotations.SerializedName <fields>;
+    <init>();
+}
+-keepclassmembers,allowobfuscation class com.seafile.seadroid2.framework.db.entities.** {
+    @com.google.gson.annotations.SerializedName <fields>;
+    <init>();
+}
 
--keep class com.drew.** { *; }
+# @JsonAdapter adapters are instantiated through their no-argument constructor
+-keepclassmembers class com.seafile.seadroid2.framework.model.adapter.** {
+    public <init>();
+}
+
+# ------------------------------ ViewModel ------------------------------
+# ViewModelProvider instantiates ViewModels through reflection
+-keepclassmembers class * extends androidx.lifecycle.ViewModel {
+    public <init>(...);
+}
+
+# ------------------------------ Media ------------------------------
+# metadata-extractor does not use reflection; allow unused parsers to be removed
 -dontwarn com.drew.**
+
+# JLatexMath uses Class.forName/getMethod/getDeclaredField internally
+-keep class org.scilab.forge.jlatexmath.** { *; }
+
+# ------------------------------ RxJava ------------------------------
+# RxJava 2.2.10 does not ship consumer rules
+-dontwarn java.util.concurrent.Flow*
+-keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+    long producerIndex;
+    long consumerIndex;
+}
+
+# ------------------------------ Event bus ------------------------------
+# LiveEventBus does not ship consumer rules; suppress warnings for optional deps
+-dontwarn com.jeremyliao.liveeventbus.**
+
+# ------------------------------ Libraries with consumer rules ------------------------------
+# utilcode, Retrofit, OkHttp, Glide, Room, WorkManager, Media3, Firebase,
+# AndroidX/Material, and JsBridge (no reflection) are not kept as whole packages
+# to avoid unnecessary APK growth.
+
+# ------------------------------ Warnings ------------------------------
+# Suppress missing-class warnings from optional third-party dependencies
+# (for example javax.annotation and java.awt).
+-ignorewarnings

@@ -9,6 +9,7 @@ import androidx.room.TypeConverters;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.adapter.EncryptFieldJsonAdapter;
@@ -22,57 +23,84 @@ import java.util.Objects;
 @Entity(tableName = "repos", primaryKeys = {"repo_id", "group_id"})
 public class RepoModel extends BaseModel {
 
+    @SerializedName("repo_id")
     @NonNull
     public String repo_id = "";
+    @SerializedName("repo_name")
     public String repo_name;   //repo_name
 
+    @SerializedName("type")
     public String type;   //mine\group\shared
 
+    @SerializedName("group_id")
     public long group_id;
+    @SerializedName("group_name")
     public String group_name;
 
+    @SerializedName("owner_name")
     public String owner_name;
 
     /**
      * xxx@auth.local
      */
+    @SerializedName("owner_email")
     public String owner_email;
 
     /**
      * xxx@xxx.com
      */
+    @SerializedName("owner_contact_email")
     public String owner_contact_email;
 
+    @SerializedName("modifier_email")
     public String modifier_email;
+    @SerializedName("modifier_name")
     public String modifier_name;
+    @SerializedName("modifier_contact_email")
     public String modifier_contact_email;
 
 
+    @SerializedName("related_account")
     public String related_account;  //related account
 
 
+    @SerializedName("last_modified")
     public String last_modified;
+    @SerializedName("last_modified_long")
     public long last_modified_long;//temp field
 
+    @SerializedName("encrypted")
     @JsonAdapter(EncryptFieldJsonAdapter.class)
     public boolean encrypted;
 
+    @SerializedName("size")
     public long size;
+    @SerializedName("starred")
     public boolean starred;
 
+    @SerializedName("permission")
     public String permission;
+    @SerializedName("monitored")
     public boolean monitored;
+    @SerializedName("is_admin")
     public boolean is_admin;
+    @SerializedName("salt")
     public String salt;
+    @SerializedName("status")
     public String status;
 
 
     //
+    @SerializedName("root")
     public String root;
+    @SerializedName("magic")
     public String magic;
 
+    @SerializedName("random_key")
     public String random_key;
+    @SerializedName("enc_version")
     public int enc_version;
+    @SerializedName("file_count")
     public int file_count;
 
 
@@ -82,8 +110,10 @@ public class RepoModel extends BaseModel {
      *
      *
      */
+    @SerializedName("group_admins")
     @Ignore
     public List<String> group_admins;
+    @SerializedName("server_email")
     @Ignore
     public String server_email;
 
