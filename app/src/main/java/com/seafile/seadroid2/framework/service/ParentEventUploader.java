@@ -18,6 +18,7 @@ import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
@@ -193,7 +194,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         // Lifecycle cleanup is exclusively session-owned.
     }
 
-    public void clearWhenComplete(){
+    public void clearWhenComplete() {
         currentTransferModel = null;
         scanFileSize = -1L;
         newCall = null;
@@ -321,7 +322,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             verifySourceFileSize(new File(currentTransferModel.full_path), scanFileSize);
         }
 
-        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+        // If the switch is off, no detection or forced conversion to a heic file will be performed.
+        // This also means that if the motion_photo_path field is empty,
+        // then subsequent code related to animated photos will not be executed.
+        // This file will only be treated as a regular file, and hasExtraMotionPhoto function is false.
+        boolean isUploadOriginalPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch();
+        if (isUploadOriginalPhoto) {
+            currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+        }
+
         if (currentTransferModel.hasExtraMotionPhoto()) {
             // hasExtraMotionPhoto() already guarantees the HEIC file exists and is non-empty
             uploadFile = new File(currentTransferModel.motion_photo_path);

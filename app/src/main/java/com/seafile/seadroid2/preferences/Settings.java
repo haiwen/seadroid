@@ -67,6 +67,7 @@ public class Settings {
     //album backup
     public static SettingsLiveData<Boolean> ALBUM_BACKUP_SWITCH;
     public static SettingsLiveData<Boolean> ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH;
+    public static SettingsLiveData<Boolean> ALBUM_BACKUP_UPLOAD_ORIGINAL_PHOTO_SWITCH;
     public static SettingsLiveData<String> ALBUM_BACKUP_SELECTED_REPO;
     public static SettingsLiveData<String> ALBUM_BACKUP_STATE;
 
@@ -159,6 +160,7 @@ public class Settings {
         //album backup advance
         ALBUM_BACKUP_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_switch);
         ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(),R.string.pref_key_album_backup_pause_switch);
+        ALBUM_BACKUP_UPLOAD_ORIGINAL_PHOTO_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(),R.string.pref_key_album_backup_upload_original_photo_switch);
         ALBUM_BACKUP_SELECTED_REPO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_repo_select, Resources.ID_NULL);
         ALBUM_BACKUP_STATE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_state, R.string.done);
         //album backup advance
@@ -197,6 +199,7 @@ public class Settings {
 //        REGISTER_LIST.add(CLIENT_ENCRYPT_SWITCH);
         REGISTER_LIST.add(ALBUM_BACKUP_SWITCH);
         REGISTER_LIST.add(ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH);
+        REGISTER_LIST.add(ALBUM_BACKUP_UPLOAD_ORIGINAL_PHOTO_SWITCH);
         REGISTER_LIST.add(ALBUM_BACKUP_SELECTED_REPO);
         REGISTER_LIST.add(ALBUM_BACKUP_STATE);
         REGISTER_LIST.add(ALBUM_BACKUP_ADVANCE_DATA_PLAN_SWITCH);

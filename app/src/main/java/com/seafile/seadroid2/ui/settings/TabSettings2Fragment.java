@@ -123,6 +123,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Preference mAlbumBackupRepo;
     private TextSwitchPreference mAlbumBackupAdvancedDataPlanSwitch;
     private TextSwitchPreference mAlbumBackupAdvancedVideoSwitch;
+    private TextSwitchPreference mAlbumBackupUploadOriginalPhotoSwitch;
     private TextSwitchPreference mAlbumBackupPauseSwitch;
     private TextTitleSummaryPreference mAlbumBackupAdvancedSelectedBucket;
 
@@ -370,6 +371,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         mAlbumBackupAdvancedVideoSwitch = findPreference(getString(R.string.pref_key_album_backup_advanced_allow_video_switch));
         mAlbumBackupAdvancedSelectedBucket = findPreference(getString(R.string.pref_key_album_backup_advanced_buckets_select));
         mAlbumBackupPauseSwitch = findPreference(getString(R.string.pref_key_album_backup_pause_switch));
+        mAlbumBackupUploadOriginalPhotoSwitch = findPreference(getString(R.string.pref_key_album_backup_upload_original_photo_switch));
 
         if (mAlbumBackupAdvancedSelectedBucket != null) {
             mAlbumBackupAdvancedSelectedBucket.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -752,7 +754,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             }
         });
 
-
         //////////////////
         /// folder backup
         //////////////////
@@ -1025,6 +1026,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         mAlbumBackupAdvancedDataPlanSwitch.setVisible(isEnable);
         mAlbumBackupAdvancedVideoSwitch.setVisible(isEnable);
         mAlbumBackupAdvancedSelectedBucket.setVisible(isEnable);
+        mAlbumBackupUploadOriginalPhotoSwitch.setVisible(isEnable);
         mAlbumBackupPauseSwitch.setVisible(isEnable);
 
         runMainThreadDelay(new Runnable() {
@@ -1055,10 +1057,18 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             mAlbumBackupAdvancedDataPlanSwitch.setChecked(dataSwitch);
         }
 
+        // upload video
         boolean videoSwitch = Settings.ALBUM_BACKUP_ADVANCE_ALLOW_VIDEO_SWITCH.queryValue();
         if (mAlbumBackupAdvancedVideoSwitch != null) {
             mAlbumBackupAdvancedVideoSwitch.setChecked(videoSwitch);
         }
+
+        // upload original photo
+        boolean originalPhotoSwitch = Settings.ALBUM_BACKUP_UPLOAD_ORIGINAL_PHOTO_SWITCH.queryValue();
+        if (mAlbumBackupUploadOriginalPhotoSwitch != null) {
+            mAlbumBackupUploadOriginalPhotoSwitch.setChecked(originalPhotoSwitch);
+        }
+
         boolean pauseSwitch = Settings.ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH.queryValue();
         if (mAlbumBackupPauseSwitch != null) {
             if (pauseSwitch) {

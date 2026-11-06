@@ -39,6 +39,14 @@ public class AlbumBackupSharePreferenceHelper {
         return Settings.ALBUM_BACKUP_SWITCH.queryValue();
     }
 
+    public static boolean readUploadOriginalPhotoSwitch() {
+        if (Settings.ALBUM_BACKUP_UPLOAD_ORIGINAL_PHOTO_SWITCH == null) {
+            return false;
+        }
+
+        return Settings.ALBUM_BACKUP_UPLOAD_ORIGINAL_PHOTO_SWITCH.queryValue();
+    }
+
     public static boolean readBackupAutoPauseSwitch() {
         if (Settings.ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH == null) {
             return false;
