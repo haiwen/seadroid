@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -20,14 +21,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.content.ContextCompat;
-import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter;
-import androidx.window.layout.WindowInfoTracker;
-import androidx.window.layout.WindowLayoutInfo;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.NetworkUtils;
@@ -46,7 +42,6 @@ import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.FoldableHelper;
 import com.seafile.seadroid2.framework.util.WindowSizeHelper;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
@@ -72,12 +67,6 @@ public class MainActivity extends BaseActivity {
     private Account curAccount;
     private NavigationRailView navigationRail;
     private int currentTabId = R.id.tabs_library;
-    private FoldableHelper.FoldState foldState = FoldableHelper.FoldState.none();
-    private WindowInfoTrackerCallbackAdapter windowInfoTracker;
-    private final Consumer<WindowLayoutInfo> windowLayoutInfoConsumer = windowLayoutInfo -> {
-        foldState = FoldableHelper.parse(windowLayoutInfo);
-        applyWindowLayout();
-    };
 
     private RepoQuickFragment getReposFragment() {
         return (RepoQuickFragment) mainViewModel.getFragments().get(0);
@@ -250,19 +239,6 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        SLogs.e(TAG, "onStart");
-        if (windowInfoTracker == null) {
-            windowInfoTracker = new WindowInfoTrackerCallbackAdapter(
-                    WindowInfoTracker.getOrCreate(this));
-        }
-        windowInfoTracker.addWindowLayoutInfoListener(
-                this, ContextCompat.getMainExecutor(this), windowLayoutInfoConsumer);
-        applyWindowLayout();
-    }
-
-    @Override
     protected void onDestroy() {
         SLogs.e(TAG, "onStart");
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
@@ -279,11 +255,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onStop() {
-        if (windowInfoTracker != null) {
-            windowInfoTracker.removeWindowLayoutInfoListener(windowLayoutInfoConsumer);
-        }
         super.onStop();
-        SLogs.e(TAG, "onStart");
+        SLogs.e(TAG, "onStop");
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        applyWindowLayout();
     }
 
     @Override
