@@ -102,11 +102,32 @@
     public <init>();
 }
 
+# AccountInfo is deserialized directly from api2/account/info/ by Retrofit+Gson.
+# It is outside framework.model and has no @SerializedName, so keep its fields
+# (and field names) explicitly, otherwise R8 removes them and login/profile
+# parsing silently returns empty values or fails at runtime.
+-keep class com.seafile.seadroid2.account.AccountInfo {
+    <fields>;
+    <init>();
+}
+
 # ------------------------------ ViewModel ------------------------------
 # ViewModelProvider instantiates ViewModels through reflection
 -keepclassmembers class * extends androidx.lifecycle.ViewModel {
     public <init>(...);
 }
+
+# The base classes below resolve the ViewModel type via
+# getClass().getGenericSuperclass(). If the generic base class is not kept,
+# R8 reduces the subclass signature from BaseXxx<VM> to the raw BaseXxx and
+# the cast to ParameterizedType throws ClassCastException on page startup.
+-keep,allowobfuscation class com.seafile.seadroid2.ui.base.BaseActivityWithVM
+-keep,allowobfuscation class com.seafile.seadroid2.ui.base.BaseMediaSelectorActivity
+-keep,allowobfuscation class com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM
+-keep,allowobfuscation class com.seafile.seadroid2.ui.base.fragment.BaseDialogFragmentWithVM
+-keep,allowobfuscation class com.seafile.seadroid2.ui.base.fragment.BaseBottomSheetDialogFragmentWithVM
+-keep,allowobfuscation class com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM
+-keep,allowobfuscation class com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM
 
 # ------------------------------ Media ------------------------------
 # metadata-extractor does not use reflection; allow unused parsers to be removed
@@ -115,9 +136,22 @@
 # JLatexMath uses Class.forName/getMethod/getDeclaredField internally
 -keep class org.scilab.forge.jlatexmath.** { *; }
 
+# ------------------------------ Retrofit ------------------------------
+# Retrofit resolves the service method return type reflectively and requires
+# Call<Foo>/Single<Foo> to stay parameterized. Retrofit's consumer rules do not
+# keep retrofit2.Call itself, so R8 reduces Call<Foo> to the raw Call.
+-keep,allowobfuscation class retrofit2.Call
+
 # ------------------------------ RxJava ------------------------------
 # RxJava 2.2.10 does not ship consumer rules
 -dontwarn java.util.concurrent.Flow*
+# Retrofit/RxJava adapters resolve generic return types at runtime. Keep the
+# generic container classes so signatures like Single<Foo> are not reduced to
+# the raw type (which makes Retrofit throw "return type must be parameterized").
+-keep,allowobfuscation class io.reactivex.Single
+-keep,allowobfuscation class io.reactivex.Observable
+-keep,allowobfuscation class io.reactivex.Flowable
+-keep,allowobfuscation class io.reactivex.Maybe
 -keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
     long producerIndex;
     long consumerIndex;
