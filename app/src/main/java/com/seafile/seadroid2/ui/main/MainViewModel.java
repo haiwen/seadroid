@@ -169,20 +169,21 @@ public class MainViewModel extends BaseViewModel {
                         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                     }
                 } else {
-                    boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch();
+                    boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
 
                     for (Uri uri : uris) {
                         String fileName = Utils.getFilenameFromUri(context, uri);
                         fileName = UnicodePathUtils.normalize(fileName);// nfc form
 
-                        if (!isUploadOriginalMotionPhoto){
-                            Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri,fileName);
-                            if (jpegPair.second) { // is jpeg motion photo?
-                                fileName = FilenameUtils.getBaseName(fileName) + ".heic";
+                        String targetFileName = fileName;
+                        if (!isUploadOriginalMotionPhoto) {
+                            Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri, fileName);
+                            if (jpegPair.second) {
+                                targetFileName = FilenameUtils.getBaseName(fileName) + ".heic";
                             }
                         }
 
-                        String finalFileName = fileName;
+                        String finalFileName = targetFileName;
                         boolean isExists = wrapperModel.dirent_list.stream().anyMatch(f -> TextUtils.equals(f.name, finalFileName));
 
                         TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isExists);
@@ -215,16 +216,18 @@ public class MainViewModel extends BaseViewModel {
         String fileName = Utils.getFilenameFromUri(context, uri);
         fileName = UnicodePathUtils.normalize(fileName);// nfc form
 
-        boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch();
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
+        String targetFileName = fileName;
         if (!isUploadOriginalMotionPhoto) {
             Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri, fileName);
             if (jpegPair.second) {
-                fileName = FilenameUtils.getBaseName(fileName) + ".heic";
+                targetFileName = FilenameUtils.getBaseName(fileName) + ".heic";
             }
         }
 
         // destination path
-        String destinationPath = Utils.pathJoin(parent_dir, fileName);
+        String destinationPath = Utils.pathJoin(parent_dir, targetFileName);
 
         Single<DirentFileModel> winner = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
@@ -247,6 +250,9 @@ public class MainViewModel extends BaseViewModel {
                         consumer.accept(new Pair<>(finalFileName, null));
                     }
                 } else {
+                    if (consumer != null) {
+                        consumer.accept(null);
+                    }
                     Toasts.show(seafException.getMessage());
                 }
             }

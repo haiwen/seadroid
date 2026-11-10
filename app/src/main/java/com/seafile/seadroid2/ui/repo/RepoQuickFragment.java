@@ -2616,22 +2616,25 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
-        showLoadingDialog();
-
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
         if (repoModel == null) {
             Toasts.show(R.string.op_unable_to_with_exception);
             return;
         }
 
+        showLoadingDialog();
+
         mainViewModel.checkRemoteDirent(requireContext(), repoModel.repo_id, uri, new java.util.function.Consumer<Pair<String, DirentFileModel>>() {
             @Override
             public void accept(Pair<String, DirentFileModel> pair) {
                 dismissLoadingDialog();
+                if (pair == null) {
+                    return;
+                }
 
                 DirentFileModel direntFileModel = pair.second;
                 if (direntFileModel != null) {
-                    showFileExistDialog(uri, pair.first);
+                    showFileExistDialog(uri, pair.first, direntFileModel.name);
                 } else {
                     String targetDir = GlobalNavContext.getCurrentNavContext().getNavPath();
                     addUploadTask(repoModel, targetDir, uri, pair.first, false);
@@ -2640,17 +2643,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         });
     }
 
-    private void checkMotionPhoto() {
-
-    }
-
-    private void showFileExistDialog(final Uri uri, String fileName) {
+    private void showFileExistDialog(final Uri uri, String fileName, String targetFileName) {
 
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle(getString(R.string.upload_file_exist));
-        builder.setMessage(String.format(getString(R.string.upload_duplicate_found), fileName));
+        builder.setMessage(String.format(getString(R.string.upload_duplicate_found), targetFileName));
 
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
             @Override
