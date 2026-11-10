@@ -1,32 +1,25 @@
 package com.seafile.seadroid2.framework.util;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.net.http.SslCertificate;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.Pair;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 
@@ -38,10 +31,7 @@ import org.json.JSONTokener;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -339,41 +329,31 @@ public class Utils {
         return mime.contains("video/");
     }
 
-    public static boolean isOnlyOfficeFile(String name) {
-        if (TextUtils.isEmpty(name)) {
+    private static final Set<String> SUPPORTED_OFFICE_EXTENDS = new HashSet<>(Arrays.asList(
+            "doc", "docx", "dotm", "docm", "dotx",
+            "odt", "ods", "odp", "ott", "ots",
+            "xlsx", "xls", "xlt", "xlsb", "xlsm", "xltm", "xltx",
+            "ppt", "pptx", "ppsx", "potx", "pptm", "ppsm",
+            "pages",
+            "csv"
+    ));
+
+    public static boolean isSupportOfficeFilePreview(String name) {
+        if (StringUtils.isEmpty(name)) {
             return false;
         }
 
-        name = name.toLowerCase();
-        if (name.endsWith(Constants.FileExtensions.DOT_DRAW)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_EXDRAW)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_DOC)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_DOCX)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_XLS)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_XLSX)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_PPT)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_PPTX)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_PPSX)) {
-            return true;
+        name = name.trim().toLowerCase(Locale.ROOT);
+        if (!name.contains(".")) {
+            return false;
         }
 
-        return false;
+        String suffix = FileUtils.getFileExtension(name);
+        if (StringUtils.isEmpty(suffix)) {
+            return false;
+        }
+
+        return SUPPORTED_OFFICE_EXTENDS.contains(suffix);
     }
 
     public static boolean isPdfFile(String name) {
@@ -602,7 +582,7 @@ public class Utils {
     /**
      * File extensions that can be opened as plain text/code
      */
-    private static final Set<String> TEXT_EXTENSIONS = new HashSet<>(Arrays.asList(
+    public static final Set<String> TEXT_EXTENSIONS = new HashSet<>(Arrays.asList(
             // plain text and documents
             "txt", "text", "log", "csv", "tsv", "diff", "patch", "rej", "org", "rst", "adoc", "asciidoc", "tex",
             // Markdown
