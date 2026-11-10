@@ -129,6 +129,23 @@
 -keep,allowobfuscation class com.seafile.seadroid2.ui.base.fragment.RequestBottomSheetDialogFragmentWithVM
 -keep,allowobfuscation class com.seafile.seadroid2.ui.base.fragment.RequestCustomDialogFragmentWithVM
 
+# ------------------------------ LiveEventBus ------------------------------
+# LiveEventBus 1.8.14 ships no consumer rules. Its ExternalLiveData.observe()
+# resolves LiveData internals by name and swallows the exception on failure:
+#   LiveData.class.getDeclaredField("mObservers")
+#   mObservers.getClass().getDeclaredMethod("putIfAbsent", Object.class, Object.class)
+# If these names are obfuscated, registration fails silently and no event is
+# delivered (e.g. transfer progress / nav context / data refresh).
+-keepclassmembers class androidx.lifecycle.LiveData {
+    *** mObservers;
+}
+-keepclassmembers class androidx.arch.core.internal.SafeIterableMap {
+    java.lang.Object putIfAbsent(java.lang.Object, java.lang.Object);
+}
+-keepclassmembers class androidx.arch.core.internal.FastSafeIterableMap {
+    java.lang.Object putIfAbsent(java.lang.Object, java.lang.Object);
+}
+
 # ------------------------------ Media ------------------------------
 # metadata-extractor does not use reflection; allow unused parsers to be removed
 -dontwarn com.drew.**
@@ -152,10 +169,6 @@
 -keep,allowobfuscation class io.reactivex.Observable
 -keep,allowobfuscation class io.reactivex.Flowable
 -keep,allowobfuscation class io.reactivex.Maybe
--keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
-    long producerIndex;
-    long consumerIndex;
-}
 
 # ------------------------------ Event bus ------------------------------
 # LiveEventBus does not ship consumer rules; suppress warnings for optional deps
@@ -165,8 +178,3 @@
 # utilcode, Retrofit, OkHttp, Glide, Room, WorkManager, Media3, Firebase,
 # AndroidX/Material, and JsBridge (no reflection) are not kept as whole packages
 # to avoid unnecessary APK growth.
-
-# ------------------------------ Warnings ------------------------------
-# Suppress missing-class warnings from optional third-party dependencies
-# (for example javax.annotation and java.awt).
--ignorewarnings
