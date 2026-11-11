@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.worker.body;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 
@@ -60,7 +61,7 @@ public class UriChunkRequestBody extends BaseRequestBody {
                 }
 
                 try (Source source = Okio.source(inputStream); Buffer buffer = new Buffer()) {
-                    long lastUpdateTime = System.currentTimeMillis();
+                    long lastUpdateTime = SystemClock.elapsedRealtime();
                     long totalReadForChunk = 0;
 
                     SafeLogs.d(ParentEventUploader.TAG, "UriChunkRequestBody", "Chunk Upload","offset = " + offset);
@@ -81,7 +82,7 @@ public class UriChunkRequestBody extends BaseRequestBody {
 
                         totalReadForChunk += readCount;
 
-                        long now = System.currentTimeMillis();
+                        long now = SystemClock.elapsedRealtime();
                         if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
                             dispatchProgress(offset + totalReadForChunk, totalFileLength);
                             lastUpdateTime = now;

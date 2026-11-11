@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -118,7 +119,7 @@ public final class TransferNotifications {
         state.sequence = seq;
         state.percent = percent < 0 ? -1 : Math.max(state.percent, Math.min(100, percent));
 
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         if (now - state.lastPublishTime >= 1000) {
             publishNow(state);
         }
@@ -167,7 +168,7 @@ public final class TransferNotifications {
     }
 
     private void publishNow(State state) {
-        state.lastPublishTime = System.currentTimeMillis();
+        state.lastPublishTime = SystemClock.elapsedRealtime();
         if (context == null || manager == null) return;
 
         try {

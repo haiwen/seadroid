@@ -215,7 +215,7 @@ public class SupportAccountManager {
 
         setUserData(androidAccount, Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
         setUserData(androidAccount, Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());
-        setUserData(androidAccount, Authenticator.KEY_SERVER_ENCRYPTED_VERSION, serverInfo.getEncrypted_library_version());
+        setUserData(androidAccount, Authenticator.KEY_SERVER_ENCRYPTED_VERSION, serverInfo.getEncryptedLibraryVersion());
         setUserData(androidAccount, Authenticator.KEY_SERVER_FEATURES, serverInfo.getFeatures());
     }
 

@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.base.fragment;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.os.SystemClock;
 
 import androidx.fragment.app.Fragment;
 
@@ -62,7 +63,7 @@ public class BaseFragment extends Fragment {
         }
         if (!dialog.isShowing()) {
             dialog.show();
-            dialogShowTimestamp = System.currentTimeMillis();
+            dialogShowTimestamp = SystemClock.elapsedRealtime();
         }
     }
 
@@ -71,7 +72,7 @@ public class BaseFragment extends Fragment {
             return;
         }
 
-        long elapsed = System.currentTimeMillis() - dialogShowTimestamp;
+        long elapsed = SystemClock.elapsedRealtime() - dialogShowTimestamp;
         if (elapsed >= MIN_DIALOG_SHOW_TIME) {
             dialog.dismiss();
         } else {

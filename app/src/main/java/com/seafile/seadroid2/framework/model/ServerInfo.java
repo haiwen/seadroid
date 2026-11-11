@@ -7,17 +7,14 @@ import android.text.TextUtils;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 /**
  * Value type that represents a ServerInfo.
  */
 public class ServerInfo implements Parcelable {
 
-    private String url;
-    private String version;
-    private String features;
+    private final String url;
+    private final String version;
+    private final String features;
     private String encrypted_library_version;
 
     public ServerInfo(String url, String version, String features, String encrypted_library_version) {
@@ -33,12 +30,8 @@ public class ServerInfo implements Parcelable {
         features = in.readString();
     }
 
-    public String getEncrypted_library_version() {
+    public String getEncryptedLibraryVersion() {
         return encrypted_library_version;
-    }
-
-    public void setEncrypted_library_version(String encrypted_library_version) {
-        this.encrypted_library_version = encrypted_library_version;
     }
 
     public static final Creator<ServerInfo> CREATOR = new Creator<ServerInfo>() {
@@ -68,19 +61,23 @@ public class ServerInfo implements Parcelable {
     }
 
     public boolean isProEdition() {
-        return features != null && features.contains("seafile-pro");
+        return hasFeature("seafile-pro");
     }
 
     public boolean isEnableWiki() {
-        return features != null && features.contains("wiki");
+        return hasFeature("wiki");
     }
 
-    public boolean isEnableOnlyOffice() {
-        return features != null && features.contains("onlyoffice");
+    public boolean isEnableOnlineOffice() {
+        return hasFeature("onlyoffice") || hasFeature("collabora");
     }
 
-    public boolean isSearchEnabled() {
-        return features != null && features.contains("file-search");
+    public boolean isEnableSearch() {
+        return hasFeature("file-search");
+    }
+
+    private boolean hasFeature(String feature) {
+        return features != null && features.contains(feature);
     }
 
     public boolean canLocalDecrypt() {
@@ -97,14 +94,6 @@ public class ServerInfo implements Parcelable {
         return url;
     }
 
-    public static ServerInfo fromJson(JSONObject obj, String server) throws JSONException {
-        String version = obj.optString("version");
-        String features = obj.optString("features");
-        String encrypted_library_version = obj.optString("encrypted_library_version");
-        ServerInfo serverInfo = new ServerInfo(server, version, features, encrypted_library_version);
-        // raw data goes like "features":["seafile-basic","seafile-pro","office-preview","file-search"]
-        return serverInfo;
-    }
 
     @Override
     public int hashCode() {

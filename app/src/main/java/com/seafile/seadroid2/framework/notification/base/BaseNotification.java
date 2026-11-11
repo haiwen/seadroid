@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
+import android.os.SystemClock;
 
 import androidx.activity.contextaware.ContextAware;
 import androidx.annotation.Nullable;
@@ -127,7 +128,7 @@ public abstract class BaseNotification {
             return;
         }
 
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         if (now - last_time < 1000) {
             return;
         }
@@ -151,7 +152,7 @@ public abstract class BaseNotification {
             return null;
         }
 
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         if (now - last_time < 1000) {
             return null;
         }

@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework.worker.body;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 
@@ -52,7 +53,7 @@ public class UriStreamRequestBody extends BaseRequestBody {
             SafeLogs.d(ParentEventUploader.TAG, "UriStreamRequestBody", "Stream Upload");
 
             try (Source source = Okio.source(inputStream); Buffer buffer = new Buffer()) {
-                long lastUpdateTime = System.currentTimeMillis();
+                long lastUpdateTime = SystemClock.elapsedRealtime();
                 long totalWritten = 0;
 
                 while (true) {
@@ -67,7 +68,7 @@ public class UriStreamRequestBody extends BaseRequestBody {
                     totalWritten += readCount;
 
                     // Throttle progress updates
-                    long now = System.currentTimeMillis();
+                    long now = SystemClock.elapsedRealtime();
                     if (now - lastUpdateTime >= UPDATE_INTERVAL_MS) {
                         dispatchProgress(totalWritten, safeTotal(estimationFileLength, totalWritten));
                         lastUpdateTime = now;

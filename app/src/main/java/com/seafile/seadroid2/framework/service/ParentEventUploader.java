@@ -26,6 +26,7 @@ import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
+import com.seafile.seadroid2.framework.util.MimeUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -619,7 +620,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                     return mime;
                 }
             } else if (uploadFile != null) {
-                String mime = FileUtils.getMimeType(uploadFile);
+                String mime = MimeUtils.getMimeType(uploadFile);
                 if (!TextUtils.isEmpty(mime)) {
                     return mime;
                 }

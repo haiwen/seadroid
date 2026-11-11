@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.base;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
@@ -177,7 +178,7 @@ public class BaseActivity extends AppCompatActivity {
 
         if (!loadingDialog.isShowing()) {
             loadingDialog.show();
-            dialogShowTimestamp = System.currentTimeMillis();
+            dialogShowTimestamp = SystemClock.elapsedRealtime();
         }
     }
 
@@ -192,7 +193,7 @@ public class BaseActivity extends AppCompatActivity {
             return;
         }
 
-        long elapsed = System.currentTimeMillis() - dialogShowTimestamp;
+        long elapsed = SystemClock.elapsedRealtime() - dialogShowTimestamp;
         if (elapsed >= MIN_DIALOG_SHOW_TIME) {
             safeDismiss();
         } else {

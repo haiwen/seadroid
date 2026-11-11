@@ -73,23 +73,6 @@ public class FileUtils {
     }
 
 
-    public static boolean isOfficeOrTextFile(String mime) {
-        return needUpdateFileMime.containsValue(mime);
-    }
-
-    public static String getMimeType(File file) {
-        String mime = "text/plain";
-        String filePath = file.getAbsolutePath();
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        try {
-            mmr.setDataSource(filePath);
-            mime = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
-        } catch (RuntimeException e) {
-            return mime;
-        }
-        return mime;
-    }
-
     public static boolean isAvailable(File f) {
         if (f == null) {
             return false;
@@ -125,13 +108,13 @@ public class FileUtils {
      * <p/>
      * <p>
      * for example:
-     * <p>
-     * /a'"'a/b'*'b/c'<'c/d'>'d/e'?'e/f':'f/g'/'g/
-     * </p>
+     * <pre>
+     *     /a'"'a/b'*'b/c'<'c/d'>'d/e'?'e/f':'f/g'/'g/
+     * </pre>
      * convert to ->
-     * <p>
-     * /a_a/b_b/c_c/d_d/e_e/f_f/g_g/
-     * </p>
+     * <pre>
+     *     /a_a/b_b/c_c/d_d/e_e/f_f/g_g/
+     * </pre>
      * and so on.
      */
     public static String buildValidFilePathName(String fileName) {

@@ -353,9 +353,9 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             Optional<ServerInfo> serverInfoOp = checkServerInfo();
             if (serverInfoOp.isEmpty()) {
                 searchMenuItem.setVisible(false);
-            } else if (serverInfoOp.get().isProEdition() && !serverInfoOp.get().isSearchEnabled()) {
+            } else if (serverInfoOp.get().isProEdition() && !serverInfoOp.get().isEnableSearch()) {
                 searchMenuItem.setVisible(false);
-            } else if (serverInfoOp.get().isProEdition() && serverInfoOp.get().isSearchEnabled()) {
+            } else if (serverInfoOp.get().isProEdition() && serverInfoOp.get().isEnableSearch()) {
                 //search view
                 final SearchView searchView = new SearchView(requireContext());
                 searchView.setSaveEnabled(false);
@@ -1743,8 +1743,14 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             return;
         }
 
+        if (fileName.endsWith(Constants.FileExtensions.DOT_EXDRAW)) {
+            String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
+            OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
+            return;
+        }
+
         ServerInfo serverInfo = SupportAccountManager.getInstance().getServerInfo(account);
-        if (Utils.isOnlyOfficeFile(fileName) && serverInfo.isEnableOnlyOffice()) {
+        if (serverInfo.isEnableOnlineOffice() && Utils.isSupportOfficeFilePreview(fileName)) {
             String p = Utils.pathJoin(dirent.parent_dir, dirent.name);
             OfficeDocumentWebActivity.openDocument(getContext(), repoModel.repo_name, repoModel.repo_id, p, dirent.name);
             return;

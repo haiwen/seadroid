@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.listener;
 
+import android.os.SystemClock;
+
 import com.blankj.utilcode.util.CloneUtils;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 
@@ -34,7 +36,7 @@ public class FileTransferProgressListener {
         }
 
 
-        long nowt = System.currentTimeMillis();
+        long nowt = SystemClock.elapsedRealtime();
         if (nowt - temp < 1000) {
             return;
         }
@@ -49,7 +51,7 @@ public class FileTransferProgressListener {
 
     public int onProgress(long cur, long total) {
 
-        long nowt = System.currentTimeMillis();
+        long nowt = SystemClock.elapsedRealtime();
         if (nowt - temp < 1000) {
             return -1;
         }

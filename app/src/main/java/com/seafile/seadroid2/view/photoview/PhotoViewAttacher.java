@@ -20,6 +20,7 @@ import android.graphics.Matrix;
 import android.graphics.Matrix.ScaleToFit;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.SystemClock;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -807,7 +808,7 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
                                     final float focalX, final float focalY) {
             mFocalX = focalX;
             mFocalY = focalY;
-            mStartTime = System.currentTimeMillis();
+            mStartTime = SystemClock.uptimeMillis();
             mZoomStart = currentZoom;
             mZoomEnd = targetZoom;
         }
@@ -825,7 +826,7 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
         }
 
         private float interpolate() {
-            float t = 1f * (System.currentTimeMillis() - mStartTime) / mZoomDuration;
+            float t = 1f * (SystemClock.uptimeMillis() - mStartTime) / mZoomDuration;
             t = Math.min(1f, t);
             t = mInterpolator.getInterpolation(t);
             return t;

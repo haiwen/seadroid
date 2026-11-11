@@ -1,33 +1,25 @@
 package com.seafile.seadroid2.framework.util;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.net.http.SslCertificate;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.LocaleList;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.Pair;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 
@@ -39,10 +31,7 @@ import org.json.JSONTokener;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -53,7 +42,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -97,20 +88,6 @@ public class Utils {
         };
     }
 
-    public static JSONObject parseJsonObject(String json) {
-        if (json == null) {
-            // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonObject");
-            return null;
-        }
-
-        try {
-            return (JSONObject) new JSONTokener(json).nextValue();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     /**
      * <pre>
      * /a/b/c.txt -> /a/b/c/
@@ -139,27 +116,6 @@ public class Utils {
             return "/";
         } else
             return parent;
-    }
-
-    public static String getParentPathName(String p) {
-        String path = getParentPath(p);
-
-        if (path == null) {
-            // the caller should not give null
-            Log.w(DEBUG_TAG, "path is null");
-            return null;
-        }
-
-        if (!path.contains("/")) {
-            return path;
-        }
-
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.lastIndexOf("/"));
-        }
-
-        path = path.substring(path.lastIndexOf("/") + 1);
-        return path;
     }
 
     public static String getParentPath(String path) {
@@ -373,72 +329,31 @@ public class Utils {
         return mime.contains("video/");
     }
 
-    public static boolean isTextFile(File file) {
-        if (file == null) {
+    private static final Set<String> SUPPORTED_OFFICE_EXTENDS = new HashSet<>(Arrays.asList(
+            "doc", "docx", "dotm", "docm", "dotx",
+            "odt", "ods", "odp", "ott", "ots",
+            "xlsx", "xls", "xlt", "xlsb", "xlsm", "xltm", "xltx",
+            "ppt", "pptx", "ppsx", "potx", "pptm", "ppsm",
+            "pages",
+            "csv"
+    ));
+
+    public static boolean isSupportOfficeFilePreview(String name) {
+        if (StringUtils.isEmpty(name)) {
             return false;
         }
 
-        String fileName = file.getName();
-        return isTextFile(fileName);
-    }
-
-    public static boolean isTextFile(String fileName) {
-        String suffix = FilenameUtils.getExtension(fileName);
-        if (TextUtils.isEmpty(suffix)) {
+        name = name.trim().toLowerCase(Locale.ROOT);
+        if (!name.contains(".")) {
             return false;
         }
 
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        if (TextUtils.isEmpty(mime)) {
+        String suffix = FileUtils.getFileExtension(name);
+        if (StringUtils.isEmpty(suffix)) {
             return false;
         }
 
-        if (mime.contains("text/")) {
-            return true;
-        }
-
-        if (FileUtils.isOfficeOrTextFile(mime)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean isOnlyOfficeFile(String name) {
-        if (TextUtils.isEmpty(name)) {
-            return false;
-        }
-
-        name = name.toLowerCase();
-        if (name.endsWith(Constants.FileExtensions.DOT_DRAW)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_EXDRAW)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_DOC)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_DOCX)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_XLS)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_XLSX)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_PPT)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_PPTX)) {
-            return true;
-        }
-        if (name.endsWith(Constants.FileExtensions.DOT_PPSX)) {
-            return true;
-        }
-
-        return false;
+        return SUPPORTED_OFFICE_EXTENDS.contains(suffix);
     }
 
     public static boolean isPdfFile(String name) {
@@ -507,10 +422,6 @@ public class Utils {
         return a.replaceAll("^[/]*|[/]*$", "");
     }
 
-    public static String getCurrentHourMinute() {
-        return (String) DateFormat.format("hh:mm", new Date());
-    }
-
     public static boolean isJson(String str) {
         if (TextUtils.isEmpty(str)) {
             return false;
@@ -563,24 +474,28 @@ public class Utils {
         return System.currentTimeMillis();
     }
 
-    public static String getFileMimeType(String path) {
-        String name = getFileNameFromPath(path);
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-        if (suffix.isEmpty()) {
-            return MIME_APPLICATION_OCTET_STREAM;
-        } else {
-            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-            if (mime != null) {
-                return mime;
-            } else {
-                return MIME_APPLICATION_OCTET_STREAM;
-            }
-        }
-    }
-
     public static String getFileMimeType(File file) {
         return getFileMimeType(file.getPath());
     }
+
+    public static String getFileMimeType(String path) {
+        String name = getFileNameFromPath(path);
+        if (TextUtils.isEmpty(name)) {
+            return MIME_APPLICATION_OCTET_STREAM;
+        }
+
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+        if (TextUtils.isEmpty(suffix)) {
+            return MIME_APPLICATION_OCTET_STREAM;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        if (TextUtils.isEmpty(mime)) {
+            return MIME_APPLICATION_OCTET_STREAM;
+        }
+        return mime;
+    }
+
 
     @Nullable
     public static String getFilenameFromUri(Context context, Uri uri) {
@@ -604,68 +519,6 @@ public class Utils {
         } else displayName = "unknown filename";
         return displayName;
     }
-
-    @NotSupport
-    @Deprecated
-    public static String getPath(Context context, Uri uri) throws URISyntaxException {
-        if ("content".equalsIgnoreCase(uri.getScheme())) {
-            String[] projection = {"_data"};
-//            String[] projection = {MediaStore.Files.FileColumns.DATA};
-
-            Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-            if (cursor != null) {
-                try {
-                    if (cursor.moveToFirst()) {
-                        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
-                        return cursor.getString(column_index);
-                    }
-                } catch (Exception e) {
-                    // Eat it
-                    SLogs.e(e);
-                } finally {
-                    cursor.close();
-                }
-            }
-
-
-        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
-
-        return null;
-    }
-
-
-
-    public static String getStackTrace(Exception e) {
-        StringWriter buffer = new StringWriter();
-        PrintWriter writer = new PrintWriter(buffer);
-        e.printStackTrace(writer);
-        return buffer.toString();
-    }
-
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
-
 
     public static String assembleUserName(String name, String email, String server) {
         if (name == null || email == null || server == null)
@@ -707,41 +560,84 @@ public class Utils {
     }
 
     /**
-     * use compare user system  is chinese
+     * Determine if the current system language environment is Chinese.
+     * <p>
+     * It is compatible with cases where only the language (zh) is set without specifying the region,
+     * as well as cases involving Mainland China, Taiwan, Hong Kong, and Macau.
      */
     public static boolean isInChina() {
-        Locale locale;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            locale = LocaleList.getDefault().get(0);
-        } else {
-            locale = Locale.getDefault();
+        Locale locale = Locale.getDefault();
+
+        if (TextUtils.equals(Locale.CHINESE.getLanguage(), locale.getLanguage())) {
+            return true;
         }
-        String language = locale.getCountry();
-        return TextUtils.equals("CN", language) || TextUtils.equals("TW", language);
+
+        String country = locale.getCountry();
+        return TextUtils.equals(Locale.CHINA.getCountry(), country)
+                || TextUtils.equals(Locale.TAIWAN.getCountry(), country)
+                || TextUtils.equals("HK", country)
+                || TextUtils.equals("MO", country);
     }
 
+    /**
+     * File extensions that can be opened as plain text/code
+     */
+    public static final Set<String> TEXT_EXTENSIONS = new HashSet<>(Arrays.asList(
+            // plain text and documents
+            "txt", "text", "log", "csv", "tsv", "diff", "patch", "rej", "org", "rst", "adoc", "asciidoc", "tex",
+            // Markdown
+            "md", "markdown", "mdx",
+            // Web
+            "htm", "html", "xhtml", "css", "less", "scss", "sass", "js", "mjs", "cjs", "jsx", "ts", "tsx",
+            "vue", "svelte", "json", "json5", "jsonc", "xml", "xsd", "xsl", "xslt", "dtd", "yml", "yaml",
+            "graphql", "gql",
+            // JVM
+            "java", "kt", "kts", "groovy", "gradle", "scala", "sc", "clj", "cljs", "cljc", "edn",
+            // C 系
+            "c", "h", "cc", "cpp", "cxx", "hpp", "hxx", "m", "mm", "cs", "fs", "fsx", "fsi",
+            // script
+            "py", "rb", "php", "pl", "pm", "lua", "r", "jl", "sh", "bash", "zsh", "fish", "ksh",
+            "bat", "cmd", "ps1", "psm1", "psd1", "awk", "el", "vim", "vi", "scd", "schelp", "pde", "script",
+            // other
+            "go", "rs", "swift", "dart", "hs", "lhs", "ml", "mli", "ex", "exs", "erl", "hrl",
+            "nim", "zig", "pas", "asm", "s", "sol", "tf", "tfvars", "hcl", "proto",
+            "sql", "plsql", "v", "sv", "vhd", "vhdl",
+            // config and build
+            "ini", "cfg", "conf", "config", "properties", "toml", "env", "lock", "mod", "sum",
+            "make", "cmake", "dockerfile", "containerfile", "gitignore", "gitattributes", "gitmodules",
+            "editorconfig", "dockerignore", "npmignore", "ac", "am"
+    ));
 
-    public final static boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
-    }
+    /**
+     * Common filenames without a file extension, but clearly text files.
+     */
+    private static final Set<String> TEXT_FILE_NAMES = new HashSet<>(Arrays.asList(
+            "dockerfile", "containerfile", "makefile", "gnumakefile", "gemfile", "rakefile", "vagrantfile",
+            "jenkinsfile", "procfile", "brewfile", "license", "licence", "readme", "changelog",
+            "authors", "contributors", "copying", "notice", "todo", "version", "go.mod", "go.sum"
+    ));
 
     public static boolean isTextMimeType(String fileName) {
-        if (!fileName.contains(".")) {
+        if (TextUtils.isEmpty(fileName)) {
             return false;
         }
 
-        String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
-        if (TextUtils.isEmpty(suffix)) {
-            return false;
+        String name = fileName.trim().toLowerCase(Locale.ROOT);
+
+        // Dockerfile.dev、.env.local 等变体
+        if (name.startsWith("dockerfile") || name.startsWith(".env")) {
+            return true;
         }
 
-        //file is markdown or txt
-        String[] array = {"ac", "am", "adoc", "asciidoc", "bat", "c", "cc", "cmake", "conf", "cpp", "cs", "css", "csv", "diff",
-                "el", "go", "groovy", "h", "htm", "html", "java", "js", "json", "less", "log", "make",
-                "markdown", "md", "org", "patch", "pde", "php", "pl", "properties", "py", "rb", "rst",
-                "sc", "scala", "scd", "schelp", "script", "sh", "sql", "text", "tex", "txt", "vi", "vim",
-                "xhtml", "xml", "yml", "adoc"};
-        return Arrays.asList(array).contains(suffix);
+        int index = name.lastIndexOf('.');
+        String baseName = index >= 0 ? name.substring(0, index) : name;
+        String suffix = index >= 0 ? name.substring(index + 1) : "";
+
+        if (TEXT_FILE_NAMES.contains(name) || TEXT_FILE_NAMES.contains(baseName)) {
+            return true;
+        }
+
+        return !TextUtils.isEmpty(suffix) && TEXT_EXTENSIONS.contains(suffix);
     }
 
 
@@ -823,111 +719,7 @@ public class Utils {
         }
     }
 
-
-    public static void hideSystemNavigationBar(Activity activity) {
-        if (activity == null) {
-            return;
-        }
-        if (Build.VERSION.SDK_INT < 19) {
-            View view = activity.getWindow().getDecorView();
-            view.setSystemUiVisibility(View.GONE);
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            View decorView = activity.getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
-        }
-    }
-
-
-    public static String getSyncCompletedTime() {
-        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd HH:mm");
-        Date date = new Date(System.currentTimeMillis());
-        String completedTime = formatter.format(date);
-        return completedTime;
-    }
-
-
-    public static String getRealPathFromURI(Context context, Uri contentUri, String media) {
-        Cursor cursor = null;
-        try {
-            if (media.equals("images")) {//image
-                String[] proj = {MediaStore.Images.Media.DATA};
-                cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                cursor.moveToFirst();
-                return cursor.getString(column_index);
-            } else {//Video
-                String[] proj = {MediaStore.Video.Media.DATA};
-                cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
-                cursor.moveToFirst();
-                return cursor.getString(column_index);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
     public static final String EXCEPTION_TYPE_CRASH = "crash_exception";
-
-
-    /**
-     * Convert latitude to a fixed format
-     *
-     * @return eg: "N50°1'33""
-     */
-    public static String convertLatitude(double lat) {
-        String direction = lat >= 0 ? "N" : "S";
-        return convertCoordinate(Math.abs(lat), direction);
-    }
-
-    public static String convertLatitude(String lat) {
-        if (TextUtils.isEmpty(lat)) {
-            return "";
-        }
-        double parsedLat = Double.parseDouble(lat);
-        return convertLatitude(parsedLat);
-    }
-
-    /**
-     * Convert longitude to a fixed format
-     *
-     * @return eg: "E116°18'26""
-     */
-    public static String convertLongitude(double lng) {
-        String direction = lng >= 0 ? "E" : "W";
-        return convertCoordinate(Math.abs(lng), direction);
-    }
-
-    public static String convertLongitude(String lng) {
-        if (TextUtils.isEmpty(lng)) {
-            return "";
-        }
-        double parsedLat = Double.parseDouble(lng);
-        return convertLongitude(parsedLat);
-    }
-
-    /**
-     * Converts latitude and longitude values to a fixed format
-     *
-     * @param coordinate 经纬度值
-     * @param direction  方向（N/S/E/W）
-     * @return 格式化后的字符串
-     */
-    private static String convertCoordinate(double coordinate, String direction) {
-        int degrees = (int) coordinate;
-        double remaining = coordinate - degrees;
-        int minutes = (int) (remaining * 60);
-        double seconds = (remaining * 60 - minutes) * 60;
-
-        return String.format("%s%d°%d'%.0f\"", direction, degrees, minutes, seconds);
-    }
 
     /**
      * Compare two server versions.

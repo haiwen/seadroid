@@ -10,26 +10,41 @@ import com.seafile.seadroid2.R;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class Icons {
     private static HashMap<String, Integer> suffixIconMap = null;
 
-    private static final List<String> codes = CollectionUtils.newArrayList(
-            "java", "class", "jar", "html", "htm", "xml", "json", "js", "css",
-            "scss", "sass", "less", "ts", "rb", "php", "sh", "yml", "yaml",
-            "ini", "conf", "cfg", "sql", "properties", "toml", "c",
-            "cs", "swift", "go", "dart", "sh", "bat", "h", "vue", "ejs", "jsx", "kt", "py", "lua",
-            "py", "cpp", "h");
+    /**
+     * Source code, scripts, and configuration files should all use the same filename icon (code file icon).
+     */
+    private static final List<String> CODE_EXTENSIONS = CollectionUtils.newArrayList(
+            // JVM series
+            "java", "kt", "kts", "groovy", "gradle", "scala",
+            "class", "jar", "war", "dex", "smali",
+            // web series
+            "html", "htm", "xhtml", "vue", "svelte", "ejs", "jsx", "tsx",
+            "js", "mjs", "cjs", "ts", "css", "scss", "sass", "less", "styl",
+            // data config series
+            "xml", "xsl", "xslt", "xsd", "dtd", "json", "jsonc", "json5",
+            "yml", "yaml", "toml", "ini", "conf", "cfg", "properties", "env",
+            "sql", "graphql", "gql",
+            // script series
+            "sh", "bash", "zsh", "fish", "bat", "cmd", "ps1", "psm1",
+            "rb", "erb", "php", "phtml", "pl", "pm", "py", "pyw", "pyx",
+            "lua", "r", "jl", "dart", "go", "rs", "swift",
+            // C series
+            "c", "h", "cc", "cpp", "cxx", "hpp", "hxx", "cs", "fs", "vb",
+            "m", "mm", "asm", "s");
 
     public static int getFileIcon(String name) {
-//        return getFileOldIcon(name);
         String suffix = FileUtils.getFileExtension(name);
         if (TextUtils.isEmpty(suffix)) {
             return R.drawable.icon_format_file;
         }
 
-        if (codes.contains(suffix)) {
+        if (CODE_EXTENSIONS.contains(suffix)) {
             return R.drawable.icon_format_css;
         }
 
@@ -59,11 +74,14 @@ public class Icons {
         suffixIconMap.put("ppt", R.drawable.icon_format_ppt);
         suffixIconMap.put("sdoc", R.drawable.icon_format_sdoc);
         suffixIconMap.put("xls", R.drawable.icon_format_excel);
+        suffixIconMap.put("xlsx", R.drawable.icon_format_excel);
         suffixIconMap.put("mp3", R.drawable.icon_format_music);
         suffixIconMap.put("mov", R.drawable.icon_format_video);
         suffixIconMap.put("css", R.drawable.icon_format_css);
         suffixIconMap.put("draw", R.drawable.icon_format_draw);
         suffixIconMap.put("exdraw", R.drawable.icon_format_draw);
+        suffixIconMap.put("pages", R.drawable.icon_format_ppt);
+        suffixIconMap.put("csv", R.drawable.icon_format_excel);
 
         //code
         return suffixIconMap;
@@ -81,40 +99,48 @@ public class Icons {
             return R.drawable.icon_format_file;
         }
 
-        if (mimetype.contains("pdf")) {
+        String mime = mimetype.toLowerCase(Locale.ROOT);
+
+        // PDF
+        if (mime.contains("pdf")) {
             return R.drawable.icon_format_pdf;
-        } else if (mimetype.contains("image/")) {
-            return R.drawable.icon_format_pic;
-        } else if (mimetype.contains("text/")) {
-            return R.drawable.icon_format_txt;
-        } else if (mimetype.contains("audio/")) {
-            return R.drawable.icon_format_music;
-        } else if (mimetype.contains("video/")) {
-            return R.drawable.icon_format_video;
-        } else if (mimetype.contains("ms-word") || mimetype.contains("msword")) {
-            return R.drawable.icon_format_word;
-        } else if (mimetype.contains("ms-powerpoint") || mimetype.contains("mspowerpoint")) {
-            return R.drawable.icon_format_ppt;
-        } else if (mimetype.contains("ms-excel") || mimetype.contains("msexcel")) {
-            return R.drawable.icon_format_excel;
-        } else if (mimetype.contains("vnd.openxmlformats-officedocument.wordprocessingml")) {
-            return R.drawable.icon_format_word;
-        } else if (mimetype.contains("vnd.openxmlformats-officedocument.spreadsheetml")) {
-            return R.drawable.icon_format_excel;
-        } else if (mimetype.contains("vnd.openxmlformats-officedocument.presentationml")) {
-            return R.drawable.icon_format_ppt;
-        } else if (mimetype.equals("application/vnd.android.package-archive")) {
-            return R.drawable.icon_format_file;
-        } else if (mimetype.equals("application/zip")) {
-            return R.drawable.icon_format_zip;
-        } else if (mimetype.equals("application/x-iwork-numbers-sffnumbers")) {
-            return R.drawable.icon_format_file;
-        } else if (mimetype.equals("application/x-iwork-pages-sffpages")) {
-            return R.drawable.icon_format_file;
-        } else if (mimetype.equals("application/vnd.chemdraw+xml")) {
-            return R.drawable.icon_format_draw;
         }
 
-        return R.drawable.icon_format_file;
+        // image/*, text/*, audio/*, video/*
+        int slashIndex = mime.indexOf('/');
+        if (slashIndex > 0) {
+            String topLevelType = mime.substring(0, slashIndex);
+            switch (topLevelType) {
+                case "image" -> {
+                    return R.drawable.icon_format_pic;
+                }
+                case "text" -> {
+                    return R.drawable.icon_format_txt;
+                }
+                case "audio" -> {
+                    return R.drawable.icon_format_music;
+                }
+                case "video" -> {
+                    return R.drawable.icon_format_video;
+                }
+            }
+        }
+
+        // Office document suite (compatible with legacy binary and OOXML formats)
+        if (mime.contains("word")) {
+            return R.drawable.icon_format_word;
+        } else if (mime.contains("excel") || mime.contains("spreadsheet")) {
+            return R.drawable.icon_format_excel;
+        } else if (mime.contains("powerpoint") || mime.contains("presentation")) {
+            return R.drawable.icon_format_ppt;
+        }
+
+        // exact match for specific complete mime types
+        return switch (mime) {
+            case "application/zip" -> R.drawable.icon_format_zip;
+            case "application/vnd.chemdraw+xml" -> R.drawable.icon_format_draw;
+            default -> R.drawable.icon_format_file;
+        };
     }
+
 }
