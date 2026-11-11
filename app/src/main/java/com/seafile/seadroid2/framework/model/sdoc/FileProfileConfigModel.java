@@ -9,6 +9,7 @@ import com.seafile.seadroid2.framework.model.user.UserModel;
 import com.seafile.seadroid2.framework.model.user.UserWrapperModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.ui.media.image.PhotoFragment;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,13 +22,21 @@ import java.util.Map;
  * If you need to pass or receive this type of parameter, use the TransportHolder
  */
 public class FileProfileConfigModel {
+    @SerializedName("TAG")
     public final String TAG = "FileProfileConfigModel";
+    @SerializedName("repoId")
     private String repoId;
+    @SerializedName("detail")
     private FileDetailModel detail;
+    @SerializedName("metadataConfig")
     private MetadataConfigModel metadataConfig;
+    @SerializedName("relatedUserList")
     private final List<UserModel> relatedUserList = new ArrayList<>();
+    @SerializedName("recordMetaDataMap")
     private final LinkedHashMap<String, MetadataModel> recordMetaDataMap = new LinkedHashMap<>();
+    @SerializedName("recordResultMap")
     private final LinkedHashMap<String, Object> recordResultMap = new LinkedHashMap<>();
+    @SerializedName("tagsMap")
     private final Map<String, OptionTagModel> tagsMap = new HashMap<>();
 
     public void setRepoId(String repoId) {

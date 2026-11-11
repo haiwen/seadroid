@@ -3,15 +3,24 @@ package com.seafile.seadroid2.framework.model;
 import android.text.TextUtils;
 
 import java.util.List;
+import com.google.gson.annotations.SerializedName;
 
 public class ErrorModel {
+    @SerializedName("error_msg")
     public String error_msg;
+    @SerializedName("msg")
     public String msg;
+    @SerializedName("error")
     public String error;
+    @SerializedName("errorMsg")
     public String errorMsg;
+    @SerializedName("errMessage")
     public String errMessage;
+    @SerializedName("err_message")
     public String err_message;
+    @SerializedName("detail")
     public String detail;
+    @SerializedName("non_field_errors")
     public List<String> non_field_errors;
 
     public String getError() {

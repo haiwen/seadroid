@@ -1,14 +1,19 @@
 package com.seafile.seadroid2.ui.folder_backup;
 
 import com.google.common.base.Objects;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
 public class RepoConfig implements Serializable {
+    @SerializedName("email")
     private String email;
+    @SerializedName("signature")
     private String signature;
 
+    @SerializedName("repoID")
     private String repoID;
+    @SerializedName("repoName")
     private String repoName;
 
     public RepoConfig(String repoID, String repoName, String email,String signature) {
@@ -66,6 +71,7 @@ public class RepoConfig implements Serializable {
                 that.repoName.equals(this.repoName);
     }
 
+    @SerializedName("hashCode")
     private volatile int hashCode = 0;
 
     @Override

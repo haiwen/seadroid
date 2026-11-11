@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Value type that represents a ServerInfo.
@@ -15,6 +16,13 @@ public class ServerInfo implements Parcelable {
     private final String url;
     private final String version;
     private final String features;
+    @SerializedName("url")
+    private String url;
+    @SerializedName("version")
+    private String version;
+    @SerializedName("features")
+    private String features;
+    @SerializedName("encrypted_library_version")
     private String encrypted_library_version;
 
     public ServerInfo(String url, String version, String features, String encrypted_library_version) {

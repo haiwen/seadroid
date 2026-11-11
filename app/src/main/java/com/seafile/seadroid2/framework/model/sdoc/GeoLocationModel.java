@@ -5,17 +5,27 @@ import android.text.TextUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import io.reactivex.annotations.Nullable;
+import com.google.gson.annotations.SerializedName;
 
 public class GeoLocationModel{
+    @SerializedName("geo_format")
     public String geo_format;
+    @SerializedName("country")
     public String country;
+    @SerializedName("province")
     public String province;
+    @SerializedName("city")
     public String city;
+    @SerializedName("district")
     public String district;
+    @SerializedName("street")
     public String street;
 
+    @SerializedName("address")
     public String address;
+    @SerializedName("lat")
     public double lat = -1;
+    @SerializedName("lng")
     public double lng = -1;
 
     public GeoLocationModel() {

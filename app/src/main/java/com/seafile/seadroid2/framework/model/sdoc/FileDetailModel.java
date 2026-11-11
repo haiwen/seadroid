@@ -7,10 +7,15 @@ import com.seafile.seadroid2.framework.model.adapter.OffsetDateTimeAdapter;
 import java.time.OffsetDateTime;
 
 public class FileDetailModel {
+    @SerializedName("type")
     public String type;
+    @SerializedName("id")
     public String id;
+    @SerializedName("name")
     public String name;
+    @SerializedName("permission")
     public String permission;
+    @SerializedName("mtime")
     public long mtime;
 
     @JsonAdapter(OffsetDateTimeAdapter.class)
@@ -25,9 +30,13 @@ public class FileDetailModel {
     public String lastModifierContactEmail;
     @SerializedName("last_modifier_avatar")
     public String lastModifierAvatar;
+    @SerializedName("size")
     public long size;
+    @SerializedName("starred")
     public boolean starred;
+    @SerializedName("commentTotal")
     public long commentTotal;
+    @SerializedName("canEdit")
     public boolean canEdit;
 
 
