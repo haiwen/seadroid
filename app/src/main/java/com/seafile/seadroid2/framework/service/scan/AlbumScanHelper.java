@@ -329,6 +329,8 @@ public class AlbumScanHelper {
             //cache
             TransferModel transferModel = TransferModel.convert(file, bucketName, 0); // 0 is just a symbol, no means
             transferModel.related_account = account.getSignature();
+            // Pin the conversion decision at enqueue time so later preference changes are ignored
+            transferModel.upload_original_motion_photo = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();
 

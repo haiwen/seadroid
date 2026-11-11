@@ -73,6 +73,14 @@ public class TransferModel implements Comparable<TransferModel> {
      */
     public String motion_photo_path;
 
+    /**
+     * Snapshot of the "upload original photo" preference taken when the task is enqueued.
+     * The uploader uses this value instead of the live preference, so toggling the switch
+     * while the task waits in the queue cannot change the target file name that was
+     * already confirmed by the user.
+     */
+    public boolean upload_original_motion_photo = true;
+
 
     public long file_size; //文件大小
     public long transferred_size; //已传输大小

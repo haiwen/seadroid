@@ -300,6 +300,8 @@ public class MainViewModel extends BaseViewModel {
         transferModel.repo_id = repo_id;
         transferModel.repo_name = repo_name;
         transferModel.related_account = account.getSignature();
+        // Pin the conversion decision so a later preference change cannot alter the target name
+        transferModel.upload_original_motion_photo = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
         transferModel.target_path = Utils.pathJoin(parentDir, fileName);
         transferModel.setParentPath(parentDir);
         transferModel.file_name = fileName;
