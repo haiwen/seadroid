@@ -13,9 +13,6 @@ import com.google.gson.annotations.SerializedName;
  */
 public class ServerInfo implements Parcelable {
 
-    private final String url;
-    private final String version;
-    private final String features;
     @SerializedName("url")
     private String url;
     @SerializedName("version")
