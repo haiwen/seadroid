@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -27,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.navigationrail.NavigationRailView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
@@ -40,6 +42,7 @@ import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.WindowSizeHelper;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountsActivity;
 import com.seafile.seadroid2.ui.activities.AllActivitiesFragment;
@@ -62,6 +65,8 @@ public class MainActivity extends BaseActivity {
     private MainViewModel mainViewModel;
     private ViewPager2Adapter pagerAdapter;
     private Account curAccount;
+    private NavigationRailView navigationRail;
+    private int currentTabId = R.id.tabs_library;
 
     private RepoQuickFragment getReposFragment() {
         return (RepoQuickFragment) mainViewModel.getFragments().get(0);
@@ -84,6 +89,7 @@ public class MainActivity extends BaseActivity {
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
+        navigationRail = binding.navRail;
 
         setContentView(binding.getRoot());
         initToolbar();
@@ -105,6 +111,7 @@ public class MainActivity extends BaseActivity {
         resetOverflowIcon();
 
         initBottomNavigation();
+        applyWindowLayout();
 
         initViewPager();
 
@@ -232,12 +239,6 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        SLogs.e(TAG, "onStart");
-    }
-
-    @Override
     protected void onDestroy() {
         SLogs.e(TAG, "onStart");
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
@@ -255,7 +256,13 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        SLogs.e(TAG, "onStart");
+        SLogs.e(TAG, "onStop");
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        applyWindowLayout();
     }
 
     @Override
@@ -302,7 +309,7 @@ public class MainActivity extends BaseActivity {
                     quickFragment.switchPath(repoId, path, isDir);
                 }
 
-                binding.navBottomView.setSelectedItemId(R.id.tabs_library);
+                selectNavigationItem(R.id.tabs_library);
 
                 refreshActionbar();
             }
@@ -330,7 +337,7 @@ public class MainActivity extends BaseActivity {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("pagerIndex", binding.pager.getCurrentItem());
-        outState.putInt("navItemId", binding.navBottomView.getSelectedItemId());
+        outState.putInt("navItemId", currentTabId);
     }
 
     @Override
@@ -340,7 +347,7 @@ public class MainActivity extends BaseActivity {
             binding.pager.setCurrentItem(savedInstanceState.getInt("pagerIndex"));
         }
         if (savedInstanceState.containsKey("navItemId")) {
-            binding.navBottomView.setSelectedItemId(savedInstanceState.getInt("navItemId"));
+            selectNavigationItem(savedInstanceState.getInt("navItemId"));
         }
     }
 
@@ -374,6 +381,48 @@ public class MainActivity extends BaseActivity {
             // do nothing here
             onBottomNavItemSingleReselect(item);
         });
+
+        navigationRail.setOnItemSelectedListener(menuItem -> {
+            onBottomNavigationSelected(menuItem);
+            return true;
+        });
+        navigationRail.setOnItemReselectedListener(this::onBottomNavItemSingleReselect);
+    }
+
+    private void selectNavigationItem(int itemId) {
+        currentTabId = itemId;
+        if (binding.navBottomView.getMenu().findItem(itemId) != null) {
+            binding.navBottomView.setSelectedItemId(itemId);
+        }
+        if (navigationRail.getMenu().findItem(itemId) != null) {
+            navigationRail.setSelectedItemId(itemId);
+        }
+    }
+
+    private void syncNavigationSelection(int itemId) {
+        currentTabId = itemId;
+        if (binding.navBottomView.getSelectedItemId() != itemId
+                && binding.navBottomView.getMenu().findItem(itemId) != null) {
+            binding.navBottomView.setSelectedItemId(itemId);
+        }
+        if (navigationRail.getSelectedItemId() != itemId
+                && navigationRail.getMenu().findItem(itemId) != null) {
+            navigationRail.setSelectedItemId(itemId);
+        }
+    }
+
+    private void applyWindowLayout() {
+        if (binding == null || navigationRail == null) {
+            return;
+        }
+
+        boolean useRail = WindowSizeHelper.getWidthSizeClass(this)
+                != WindowSizeHelper.SizeClass.COMPACT;
+        int visibility = useRail ? View.VISIBLE : View.GONE;
+        navigationRail.setVisibility(visibility);
+        binding.railDivider.setVisibility(visibility);
+        binding.navBottomView.setVisibility(useRail ? View.GONE : View.VISIBLE);
+        syncNavigationSelection(currentTabId);
     }
 
     private void onBottomNavItemDoubleTap(MenuItem item) {
@@ -397,6 +446,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void onBottomNavigationSelected(MenuItem menuItem) {
+        currentTabId = menuItem.getItemId();
         //tab
         int pagerIndex = -1;
         if (menuItem.getItemId() == R.id.tabs_library) {
@@ -497,6 +547,8 @@ public class MainActivity extends BaseActivity {
         if (optional.isEmpty()) { // if load failed, remove special fragments
             binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
             binding.navBottomView.getMenu().removeItem(R.id.tabs_wiki);
+            navigationRail.getMenu().removeItem(R.id.tabs_activity);
+            navigationRail.getMenu().removeItem(R.id.tabs_wiki);
 
             int activityIndex = getPagerAdapter().removeByClass(AllActivitiesFragment.class);
             if (activityIndex != -1) {
@@ -513,6 +565,7 @@ public class MainActivity extends BaseActivity {
         // remove activity tab
         if (!optional.get().isProEdition()) {
             binding.navBottomView.getMenu().removeItem(R.id.tabs_activity);
+            navigationRail.getMenu().removeItem(R.id.tabs_activity);
 
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
             if (adapter != null) {
@@ -523,6 +576,7 @@ public class MainActivity extends BaseActivity {
         // remove wiki fragment if disable wiki
         if (!optional.get().isEnableWiki()) {
             binding.navBottomView.getMenu().removeItem(R.id.tabs_wiki);
+            navigationRail.getMenu().removeItem(R.id.tabs_wiki);
 
             ViewPager2Adapter adapter = (ViewPager2Adapter) binding.pager.getAdapter();
             if (adapter != null) {

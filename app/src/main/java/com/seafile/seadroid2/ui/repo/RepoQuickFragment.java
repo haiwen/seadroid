@@ -87,6 +87,7 @@ import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.jni.HeicNative;
+import com.seafile.seadroid2.listener.OnBottomSheetItemClickListener;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.base.fragment.BaseFragmentWithVM;
@@ -107,7 +108,6 @@ import com.seafile.seadroid2.ui.markdown.MarkdownActivity;
 import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
-import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetActionView;
 import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.OpSelectorActivity;
@@ -206,7 +206,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
-        bottomSheetMenuManager = new BottomSheetMenuManager(requireActivity(), new BottomSheetActionView.OnBottomSheetItemClickListener() {
+        bottomSheetMenuManager = new BottomSheetMenuManager(requireActivity(), new OnBottomSheetItemClickListener() {
             @Override
             public void onItemClick(MenuItem item) {
                 onBottomSheetItemClick(item);
@@ -290,7 +290,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         binding.rv.setSaveEnabled(false);
         binding.rv.setSaveFromParentEnabled(false);
         binding.rv.addItemDecoration(getDecoration());
-
         binding.rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -306,6 +305,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         binding.rv.setPadding(0, 0, 0, Constants.DP.DP_32);
         binding.rv.setClipToPadding(false);
+        installAdaptiveSpan();
     }
 
     /**
@@ -344,6 +344,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private MenuItem searchMenuItem, sortMenuItem;
+    private boolean sortPopupShowing;
     private final MenuProvider mp = new MenuProvider() {
         @Override
         public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
@@ -375,6 +376,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
+                        if (TextUtils.isEmpty(newText)) {
+                            clearSearchResults();
+                            return true;
+                        }
                         searchView.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -419,6 +424,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                         @Override
                         public boolean onQueryTextChange(String newText) {
+                            if (TextUtils.isEmpty(newText)) {
+                                clearSearchResults();
+                                return true;
+                            }
                             searchView.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -500,9 +509,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
 
             if (menuItem.getItemId() == R.id.menu_action_search) {
-
+                if (searchMenuItem != null && !searchMenuItem.isActionViewExpanded()) {
+                    searchMenuItem.expandActionView();
+                }
             } else if (menuItem.getItemId() == R.id.menu_action_sort) {
-
+                if (sortMenuItem != null && sortMenuItem.getActionView() != null) {
+                    showCustomMenuView(sortMenuItem.getActionView());
+                }
             } else if (menuItem.getItemId() == R.id.create_repo) {
                 showNewRepoDialog();
             } else if (menuItem.getItemId() == R.id.create_file) {
@@ -530,8 +543,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
         // cache item state
         setMenuVisibleStateById("search", menu.findItem(R.id.menu_action_search).isVisible());
-        setMenuVisibleStateById("sortGroup", menu.findItem(R.id.menu_action_sort).isVisible());
-        setMenuVisibleStateById("createRepo", menu.findItem(R.id.create_repo).isVisible());
+        setMenuVisibleStateById("sort_group", menu.findItem(R.id.menu_action_sort).isVisible());
+        setMenuVisibleStateById("create_repo", menu.findItem(R.id.create_repo).isVisible());
         setMenuVisibleStateById("create_file", menu.findItem(R.id.create_file).isVisible());
         setMenuVisibleStateById("create_folder", menu.findItem(R.id.create_folder).isVisible());
         setMenuVisibleStateById("upload_file", menu.findItem(R.id.upload_file).isVisible());
@@ -548,7 +561,6 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         visibleMenuById(menu, R.id.take_photo, false);
         visibleMenuById(menu, R.id.select, false);
 
-        adapter.notifySearchDataChanged(true, null);
     }
 
     public void onMenuItemCollapse(Menu menu, MenuItem item) {
@@ -561,8 +573,8 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             @Override
             public void run() {
                 visibleMenuById(menu, R.id.menu_action_search, "search");
-                visibleMenuById(menu, R.id.menu_action_sort, "sortGroup");
-                visibleMenuById(menu, R.id.create_repo, "createRepo");
+                visibleMenuById(menu, R.id.menu_action_sort, "sort_group");
+                visibleMenuById(menu, R.id.create_repo, "create_repo");
                 visibleMenuById(menu, R.id.create_file, "create_file");
                 visibleMenuById(menu, R.id.create_folder, "create_folder");
                 visibleMenuById(menu, R.id.upload_file, "upload_file");
@@ -595,6 +607,10 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         item.setVisible(visible);
     }
 
+    private void clearSearchResults() {
+        adapter.notifySearchDataChanged(false, null);
+    }
+
     private void setMenuVisibleStateById(String id, boolean visible) {
         menuIdState.put(id, visible);
     }
@@ -608,21 +624,72 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     }
 
     private void showCustomMenuView(View anchorView) {
+        if (sortPopupShowing || anchorView == null) {
+            return;
+        }
+
         ViewSortPopupWindow popupWindow = new ViewSortPopupWindow(requireContext(), GlobalNavContext.getCurrentNavContext());
+        sortPopupShowing = true;
+        popupWindow.setOnDismissListener(() -> sortPopupShowing = false);
         int x = -popupWindow.getW() / 2;
         popupWindow.showAsDropDown(anchorView, x, Constants.DP.DP_8);
     }
 
     private int SPAN_COUNT = 1;
     private boolean layoutInRepo;
+    private int lastSpanWidth;
 
     private GridLayoutManager getGridLayoutManager() {
         FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
         layoutInRepo = GlobalNavContext.getCurrentNavContext().inRepo();
-        GridLayoutManager gridLayoutManager = new RepoGridLayoutManager(requireContext(), layoutInRepo,
-                fileViewType, () -> adapter == null ? Collections.emptyList() : adapter.getItems());
+        int widthPx = getContentWidth();
+        RepoGridLayoutManager gridLayoutManager = new RepoGridLayoutManager(
+                requireContext(), layoutInRepo, fileViewType, widthPx,
+                () -> adapter == null ? Collections.emptyList() : adapter.getItems());
         SPAN_COUNT = gridLayoutManager.getSpanCount();
+        lastSpanWidth = widthPx;
         return gridLayoutManager;
+    }
+
+    private int getContentWidth() {
+        return Math.max(0, binding.rv.getWidth()
+                - binding.rv.getPaddingLeft() - binding.rv.getPaddingRight());
+    }
+
+    private void installAdaptiveSpan() {
+        binding.rv.addOnLayoutChangeListener((v, left, top, right, bottom,
+                                              oldLeft, oldTop, oldRight, oldBottom) -> {
+            int widthPx = getContentWidth();
+            if (widthPx <= 0 || widthPx == lastSpanWidth) {
+                return;
+            }
+            lastSpanWidth = widthPx;
+            binding.rv.post(() -> applyAdaptiveSpan(widthPx));
+        });
+    }
+
+    private void applyAdaptiveSpan(int widthPx) {
+        if (!(binding.rv.getLayoutManager() instanceof RepoGridLayoutManager)) {
+            return;
+        }
+
+        RepoGridLayoutManager layoutManager =
+                (RepoGridLayoutManager) binding.rv.getLayoutManager();
+        boolean inRepo = GlobalNavContext.getCurrentNavContext().inRepo();
+        FileViewType fileViewType = Settings.FILE_LIST_VIEW_TYPE.queryValue();
+
+        int anchorPosition = layoutManager.findFirstVisibleItemPosition();
+        View anchorView = anchorPosition == RecyclerView.NO_POSITION
+                ? null : layoutManager.findViewByPosition(anchorPosition);
+        int anchorOffset = anchorView == null
+                ? 0 : anchorView.getTop() - binding.rv.getPaddingTop();
+
+        boolean changed = layoutManager.updateLayoutConfig(inRepo, fileViewType, widthPx);
+        SPAN_COUNT = layoutManager.getSpanCount();
+
+        if (changed && anchorPosition != RecyclerView.NO_POSITION) {
+            layoutManager.scrollToPositionWithOffset(anchorPosition, anchorOffset);
+        }
     }
 
     private void initAdapter() {
@@ -999,33 +1066,23 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     private FileViewType lastViewType;
 
     private void switchRecyclerViewLayout(FileViewType newViewType) {
-        int spanCount = 0;
-        if (FileViewType.LIST == newViewType) {
-            spanCount = 1;
-        } else if (FileViewType.GRID == newViewType) {
-            spanCount = 2;
-        } else if (FileViewType.GALLERY == newViewType) {
-            spanCount = 4;
-        }
-
         if (newViewType == lastViewType) {
             return;
         }
-
-        if (!GlobalNavContext.getCurrentNavContext().inRepo()) {
-            spanCount = 1;
-        }
-
-        SPAN_COUNT = spanCount;
 
         if (FileViewType.GALLERY != lastViewType && newViewType != FileViewType.GALLERY) {
         } else {
             adapter.notifyDataChanged(null);
         }
 
-        GridLayoutManager gridLayoutManager = (GridLayoutManager) binding.rv.getLayoutManager();
-        if (gridLayoutManager != null) {
-            gridLayoutManager.setSpanCount(SPAN_COUNT);
+        if (binding.rv.getLayoutManager() instanceof RepoGridLayoutManager) {
+            RepoGridLayoutManager layoutManager =
+                    (RepoGridLayoutManager) binding.rv.getLayoutManager();
+            layoutManager.updateLayoutConfig(
+                    GlobalNavContext.getCurrentNavContext().inRepo(),
+                    newViewType,
+                    getContentWidth());
+            SPAN_COUNT = layoutManager.getSpanCount();
         }
 
         adapter.setFileViewType(newViewType);
@@ -1502,6 +1559,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         if (actionMode == null) {
             // there are some selected items, start the actionMode
             actionMode = activity.startSupportActionMode(new ActionModeCallback(isShowSelectAllBox));
+            constrainActionModeBarToContent();
         }
 
         if (customView != null) {
@@ -1509,6 +1567,21 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             TextView textView = customView.findViewById(R.id.title);
             textView.setText(getResources().getQuantityString(R.plurals.transfer_list_items_selected, count, count));
         }
+    }
+
+    private void constrainActionModeBarToContent() {
+        View actionModeBar = activity.findViewById(androidx.appcompat.R.id.action_mode_bar);
+        View contentContainer = activity.findViewById(R.id.content_container);
+        if (actionModeBar == null || contentContainer == null || contentContainer.getWidth() <= 0) {
+            return;
+        }
+
+        ViewGroup.LayoutParams layoutParams = actionModeBar.getLayoutParams();
+        if (layoutParams != null) {
+            layoutParams.width = contentContainer.getWidth();
+            actionModeBar.setLayoutParams(layoutParams);
+        }
+        actionModeBar.setTranslationX(contentContainer.getLeft());
     }
 
     private View customView;
@@ -1536,6 +1609,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
             LayoutInflater inflater = LayoutInflater.from(requireContext());
             customView = inflater.inflate(R.layout.view_toolbar_action_mode, null);
             mode.setCustomView(customView);
+            activity.getWindow().getDecorView().post(RepoQuickFragment.this::constrainActionModeBarToContent);
 
             if (adapter == null) return true;
 

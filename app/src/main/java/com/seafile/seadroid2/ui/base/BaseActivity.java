@@ -79,28 +79,47 @@ public class BaseActivity extends AppCompatActivity {
         View bottomNav = root.findViewById(R.id.nav_bottom_view);
         boolean hasBottomNav = bottomNav != null;
 
+        final int rootPaddingLeft = root.getPaddingLeft();
+        final int rootPaddingTop = root.getPaddingTop();
+        final int rootPaddingRight = root.getPaddingRight();
+        final int rootPaddingBottom = root.getPaddingBottom();
+
         // 根容器：只处理左右 system bars 和顶部（无 Toolbar 时）；底部在有 BottomNav 时跳过
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-            int top = hasToolbar ? 0 : systemBars.top;
-            int bottom = hasBottomNav ? 0 : systemBars.bottom;
-            v.setPadding(systemBars.left, top, systemBars.right, bottom);
+            boolean bottomNavVisible = hasBottomNav && bottomNav.getVisibility() == View.VISIBLE;
+            int top = hasToolbar ? rootPaddingTop : rootPaddingTop + systemBars.top;
+            int bottom = bottomNavVisible
+                    ? rootPaddingBottom : rootPaddingBottom + systemBars.bottom;
+            v.setPadding(rootPaddingLeft + systemBars.left, top,
+                    rootPaddingRight + systemBars.right, bottom);
             return insets;
         });
 
         if (hasToolbar) {
+            final int toolbarPaddingLeft = toolbar.getPaddingLeft();
+            final int toolbarPaddingTop = toolbar.getPaddingTop();
+            final int toolbarPaddingRight = toolbar.getPaddingRight();
+            final int toolbarPaddingBottom = toolbar.getPaddingBottom();
+            final int toolbarInitialHeight = toolbar.getLayoutParams() == null
+                    ? ViewGroup.LayoutParams.WRAP_CONTENT : toolbar.getLayoutParams().height;
             ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
                 int top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
-                int cur = v.getPaddingTop();
-                if (cur != top) {
-                    int delta = top - cur;
-                    v.setPadding(v.getPaddingLeft(), top, v.getPaddingRight(), v.getPaddingBottom());
-                    // 固定高度时同步增加，避免内容被状态栏 padding 压缩
-                    ViewGroup.LayoutParams lp = v.getLayoutParams();
-                    if (lp != null && lp.height > 0) {
-                        lp.height += delta;
-                        v.setLayoutParams(lp);
+                v.setPadding(toolbarPaddingLeft,
+                        toolbarPaddingTop + top,
+                        toolbarPaddingRight,
+                        toolbarPaddingBottom);
+
+                // The status-bar inset is part of the edge-to-edge toolbar area. Keep the
+                // original action-bar height and recompute from it on every callback so the
+                // action icons are not compressed or cumulatively enlarged.
+                if (toolbarInitialHeight > 0) {
+                    ViewGroup.LayoutParams layoutParams = v.getLayoutParams();
+                    int targetHeight = toolbarInitialHeight + top;
+                    if (layoutParams != null && layoutParams.height != targetHeight) {
+                        layoutParams.height = targetHeight;
+                        v.setLayoutParams(layoutParams);
                     }
                 }
                 return insets;
@@ -108,10 +127,17 @@ public class BaseActivity extends AppCompatActivity {
         }
 
         if (hasBottomNav) {
+            final int bottomNavPaddingLeft = bottomNav.getPaddingLeft();
+            final int bottomNavPaddingTop = bottomNav.getPaddingTop();
+            final int bottomNavPaddingRight = bottomNav.getPaddingRight();
+            final int bottomNavPaddingBottom = bottomNav.getPaddingBottom();
             // BottomNavigationView 导航栏 inset 绑定到自身，背景延伸到系统导航栏后方
             ViewCompat.setOnApplyWindowInsetsListener(bottomNav, (v, insets) -> {
                 int bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
-                v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), bottom);
+                v.setPadding(bottomNavPaddingLeft,
+                        bottomNavPaddingTop,
+                        bottomNavPaddingRight,
+                        bottomNavPaddingBottom + bottom);
                 return insets;
             });
         }
