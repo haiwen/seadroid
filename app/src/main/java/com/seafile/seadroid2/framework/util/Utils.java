@@ -15,7 +15,6 @@ import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 
@@ -28,8 +27,6 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.context.GlobalNavContext;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -217,25 +214,6 @@ public class Utils {
 
         return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
     }
-
-    public static Pair<String, Boolean> isJpegMotionPhoto(Context context, Uri uri) {
-        String fileName = Utils.getFilenameFromUri(context, uri);
-        return isJpegMotionPhoto(context, uri, fileName);
-    }
-
-    public static Pair<String, Boolean> isJpegMotionPhoto(Context context, Uri uri, String fileName) {
-        if (StringUtils.isEmpty(fileName)) {
-            return new Pair<>(fileName, false);
-        }
-
-        if (!Utils.isJpeg(fileName)) {
-            return new Pair<>(fileName, false);
-        }
-
-        MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(context, uri);
-        return new Pair<>(fileName, descriptor.isMotionPhoto());
-    }
-
 
     public static boolean isJpeg(String name) {
         String suffix = FilenameUtils.getExtension(name);

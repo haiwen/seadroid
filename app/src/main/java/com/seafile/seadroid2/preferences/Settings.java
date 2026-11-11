@@ -160,7 +160,7 @@ public class Settings {
         //album backup advance
         ALBUM_BACKUP_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_switch);
         ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_pause_switch);
-        // default true: upload origin photo
+        // default true: back up motion photos as HEIC files
         ALBUM_BACKUP_UPLOAD_ORIGINAL_PHOTO_SWITCH = new BooleanSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_upload_original_photo_switch, R.bool.pref_default_true);
         ALBUM_BACKUP_SELECTED_REPO = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_repo_select, Resources.ID_NULL);
         ALBUM_BACKUP_STATE = new StringSettingLiveData(_account.getEncryptSignature(), R.string.pref_key_album_backup_state, R.string.done);

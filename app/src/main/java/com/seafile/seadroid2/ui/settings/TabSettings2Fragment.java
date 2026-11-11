@@ -1021,6 +1021,23 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private void switchAlbumBackupState(boolean isEnable) {
         mAlbumBackupSwitch.setChecked(isEnable);
 
+        if (isEnable) {
+            //all
+            mAlbumBackupSwitch.setRadiusPosition(RadiusPositionEnum.TOP);
+            mAlbumBackupSwitch.setDividerPosition(DividerPositionEnum.BOTTOM);
+        } else {
+            mAlbumBackupSwitch.setRadiusPosition(RadiusPositionEnum.ALL);
+            mAlbumBackupSwitch.setDividerPosition(DividerPositionEnum.NONE);
+        }
+
+        //change UI
+        mAlbumBackupRepo.setVisible(isEnable);
+        mAlbumBackupAdvancedDataPlanSwitch.setVisible(isEnable);
+        mAlbumBackupAdvancedVideoSwitch.setVisible(isEnable);
+        mAlbumBackupAdvancedSelectedBucket.setVisible(isEnable);
+        mAlbumBackupUploadOriginalPhotoSwitch.setVisible(isEnable);
+        mAlbumBackupPauseSwitch.setVisible(isEnable);
+
         runMainThreadDelay(new Runnable() {
             @Override
             public void run() {

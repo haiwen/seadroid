@@ -11,7 +11,6 @@ import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
@@ -372,8 +371,6 @@ public class FolderScanHelper {
             SafeLogs.d(TAG, "compare()", "folder backup: new file: " + localFile.getAbsolutePath());
             TransferModel transferModel = TransferModel.convert(localFile, backupPath);
             transferModel.related_account = account.getSignature();
-            // Pin the conversion decision at enqueue time so later preference changes are ignored
-            transferModel.upload_original_motion_photo = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
             transferModel.repo_id = repoConfig.getRepoId();
             transferModel.repo_name = repoConfig.getRepoName();
             transferModel.data_source = FeatureDataSource.FOLDER_BACKUP;

@@ -12,7 +12,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.repo.DirentWrapperModel;
@@ -150,8 +149,6 @@ public class ShareToSeafileViewModel extends BaseViewModel {
         transferModel.repo_id = repo_id;
         transferModel.repo_name = repo_name;
         transferModel.related_account = account.getSignature();
-        // Pin the conversion decision so a later preference change cannot alter the target name
-        transferModel.upload_original_motion_photo = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
         transferModel.target_path = Utils.pathJoin(parentDir, fileName);
         transferModel.setParentPath(parentDir);
         transferModel.file_name = fileName;

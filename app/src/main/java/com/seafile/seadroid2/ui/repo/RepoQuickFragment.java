@@ -2634,7 +2634,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
 
                 DirentFileModel direntFileModel = pair.second;
                 if (direntFileModel != null) {
-                    showFileExistDialog(uri, pair.first, direntFileModel.name);
+                    showFileExistDialog(uri, pair.first);
                 } else {
                     String targetDir = GlobalNavContext.getCurrentNavContext().getNavPath();
                     addUploadTask(repoModel, targetDir, uri, pair.first, false);
@@ -2643,13 +2643,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         });
     }
 
-    private void showFileExistDialog(final Uri uri, String fileName, String targetFileName) {
+    private void showFileExistDialog(final Uri uri, String fileName) {
 
         RepoModel repoModel = GlobalNavContext.getCurrentNavContext().getRepoModel();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle(getString(R.string.upload_file_exist));
-        builder.setMessage(String.format(getString(R.string.upload_duplicate_found), targetFileName));
+        builder.setMessage(String.format(getString(R.string.upload_duplicate_found), fileName));
 
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
             @Override

@@ -16,7 +16,6 @@ import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -43,7 +42,6 @@ import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.ui.wiki.WikiFragment;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -169,21 +167,10 @@ public class MainViewModel extends BaseViewModel {
                         GlobalTransferCacheList.FILE_UPLOAD_QUEUE.put(transferModel);
                     }
                 } else {
-                    boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
-
                     for (Uri uri : uris) {
                         String fileName = Utils.getFilenameFromUri(context, uri);
                         fileName = UnicodePathUtils.normalize(fileName);// nfc form
-
-                        String targetFileName = fileName;
-                        if (!isUploadOriginalMotionPhoto) {
-                            Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri, fileName);
-                            if (jpegPair.second) {
-                                targetFileName = FilenameUtils.getBaseName(fileName) + ".heic";
-                            }
-                        }
-
-                        String finalFileName = targetFileName;
+                        String finalFileName = fileName;
                         boolean isExists = wrapperModel.dirent_list.stream().anyMatch(f -> TextUtils.equals(f.name, finalFileName));
 
                         TransferModel transferModel = gen(context, account, repoId, repoName, uri, fileName, parentDir, isExists);
@@ -216,18 +203,8 @@ public class MainViewModel extends BaseViewModel {
         String fileName = Utils.getFilenameFromUri(context, uri);
         fileName = UnicodePathUtils.normalize(fileName);// nfc form
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
-        boolean isUploadOriginalMotionPhoto = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
-        String targetFileName = fileName;
-        if (!isUploadOriginalMotionPhoto) {
-            Pair<String, Boolean> jpegPair = Utils.isJpegMotionPhoto(context, uri, fileName);
-            if (jpegPair.second) {
-                targetFileName = FilenameUtils.getBaseName(fileName) + ".heic";
-            }
-        }
-
         // destination path
-        String destinationPath = Utils.pathJoin(parent_dir, targetFileName);
+        String destinationPath = Utils.pathJoin(parent_dir, fileName);
 
         Single<DirentFileModel> winner = HttpManager.getCurrentHttp()
                 .execute(FileService.class)
@@ -300,8 +277,6 @@ public class MainViewModel extends BaseViewModel {
         transferModel.repo_id = repo_id;
         transferModel.repo_name = repo_name;
         transferModel.related_account = account.getSignature();
-        // Pin the conversion decision so a later preference change cannot alter the target name
-        transferModel.upload_original_motion_photo = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
         transferModel.target_path = Utils.pathJoin(parentDir, fileName);
         transferModel.setParentPath(parentDir);
         transferModel.file_name = fileName;
