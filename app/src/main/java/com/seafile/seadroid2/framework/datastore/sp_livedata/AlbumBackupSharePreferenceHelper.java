@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.GsonUtils;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.datastore.sp.SettingsManager;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
@@ -37,6 +39,13 @@ public class AlbumBackupSharePreferenceHelper {
         }
 
         return Settings.ALBUM_BACKUP_SWITCH.queryValue();
+    }
+
+    public static boolean readUploadOriginalPhotoSwitch(String encryptSignature) {
+        SharedPreferences sp = Settings.getSpecialUserSharedPreferences(encryptSignature);
+        String key = SeadroidApplication.getAppContext().getString(R.string.pref_key_album_backup_upload_original_photo_switch);
+        boolean defaultValue = SeadroidApplication.getAppContext().getResources().getBoolean(R.bool.pref_default_true);
+        return sp.getBoolean(key, defaultValue);
     }
 
     public static boolean readBackupAutoPauseSwitch() {

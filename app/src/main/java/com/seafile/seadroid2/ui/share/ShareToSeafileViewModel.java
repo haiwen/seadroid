@@ -71,7 +71,7 @@ public class ShareToSeafileViewModel extends BaseViewModel {
                 }
 
                 List<DirentModel> existsList = new ArrayList<>();
-                //todo simplify
+                // todo simplify
                 for (Uri uri : uris) {
                     String fileName = Utils.getFilenameFromUri(context, uri);
                     if (StringUtils.isEmpty(fileName)){

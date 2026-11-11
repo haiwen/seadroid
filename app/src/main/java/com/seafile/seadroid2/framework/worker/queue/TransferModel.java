@@ -67,12 +67,11 @@ public class TransferModel implements Comparable<TransferModel> {
     public int retry_times = 0;
 
     /**
-     * Only motion photos in JPEG format will be converted to HEIC motion photos.
-     * HEIC Motion Photo Temporary Cache Path.
-     *
+     * 1. Only motion photos in JPEG format will be converted to HEIC motion photos.
+     * 2. HEIC Motion Photo Temporary Cache Path.
+     * 3. Only applies to the photo backup feature
      */
     public String motion_photo_path;
-
 
     public long file_size; //文件大小
     public long transferred_size; //已传输大小

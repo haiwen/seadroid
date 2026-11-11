@@ -18,6 +18,7 @@ import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
@@ -194,7 +195,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         // Lifecycle cleanup is exclusively session-owned.
     }
 
-    public void clearWhenComplete(){
+    public void clearWhenComplete() {
         currentTransferModel = null;
         scanFileSize = -1L;
         newCall = null;
@@ -276,7 +277,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
 
-        UploadSource source = resolveUploadSource();
+        UploadSource source = resolveUploadSource(account);
         notifyTransferStarted();
 
         String uploadUrl = getFileUploadUrl(account,
@@ -307,7 +308,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
     }
 
-    private UploadSource resolveUploadSource() throws SeafException {
+    private UploadSource resolveUploadSource(Account account) throws SeafException {
         long createdTime = -1;
         File uploadFile = null;
         Uri uploadUri = null;
@@ -322,11 +323,22 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             verifySourceFileSize(new File(currentTransferModel.full_path), scanFileSize);
         }
 
-        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+        // This switch only applies to album backup: on -> convert JPEG motion photos to HEIC,
+        // off -> upload the original file without any detection or conversion.
+        // When it is off, motion_photo_path stays empty, the extra motion photo logic is skipped,
+        // and the file is uploaded as a regular original file (hasExtraMotionPhoto() is false).
+        if (currentTransferModel.data_source == FeatureDataSource.ALBUM_BACKUP) {
+            boolean isBackupAsHeic = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
+            if (isBackupAsHeic) {
+                currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+            }
+        }
+
         if (currentTransferModel.hasExtraMotionPhoto()) {
             // hasExtraMotionPhoto() already guarantees the HEIC file exists and is non-empty
             uploadFile = new File(currentTransferModel.motion_photo_path);
             currentTransferModel.file_size = uploadFile.length();
+
             applyMotionPhotoFileName();
         } else if (currentTransferModel.full_path.startsWith("content://")) {
             uploadUri = Uri.parse(currentTransferModel.full_path);

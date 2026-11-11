@@ -10,6 +10,7 @@ import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
+import com.seafile.seadroid2.context.GlobalNavContext;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -172,20 +174,6 @@ public class Utils {
         }
 
         return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
-    }
-
-    public static Pair<String, Boolean> isJpegMotionPhoto(Context context, Uri uri) {
-        String fileName = Utils.getFilenameFromUri(context, uri);
-        if (StringUtils.isEmpty(fileName)) {
-            return new Pair<>(fileName, false);
-        }
-
-        if (!Utils.isJpeg(fileName)) {
-            return new Pair<>(fileName, false);
-        }
-
-        MotionPhotoDescriptor descriptor = MotionPhotoDetector.extractJpegXmp(context, uri);
-        return new Pair<>(fileName, descriptor.isMotionPhoto());
     }
 
     public static boolean isJpeg(String name) {
@@ -519,6 +507,67 @@ public class Utils {
         } else displayName = "unknown filename";
         return displayName;
     }
+
+    @NotSupport
+    @Deprecated
+    public static String getPath(Context context, Uri uri) throws URISyntaxException {
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            String[] projection = {"_data"};
+//            String[] projection = {MediaStore.Files.FileColumns.DATA};
+
+            Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
+                        return cursor.getString(column_index);
+                    }
+                } catch (Exception e) {
+                    // Eat it
+                    SLogs.e(e);
+                } finally {
+                    cursor.close();
+                }
+            }
+
+
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
+    }
+
+
+    public static String getStackTrace(Exception e) {
+        StringWriter buffer = new StringWriter();
+        PrintWriter writer = new PrintWriter(buffer);
+        e.printStackTrace(writer);
+        return buffer.toString();
+    }
+
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
 
     public static String assembleUserName(String name, String email, String server) {
         if (name == null || email == null || server == null)

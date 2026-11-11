@@ -124,6 +124,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     private Preference mAlbumBackupRepo;
     private TextSwitchPreference mAlbumBackupAdvancedDataPlanSwitch;
     private TextSwitchPreference mAlbumBackupAdvancedVideoSwitch;
+    private TextSwitchPreference mAlbumBackupUploadOriginalPhotoSwitch;
     private TextSwitchPreference mAlbumBackupPauseSwitch;
     private TextTitleSummaryPreference mAlbumBackupAdvancedSelectedBucket;
 
@@ -371,15 +372,19 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         mAlbumBackupAdvancedVideoSwitch = findPreference(getString(R.string.pref_key_album_backup_advanced_allow_video_switch));
         mAlbumBackupAdvancedSelectedBucket = findPreference(getString(R.string.pref_key_album_backup_advanced_buckets_select));
         mAlbumBackupPauseSwitch = findPreference(getString(R.string.pref_key_album_backup_pause_switch));
+        mAlbumBackupUploadOriginalPhotoSwitch = findPreference(getString(R.string.pref_key_album_backup_upload_original_photo_switch));
 
         if (mAlbumBackupAdvancedSelectedBucket != null) {
             mAlbumBackupAdvancedSelectedBucket.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(@NonNull Preference preference) {
                     SLogs.d(TAG, "initAlbumBackupPref, selectedBucketPref clicked");
-                    Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
-                    intent.putExtra(CameraUploadConfigActivity.CAMERA_UPLOAD_LOCAL_DIRECTORIES, true);
-                    albumBackupSelectCustomAlbumLauncher.launch(intent);
+                    if (PermissionUtil.hasStoragePermission(requireContext())) {
+                        selectAlbumBuckets();
+                    } else {
+                        whoIsRequestingPermission = 4;
+                        showRequestStoragePermissionDialog();
+                    }
                     return true;
                 }
             });
@@ -753,7 +758,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             }
         });
 
-
         //////////////////
         /// folder backup
         //////////////////
@@ -926,8 +930,14 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         calculateCacheSize();
     }
 
-    //0 : no one, 1 : camera, 2 : folder, 3 : modify storage location
+    //0 : no one, 1 : camera, 2 : folder, 3 : modify storage location, 4 : select album buckets
     private int whoIsRequestingPermission = 0;
+
+    private void selectAlbumBuckets() {
+        Intent intent = new Intent(requireActivity(), CameraUploadConfigActivity.class);
+        intent.putExtra(CameraUploadConfigActivity.CAMERA_UPLOAD_LOCAL_DIRECTORIES, true);
+        albumBackupSelectCustomAlbumLauncher.launch(intent);
+    }
 
 
     private void requestCameraStoragePermission() {
@@ -1026,6 +1036,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         mAlbumBackupAdvancedDataPlanSwitch.setVisible(isEnable);
         mAlbumBackupAdvancedVideoSwitch.setVisible(isEnable);
         mAlbumBackupAdvancedSelectedBucket.setVisible(isEnable);
+        mAlbumBackupUploadOriginalPhotoSwitch.setVisible(isEnable);
         mAlbumBackupPauseSwitch.setVisible(isEnable);
 
         runMainThreadDelay(new Runnable() {
@@ -1048,7 +1059,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         if (repoConfig != null) {
             mAlbumBackupRepo.setSummary(repoConfig.getRepoName());
         } else {
-            mAlbumBackupRepo.setSummary(getString(R.string.folder_backup_select_repo_hint));
+            mAlbumBackupRepo.setSummary(getString(R.string.settings_camera_upload_repo_hint));
         }
 
         boolean dataSwitch = Settings.ALBUM_BACKUP_ADVANCE_DATA_PLAN_SWITCH.queryValue();
@@ -1056,10 +1067,18 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             mAlbumBackupAdvancedDataPlanSwitch.setChecked(dataSwitch);
         }
 
+        // upload video
         boolean videoSwitch = Settings.ALBUM_BACKUP_ADVANCE_ALLOW_VIDEO_SWITCH.queryValue();
         if (mAlbumBackupAdvancedVideoSwitch != null) {
             mAlbumBackupAdvancedVideoSwitch.setChecked(videoSwitch);
         }
+
+        // upload original photo
+        boolean originalPhotoSwitch = Settings.ALBUM_BACKUP_UPLOAD_ORIGINAL_PHOTO_SWITCH.queryValue();
+        if (mAlbumBackupUploadOriginalPhotoSwitch != null) {
+            mAlbumBackupUploadOriginalPhotoSwitch.setChecked(originalPhotoSwitch);
+        }
+
         boolean pauseSwitch = Settings.ALBUM_BACKUP_PAUSE_AUTO_UPLOAD_SWITCH.queryValue();
         if (mAlbumBackupPauseSwitch != null) {
             if (pauseSwitch) {
@@ -1073,9 +1092,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             List<String> bucketIds = AlbumBackupSharePreferenceHelper.readBucketIds();
             if (CollectionUtils.isEmpty(bucketIds)) {
                 mAlbumBackupAdvancedSelectedBucket.setSummary(R.string.settings_camera_upload_dir_auto_scan);
-                int color = ContextCompat.getColor(requireContext(), R.color.light_grey);
-                mAlbumBackupAdvancedSelectedBucket.setSummaryTextColor(color);
-            } else {
+            } else if (PermissionUtil.hasStoragePermission(requireContext())) {
+                // Querying MediaStore without the storage permission throws SecurityException
                 List<String> bucketNames = new ArrayList<>();
                 List<GalleryBucketUtils.Bucket> tempBuckets = GalleryBucketUtils.getMediaBuckets(SeadroidApplication.getAppContext());
                 if (tempBuckets == null) {
@@ -1442,6 +1460,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
                 } else if (whoIsRequestingPermission == 2) {
                     //on livedata change
+                } else if (whoIsRequestingPermission == 4) {
+                    selectAlbumBuckets();
                 }
             }
         });
@@ -1458,6 +1478,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                         //on livedata change
                     } else if (whoIsRequestingPermission == 3) {
                         requestModifyStoragePermission();
+                    } else if (whoIsRequestingPermission == 4) {
+                        selectAlbumBuckets();
                     }
                 } else {
                     Toasts.show(R.string.get_storage_permission_failed);

@@ -232,7 +232,6 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
     }
 
 
-
     private void launchObjSelector(String repoId, String path) {
         Intent pathSelector = OpSelectorActivity.getSpecialAccountIntent(ShareToSeafileActivity.this, account.getSignature(), repoId, path, null, OpSelectorActivity.OpSelectorType.SHARE);
         objSelectorLauncher.launch(pathSelector);
@@ -288,7 +287,8 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
                 //save
                 String lastPathStr = account.getSignature() + "<->" + dstRepoId + "<->" + dstDir;
                 Settings.getCommonPreferences()
-                        .edit().putString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, lastPathStr)
+                        .edit()
+                        .putString(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE, lastPathStr)
                         .apply();
 
                 notifyFileOverwriting();
@@ -296,7 +296,8 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         });
 
     }
-    private void continueObjCancelState(){
+
+    private void continueObjCancelState() {
 
         List<Account> accounts = SupportAccountManager.getInstance().getSignedInAccountList();
         if (CollectionUtils.isEmpty(accounts)) {
@@ -402,7 +403,7 @@ public class ShareToSeafileActivity extends BaseActivityWithVM<ShareToSeafileVie
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.overwrite_existing_file_title))
                 .setMessage(getString(R.string.overwrite_existing_file_msg))
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.replace, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         getViewModel().upload(context, account, dstRepoId, dstRepoName, dstDir, fileUris, true);
