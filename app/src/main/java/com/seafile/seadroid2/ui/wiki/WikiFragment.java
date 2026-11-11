@@ -19,7 +19,6 @@ import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.WikiType;
 import com.seafile.seadroid2.databinding.LayoutFrameSwipeRvBinding;
 import com.seafile.seadroid2.framework.model.BaseModel;
-import com.seafile.seadroid2.framework.model.wiki.GroupWikiModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiGroupModel;
 import com.seafile.seadroid2.framework.model.wiki.WikiInfoModel;
 import com.seafile.seadroid2.framework.util.Utils;
