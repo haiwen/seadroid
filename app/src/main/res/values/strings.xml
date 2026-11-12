@@ -520,6 +520,7 @@
     <string name="saf_failed_to_create_directory">Could not create directory %s</string>
     <string name="saf_file_exist">That file already exists</string>
     <string name="saf_bad_mime_type">Bad request type</string>
+    <string name="saf_save_failed_content">The last save of %1$s failed.</string>
     <!--Single Sign-On  SSO-->
     <string name="shib_server_url_empty">Server is empty!</string>
     <string name="shib_server_incorrect_prefix">Server needs to start with https://</string>
@@ -660,7 +661,7 @@
     <string name="editor_lines_error">Unable to operate multiple lines</string>
     <string name="editor_file_save">Do you want to save and quit?</string>
     <string name="editor_file_save_success">File save successfully</string>
-    <string name="editor_file_save_failed">Cache cleared failed</string>
+    <string name="editor_file_save_failed">File save failed</string>
     <string name="editor_file_save_title">File save</string>
     <string name="description">Description</string>
     <string name="undo">undo</string>

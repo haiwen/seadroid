@@ -29,12 +29,15 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 
@@ -79,8 +82,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.reactivex.Single;
@@ -105,6 +114,152 @@ public class SeafileProvider extends DocumentsProvider {
     public static final String AUTHORITY_OF_DOCUMENTS = BuildConfig.APPLICATION_ID + ".documents";
 
     public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(AUTHORITY_OF_DOCUMENTS);
+    private final PendingWrites pendingWrites = new PendingWrites(this::notifySaveResult);
+    private static final long WRITE_WAIT_TIMEOUT_MINUTES = 5;
+
+    static final class PendingWrites {
+        private final ConcurrentHashMap<String, State> states = new ConcurrentHashMap<>();
+        private final BiConsumer<String, Boolean> notifyResult;
+
+        private static final class State {
+            volatile CompletableFuture<Void> latest;
+            volatile boolean failed;
+            long nextOrder;
+            volatile long resultOrder;
+        }
+
+        PendingWrites(BiConsumer<String, Boolean> notifyResult) {
+            this.notifyResult = notifyResult;
+        }
+
+        static final class Write {
+            final CompletableFuture<Void> completion = new CompletableFuture<>();
+            CompletableFuture<Void> previous;
+            State state;
+            long order;
+
+            void awaitPrevious() {
+                if (previous != null) {
+                    previous.join();
+                }
+            }
+        }
+
+        Write register(String documentId) {
+            Write write = new Write();
+            states.compute(documentId, (key, existing) -> {
+                State state = existing != null ? existing : new State();
+                synchronized (state) {
+                    write.state = state;
+                    write.order = ++state.nextOrder;
+                    write.previous = state.latest;
+                    state.latest = write.completion;
+                }
+                return state;
+            });
+            return write;
+        }
+
+        CompletableFuture<Void> get(String documentId) {
+            State state = states.get(documentId);
+            return state == null ? null : state.latest;
+        }
+
+        boolean hasFailure(String documentId) {
+            State state = states.get(documentId);
+            return state != null && state.failed;
+        }
+
+        boolean isCurrentFailure(String documentId, State expected, long order) {
+            State state = states.get(documentId);
+            return state == expected && state.failed && state.resultOrder == order;
+        }
+
+        void await(String documentId, Runnable checkCancellation, long timeout, TimeUnit unit)
+                throws InterruptedException, ExecutionException, TimeoutException {
+            CompletableFuture<Void> pendingWrite = get(documentId);
+            checkCancellation.run();
+            if (pendingWrite == null) {
+                return;
+            }
+            long deadline = System.nanoTime() + unit.toNanos(timeout);
+            while (true) {
+                checkCancellation.run();
+                long remaining = deadline - System.nanoTime();
+                if (remaining <= 0) {
+                    throw new TimeoutException();
+                }
+                try {
+                    pendingWrite.get(Math.min(remaining, TimeUnit.MILLISECONDS.toNanos(100)), TimeUnit.NANOSECONDS);
+                    checkCancellation.run();
+                    CompletableFuture<Void> latestWrite = get(documentId);
+                    if (latestWrite == null || latestWrite == pendingWrite) {
+                        return;
+                    }
+                    pendingWrite = latestWrite;
+                } catch (TimeoutException ignored) {
+                    // Poll cancellation without replacing the signal's existing listener.
+                }
+            }
+        }
+
+        void finish(String documentId, Write write, Throwable error) {
+            try {
+                synchronized (write.state) {
+                    if (write.order > write.state.resultOrder) {
+                        write.state.resultOrder = write.order;
+                        write.state.failed = error != null;
+                        notifyResult.accept(documentId, error != null);
+                    }
+                }
+            } catch (Throwable ignored) {
+                // Reporting must never prevent the write barrier from completing.
+            } finally {
+                Runnable complete = () -> {
+                    write.completion.complete(null);
+                    states.computeIfPresent(documentId, (key, state) -> {
+                        synchronized (state) {
+                            if (state == write.state && state.latest == write.completion) {
+                                state.latest = null;
+                                return state.failed ? state : null;
+                            }
+                            return state;
+                        }
+                    });
+                };
+                if (write.previous == null) {
+                    complete.run();
+                } else {
+                    write.previous.whenComplete((result, previousError) -> complete.run());
+                }
+            }
+        }
+    }
+
+    private void notifySaveResult(String documentId, boolean failed) {
+        if (!failed) {
+            return;
+        }
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        PendingWrites.State state = pendingWrites.states.get(documentId);
+        long resultOrder = state.resultOrder;
+        // Always post: finish() invokes this callback while holding the document's state lock.
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (!pendingWrites.isCurrentFailure(documentId, state, resultOrder)) {
+                return;
+            }
+            Toast.makeText(context, R.string.editor_file_save_failed, Toast.LENGTH_LONG).show();
+        });
+    }
+
+    /**
+     * Cached thread pool is required: a task waiting for a previous upload must
+     * not occupy the only thread that could drain another document's pipe.
+     */
+    private static final ExecutorService WRITE_EXECUTOR = Executors.newCachedThreadPool();
 
     private static final String[] SUPPORTED_ROOT_PROJECTION = new String[]{
             Root.COLUMN_ROOT_ID,
@@ -426,6 +581,42 @@ public class SeafileProvider extends DocumentsProvider {
         }
     }
 
+    /**
+     * Waits for a pending write operation of the specified document.
+     *
+     * @param documentId document ID
+     * @throws FileNotFoundException if waiting is interrupted or times out
+     */
+    private void awaitPendingWrite(String documentId, CancellationSignal signal) throws FileNotFoundException {
+        try {
+            pendingWrites.await(documentId, () -> {
+                if (signal != null) {
+                    signal.throwIfCanceled();
+                }
+            }, WRITE_WAIT_TIMEOUT_MINUTES, TimeUnit.MINUTES);
+            SLogs.d(TAG, "awaitPendingWrite()", "Write completed", "documentId = " + documentId);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new FileNotFoundException(
+                    "Interrupted while waiting for document write: " + documentId
+            );
+
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            SLogs.e(cause);
+            FileNotFoundException exception = new FileNotFoundException(
+                    "Previous document write failed: " + cause.getMessage()
+            );
+            exception.initCause(cause);
+            throw exception;
+        } catch (TimeoutException e) {
+            SLogs.e(e);
+            throw new FileNotFoundException(
+                    "Timed out waiting for document write: " + documentId
+            );
+        }
+    }
+
     private ParcelFileDescriptor writeDocumentAsync(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
         if (documentId.endsWith("/")) {
             // 返回一个黑洞的 ParcelFileDescriptor，系统会写进去但实际丢弃
@@ -437,37 +628,156 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         String displayName = Utils.getFileNameFromPath(path);
-        try {
-            ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-            ParcelFileDescriptor readFd = pipe[0];
-            ParcelFileDescriptor writeFd = pipe[1];
 
-            CompletableFuture.runAsync(() -> {
-                try (InputStream in = new FileInputStream(readFd.getFileDescriptor())) {
-                    OpenDocumentWriter.uploadStreamToCloud(account, repoModel.repo_id, repoModel.repo_name, path, displayName, in, signal);
-                } catch (Exception e) {
-                    SLogs.d(TAG, "Failed to open document, upload failed", e.getMessage());
+        ParcelFileDescriptor[] pipe;
+
+        try {
+            pipe = ParcelFileDescriptor.createPipe();
+        } catch (IOException e) {
+            throw new FileNotFoundException(
+                    "Failed to create pipe for document: " + documentId
+            );
+        }
+
+        final ParcelFileDescriptor readFd = pipe[0];
+        final ParcelFileDescriptor writeFd = pipe[1];
+
+        // Register before returning the descriptor so all later operations see this write.
+        final PendingWrites.Write currentWrite = pendingWrites.register(documentId);
+
+        try {
+            WRITE_EXECUTOR.execute(() -> {
+
+                File spoolFile = null;
+                Throwable failure = null;
+
+                try {
+                    // Drain the pipe immediately, independently of any previous
+                    // upload. The external application blocks once the pipe
+                    // buffer is full, so waiting for an upload before consuming
+                    // the stream can deadlock when two write descriptors for the
+                    // same document are open at the same time.
+                    spoolFile = DataManager.createTempFile();
+                    try (InputStream in = new FileInputStream(readFd.getFileDescriptor());
+                         OutputStream out = new FileOutputStream(spoolFile)) {
+                        IOUtils.copy(in, out);
+                    }
+                    if (signal != null) {
+                        signal.throwIfCanceled();
+                    }
+
+                    // Only the upload and local cache commit are serialized.
+                    currentWrite.awaitPrevious();
+                    OpenDocumentWriter.uploadFileToCloud(
+                            account,
+                            repoModel.repo_id,
+                            repoModel.repo_name,
+                            path,
+                            displayName,
+                            spoolFile,
+                            signal
+                    );
+
+                    SLogs.d(
+                            TAG,
+                            "writeDocumentAsync()",
+                            "Upload completed",
+                            "documentId = " + documentId
+                    );
+
+                } catch (Throwable e) {
+                    failure = e;
+                    SLogs.e(e);
+                    SLogs.d(TAG, "writeDocumentAsync()", "Upload failed",
+                            "documentId = " + documentId, "error = " + e.getMessage());
+                    if (e instanceof Error) {
+                        throw (Error) e;
+                    }
                 } finally {
+
                     try {
                         readFd.close();
                     } catch (IOException ignored) {
                     }
+
+                    if (spoolFile != null && spoolFile.exists() && !spoolFile.delete()) {
+                        SLogs.d(TAG, "writeDocumentAsync()", "Failed to delete spool file",
+                                "path = " + spoolFile.getAbsolutePath());
+                    }
+                    pendingWrites.finish(documentId, currentWrite, failure);
                 }
+
             });
 
-            return writeFd;
-        } catch (IOException e) {
-            throw new FileNotFoundException("Failed to open document with id " + documentId + " and mode " + mode);
+        } catch (RuntimeException e) {
+
+            SLogs.e(e);
+            try {
+                readFd.close();
+            } catch (IOException ignored) {
+            }
+
+            try {
+                writeFd.close();
+            } catch (IOException ignored) {
+            }
+
+            pendingWrites.finish(documentId, currentWrite, e);
+            FileNotFoundException exception = new FileNotFoundException(
+                    "Failed to start upload for document: " + documentId);
+            exception.initCause(e);
+            throw exception;
         }
+
+        return writeFd;
     }
 
     private ParcelFileDescriptor readDocumentAsync(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
+        // Wait until the previous write operation has completed.
+        awaitPendingWrite(documentId, signal);
+
         // Check whether the remote data exists. If it doesn't, throw an exception,
         // because we have already inserted it into the local database in queryChildDocuments().
         List<DirentModel> direntModels = queryDirentSync(account, repoModel.repo_id, path);
         if (CollectionUtils.isEmpty(direntModels)) {
-            throw new FileNotFoundException("could not find file");
+
+            // The upload may have completed before the directory metadata
+            // was refreshed. Refresh the parent directory once.
+            String parentPath = Utils.getParentPath(path);
+
+            if (!parentPath.endsWith("/")) {
+                parentPath += "/";
+            }
+
+            try {
+
+                Objs.getDirentsSingleFromServer(
+                        account,
+                        repoModel.repo_id,
+                        repoModel.repo_name,
+                        parentPath
+                ).subscribeOn(Schedulers.io()).blockingGet();
+
+            } catch (Exception e) {
+
+                SLogs.e(e);
+
+                FileNotFoundException exception = new FileNotFoundException(
+                        "Failed to refresh document metadata: " + path
+                );
+
+                exception.initCause(e);
+
+                throw exception;
+            }
+
+            // Query again after refreshing the parent directory.
+            direntModels = queryDirentSync(account, repoModel.repo_id, path);
         }
+        if (CollectionUtils.isEmpty(direntModels)) {
+            throw new FileNotFoundException("could not find file: " + path);
+        }
+
 
         DirentModel direntModel = direntModels.get(0);
 
@@ -730,7 +1040,7 @@ public class SeafileProvider extends DocumentsProvider {
                 @Override
                 public void run() {
                     try (FileOutputStream fileStream = new FileOutputStream(writeFd.getFileDescriptor())) {
-                        String urlPath = ThumbnailUtils.convertThumbnailUrl(account.getServer(),repoId,path);
+                        String urlPath = ThumbnailUtils.convertThumbnailUrl(account.getServer(), repoId, path);
 
                         SLogs.d(TAG, "openDocumentThumbnail()", "urlPath = " + urlPath);
 

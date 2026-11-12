@@ -83,11 +83,16 @@ public class WikiFragment extends BaseFragmentWithVM<WikiViewModel> {
                 }
 
                 BaseModel model = adapter.getItems().get(i);
+
+                if (model instanceof WikiGroupModel) {
+                    return;
+                }
+
                 WikiInfoModel wikiInfoModel = (WikiInfoModel) model;
                 String url;
                 if (StringUtils.equalsIgnoreCase(wikiInfoModel.type, WikiType.TYPE_OLD)) {
                     url = Utils.pathJoin(account.getServer(), "published", wikiInfoModel.slug);
-                }else {
+                } else {
                     url = Utils.pathJoin(account.getServer(), "wikis", wikiInfoModel.id);
                 }
 
