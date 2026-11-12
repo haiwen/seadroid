@@ -29,12 +29,15 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 
@@ -86,6 +89,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.reactivex.Single;
@@ -110,51 +114,145 @@ public class SeafileProvider extends DocumentsProvider {
     public static final String AUTHORITY_OF_DOCUMENTS = BuildConfig.APPLICATION_ID + ".documents";
 
     public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(AUTHORITY_OF_DOCUMENTS);
-    private final PendingWrites pendingWrites = new PendingWrites();
+    private final PendingWrites pendingWrites = new PendingWrites(this::notifySaveResult);
     private static final long WRITE_WAIT_TIMEOUT_MINUTES = 5;
 
     static final class PendingWrites {
-        private final ConcurrentHashMap<String, CompletableFuture<Void>> writes = new ConcurrentHashMap<>();
+        private final ConcurrentHashMap<String, State> states = new ConcurrentHashMap<>();
+        private final BiConsumer<String, Boolean> notifyResult;
+
+        private static final class State {
+            volatile CompletableFuture<Void> latest;
+            volatile boolean failed;
+            long nextOrder;
+            volatile long resultOrder;
+        }
+
+        PendingWrites(BiConsumer<String, Boolean> notifyResult) {
+            this.notifyResult = notifyResult;
+        }
 
         static final class Write {
             final CompletableFuture<Void> completion = new CompletableFuture<>();
             CompletableFuture<Void> previous;
+            State state;
+            long order;
 
             void awaitPrevious() {
                 if (previous != null) {
-                    previous.handle((result, error) -> null).join();
+                    previous.join();
                 }
             }
         }
 
         Write register(String documentId) {
             Write write = new Write();
-            writes.compute(documentId, (key, previous) -> {
-                write.previous = previous;
-                return write.completion;
+            states.compute(documentId, (key, existing) -> {
+                State state = existing != null ? existing : new State();
+                synchronized (state) {
+                    write.state = state;
+                    write.order = ++state.nextOrder;
+                    write.previous = state.latest;
+                    state.latest = write.completion;
+                }
+                return state;
             });
             return write;
         }
 
         CompletableFuture<Void> get(String documentId) {
-            return writes.get(documentId);
+            State state = states.get(documentId);
+            return state == null ? null : state.latest;
+        }
+
+        boolean hasFailure(String documentId) {
+            State state = states.get(documentId);
+            return state != null && state.failed;
+        }
+
+        boolean isCurrentFailure(String documentId, State expected, long order) {
+            State state = states.get(documentId);
+            return state == expected && state.failed && state.resultOrder == order;
+        }
+
+        void await(String documentId, Runnable checkCancellation, long timeout, TimeUnit unit)
+                throws InterruptedException, ExecutionException, TimeoutException {
+            CompletableFuture<Void> pendingWrite = get(documentId);
+            checkCancellation.run();
+            if (pendingWrite == null) {
+                return;
+            }
+            long deadline = System.nanoTime() + unit.toNanos(timeout);
+            while (true) {
+                checkCancellation.run();
+                long remaining = deadline - System.nanoTime();
+                if (remaining <= 0) {
+                    throw new TimeoutException();
+                }
+                try {
+                    pendingWrite.get(Math.min(remaining, TimeUnit.MILLISECONDS.toNanos(100)), TimeUnit.NANOSECONDS);
+                    checkCancellation.run();
+                    CompletableFuture<Void> latestWrite = get(documentId);
+                    if (latestWrite == null || latestWrite == pendingWrite) {
+                        return;
+                    }
+                    pendingWrite = latestWrite;
+                } catch (TimeoutException ignored) {
+                    // Poll cancellation without replacing the signal's existing listener.
+                }
+            }
         }
 
         void finish(String documentId, Write write, Throwable error) {
-            Runnable complete = () -> {
-                if (error == null) {
-                    write.completion.complete(null);
-                } else {
-                    write.completion.completeExceptionally(error);
+            try {
+                synchronized (write.state) {
+                    if (write.order > write.state.resultOrder) {
+                        write.state.resultOrder = write.order;
+                        write.state.failed = error != null;
+                        notifyResult.accept(documentId, error != null);
+                    }
                 }
-                writes.remove(documentId, write.completion);
-            };
-            if (write.previous == null) {
-                complete.run();
-            } else {
-                write.previous.whenComplete((result, previousError) -> complete.run());
+            } catch (Throwable ignored) {
+                // Reporting must never prevent the write barrier from completing.
+            } finally {
+                Runnable complete = () -> {
+                    write.completion.complete(null);
+                    states.computeIfPresent(documentId, (key, state) -> {
+                        synchronized (state) {
+                            if (state == write.state && state.latest == write.completion) {
+                                state.latest = null;
+                                return state.failed ? state : null;
+                            }
+                            return state;
+                        }
+                    });
+                };
+                if (write.previous == null) {
+                    complete.run();
+                } else {
+                    write.previous.whenComplete((result, previousError) -> complete.run());
+                }
             }
         }
+    }
+
+    private void notifySaveResult(String documentId, boolean failed) {
+        if (!failed) {
+            return;
+        }
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        PendingWrites.State state = pendingWrites.states.get(documentId);
+        long resultOrder = state.resultOrder;
+        // Always post: finish() invokes this callback while holding the document's state lock.
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (!pendingWrites.isCurrentFailure(documentId, state, resultOrder)) {
+                return;
+            }
+            Toast.makeText(context, R.string.editor_file_save_failed, Toast.LENGTH_LONG).show();
+        });
     }
 
     /**
@@ -487,41 +585,15 @@ public class SeafileProvider extends DocumentsProvider {
      * Waits for a pending write operation of the specified document.
      *
      * @param documentId document ID
-     * @throws FileNotFoundException if the write operation fails or times out
+     * @throws FileNotFoundException if waiting is interrupted or times out
      */
     private void awaitPendingWrite(String documentId, CancellationSignal signal) throws FileNotFoundException {
-        CompletableFuture<Void> pendingWrite = pendingWrites.get(documentId);
-        if (signal != null) {
-            signal.throwIfCanceled();
-        }
-        if (pendingWrite == null) {
-            return;
-        }
-
-        long deadline = System.nanoTime() + TimeUnit.MINUTES.toNanos(WRITE_WAIT_TIMEOUT_MINUTES);
         try {
-            while (true) {
+            pendingWrites.await(documentId, () -> {
                 if (signal != null) {
                     signal.throwIfCanceled();
                 }
-                long remaining = deadline - System.nanoTime();
-                if (remaining <= 0) {
-                    throw new TimeoutException();
-                }
-                try {
-                    pendingWrite.get(Math.min(remaining, TimeUnit.MILLISECONDS.toNanos(100)), TimeUnit.NANOSECONDS);
-                    if (signal != null) {
-                        signal.throwIfCanceled();
-                    }
-                    CompletableFuture<Void> latestWrite = pendingWrites.get(documentId);
-                    if (latestWrite == null || latestWrite == pendingWrite) {
-                        break;
-                    }
-                    pendingWrite = latestWrite;
-                } catch (TimeoutException ignored) {
-                    // Poll cancellation without replacing the signal's existing listener.
-                }
-            }
+            }, WRITE_WAIT_TIMEOUT_MINUTES, TimeUnit.MINUTES);
             SLogs.d(TAG, "awaitPendingWrite()", "Write completed", "documentId = " + documentId);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -589,6 +661,9 @@ public class SeafileProvider extends DocumentsProvider {
                     try (InputStream in = new FileInputStream(readFd.getFileDescriptor());
                          OutputStream out = new FileOutputStream(spoolFile)) {
                         IOUtils.copy(in, out);
+                    }
+                    if (signal != null) {
+                        signal.throwIfCanceled();
                     }
 
                     // Only the upload and local cache commit are serialized.

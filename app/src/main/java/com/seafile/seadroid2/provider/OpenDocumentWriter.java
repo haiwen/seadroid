@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.provider;
 
 import android.os.CancellationSignal;
+import android.os.OperationCanceledException;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -44,6 +45,9 @@ public class OpenDocumentWriter {
             String displayName, File tempFile,
             @Nullable CancellationSignal signal) throws FileNotFoundException {
 
+        if (signal != null) {
+            signal.throwIfCanceled();
+        }
         boolean isExists = false;
         String uploadUrl;
         try {
@@ -132,7 +136,16 @@ public class OpenDocumentWriter {
                 });
             }
 
-            try (okhttp3.Response response = call.execute()) {
+            okhttp3.Response uploadResponse;
+            try {
+                uploadResponse = call.execute();
+            } catch (IOException e) {
+                if (call.isCanceled()) {
+                    throw new OperationCanceledException();
+                }
+                throw e;
+            }
+            try (okhttp3.Response response = uploadResponse) {
                 if (response.isSuccessful()) {
                     File localFile = DataManager.getLocalFileCachePath(account, repoId, repoName, fullPath);
                     Path path = Files.move(tempFile.toPath(), localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
