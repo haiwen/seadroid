@@ -365,20 +365,15 @@
   <string name="settings_camera_upload_service_started">بدأت خدمة التحميل</string>
   <string name="settings_camera_upload_service_stopped">توقفت خدمة التحميل</string>
   <string name="settings_camera_upload_allow_data_plan">السماح بخطة البيانات</string>
-  <string name="settings_camera_upload_allow_videos">السماح بتحميل الصور المتحركة -الفيديوهات-</string>
   <string name="settings_camera_upload_default_wifi">استخدم Wi-Fi فقط بشكل افتراضي</string>
   <string name="settings_camera_upload_data_plan_allowed">سُمح بخطة البيانات</string>
   <string name="settings_camera_upload_default_photos">افتراضياً ارفع الصور فقط</string>
   <string name="settings_camera_upload_videos_allowed">مقاطع الفيديو مضمنة</string>
-  <string name="settings_camera_upload_change_repo_title">تغيير مكتبة التحميل</string>
   <string name="settings_camera_upload_repo_hint">يرجى اختيار مكتبة أولاً</string>
-  <string name="settings_camera_upload_turn_on">شغّل تحميل صور آلة التصوير -الكاميرا-</string>
   <string name="settings_camera_upload_choose_dir">تغيير الألبومات</string>
   <string name="settings_camera_upload_dir_auto_scan">المسح التلقائي للصور افتراضيًا</string>
   <string name="settings_camera_upload_lib_not_found">المكتبة المحددة غير موجودة</string>
-  <string name="settings_camera_upload_advanced_feature_title">الخيارات المتقدمة</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">خيارات التحميل المخصصة</string>
-  <string name="settings_camera_upload_advanced_custom_directories">ألبومات التحميل المخصصة</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">اختر ألبومات الصور</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">مسح الجهاز تلقائيا</string>
   <!--Camera Upload Configuration View-->
@@ -605,7 +600,6 @@
   <string name="editor_lines_error">غير قادر على وضع سطور متعددة</string>
   <string name="editor_file_save">هل تريد الحفظ والخروج؟</string>
   <string name="editor_file_save_success">تم حفظ الملف بنجاح</string>
-  <string name="editor_file_save_failed">فشل مسح ذاكرة التخزين المؤقت</string>
   <string name="editor_file_save_title">حفظ الملف</string>
   <string name="description">الوصف</string>
   <string name="undo">تراجع</string>
@@ -630,7 +624,6 @@
   <string name="weak_password">كلمة السر ضعيفة جداً.</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">مجلد النسخ الاحتياطي</string>
-  <string name="settings_folder_backup_switch_title">تشغيل النسخ الاحتياطي للمجلد</string>
   <string name="settings_folder_backup_service_started">بدأت خدمة النسخ الاحتياطي</string>
   <string name="settings_folder_backup_service_stopped">تم إيقاف خدمة النسخ الاحتياطي</string>
   <string name="settings_select_backup_folder_title">حدد المجلد</string>

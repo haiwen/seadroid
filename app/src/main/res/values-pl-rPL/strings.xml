@@ -325,6 +325,7 @@
   <string name="gesture_lock">Blokada gestem</string>
   <string name="gesture_lock_on">Blokada gestem włączona</string>
   <string name="gesture_lock_off">Blokada gestem wyłączona</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Proszę narysować wzór blokady</string>
   <string name="lockscreen_access_pattern_start">Zacznij rysować</string>
   <string name="lockscreen_access_pattern_cleared">Wzorzec wyczyszczony</string>
@@ -381,20 +382,15 @@
   <string name="settings_camera_upload_service_started">Usługa przesyłania jest uruchomiona</string>
   <string name="settings_camera_upload_service_stopped">Usługa przesyłania jest zatrzymana</string>
   <string name="settings_camera_upload_allow_data_plan">Pozwól na transmisję komórkową</string>
-  <string name="settings_camera_upload_allow_videos">Pozwól na przesyłanie wideo.</string>
   <string name="settings_camera_upload_default_wifi">Domyślnie używaj tylko Wi-Fi</string>
   <string name="settings_camera_upload_data_plan_allowed">Transmisja komórkowa włączona</string>
   <string name="settings_camera_upload_default_photos">Domyślnie przesyłaj tylko zdjęcia</string>
   <string name="settings_camera_upload_videos_allowed">Dołącz wideo</string>
-  <string name="settings_camera_upload_change_repo_title">Biblioteka przesyłania</string>
   <string name="settings_camera_upload_repo_hint">Proszę najpierw wybrać bibliotekę</string>
-  <string name="settings_camera_upload_turn_on">Przesyłaj zdjęcia z aparatu</string>
   <string name="settings_camera_upload_choose_dir">Zmień albumy</string>
   <string name="settings_camera_upload_dir_auto_scan">Domyślnie skanuj zdjęcia automatycznie</string>
   <string name="settings_camera_upload_lib_not_found">Wybrana biblioteka nie istnieje</string>
-  <string name="settings_camera_upload_advanced_feature_title">Zaawansowane</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Dostosuj opcje przesyłania</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Wybierz przesyłane albumy</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Wybierz albumy zdjęć</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatycznie skanuj urządzenie</string>
   <!--Camera Upload Configuration View-->
@@ -604,7 +600,6 @@
   <string name="editor_lines_error">Nie można obsługiwać wielu linii</string>
   <string name="editor_file_save">Czy chcesz zapisać i wyjść?</string>
   <string name="editor_file_save_success">Plik zapisany pomyślnie</string>
-  <string name="editor_file_save_failed">Nie udało się wyczyścić pamięci podręcznej</string>
   <string name="editor_file_save_title">Zapis pliku</string>
   <string name="description">Opis</string>
   <string name="undo">cofnij</string>
@@ -629,7 +624,6 @@
   <string name="weak_password">Słabe hasło</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Informacje o kopii zapasowej folderu</string>
-  <string name="settings_folder_backup_switch_title">Kopia zapasowa folderu</string>
   <string name="settings_folder_backup_service_started">Usługa kopii zapasowej folderu uruchomiona</string>
   <string name="settings_folder_backup_service_stopped">Usługa kopii zapasowej folderu zatrzymana</string>
   <string name="settings_select_backup_folder_title">Wybierz folder do kopii zapasowej</string>

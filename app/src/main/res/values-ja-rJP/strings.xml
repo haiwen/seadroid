@@ -319,6 +319,7 @@
   <string name="gesture_lock">ジェスチャーロック</string>
   <string name="gesture_lock_on">ジェスチャーロック オン</string>
   <string name="gesture_lock_off">ジェスチャーロック オフ</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">ジェスチャーロックのパターンを描いてください</string>
   <string name="lockscreen_access_pattern_start">描き始めてください</string>
   <string name="lockscreen_access_pattern_cleared">パターンをクリアしました</string>
@@ -369,20 +370,15 @@
   <string name="settings_camera_upload_service_started">アップロードサービスが開始しました</string>
   <string name="settings_camera_upload_service_stopped">アップロードサービスが停止しました</string>
   <string name="settings_camera_upload_allow_data_plan">データプランを許可する</string>
-  <string name="settings_camera_upload_allow_videos">ビデオのアップロードを許可する</string>
   <string name="settings_camera_upload_default_wifi">デフォルトで Wi-Fi のみ使用する</string>
   <string name="settings_camera_upload_data_plan_allowed">データプランを許可しました</string>
   <string name="settings_camera_upload_default_photos">デフォルトで写真のアップロードのみ使用する</string>
   <string name="settings_camera_upload_videos_allowed">ビデオを含めました</string>
-  <string name="settings_camera_upload_change_repo_title">アップロードライブラリーを変更</string>
   <string name="settings_camera_upload_repo_hint">最初にライブラリーを選択してください</string>
-  <string name="settings_camera_upload_turn_on">カメラアップロードをオンにする</string>
   <string name="settings_camera_upload_choose_dir">アルバムを変更</string>
   <string name="settings_camera_upload_dir_auto_scan">デフォルトで写真を自動スキャンする</string>
   <string name="settings_camera_upload_lib_not_found">選択したライブラリーが存在しません</string>
-  <string name="settings_camera_upload_advanced_feature_title">詳細オプション</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">カスタムアップロードオプション</string>
-  <string name="settings_camera_upload_advanced_custom_directories">カスタムアップロードアルバム</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">フォトアルバムを選択</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">デバイスを自動スキャン</string>
   <!--Camera Upload Configuration View-->
@@ -577,7 +573,6 @@
   <string name="editor_lines_error">複数行は操作できません</string>
   <string name="editor_file_save">保存して終了しますか?</string>
   <string name="editor_file_save_success">正常にファイルを保存しました</string>
-  <string name="editor_file_save_failed">キャッシュのクリアに失敗しました</string>
   <string name="editor_file_save_title">ファイルの保存</string>
   <string name="description">説明</string>
   <string name="undo">元に戻す</string>
@@ -602,7 +597,6 @@
   <string name="weak_password">パスワードが弱すぎます</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">フォルダーバックアップ情報</string>
-  <string name="settings_folder_backup_switch_title">フォルダーバックアップを有効にする</string>
   <string name="settings_folder_backup_service_started">フォルダーバックアップサービスが開始されました</string>
   <string name="settings_folder_backup_service_stopped">フォルダーバックアップサービスが停止されました</string>
   <string name="settings_select_backup_folder_title">バックアップ先を選択</string>

@@ -374,20 +374,15 @@
   <string name="settings_camera_upload_service_started">Opplastingstjenesten har begynt</string>
   <string name="settings_camera_upload_service_stopped">Opplastingstjenesten har stoppet</string>
   <string name="settings_camera_upload_allow_data_plan">Tillat mobildata</string>
-  <string name="settings_camera_upload_allow_videos">Allow Videos to Upload</string>
   <string name="settings_camera_upload_default_wifi">Bruk bare Wi-Fi som standard</string>
   <string name="settings_camera_upload_data_plan_allowed">Tillat mobildata </string>
   <string name="settings_camera_upload_default_photos">Bare opplasting av bilder som standard</string>
   <string name="settings_camera_upload_videos_allowed">Videoer inkludert</string>
-  <string name="settings_camera_upload_change_repo_title">Endre opplastingsbibliotek</string>
   <string name="settings_camera_upload_repo_hint">Velg et bibliotek først</string>
-  <string name="settings_camera_upload_turn_on">Slå på kameraopplasting</string>
   <string name="settings_camera_upload_choose_dir">Velg en mappe</string>
   <string name="settings_camera_upload_dir_auto_scan">Automatisk leting etter bilder som standard</string>
   <string name="settings_camera_upload_lib_not_found">Valgt bibliotek eksisterer ikke</string>
-  <string name="settings_camera_upload_advanced_feature_title">Avanserte innstillinger</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Tilpass opplastingsvalg</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Kun oppdateringer for valgte mapper</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Slå på</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatisk leting på enheten</string>
   <!--Camera Upload Configuration View-->
@@ -587,7 +582,6 @@
   <string name="editor_lines_error">Ugyldig linjeformat</string>
   <string name="editor_file_save">Lagre fil</string>
   <string name="editor_file_save_success">Fil lagret</string>
-  <string name="editor_file_save_failed">Lagring av fil mislyktes</string>
   <string name="editor_file_save_title">Lagre fil</string>
   <string name="description">Beskrivelse</string>
   <string name="undo">Angre</string>
@@ -612,7 +606,6 @@
   <string name="weak_password">Svakt passord</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Mappesikkerhetskopi</string>
-  <string name="settings_folder_backup_switch_title">Aktiver mappesikkerhetskopi</string>
   <string name="settings_folder_backup_service_started">Sikkerhetskopitjeneste startet</string>
   <string name="settings_folder_backup_service_stopped">Sikkerhetskopitjeneste stoppet</string>
   <string name="settings_select_backup_folder_title">Velg sikkerhetskopimappe</string>

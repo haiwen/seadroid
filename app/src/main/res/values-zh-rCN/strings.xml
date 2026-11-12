@@ -403,10 +403,11 @@
   <string name="settings_camera_upload_lib_not_found">资料库不存在</string>
   <string name="settings_camera_upload_advanced_feature_title">高级选项</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">更改上传设置</string>
-  <string name="settings_camera_upload_advanced_custom_directories">选择上传相册</string>
+  <string name="settings_camera_upload_advanced_custom_directories">更改相册</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">选择备份相册</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">自动扫描设备</string>
   <string name="settings_camera_auto_upload_pause">暂停自动上传</string>
+  <string name="settings_camera_upload_original_photo">使用 HEIC 备份动态照片</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">配置助手</string>
   <string name="settings_cuc_welcome_text">感谢使用照片上传配置助手，\n在开始使用上传服务之前，将会引导你如何进行配置。</string>
@@ -564,13 +565,13 @@ Email: support@seafile.com<br>
   <string name="transfer_notice_manual">手动上传</string>
   <string name="transfer_notice_share">分享文件</string>
   <string name="transfer_notice_local">更新本地文件</string>
-  <string name="transfer_notice_scanning">正在扫描</string>
+  <string name="transfer_notice_scanning">扫描中</string>
   <string name="transfer_notice_preparing">准备传输</string>
-  <string name="transfer_notice_uploading">正在上传</string>
-  <string name="transfer_notice_downloading">正在下载</string>
-  <string name="transfer_notice_success">传输完成</string>
+  <string name="transfer_notice_uploading">上传中</string>
+  <string name="transfer_notice_downloading">下载中</string>
+  <string name="transfer_notice_success">传输已完成</string>
   <string name="transfer_notice_empty">已完成，未传输文件</string>
-  <string name="transfer_notice_failed">传输失败，请打开传输列表查看详情</string>
+  <string name="transfer_notice_failed">传输失败</string>
   <string name="transfer_notice_cancelled">传输已取消</string>
   <string name="transfer_notice_counts">已完成 %1$d 个 · 失败 %2$d 个</string>
   <!--Gallery-->
@@ -625,7 +626,7 @@ Email: support@seafile.com<br>
   <string name="editor_lines_error">不支持多行操作</string>
   <string name="editor_file_save">确定保存并退出吗？</string>
   <string name="editor_file_save_success">保存成功</string>
-  <string name="editor_file_save_failed">缓存清理失败</string>
+  <string name="editor_file_save_failed">文件保存失败</string>
   <string name="editor_file_save_title">保存文件</string>
   <string name="description">描述</string>
   <string name="undo">撤销</string>
@@ -650,7 +651,7 @@ Email: support@seafile.com<br>
   <string name="weak_password">密码太弱</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">文件夹备份</string>
-  <string name="settings_folder_backup_switch_title">备份服务</string>
+  <string name="settings_folder_backup_switch_title">打开文件夹备份</string>
   <string name="settings_folder_backup_service_started">备份服务已启动</string>
   <string name="settings_folder_backup_service_stopped">备份服务已停止</string>
   <string name="settings_select_backup_folder_title">选择文件夹</string>

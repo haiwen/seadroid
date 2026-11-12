@@ -390,20 +390,15 @@
   <string name="settings_camera_upload_service_started">업로드 서비스를 시작했습니다</string>
   <string name="settings_camera_upload_service_stopped">업로드 서비스를 멈추었습니다</string>
   <string name="settings_camera_upload_allow_data_plan">데이터 서비스 허용</string>
-  <string name="settings_camera_upload_allow_videos">동영상 업로드 허용</string>
   <string name="settings_camera_upload_default_wifi">기본적으로 무선랜 연결만 사용</string>
   <string name="settings_camera_upload_data_plan_allowed">데이터 플랜을 허용했습니다</string>
   <string name="settings_camera_upload_default_photos">기본적으로 사진만 업로드</string>
   <string name="settings_camera_upload_videos_allowed">동영상 포함</string>
-  <string name="settings_camera_upload_change_repo_title">업로드 라이브러리 바꾸기</string>
   <string name="settings_camera_upload_repo_hint">라이브러리를 먼저 선택하세요</string>
-  <string name="settings_camera_upload_turn_on">카메라 업로드 켜기</string>
   <string name="settings_camera_upload_choose_dir">앨범 내용 바꾸기</string>
   <string name="settings_camera_upload_dir_auto_scan">기본적으로 자동 사진 검색</string>
   <string name="settings_camera_upload_lib_not_found">선택한 라이브러리가 없습니다</string>
-  <string name="settings_camera_upload_advanced_feature_title">고급 옵션</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">사용자 정의 업로드 옵션</string>
-  <string name="settings_camera_upload_advanced_custom_directories">개별 업로드 앨범</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">사진 앨범 선택</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">자동으로 검색할 장치</string>
   <string name="settings_camera_auto_upload_pause">자동 업로드 일시 정지</string>
@@ -612,7 +607,6 @@
   <string name="editor_lines_error">다중 행을 처리할 수 없습니다</string>
   <string name="editor_file_save">저장하고 끝낼까요?</string>
   <string name="editor_file_save_success">파일을 성공적으로 저장했습니다</string>
-  <string name="editor_file_save_failed">캐시 비우기에 실패했습니다</string>
   <string name="editor_file_save_title">파일 저장</string>
   <string name="description">설명</string>
   <string name="undo">작업 취소</string>
@@ -637,7 +631,6 @@
   <string name="weak_password">암호가 매우 단순합니다.</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">백업 폴더</string>
-  <string name="settings_folder_backup_switch_title">폴더 백업 켜기</string>
   <string name="settings_folder_backup_service_started">백업 서비스를 시작했습니다</string>
   <string name="settings_folder_backup_service_stopped">백업 서비스를 멈추었습니다</string>
   <string name="settings_select_backup_folder_title">폴더 선택</string>

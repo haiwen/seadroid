@@ -169,6 +169,7 @@
   </string-array>
   <string name="add_repo">Προσθήκη βιβλιοθήκης</string>
   <string name="add_file">Προσθήκη αρχείου</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>Create file</item>
     <item>Create folder</item>
@@ -303,6 +304,7 @@
   <string name="gesture_lock">Κλειδί geste</string>
   <string name="gesture_lock_on">Ενεργοποίηση κλειδιού geste</string>
   <string name="gesture_lock_off">Απενεργοποίηση κλειδιού geste</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Σχεδιάστε ένα μοτίβο για την πρόσβαση στο κλειδί geste</string>
   <string name="lockscreen_access_pattern_start">Χρησιμοποιήστε το μοτίβο για να αποκτήσετε πρόσβαση στο κλειδί geste</string>
   <string name="lockscreen_access_pattern_cleared">Το μοτίβο κλειδιού geste έχει διαγραφεί</string>
@@ -355,20 +357,15 @@
   <string name="settings_camera_upload_service_started">Η υπηρεσία μεταφόρτωσης ξεκίνησε</string>
   <string name="settings_camera_upload_service_stopped">Η διαδικασία μεταφόρτωσης σταμάτησε</string>
   <string name="settings_camera_upload_allow_data_plan">Επιτρέπει τη μεταφόρτωση από το δεδομένο πλάνο δεδομένων</string>
-  <string name="settings_camera_upload_allow_videos">Επιτρέπει τη μεταφόρτωση βίντεο</string>
   <string name="settings_camera_upload_default_wifi">Μεταφόρτωση από το Wi-Fi</string>
   <string name="settings_camera_upload_data_plan_allowed">Μεταφόρτωση από το δεδομένο πλάνο δεδομένων</string>
   <string name="settings_camera_upload_default_photos">Μεταφόρτωση φωτογραφιών μόνο από προεπιλογή</string>
   <string name="settings_camera_upload_videos_allowed">Μεταφόρτωση βίντεο από το Wi-Fi</string>
-  <string name="settings_camera_upload_change_repo_title">Αλλαγή βιβλιοθήκης μεταφόρτωσης</string>
   <string name="settings_camera_upload_repo_hint">Παρακαλώ επιλέξτε πρώτα μια βιβλιοθήκη</string>
-  <string name="settings_camera_upload_turn_on">Ενεργοποίηση μεταφόρτωσης φωτ. μηχανής</string>
   <string name="settings_camera_upload_choose_dir">Επιλογή φάκελου αποθήκευσης</string>
   <string name="settings_camera_upload_dir_auto_scan">Αυτόματη αναζήτηση φακέλων</string>
   <string name="settings_camera_upload_lib_not_found">Η επιλεγμένη βιβλιοθήκη δεν υπάρχει</string>
-  <string name="settings_camera_upload_advanced_feature_title">Ρυθμίσεις μεταφόρτωσης</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Μη τυπικές ρυθμίσεις μεταφόρτωσης</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Χρησιμοποιήστε προσαρμοσμένο φάκελο αποθήκευσης</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Ενεργοποίηση προσαρμοσμένου φάκελου αποθήκευσης</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Απενεργοποίηση προσαρμοσμένου φάκελου αποθήκευσης</string>
   <!--Camera Upload Configuration View-->
@@ -564,7 +561,6 @@
   <string name="editor_lines_error">Σφάλμα γραμμών</string>
   <string name="editor_file_save">Αποθήκευση αρχείου</string>
   <string name="editor_file_save_success">Αποθήκευση αρχείου με επιτυχία</string>
-  <string name="editor_file_save_failed">Αποτυχία αποθήκευσης αρχείου</string>
   <string name="editor_file_save_title">Αποθήκευση αρχείου</string>
   <string name="description">Περιγραφή</string>
   <string name="undo">Άνακτηση</string>
@@ -589,7 +585,6 @@
   <string name="weak_password">Χαμηλός κωδικός πρόσβασης</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Πληροφορίες резервного αντιγράφου φακέλου</string>
-  <string name="settings_folder_backup_switch_title">Ενεργοποίηση резервного αντιγράφου φακέλου</string>
   <string name="settings_folder_backup_service_started">Η υπηρεσία резервного αντιγράφου φακέλου έχει ξεκινήσει</string>
   <string name="settings_folder_backup_service_stopped">Η υπηρεσία резервного αντιγράφου φακέλου έχει σταμάτη</string>
   <string name="settings_select_backup_folder_title">Επιλογή φακέλου резервного αντιγράφου</string>
@@ -701,4 +696,5 @@
   <string name="file_transfer_stopped">Μεταφορά αρχείου διακοπεί</string>
   <!--font-style-->
   <!--sdoc system event-->
+  <!--Tips-->
 </resources>

@@ -323,6 +323,7 @@
   <string name="gesture_lock">Gesto de Bloqueo</string>
   <string name="gesture_lock_on">Gesto de bloqueo activado</string>
   <string name="gesture_lock_off">Gesto de bloqueo desactivado</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Por favor dibuje el Gesto de Bloqueo</string>
   <string name="lockscreen_access_pattern_start">Comience a dibujar</string>
   <string name="lockscreen_access_pattern_cleared">Patrón borrado</string>
@@ -377,20 +378,15 @@
   <string name="settings_camera_upload_service_started">Servicio de subida iniciado</string>
   <string name="settings_camera_upload_service_stopped">Servicio de subida detenido</string>
   <string name="settings_camera_upload_allow_data_plan">Permitir plan de datos</string>
-  <string name="settings_camera_upload_allow_videos">Permitir subida de videos</string>
   <string name="settings_camera_upload_default_wifi">Usar sólo Wi-Fi de forma predeterminada</string>
   <string name="settings_camera_upload_data_plan_allowed">Plan de datos permitido</string>
   <string name="settings_camera_upload_default_photos">Subir sólo fotos de forma predeterminada</string>
   <string name="settings_camera_upload_videos_allowed">Videos incluídos</string>
-  <string name="settings_camera_upload_change_repo_title">Cambiar biblioteca de subida</string>
   <string name="settings_camera_upload_repo_hint">Por favor, primero escoja una biblioteca</string>
-  <string name="settings_camera_upload_turn_on">Activar subida de cámara</string>
   <string name="settings_camera_upload_choose_dir">Cambiar álbumes</string>
   <string name="settings_camera_upload_dir_auto_scan">Examinar fotos automáticamente de forma predeterminada</string>
   <string name="settings_camera_upload_lib_not_found">La biblioteca seleccionada no existe</string>
-  <string name="settings_camera_upload_advanced_feature_title">Opciones Avanzadas</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Opciones de subida personalizadas</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Álbumes de subida personalizados</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Elija álbumes de fotos</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Examinar automáticamente el dispositivo</string>
   <!--Camera Upload Configuration View-->
@@ -595,7 +591,6 @@
   <string name="editor_lines_error">No es posible operar sobre múltiples líneas</string>
   <string name="editor_file_save">¿Desea guardar y salir?</string>
   <string name="editor_file_save_success">Archivo guardado con éxito</string>
-  <string name="editor_file_save_failed">Falló borrar el caché</string>
   <string name="editor_file_save_title">Guardar archivo</string>
   <string name="description">Descripción</string>
   <string name="undo">deshacer</string>
@@ -620,7 +615,6 @@
   <string name="weak_password">La contraseña es demasiado débil.</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Información de copia de seguridad de carpetas</string>
-  <string name="settings_folder_backup_switch_title">Copia de seguridad de carpetas</string>
   <string name="settings_folder_backup_service_started">Servicio de copia de seguridad iniciado</string>
   <string name="settings_folder_backup_service_stopped">Servicio de copia de seguridad detenido</string>
   <string name="settings_select_backup_folder_title">Seleccionar carpeta de copia</string>

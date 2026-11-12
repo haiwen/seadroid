@@ -394,22 +394,18 @@
   <string name="settings_camera_upload_service_started">Lähetyspalvelu käynnistetty</string>
   <string name="settings_camera_upload_service_stopped">Lähetyspalvelu pysäytetty</string>
   <string name="settings_camera_upload_allow_data_plan">Salli Mobiiliverkko</string>
-  <string name="settings_camera_upload_allow_videos">Salli videoiden lähetys</string>
   <string name="settings_camera_upload_default_wifi">Käytä vain Wi-Fiä oletuksena</string>
   <string name="settings_camera_upload_data_plan_allowed">Mobiiliverkko sallittu</string>
   <string name="settings_camera_upload_default_photos">Oletusasetuksena lähetä vain kuvat</string>
   <string name="settings_camera_upload_videos_allowed">Videot sisältyvät</string>
-  <string name="settings_camera_upload_change_repo_title">Vaihda lähetyskirjasto</string>
   <string name="settings_camera_upload_repo_hint">Ole hyvä ja valitse ensin kirjasto </string>
-  <string name="settings_camera_upload_turn_on">Käynnistä Kameran lähetys</string>
   <string name="settings_camera_upload_choose_dir">Vaihda albumeja</string>
   <string name="settings_camera_upload_dir_auto_scan">Skannaa automaattisesti kuvat oletuksena</string>
   <string name="settings_camera_upload_lib_not_found">Valittua kirjastoa ei ole olemassa</string>
-  <string name="settings_camera_upload_advanced_feature_title">Edistyneet asetukset</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Mukautetut lähetys vaihtoehdot</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Mukautetut lähetys albumit</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Valitse valokuva albumeja </string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Automaattinen skannaus laite</string>
+  <string name="settings_camera_auto_upload_pause">Keskeytä automaattinen lataus</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Asetusten avustaja</string>
   <string name="settings_cuc_welcome_text">Kiitos, että käytätte kameran lähetysasetusten avustajaa.\n Aloittaaksesi käyttämään kameran lähetyspalvelua ohjaamme sinut muutaman alkuaskeleen läpi.</string>
@@ -607,7 +603,6 @@
   <string name="editor_lines_error">Rivivirhe muokkaimessa</string>
   <string name="editor_file_save">Haluatko tallentaa ja lopettaa?</string>
   <string name="editor_file_save_success">Tiedoston tallennus onnistui</string>
-  <string name="editor_file_save_failed">Välimuistin tyhjennys epäonnistui</string>
   <string name="editor_file_save_title">Tallenna tiedosto</string>
   <string name="description">Kuvaus</string>
   <string name="undo">kumoa</string>
@@ -632,7 +627,6 @@
   <string name="weak_password">Heikko salasana</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Kansion varmuuskopion tiedot</string>
-  <string name="settings_folder_backup_switch_title">Kansion varmuuskopio</string>
   <string name="settings_folder_backup_service_started">Kansion varmuuskopio aloitettiin</string>
   <string name="settings_folder_backup_service_stopped">Kansion varmuuskopio pysäytetty</string>
   <string name="settings_select_backup_folder_title">Valitse varmuuskopioitava kansio</string>

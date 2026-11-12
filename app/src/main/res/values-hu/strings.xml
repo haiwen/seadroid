@@ -321,6 +321,7 @@
   <string name="gesture_lock">Feloldóminta</string>
   <string name="gesture_lock_on">Feloldóminta bekapcsolva</string>
   <string name="gesture_lock_off">Feloldóminta kikapcsolva</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Rajzolja le a feloldómintát</string>
   <string name="lockscreen_access_pattern_start">Kezdjen rajzolni</string>
   <string name="lockscreen_access_pattern_cleared">Minta törölve</string>
@@ -373,20 +374,15 @@
   <string name="settings_camera_upload_service_started">Feltöltési szolgáltatás elindítva</string>
   <string name="settings_camera_upload_service_stopped">Feltöltési szolgáltatás leállítva</string>
   <string name="settings_camera_upload_allow_data_plan">Mobil internet engedélyezés</string>
-  <string name="settings_camera_upload_allow_videos">Videó feltöltés engedélyezése</string>
   <string name="settings_camera_upload_default_wifi">Alapesetben csak Wi-Fi használata</string>
   <string name="settings_camera_upload_data_plan_allowed">Mobil internet engedélyezve</string>
   <string name="settings_camera_upload_default_photos">Alapesetben csak fényképeket tölt fel</string>
   <string name="settings_camera_upload_videos_allowed">Videókat is</string>
-  <string name="settings_camera_upload_change_repo_title">Feltöltési kötet megváltoztatása</string>
   <string name="settings_camera_upload_repo_hint">Először a kötetet kell kiválasztani</string>
-  <string name="settings_camera_upload_turn_on">Fényképezőgép feltöltés bekapcsolása</string>
   <string name="settings_camera_upload_choose_dir">Album kicserélése</string>
   <string name="settings_camera_upload_dir_auto_scan">Alapesetben keresse a fényképeket</string>
   <string name="settings_camera_upload_lib_not_found">A kiválasztott kötet nem létezik.</string>
-  <string name="settings_camera_upload_advanced_feature_title">Haladó beállítások</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Egyéni feltöltési beállítások</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Egyéni albumok feltöltése</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Fényképalbum kiválasztása</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatikus keresés az eszközön</string>
   <!--Camera Upload Configuration View-->
@@ -586,7 +582,6 @@
   <string name="editor_lines_error">Sorszám hiba a szerkesztőben</string>
   <string name="editor_file_save">Fájl mentése</string>
   <string name="editor_file_save_success">A fájl mentése sikerült</string>
-  <string name="editor_file_save_failed">A fájl mentése sikertelen</string>
   <string name="editor_file_save_title">Fájl mentése</string>
   <string name="description">Leírás</string>
   <string name="undo">Visszavonás</string>
@@ -611,7 +606,6 @@
   <string name="weak_password">Gyenge jelszó</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Mappa biztonsági mentés információi</string>
-  <string name="settings_folder_backup_switch_title">Mappa biztonsági mentés</string>
   <string name="settings_folder_backup_service_started">A mappa biztonsági mentési szolgáltatás elindult</string>
   <string name="settings_folder_backup_service_stopped">A mappa biztonsági mentési szolgáltatás leállt</string>
   <string name="settings_select_backup_folder_title">Biztonsági mentési mappa kiválasztása</string>

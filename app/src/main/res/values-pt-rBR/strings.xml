@@ -170,6 +170,7 @@
   </string-array>
   <string name="add_repo">Adicionar biblioteca</string>
   <string name="add_file">Adicionar arquivo</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>Create file</item>
     <item>Create folder</item>
@@ -299,6 +300,7 @@
   <string name="gesture_lock">Gestão de travas</string>
   <string name="gesture_lock_on">Gestao de travas  ligado</string>
   <string name="gesture_lock_off">Gestão de travas desligado</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Por favor desenhe o modelo de trava de gestos</string>
   <string name="lockscreen_access_pattern_start">Comece a desenhar</string>
   <string name="lockscreen_access_pattern_cleared">Modelo limpo</string>
@@ -353,20 +355,15 @@
   <string name="settings_camera_upload_service_started">Servico de upload iniciado</string>
   <string name="settings_camera_upload_service_stopped">Servico de upload parado</string>
   <string name="settings_camera_upload_allow_data_plan">Liberar plano de dados</string>
-  <string name="settings_camera_upload_allow_videos">Incluir videos</string>
   <string name="settings_camera_upload_default_wifi">Usar Wi-Fi  somente por default</string>
   <string name="settings_camera_upload_data_plan_allowed">Plano de dados liberado</string>
   <string name="settings_camera_upload_default_photos">Carregue fotos somente por padrão</string>
   <string name="settings_camera_upload_videos_allowed">Videos incluidos</string>
-  <string name="settings_camera_upload_change_repo_title">Mudar upload de biblioteca</string>
   <string name="settings_camera_upload_repo_hint">Por favor selecione a biblioteca primeiro</string>
-  <string name="settings_camera_upload_turn_on">Ligue o upload da camera</string>
   <string name="settings_camera_upload_choose_dir">Escolha pasta de upload</string>
   <string name="settings_camera_upload_dir_auto_scan">Auto scan fotos por default</string>
   <string name="settings_camera_upload_lib_not_found">A biblioteca selecionada nao existe</string>
-  <string name="settings_camera_upload_advanced_feature_title">Opções avançadas</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Opções customizadas de upload</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Pasta personalizada</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Pasta personalizada ativada</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan do dispositivo</string>
   <!--Camera Upload Configuration View-->
@@ -567,7 +564,6 @@
   <string name="editor_lines_error">Número de linhas inválido</string>
   <string name="editor_file_save">Salvar arquivo</string>
   <string name="editor_file_save_success">Arquivo salvo com sucesso</string>
-  <string name="editor_file_save_failed">Falha ao salvar arquivo</string>
   <string name="editor_file_save_title">Salvar arquivo</string>
   <string name="description">Descrição</string>
   <string name="undo">Desfazer</string>
@@ -592,7 +588,6 @@
   <string name="weak_password">Senha fraca</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Backup de Pasta</string>
-  <string name="settings_folder_backup_switch_title">Ativar Backup de Pasta</string>
   <string name="settings_folder_backup_service_started">Serviço de Backup de Pasta iniciado</string>
   <string name="settings_folder_backup_service_stopped">Serviço de Backup de Pasta parado</string>
   <string name="settings_select_backup_folder_title">Selecionar Pasta de Backup</string>
@@ -704,4 +699,5 @@
   <string name="file_transfer_stopped">Transferência de arquivo interrompida</string>
   <!--font-style-->
   <!--sdoc system event-->
+  <!--Tips-->
 </resources>
