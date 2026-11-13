@@ -370,20 +370,15 @@
   <string name="settings_camera_upload_service_started">Yuklash servisi boshlandi</string>
   <string name="settings_camera_upload_service_stopped">Yuklash servisi to\'xtadi</string>
   <string name="settings_camera_upload_allow_data_plan">Maʼlumot rejasiga ruxsat berish</string>
-  <string name="settings_camera_upload_allow_videos">Videolarni yuklashga ruxsat berish</string>
   <string name="settings_camera_upload_default_wifi">Standard bo\'yicha faqat Wi-Fi ni ishlatish</string>
   <string name="settings_camera_upload_data_plan_allowed">Ma\'lumotlar rejasiga ruxsat berilgan</string>
   <string name="settings_camera_upload_default_photos">Faqat standard bo\'yicha rasmlarni yuklash</string>
   <string name="settings_camera_upload_videos_allowed">Qo\'shilgan videolar</string>
-  <string name="settings_camera_upload_change_repo_title">Yuklash kutubxonasini o\'zgartirish</string>
   <string name="settings_camera_upload_repo_hint">Iltimos birinchi kutubxona tanlang</string>
-  <string name="settings_camera_upload_turn_on">Kamera yuklashni yoqish</string>
   <string name="settings_camera_upload_choose_dir">Albumlarni o\'zgartirish</string>
   <string name="settings_camera_upload_dir_auto_scan">Standard bo\'yicha rasmlarni avto skanerlash</string>
   <string name="settings_camera_upload_lib_not_found">Tanlangan kutibxonalar mavjud emas</string>
-  <string name="settings_camera_upload_advanced_feature_title">Kengaytirilgan variantlar</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Alohida yuklash variantlari</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Alohida yuklash albomlari</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Rasm albomlarini tanlash</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Qurilmani avto skanerlash</string>
   <!--Camera Upload Configuration View-->
@@ -591,7 +586,6 @@
   <string name="editor_lines_error">Bir nechta liniyalarni ishlatib bo\'lmaydi</string>
   <string name="editor_file_save">Saqlab chiqishni hohlaysizmi?</string>
   <string name="editor_file_save_success">Fayl muvaffaqiyatli saqlandi</string>
-  <string name="editor_file_save_failed">Keshni tozalashda xatolik</string>
   <string name="editor_file_save_title">Fayl saqlandi</string>
   <string name="description">Tavfsifnoma</string>
   <string name="undo">berkor qilish</string>
@@ -616,7 +610,6 @@
   <string name="weak_password">Parol juda oddiy.</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Zaxira papkasi</string>
-  <string name="settings_folder_backup_switch_title">Papka zaxiralashni yoqish</string>
   <string name="settings_folder_backup_service_started">Zaxiralash servisi boshlangan</string>
   <string name="settings_folder_backup_service_stopped">Zaxiralash servisi to\'xtatilgan</string>
   <string name="settings_select_backup_folder_title">Papkani tanlang</string>

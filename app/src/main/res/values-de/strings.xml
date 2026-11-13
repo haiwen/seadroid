@@ -396,22 +396,18 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_camera_upload_service_started">Upload-Dienst gestartet</string>
   <string name="settings_camera_upload_service_stopped">Upload-Dienst gestoppt</string>
   <string name="settings_camera_upload_allow_data_plan">Mobilfunknetz erlauben</string>
-  <string name="settings_camera_upload_allow_videos">Videos hochladen</string>
   <string name="settings_camera_upload_default_wifi">Standardmäßig nur WLAN-Verbindungen verwenden</string>
   <string name="settings_camera_upload_data_plan_allowed">Mobilfunknetz erlaubt</string>
   <string name="settings_camera_upload_default_photos">Standardmäßig nur Bilder hochladen</string>
   <string name="settings_camera_upload_videos_allowed">Inklusive Videos</string>
-  <string name="settings_camera_upload_change_repo_title">Zielbibliothek ändern</string>
   <string name="settings_camera_upload_repo_hint">Bitte zuerst eine Bibliothek auswählen</string>
-  <string name="settings_camera_upload_turn_on">Kamera-Upload aktivieren</string>
   <string name="settings_camera_upload_choose_dir">Alben ändern</string>
   <string name="settings_camera_upload_dir_auto_scan">Automatisch nach Bildern suchen</string>
   <string name="settings_camera_upload_lib_not_found">Die ausgewählte Bibliothek ist nicht vorhanden</string>
-  <string name="settings_camera_upload_advanced_feature_title">Erweiterte Einstellungen</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Einstellungen zum Hochladen anpassen</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Alben manuell auswählen</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Alben auswählen</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Gerät automatisch durchsuchen</string>
+  <string name="settings_camera_auto_upload_pause">Automatisches Hochladen anhalten</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Einrichtungsassistent</string>
   <string name="settings_cuc_welcome_text">Danke für die Benutzung des Einrichtungsassistenten. \nUm Ihnen den Start zu erleichtern, führen wir Sie in wenigen Schritten zum erfolgreichen Kamera-Upload.</string>
@@ -622,7 +618,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="editor_lines_error">Mehrere Zeilen können nicht verarbeitet werden</string>
   <string name="editor_file_save">Möchten Sie speichern und verlassen?</string>
   <string name="editor_file_save_success">Datei ist gespeichert</string>
-  <string name="editor_file_save_failed">Zwischenspeicher konnte nicht gelöscht werden</string>
   <string name="editor_file_save_title">Datei speichern</string>
   <string name="description">Beschreibung</string>
   <string name="undo">Rückgängig</string>
@@ -647,7 +642,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="weak_password">Passwort ist zu schwach.</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Ordner-Backup</string>
-  <string name="settings_folder_backup_switch_title">Ordner-Backup aktivieren</string>
   <string name="settings_folder_backup_service_started">Folder-Backup gestartet</string>
   <string name="settings_folder_backup_service_stopped">Folder-Backup gestoppt</string>
   <string name="settings_select_backup_folder_title">Ordner auswählen</string>

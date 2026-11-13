@@ -288,6 +288,7 @@
   <string name="gesture_lock">Zamknutí gestem</string>
   <string name="gesture_lock_on">Zamknutí heslem zap.</string>
   <string name="gesture_lock_off">Zamknutí heslem vyp.</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Prosím, zvolte si své gesto</string>
   <string name="lockscreen_access_pattern_start">Začít kreslit gesto</string>
   <string name="lockscreen_access_pattern_cleared">Gesto odstraněno</string>
@@ -342,20 +343,15 @@
   <string name="settings_camera_upload_service_started">Nahrávání fotek je spuštěno</string>
   <string name="settings_camera_upload_service_stopped">Nahrávání fotek je zastaveno</string>
   <string name="settings_camera_upload_allow_data_plan">Povolit nahrávání na mobilní data</string>
-  <string name="settings_camera_upload_allow_videos">Povolit nahrávání videí</string>
   <string name="settings_camera_upload_default_wifi">Pouze WIFI</string>
   <string name="settings_camera_upload_data_plan_allowed">Mobilní data povolena</string>
   <string name="settings_camera_upload_default_photos">Pouze fotky</string>
   <string name="settings_camera_upload_videos_allowed">Videa povoleny</string>
-  <string name="settings_camera_upload_change_repo_title">Změnit knihovnu pro nahrávání fotek</string>
   <string name="settings_camera_upload_repo_hint">Zvolte knihovnu pro nahrávání fotek</string>
-  <string name="settings_camera_upload_turn_on">Povolit nahrávání fotek</string>
   <string name="settings_camera_upload_choose_dir">Vybrat složku pro nahrávání</string>
   <string name="settings_camera_upload_dir_auto_scan">Automatické skenování složek</string>
   <string name="settings_camera_upload_lib_not_found">Knihovna pro nahrávání fotek nebyla nalezena</string>
-  <string name="settings_camera_upload_advanced_feature_title">Pokročilé nastavení</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Povolit vlastní složky pro nahrávání</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Povolit vlastní složky pro nahrávání</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Povolit vlastní složky pro nahrávání</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Zakázat vlastní složky pro nahrávání</string>
   <!--Camera Upload Configuration View-->
@@ -558,7 +554,6 @@
   <string name="editor_lines_error">Zadejte text</string>
   <string name="editor_file_save">Uložit soubor</string>
   <string name="editor_file_save_success">Soubor byl úspěšně uložen</string>
-  <string name="editor_file_save_failed">Uložení souboru se nezdařilo</string>
   <string name="editor_file_save_title">Uložit soubor</string>
   <string name="description">Popis</string>
   <string name="undo">Zpět</string>
@@ -583,7 +578,6 @@
   <string name="weak_password">Heslo je příliš slabé</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Zálohování složek</string>
-  <string name="settings_folder_backup_switch_title">Zálohování složek</string>
   <string name="settings_folder_backup_service_started">Zálohování složek bylo zapnuto</string>
   <string name="settings_folder_backup_service_stopped">Zálohování složek bylo vypnuto</string>
   <string name="settings_select_backup_folder_title">Vyberte složku pro zálohu</string>
