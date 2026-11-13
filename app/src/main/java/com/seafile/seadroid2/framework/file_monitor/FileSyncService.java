@@ -242,6 +242,10 @@ public class FileSyncService extends Service {
 
 
     public void restartFolderMonitor() {
+        // media dir may be changed
+        IGNORE_PATHS.clear();
+        initIgnorePath();
+
         startFolderMonitor();
     }
 
