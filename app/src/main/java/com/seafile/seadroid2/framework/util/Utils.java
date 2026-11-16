@@ -226,7 +226,7 @@ public class Utils {
             // plain text and documents
             "txt", "text", "log", "csv", "tsv", "diff", "patch", "rej", "org", "rst", "adoc", "asciidoc", "tex",
             // Markdown
-            "md", "markdown", "mdx", "mkd", "mkdn", "mdwn",
+            "md", "markdown", "mdx", "mkd", "mkdn", "mdwn", "mdown",
             // Web
             "htm", "html", "xhtml", "css", "less", "scss", "sass", "js", "mjs", "cjs", "jsx", "ts", "tsx",
             "vue", "svelte", "json", "json5", "jsonc", "xml", "xsd", "xsl", "xslt", "dtd", "yml", "yaml",
