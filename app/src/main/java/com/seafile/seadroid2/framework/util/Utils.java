@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
@@ -21,9 +19,6 @@ import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.config.Constants;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
-import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
-import com.seafile.seadroid2.context.GlobalNavContext;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -176,12 +171,27 @@ public class Utils {
         return _decimalFormat.format(size / Math.pow(1000, digitGroups)) + " " + _units[digitGroups];
     }
 
-    public static boolean isJpeg(String name) {
-        String suffix = FilenameUtils.getExtension(name);
+    private static String precheckSuffix(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return null;
+        }
+
+        String suffix = FilenameUtils.getExtension(fileName);
+        if (TextUtils.isEmpty(suffix)) {
+            return null;
+        }
+
+        suffix = suffix.toLowerCase(Locale.ROOT);
+        return suffix;
+    }
+
+    public static boolean isJpeg(String fileName) {
+        String suffix = precheckSuffix(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
-        suffix = suffix.toLowerCase(Locale.ROOT);
+
+
         if (TextUtils.equals("jpg", suffix) || TextUtils.equals("jpeg", suffix)) {
             return true;
         }
@@ -190,12 +200,12 @@ public class Utils {
         return TextUtils.equals(mime, "image/jpeg");
     }
 
-    public static boolean isHeic(String name) {
-        String suffix = FilenameUtils.getExtension(name);
+    public static boolean isHeic(String fileName) {
+        String suffix = precheckSuffix(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
-        suffix = suffix.toLowerCase(Locale.ROOT);
+
         if (TextUtils.equals("heic", suffix) || TextUtils.equals("heif", suffix)) {
             return true;
         }
@@ -209,17 +219,33 @@ public class Utils {
 
     }
 
-    public static boolean isGif(String fileName) {
-        if (TextUtils.isEmpty(fileName)) {
-            return false;
-        }
-
-        String suffix = FilenameUtils.getExtension(fileName);
+    public static boolean isMarkdown(String fileName) {
+        String suffix = precheckSuffix(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
 
-        suffix = suffix.toLowerCase(Locale.ROOT);
+        if (TextUtils.equals("md", suffix)
+                || TextUtils.equals("markdown", suffix)
+                || TextUtils.equals("mdown", suffix)
+                || TextUtils.equals("mkd", suffix)
+                || TextUtils.equals("mkdn", suffix)
+                || TextUtils.equals("mdwn", suffix)
+                || TextUtils.equals("mdx", suffix)) {
+            return true;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return TextUtils.equals(mime, "text/markdown")
+                || TextUtils.equals(mime, "text/x-markdown");
+    }
+
+    public static boolean isGif(String fileName) {
+        String suffix = precheckSuffix(fileName);
+        if (TextUtils.isEmpty(suffix)) {
+            return false;
+        }
+
         if (TextUtils.equals("gif", suffix)) {
             return true;
         }
@@ -228,7 +254,7 @@ public class Utils {
         return TextUtils.equals(mime, "image/gif");
     }
 
-    public static boolean availableThumbnail(String fileName) {
+    public static boolean isSupportThumbnail(String fileName) {
         if (isViewableImage(fileName)) {
             return true;
         }
@@ -248,14 +274,11 @@ public class Utils {
         return false;
     }
 
-    public static boolean isViewableImage(String name) {
-        String suffix = FilenameUtils.getExtension(name);
-
+    public static boolean isViewableImage(String fileName) {
+        String suffix = precheckSuffix(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
-
-        suffix = suffix.toLowerCase(Locale.ROOT);
 
         switch (suffix) {
             case "svg" -> {
@@ -272,7 +295,15 @@ public class Utils {
             }
         }
 
-        String mime = getMimeType(suffix);
+        // For devices with lower versions of Android, handle heic and heif explicitly
+        String mime;
+        if ("heic".equals(suffix)) {
+            mime = "image/heic";
+        } else if ("heif".equals(suffix)) {
+            mime = "image/heif";
+        }else {
+            mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        }
 
         if (mime == null)
             return false;
@@ -283,27 +314,8 @@ public class Utils {
         return context.getContentResolver().getType(uri);
     }
 
-    public static String getMimeType(String extension) {
-        if (TextUtils.isEmpty(extension)) {
-            return null;
-        }
-
-        extension = extension.toLowerCase(Locale.ROOT);
-
-        // For devices with lower versions of Android, handle heic and heif explicitly
-        if ("heic".equals(extension)) {
-            return "image/heic";
-        }
-
-        if ("heif".equals(extension)) {
-            return "image/heif";
-        }
-
-        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-    }
-
-    public static boolean isVideoFile(String name) {
-        String suffix = FilenameUtils.getExtension(name);
+    public static boolean isVideoFile(String fileName) {
+        String suffix = precheckSuffix(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
@@ -311,6 +323,7 @@ public class Utils {
         if (suffix.equals("flv")) {
             return true;
         }
+
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         if (mime == null)
             return false;
@@ -344,16 +357,12 @@ public class Utils {
         return SUPPORTED_OFFICE_EXTENDS.contains(suffix);
     }
 
-    public static boolean isPdfFile(String name) {
-        if (TextUtils.isEmpty(name)) {
-            return false;
-        }
-
-        String suffix = FilenameUtils.getExtension(name);
+    public static boolean isPdfFile(String fileName) {
+        String suffix = precheckSuffix(fileName);
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
-        suffix = suffix.toLowerCase(Locale.ROOT);
+
         if (TextUtils.equals("pdf", suffix)) {
             return true;
         }
