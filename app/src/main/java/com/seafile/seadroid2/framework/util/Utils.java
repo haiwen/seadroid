@@ -219,6 +219,67 @@ public class Utils {
 
     }
 
+    /**
+     * File extensions that can be opened as plain text/code
+     */
+    public static final Set<String> TEXT_EXTENSIONS = new HashSet<>(Arrays.asList(
+            // plain text and documents
+            "txt", "text", "log", "csv", "tsv", "diff", "patch", "rej", "org", "rst", "adoc", "asciidoc", "tex",
+            // Markdown
+            "md", "markdown", "mdx", "mkd", "mkdn", "mdwn",
+            // Web
+            "htm", "html", "xhtml", "css", "less", "scss", "sass", "js", "mjs", "cjs", "jsx", "ts", "tsx",
+            "vue", "svelte", "json", "json5", "jsonc", "xml", "xsd", "xsl", "xslt", "dtd", "yml", "yaml",
+            "graphql", "gql",
+            // JVM
+            "java", "kt", "kts", "groovy", "gradle", "scala", "sc", "clj", "cljs", "cljc", "edn",
+            // C 系
+            "c", "h", "cc", "cpp", "cxx", "hpp", "hxx", "m", "mm", "cs", "fs", "fsx", "fsi",
+            // script
+            "py", "rb", "php", "pl", "pm", "lua", "r", "jl", "sh", "bash", "zsh", "fish", "ksh",
+            "bat", "cmd", "ps1", "psm1", "psd1", "awk", "el", "vim", "vi", "scd", "schelp", "pde", "script",
+            // other
+            "go", "rs", "swift", "dart", "hs", "lhs", "ml", "mli", "ex", "exs", "erl", "hrl",
+            "nim", "zig", "pas", "asm", "s", "sol", "tf", "tfvars", "hcl", "proto",
+            "sql", "plsql", "v", "sv", "vhd", "vhdl",
+            // config and build
+            "ini", "cfg", "conf", "config", "properties", "toml", "env", "lock", "mod", "sum",
+            "make", "cmake", "dockerfile", "containerfile", "gitignore", "gitattributes", "gitmodules",
+            "editorconfig", "dockerignore", "npmignore", "ac", "am"
+    ));
+
+    /**
+     * Common filenames without a file extension, but clearly text files.
+     */
+    private static final Set<String> TEXT_FILE_NAMES = new HashSet<>(Arrays.asList(
+            "dockerfile", "containerfile", "makefile", "gnumakefile", "gemfile", "rakefile", "vagrantfile",
+            "jenkinsfile", "procfile", "brewfile", "license", "licence", "readme", "changelog",
+            "authors", "contributors", "copying", "notice", "todo", "version", "go.mod", "go.sum"
+    ));
+
+    public static boolean isTextMimeType(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return false;
+        }
+
+        String name = fileName.trim().toLowerCase(Locale.ROOT);
+
+        // Dockerfile.dev、.env.local 等变体
+        if (name.startsWith("dockerfile") || name.startsWith(".env")) {
+            return true;
+        }
+
+        int index = name.lastIndexOf('.');
+        String baseName = index >= 0 ? name.substring(0, index) : name;
+        String suffix = index >= 0 ? name.substring(index + 1) : "";
+
+        if (TEXT_FILE_NAMES.contains(name) || TEXT_FILE_NAMES.contains(baseName)) {
+            return true;
+        }
+
+        return !TextUtils.isEmpty(suffix) && TEXT_EXTENSIONS.contains(suffix);
+    }
+
     public static boolean isMarkdown(String fileName) {
         String suffix = precheckSuffix(fileName);
         if (TextUtils.isEmpty(suffix)) {
@@ -301,7 +362,7 @@ public class Utils {
             mime = "image/heic";
         } else if ("heif".equals(suffix)) {
             mime = "image/heif";
-        }else {
+        } else {
             mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         }
 
@@ -574,67 +635,6 @@ public class Utils {
                 || TextUtils.equals(Locale.TAIWAN.getCountry(), country)
                 || TextUtils.equals("HK", country)
                 || TextUtils.equals("MO", country);
-    }
-
-    /**
-     * File extensions that can be opened as plain text/code
-     */
-    public static final Set<String> TEXT_EXTENSIONS = new HashSet<>(Arrays.asList(
-            // plain text and documents
-            "txt", "text", "log", "csv", "tsv", "diff", "patch", "rej", "org", "rst", "adoc", "asciidoc", "tex",
-            // Markdown
-            "md", "markdown", "mdx",
-            // Web
-            "htm", "html", "xhtml", "css", "less", "scss", "sass", "js", "mjs", "cjs", "jsx", "ts", "tsx",
-            "vue", "svelte", "json", "json5", "jsonc", "xml", "xsd", "xsl", "xslt", "dtd", "yml", "yaml",
-            "graphql", "gql",
-            // JVM
-            "java", "kt", "kts", "groovy", "gradle", "scala", "sc", "clj", "cljs", "cljc", "edn",
-            // C 系
-            "c", "h", "cc", "cpp", "cxx", "hpp", "hxx", "m", "mm", "cs", "fs", "fsx", "fsi",
-            // script
-            "py", "rb", "php", "pl", "pm", "lua", "r", "jl", "sh", "bash", "zsh", "fish", "ksh",
-            "bat", "cmd", "ps1", "psm1", "psd1", "awk", "el", "vim", "vi", "scd", "schelp", "pde", "script",
-            // other
-            "go", "rs", "swift", "dart", "hs", "lhs", "ml", "mli", "ex", "exs", "erl", "hrl",
-            "nim", "zig", "pas", "asm", "s", "sol", "tf", "tfvars", "hcl", "proto",
-            "sql", "plsql", "v", "sv", "vhd", "vhdl",
-            // config and build
-            "ini", "cfg", "conf", "config", "properties", "toml", "env", "lock", "mod", "sum",
-            "make", "cmake", "dockerfile", "containerfile", "gitignore", "gitattributes", "gitmodules",
-            "editorconfig", "dockerignore", "npmignore", "ac", "am"
-    ));
-
-    /**
-     * Common filenames without a file extension, but clearly text files.
-     */
-    private static final Set<String> TEXT_FILE_NAMES = new HashSet<>(Arrays.asList(
-            "dockerfile", "containerfile", "makefile", "gnumakefile", "gemfile", "rakefile", "vagrantfile",
-            "jenkinsfile", "procfile", "brewfile", "license", "licence", "readme", "changelog",
-            "authors", "contributors", "copying", "notice", "todo", "version", "go.mod", "go.sum"
-    ));
-
-    public static boolean isTextMimeType(String fileName) {
-        if (TextUtils.isEmpty(fileName)) {
-            return false;
-        }
-
-        String name = fileName.trim().toLowerCase(Locale.ROOT);
-
-        // Dockerfile.dev、.env.local 等变体
-        if (name.startsWith("dockerfile") || name.startsWith(".env")) {
-            return true;
-        }
-
-        int index = name.lastIndexOf('.');
-        String baseName = index >= 0 ? name.substring(0, index) : name;
-        String suffix = index >= 0 ? name.substring(index + 1) : "";
-
-        if (TEXT_FILE_NAMES.contains(name) || TEXT_FILE_NAMES.contains(baseName)) {
-            return true;
-        }
-
-        return !TextUtils.isEmpty(suffix) && TEXT_EXTENSIONS.contains(suffix);
     }
 
 
