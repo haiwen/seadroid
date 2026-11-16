@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +27,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.util.MimeUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.editor.EditorActivity;
 import com.seafile.seadroid2.ui.editor.EditorViewModel;
@@ -87,7 +87,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
 
         if (path == null) return;
 
-        isMarkdown = path.toLowerCase().endsWith(".md") || path.toLowerCase().endsWith(".markdown");
+        isMarkdown = Utils.isMarkdown(path);
         if (isMarkdown) {
             initMarkdown();
             binding.scrollTextView.setVisibility(View.GONE);
@@ -112,6 +112,14 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
         }
 
         load();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (path != null) {
+            loadMarkContent();
+        }
     }
 
     private void initMarkdown() {
@@ -150,9 +158,6 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
                 invalidateOptionsMenu();
             }
         });
-
-
-        loadMarkContent();
     }
 
     private void loadMarkContent() {
@@ -160,10 +165,6 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
         getViewModel().read(path, new Consumer<String>() {
             @Override
             public void accept(String s) {
-                if (TextUtils.isEmpty(s)) {
-                    return;
-                }
-
                 if (isMarkdown) {
                     binding.markdownView.loadMarkdown(s);
                 } else {

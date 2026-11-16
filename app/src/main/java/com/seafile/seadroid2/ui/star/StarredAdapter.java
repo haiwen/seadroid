@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.star;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +11,10 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.SizeUtils;
-import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.signature.ObjectKey;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.AbsLayoutItemType;
@@ -27,22 +23,17 @@ import com.seafile.seadroid2.config.GlideLoadConfig;
 import com.seafile.seadroid2.databinding.ItemDirentBinding;
 import com.seafile.seadroid2.databinding.ItemStarredBinding;
 import com.seafile.seadroid2.enums.ItemPositionEnum;
-import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.glide.GlideApp;
-import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.ThumbnailUtils;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.ui.base.adapter.BaseAdapter;
 import com.seafile.seadroid2.ui.base.adapter.BaseMultiAdapter;
 import com.seafile.seadroid2.ui.repo.vh.DirentViewHolder;
 import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundShapeUtils;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 public class StarredAdapter extends BaseMultiAdapter<BaseModel> {
     private Drawable topShapeBackgroundDrawable;
@@ -142,7 +133,7 @@ public class StarredAdapter extends BaseMultiAdapter<BaseModel> {
         }
 
         //set item_icon
-        if (model.deleted || !Utils.availableThumbnail(model.obj_name) || model.repo_encrypted || model.is_dir) {
+        if (model.deleted || !Utils.isSupportThumbnail(model.obj_name) || model.repo_encrypted || model.is_dir) {
             holder.binding.itemIcon.setImageResource(model.getIcon());
         } else {
             String url = convertThumbnailUrl(model.repo_id, model.path);
@@ -185,7 +176,7 @@ public class StarredAdapter extends BaseMultiAdapter<BaseModel> {
         holder.binding.itemTitle.setText(model.name);
         holder.binding.itemSubtitle.setText(model.getSubtitle());
 
-        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
+        if (model.isDir() || repoEncrypted || !Utils.isSupportThumbnail(model.name)) {
             GlideApp.with(getContext())
                     .load(model.getIcon())
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
