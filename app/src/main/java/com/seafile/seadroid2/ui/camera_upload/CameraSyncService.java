@@ -7,9 +7,7 @@ import android.os.IBinder;
 import com.seafile.seadroid2.framework.util.SLogs;
 
 /**
- * Camera Sync Service.
- * <p>
- * This service is started and stopped by the Android System.
+ * The synchronization entry service bound to the Android system does not manage the lifecycle of album upload tasks.
  */
 public class CameraSyncService extends Service {
     private static AlbumBackupAdapter albumBackupAdapter;

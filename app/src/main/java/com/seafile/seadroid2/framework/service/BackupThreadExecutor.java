@@ -129,8 +129,10 @@ public final class BackupThreadExecutor {
     private synchronized CompletableFuture<Void> start(FeatureDataSource source, boolean scan, boolean full) {
         Run existing = running.get(source);
         if (existing != null) {
-            // Merge triggers, including the narrow queue-drained/completion race.
-            existing.trigger(full);
+            // 相册备份运行中直接返回，不合并请求或追加轮次；其他业务保留合并行为。
+            if (source != FeatureDataSource.ALBUM_BACKUP){
+                existing.trigger(full);
+            }
             return existing.completion;
         }
         ParentEventTransfer transfer = create(source);

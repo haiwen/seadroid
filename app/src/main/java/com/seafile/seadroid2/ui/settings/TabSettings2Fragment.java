@@ -1128,21 +1128,12 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
         GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.clear();
 
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
-            CameraUploadManager.getInstance().setCameraAccount(currentAccount);
+            CameraUploadManager.getInstance().updateSystemSyncSettings();
             CameraUploadManager.getInstance().performSync(isForce);
-
-            // start periodic album backup scan worker
-//            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
         } else {
-
-            // call "stopAlbumBackupPeriodicScan()" anyway, as older versions may already have periodic scan tasks
-            // stop periodic album backup scan worker
+            // This code has been deliberately retained for compatibility with older versions.
+            // The goal is to remove the Worker from the system database in the old version.
             BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan();
-
-            //
-            BackupThreadExecutor.getInstance().stopAlbumBackup();
-
-            //
             CameraUploadManager.getInstance().disableCameraUpload();
         }
 

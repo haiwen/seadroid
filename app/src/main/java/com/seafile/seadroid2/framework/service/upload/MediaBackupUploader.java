@@ -7,7 +7,6 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
@@ -17,6 +16,7 @@ import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 public class MediaBackupUploader extends ParentEventUploader {
@@ -66,14 +66,14 @@ public class MediaBackupUploader extends ParentEventUploader {
         //send a start event
         send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        CameraUploadManager manager = CameraUploadManager.getInstance();
+        Account account = manager.getCameraAccount();
         if (account == null) {
-            SafeLogs.d(TAG, "account is null");
+            SafeLogs.d(TAG, "相册上传未启动：账户或备份配置不可用");
             return returnSuccess();
         }
-        boolean isTurnOn = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isTurnOn) {
-            SafeLogs.d(TAG, "backup switch is off");
+        if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+            SafeLogs.d(TAG, "相册上传未启动：自动上传已暂停");
             return returnSuccess();
         }
 
@@ -120,6 +120,10 @@ public class MediaBackupUploader extends ParentEventUploader {
 
         while (true) {
             if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
+            if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+                SafeLogs.d(TAG, "相册上传已暂停：停止获取后续任务");
+                return returnSuccess();
+            }
             TransferModel transferModel = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.pick();
             if (transferModel == null) {
                 break;

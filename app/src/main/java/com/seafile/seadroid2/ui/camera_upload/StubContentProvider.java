@@ -6,29 +6,20 @@ import android.database.Cursor;
 import android.net.Uri;
 
 /**
- * This stub content provider is just glue code between the Authenticator
- * and the SyncProvider
+ * This stub content provider is just glue code between the Authenticator and the SyncProvider
+ * 为系统同步框架保留的占位数据提供器，不提供实际数据访问。
  */
 public class StubContentProvider extends ContentProvider {
-    /*
- * Always return true, indicating that the
- * provider loaded correctly.
- */
     @Override
     public boolean onCreate() {
         return true;
     }
-    /*
-     * Return no type for MIME type
-     */
+
     @Override
     public String getType(Uri uri) {
         return null;
     }
-    /*
-     * query() always returns no results
-     *
-     */
+
     @Override
     public Cursor query(
             Uri uri,
@@ -38,23 +29,18 @@ public class StubContentProvider extends ContentProvider {
             String sortOrder) {
         return null;
     }
-    /*
-     * insert() always returns null (no URI)
-     */
+
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         return null;
     }
-    /*
-     * delete() always returns "no rows affected" (0)
-     */
+
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         return 0;
     }
-    /*
-     * update() always returns "no rows affected" (0)
-     */
+
+    @Override
     public int update(
             Uri uri,
             ContentValues values,
@@ -62,5 +48,4 @@ public class StubContentProvider extends ContentProvider {
             String[] selectionArgs) {
         return 0;
     }
-
 }

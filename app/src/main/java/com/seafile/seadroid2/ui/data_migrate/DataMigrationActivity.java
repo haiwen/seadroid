@@ -48,7 +48,6 @@ import com.seafile.seadroid2.ssl.CertsDBHelper;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.ui.camera_upload.CameraUploadDBHelper;
-import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.FolderBackupDBHelper;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 import com.seafile.seadroid2.ui.repo.RepoService;
@@ -274,8 +273,24 @@ public class DataMigrationActivity extends BaseActivity {
 
         String repoId = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
         String repoName = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
-        Account account = CameraUploadManager.getInstance().getCameraAccount();
-        if (repoId != null && account != null) {
+        String relatedAccount = null;
+        boolean ambiguousAccount = false;
+        if (!TextUtils.isEmpty(repoId)) {
+            for (RepoModel repo : accountRepoList) {
+                if (!TextUtils.equals(repoId, repo.repo_id)) {
+                    continue;
+                }
+                if (TextUtils.isEmpty(repo.related_account)
+                        || (relatedAccount != null && !TextUtils.equals(relatedAccount, repo.related_account))) {
+                    ambiguousAccount = true;
+                    break;
+                }
+                relatedAccount = repo.related_account;
+            }
+        }
+        Account account = ambiguousAccount || TextUtils.isEmpty(relatedAccount)
+                ? null : SupportAccountManager.getInstance().getSpecialAccount(relatedAccount);
+        if (account != null) {
             RepoConfig config = new RepoConfig(repoId, repoName, account.email, account.getSignature());
             AlbumBackupManager.writeRepoConfig(config);
             SLogs.d(TAG, "migrated: repoConfig -> " + config);

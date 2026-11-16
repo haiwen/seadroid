@@ -16,7 +16,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.databinding.CucActivityLayoutBinding;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
-import com.seafile.seadroid2.framework.util.SystemSwitchUtils;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.adapter.ViewPager2Adapter;
 import com.seafile.seadroid2.ui.base.BaseActivity;
@@ -192,10 +191,6 @@ public class CameraUploadConfigActivity extends BaseActivity {
                 AlbumBackupSharePreferenceHelper.writeRepoConfig(config);
             }
         }
-
-        //TODO improve
-//        CameraUploadManager.getInstance().setCameraAccount(mAccount);
-        SystemSwitchUtils.getInstance(this).syncSwitchUtils();
 
         Intent intent = new Intent();
         intent.putExtra(CAMERA_UPLOAD_REMOTE_LIBRARY, isChooseRepoPage);
