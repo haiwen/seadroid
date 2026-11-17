@@ -2,6 +2,7 @@ package com.seafile.seadroid2.framework;
 
 import static org.junit.Assert.assertEquals;
 import android.app.Application;
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -28,6 +29,17 @@ public class RepoGridLayoutManagerTest {
 
     @Test public void returningFromGridRestoresFullWidthLibraries() {
         verifyRoundTrip(FileViewType.GRID, 400);
+    }
+
+    @Test public void spanCountUsesAvailableContentWidth() {
+        Context context = RuntimeEnvironment.getApplication();
+        int minTilePx = Math.round(180 * context.getResources().getDisplayMetrics().density);
+        assertEquals(1, RepoGridLayoutManager.calculateSpanCount(
+                context, 0, true, FileViewType.GRID));
+        assertEquals(2, RepoGridLayoutManager.calculateSpanCount(
+                context, minTilePx * 2, true, FileViewType.GRID));
+        assertEquals(1, RepoGridLayoutManager.calculateSpanCount(
+                context, 600, false, FileViewType.GRID));
     }
 
     private void verifyRoundTrip(FileViewType type, int fileWidth) {

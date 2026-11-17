@@ -98,6 +98,7 @@
   <string name="file_action_download">下載</string>
   <string name="file_action_update">上傳</string>
   <string name="file_share">分享</string>
+  <string name="file_share_leave">離開共亯</string>
   <string name="file_action_share_wechat">分享到微信</string>
   <string name="file_action_share_link">分享鏈接</string>
   <string name="file_action_share_encrypt">加密分享</string>
@@ -216,6 +217,7 @@
   <string name="seahub_url_hint">注意：伺服器地址應該包含端口號。比如www.example.com:8000</string>
   <string name="copy_link">複製鏈接</string>
   <string name="share_link_no_permission">分享鏈接無權限</string>
+  <string name="share_repo_link">共亯此資源庫的連結</string>
   <string name="share_file_link">分享此文件的鏈接</string>
   <string name="share_dir_link">分享此文件夾的鏈接</string>
   <string name="share_input_password">分享密碼</string>
@@ -384,26 +386,22 @@
   <string name="settings_contacts_upload_start_backup">開始上傳聯繫人</string>
   <string name="settings_contacts_upload_start_backup_hint">點擊開始上傳聯繫人</string>
   <!--Camera Upload Preference-->
-  <string name="settings_camera_upload_info_title">上傳照片</string>
+  <string name="settings_camera_upload_info_title">照片備份</string>
   <string name="settings_camera_upload_service_started">上傳服務已啓動</string>
   <string name="settings_camera_upload_service_stopped">上傳服務已關閉</string>
   <string name="settings_camera_upload_allow_data_plan">允許使用移動流量套餐</string>
-  <string name="settings_camera_upload_allow_videos">允許上傳視頻</string>
   <string name="settings_camera_upload_default_wifi">默認使用WiFi上傳</string>
   <string name="settings_camera_upload_data_plan_allowed">支持移動流量套餐上傳</string>
   <string name="settings_camera_upload_default_photos">默認只上傳圖片</string>
   <string name="settings_camera_upload_videos_allowed">支持視頻上傳</string>
-  <string name="settings_camera_upload_change_repo_title">上傳資料庫</string>
   <string name="settings_camera_upload_repo_hint">請先選擇一個資料庫來上傳照片</string>
-  <string name="settings_camera_upload_turn_on">打開照片上傳</string>
   <string name="settings_camera_upload_choose_dir">更改相冊</string>
   <string name="settings_camera_upload_dir_auto_scan">默認自動掃描照片</string>
   <string name="settings_camera_upload_lib_not_found">資料庫不存在</string>
-  <string name="settings_camera_upload_advanced_feature_title">高級選項</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">更改上傳設置</string>
-  <string name="settings_camera_upload_advanced_custom_directories">選擇上傳相冊</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">選擇備份相冊</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">自動掃描設備</string>
+  <string name="settings_camera_auto_upload_pause">暫停自動上傳</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">配置助手</string>
   <string name="settings_cuc_welcome_text">感謝使用照片上傳配置助手，\n在開始使用上傳服務之前，將會引導你如何進行配置。</string>
@@ -596,7 +594,6 @@
   <string name="editor_lines_error">不支持多行操作</string>
   <string name="editor_file_save">确定退出并保存嗎？</string>
   <string name="editor_file_save_success">文件保存成功</string>
-  <string name="editor_file_save_failed">清理緩存失敗</string>
   <string name="editor_file_save_title">保存文件</string>
   <string name="description">描述</string>
   <string name="undo">撤銷</string>
@@ -620,8 +617,7 @@
   <string name="required_password">需要密碼</string>
   <string name="weak_password">弱密碼</string>
   <!--Folder backup Preference-->
-  <string name="settings_folder_backup_info_title">相冊備份信息</string>
-  <string name="settings_folder_backup_switch_title">啟用相冊備份</string>
+  <string name="settings_folder_backup_info_title">文件夾備份</string>
   <string name="settings_folder_backup_service_started">相冊備份服務已啟動</string>
   <string name="settings_folder_backup_service_stopped">相冊備份服務已停止</string>
   <string name="settings_select_backup_folder_title">選擇備份文件夾</string>
@@ -764,4 +760,5 @@
   <string name="tip_press_again_to_exit">再次按鍵退出</string>
   <string name="tip_publish_wiki_desc">發布Wiki頁面</string>
   <string name="tip_stop_transfer_when_switch_or_logout">文件傳輸中，是否仍要切換或退出？</string>
+  <string name="tip_leave_share">你想離開共亯嗎？</string>
 </resources>

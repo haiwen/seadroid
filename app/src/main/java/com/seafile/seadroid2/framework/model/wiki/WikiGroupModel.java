@@ -7,13 +7,16 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class WikiGroupModel extends BaseModel {
+    @SerializedName("title")
     public String title;
+    @SerializedName("icon")
     public int icon;
 
     public WikiGroupModel(String title, @DrawableRes int icon) {

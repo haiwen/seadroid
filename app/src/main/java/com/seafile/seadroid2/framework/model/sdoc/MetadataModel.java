@@ -10,8 +10,11 @@ import com.seafile.seadroid2.framework.model.adapter.MetadataConfigDataJsonAdapt
 import java.util.List;
 
 public class MetadataModel {
+    @SerializedName("key")
     public String key;
+    @SerializedName("name")
     public String name;
+    @SerializedName("type")
     public String type;
 
     @SerializedName("data")
@@ -19,6 +22,7 @@ public class MetadataModel {
     public List<MetadataConfigDataModel> config;
 
     //notice this field
+    @SerializedName("value")
     public Object value;
 
     public MetadataConfigDataModel getConfigData() {

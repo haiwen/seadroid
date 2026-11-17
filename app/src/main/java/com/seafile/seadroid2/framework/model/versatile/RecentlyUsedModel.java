@@ -1,12 +1,18 @@
 package com.seafile.seadroid2.framework.model.versatile;
 
 import java.util.Objects;
+import com.google.gson.annotations.SerializedName;
 
 public class RecentlyUsedModel {
+    @SerializedName("account")
     public String account;
+    @SerializedName("repoId")
     public String repoId;
+    @SerializedName("repoName")
     public String repoName;
+    @SerializedName("path")
     public String path;
+    @SerializedName("isSelected")
     public boolean isSelected;
 
     @Override

@@ -10,6 +10,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.google.gson.annotations.SerializedName;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,21 +18,35 @@ import java.util.Objects;
 
 public class SearchModel extends BaseModel implements Parcelable {
 
+    @SerializedName("is_dir")
     public boolean is_dir;
+    @SerializedName("fullpath")
     public String fullpath;
+    @SerializedName("related_account")
     public String related_account;
+    @SerializedName("repo_id")
     public String repo_id;
+    @SerializedName("repo_name")
     public String repo_name;
+    @SerializedName("repo_owner_email")
     public String repo_owner_email;
+    @SerializedName("repo_owner_name")
     public String repo_owner_name;
+    @SerializedName("repo_owner_contact_email")
     public String repo_owner_contact_email;
+    @SerializedName("thumbnail_url")
     public String thumbnail_url;
+    @SerializedName("repo_type")
     public String repo_type;
 
+    @SerializedName("name")
     public String name;
+    @SerializedName("content_highlight")
     public String content_highlight;
 
+    @SerializedName("last_modified")
     public long last_modified;
+    @SerializedName("size")
     public long size;    // size of file, 0 if type is dir
 
 

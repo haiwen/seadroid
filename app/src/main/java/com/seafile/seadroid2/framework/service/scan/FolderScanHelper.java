@@ -63,7 +63,7 @@ public class FolderScanHelper {
         Response<List<DirentRecursiveModel>> res;
         try {
             Call<List<DirentRecursiveModel>> direntWrapperModelCall = HttpManager.getCurrentHttp().execute(RepoService.class).getDirRecursiveFileCall(repoId, parentPath);
-            res = direntWrapperModelCall.execute();
+            res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(direntWrapperModelCall);
         } catch (IOException ioException) {
             SafeLogs.e(TAG, "getDirentWrapper(): " + ioException.getMessage());
             throw SeafException.NETWORK_EXCEPTION;
@@ -106,6 +106,7 @@ public class FolderScanHelper {
             stopwatch = Stopwatch.createStarted();
 
             for (String backupPath : backupPathsList) {
+                com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
                 backupPath = Utils.pathJoin("/", backupPath, "/");
 
                 int c = compareCount(repoConfig, account, repoModel, backupPath, lastTime, ignorePath);
@@ -149,6 +150,7 @@ public class FolderScanHelper {
         try {
 
             for (String backupPath : backupPathsList) {
+                com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
 
                 backupPath = Utils.pathJoin("/", backupPath, "/");
 
@@ -205,6 +207,7 @@ public class FolderScanHelper {
         List<DirentRecursiveModel> remoteList = getDirentWrapper(repoModel.repo_id, parentPath);
 
         for (File localFile : localFiles) {
+            com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
 
             // for example:
             // backupPath is /storage/emulated/0/aaa/bbb/
@@ -307,6 +310,7 @@ public class FolderScanHelper {
         List<DirentRecursiveModel> remoteList = getDirentWrapper(repoModel.repo_id, parentPath);
 
         for (File localFile : localFiles) {
+            com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
 
             // for example:
             // backupPath is /storage/emulated/0/aaa/bbb/
@@ -402,6 +406,7 @@ public class FolderScanHelper {
         List<File> filePathList = new ArrayList<>();
         boolean isSkipHiddenFile = FolderBackupSharePreferenceHelper.isFolderBackupSkipHiddenFiles();
         while (!stack.isEmpty()) {
+            com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
             File currentDir = stack.pop();
             File[] files = currentDir.listFiles();
 
@@ -410,6 +415,7 @@ public class FolderScanHelper {
             }
 
             for (File file : files) {
+                com.seafile.seadroid2.framework.service.ExecutionCancellation.check();
                 if (isSkipHiddenFile && file.isHidden()) {
                     continue;
                 }

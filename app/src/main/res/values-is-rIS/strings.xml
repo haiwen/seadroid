@@ -321,6 +321,7 @@
   <string name="gesture_lock">Mynsturslæsing</string>
   <string name="gesture_lock_on">Mynsturslæsing á</string>
   <string name="gesture_lock_off">Mynsturslæsing af</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Vinsamlegast teiknaðu mynstur</string>
   <string name="lockscreen_access_pattern_start">Byrjaðu að teikna</string>
   <string name="lockscreen_access_pattern_cleared">Mynstur hreinsað</string>
@@ -373,20 +374,15 @@
   <string name="settings_camera_upload_service_started">Upphleðsluþjónusta hafin</string>
   <string name="settings_camera_upload_service_stopped">Upphleðsluþjónusta stöðvaðist</string>
   <string name="settings_camera_upload_allow_data_plan">Leyfa 3G/4G flutning</string>
-  <string name="settings_camera_upload_allow_videos">Leyfa vídeó</string>
   <string name="settings_camera_upload_default_wifi">Sjálfgefið að nota aðeins Wi-Fi</string>
   <string name="settings_camera_upload_data_plan_allowed">3G/4G flutningur leyfður</string>
   <string name="settings_camera_upload_default_photos">Sjálfgefið að hlaða aðeins upp ljósmyndum</string>
   <string name="settings_camera_upload_videos_allowed">Vídeó innifalin </string>
-  <string name="settings_camera_upload_change_repo_title">Velja Myndasöfn</string>
   <string name="settings_camera_upload_repo_hint">Vinsamlegast veldu fyrst safn</string>
-  <string name="settings_camera_upload_turn_on">Kveikja á Myndavélaupphleðslu</string>
   <string name="settings_camera_upload_choose_dir">Velja albúm</string>
   <string name="settings_camera_upload_dir_auto_scan">Sjálfgefið að skima myndir skjálfkrafa</string>
   <string name="settings_camera_upload_lib_not_found">Valin skráasöfn eru ekki til</string>
-  <string name="settings_camera_upload_advanced_feature_title">Frekari Valmöguleikar</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Sérsniðið upphleðsluval</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Valin Upphleðslumyndasöfn</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Veldu myndasöfn</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Sjálfvirk skimun tækis</string>
   <!--Camera Upload Configuration View-->
@@ -586,7 +582,6 @@
   <string name="editor_lines_error">Villa í línu númerum</string>
   <string name="editor_file_save">Vista skrá</string>
   <string name="editor_file_save_success">Tókst að vista skrá</string>
-  <string name="editor_file_save_failed">Mistókst að vista skrá</string>
   <string name="editor_file_save_title">Vista skrá</string>
   <string name="description">Lýsing</string>
   <string name="undo">Afturkalla</string>
@@ -611,7 +606,6 @@
   <string name="weak_password">Veikt lykilorð</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Upplýsingar um möppuöryggisafritun</string>
-  <string name="settings_folder_backup_switch_title">Virkja möppuöryggisafritun</string>
   <string name="settings_folder_backup_service_started">Möppuöryggisafritun hefst</string>
   <string name="settings_folder_backup_service_stopped">Möppuöryggisafritun stöðvuð</string>
   <string name="settings_select_backup_folder_title">Veldu öryggisafritunarmöppu</string>

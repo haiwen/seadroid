@@ -27,6 +27,7 @@ public class CameraSyncService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        SLogs.d("CameraSyncService", "onBind");
         return albumBackupAdapter.getSyncAdapterBinder();
     }
 }

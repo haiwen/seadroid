@@ -23,6 +23,7 @@ import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.google.gson.annotations.SerializedName;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,6 +35,7 @@ public class DirentModel extends BaseModel implements Parcelable {
     /**
      * md5(repo_id + parent_dir + name)
      */
+    @SerializedName("uid")
     @PrimaryKey
     @NonNull
     public String uid = "";
@@ -41,54 +43,83 @@ public class DirentModel extends BaseModel implements Parcelable {
     /**
      * parent_dir + name
      */
+    @SerializedName("full_path")
     public String full_path = "";
 
     /// ////////////////common///////////////
+    @SerializedName("name")
     public String name;
 
     /**
      * start and end with a slash, unless parent_dir is /.
      */
+    @SerializedName("parent_dir")
     public String parent_dir;
 
     //file id or folder id. if empty, value is 0000000000000000000000000000000000000000
+    @SerializedName("id")
     public String id;
+    @SerializedName("type")
     public String type;
+    @SerializedName("mtime")
     public long mtime;   // last modified timestamp (seconds)
+    @SerializedName("permission")
     public String permission;
+    @SerializedName("starred")
     public boolean starred;
+    @SerializedName("dir_id")
     public String dir_id;
+    @SerializedName("related_account")
     public String related_account;//signature
+    @SerializedName("repo_id")
     public String repo_id;
+    @SerializedName("repo_name")
     public String repo_name;
 
     /// ////////////////file///////////////
 
+    @SerializedName("size")
     public long size;    // size of file, 0 if type is dir
+    @SerializedName("is_locked")
     public boolean is_locked;
+    @SerializedName("is_freezed")
     public boolean is_freezed;
+    @SerializedName("locked_by_me")
     public boolean locked_by_me;
+    @SerializedName("lock_time")
     public long lock_time;
+    @SerializedName("lock_owner")
     public String lock_owner;
+    @SerializedName("lock_owner_name")
     public String lock_owner_name;
+    @SerializedName("lock_owner_contact_email")
     public String lock_owner_contact_email;
+    @SerializedName("modifier_email")
     public String modifier_email;
+    @SerializedName("modifier_name")
     public String modifier_name;
+    @SerializedName("modifier_contact_email")
     public String modifier_contact_email;
+    @SerializedName("encoded_thumbnail_src")
     public String encoded_thumbnail_src;
 
     //locally last modified time (mills)
+    @SerializedName("last_modified_at")
     public long last_modified_at = 0;
 
+    @SerializedName("transfer_status")
     @Deprecated
     public TransferStatus transfer_status;
 
+    @SerializedName("local_file_id")
     @Ignore
     public String local_file_id;
 
+    @SerializedName("timestamp")
     @Ignore
     private String timestamp;
 
+    @SerializedName("file_ext")
     @Ignore
     private String file_ext;
 

@@ -378,20 +378,15 @@
   <string name="settings_camera_upload_service_started">Service d\'envoi démarré</string>
   <string name="settings_camera_upload_service_stopped">Service d\'envoi arrêté</string>
   <string name="settings_camera_upload_allow_data_plan">Autoriser un plan de données</string>
-  <string name="settings_camera_upload_allow_videos">Autoriser l\'envoi de vidéos</string>
   <string name="settings_camera_upload_default_wifi">Wi-Fi utilisé  uniquement par défaut</string>
   <string name="settings_camera_upload_data_plan_allowed">Plan de données autorisé</string>
   <string name="settings_camera_upload_default_photos">Envoi de  photos uniquement par défaut</string>
   <string name="settings_camera_upload_videos_allowed">Vidéos incluses</string>
-  <string name="settings_camera_upload_change_repo_title">Changer la bibliothèque de destination</string>
   <string name="settings_camera_upload_repo_hint">Choisissez d\'abord une bibliothèque</string>
-  <string name="settings_camera_upload_turn_on">Activer l\'envoi de photos</string>
   <string name="settings_camera_upload_choose_dir">Changer d\'album</string>
   <string name="settings_camera_upload_dir_auto_scan">Scan auto des photos par défaut</string>
   <string name="settings_camera_upload_lib_not_found">La bibliothèque sélectionnée n’existe pas </string>
-  <string name="settings_camera_upload_advanced_feature_title">Options avancées</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Options d\'envoi personnalisées</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Envoi personnalisé d\'albums</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Choisir les albums photos</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Scan automatique de l\'appareil</string>
   <!--Camera Upload Configuration View-->
@@ -609,7 +604,6 @@ E-mail : support@seafile.com<br>
   <string name="editor_lines_error">Activer afin d\'opérer sur plusieurs lignes</string>
   <string name="editor_file_save">Voulez-vous sauvegarder et quitter ?</string>
   <string name="editor_file_save_success">Fichier sauvegardé avec succès</string>
-  <string name="editor_file_save_failed">Échec de l\'effacement du cache</string>
   <string name="editor_file_save_title">Sauvegarde de fichier</string>
   <string name="description">Description</string>
   <string name="undo">annuler</string>
@@ -634,7 +628,6 @@ E-mail : support@seafile.com<br>
   <string name="weak_password">Le mot de passe est trop faible.</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Dossier de sauvegarde</string>
-  <string name="settings_folder_backup_switch_title">Activer le dossier de sauvegarde</string>
   <string name="settings_folder_backup_service_started">Le service de sauvegarde est démarré</string>
   <string name="settings_folder_backup_service_stopped">Le service de sauvegarde est arrêté</string>
   <string name="settings_select_backup_folder_title">Sélectionner un dossier</string>

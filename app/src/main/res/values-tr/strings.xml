@@ -169,6 +169,7 @@
   </string-array>
   <string name="add_repo">Kütüphane ekle</string>
   <string name="add_file">Dosya ekle</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>Create file</item>
     <item>Create folder</item>
@@ -303,6 +304,7 @@
   <string name="gesture_lock">İşaret kilidi</string>
   <string name="gesture_lock_on">İşaret kilidi açık</string>
   <string name="gesture_lock_off">İşaret kilidi kapalı</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Lütfen İşaret Kilidi Desenini çizin</string>
   <string name="lockscreen_access_pattern_start">Çizmeye başla</string>
   <string name="lockscreen_access_pattern_cleared">Desen silindi</string>
@@ -355,20 +357,15 @@
   <string name="settings_camera_upload_service_started">Kamera Fotoğrafı Yükleme Hizmeti Başladı</string>
   <string name="settings_camera_upload_service_stopped">Kamera Fotoğrafı Yükleme Hizmeti Durdu</string>
   <string name="settings_camera_upload_allow_data_plan">Hesaplanmış Veri Planı Kullan</string>
-  <string name="settings_camera_upload_allow_videos">Videoları Yükle</string>
   <string name="settings_camera_upload_default_wifi">Varsayılan Wi-Fi</string>
   <string name="settings_camera_upload_data_plan_allowed">Hesaplanmış Veri Planı Kullan</string>
   <string name="settings_camera_upload_default_photos">Varsayılan Fotoğraflar</string>
   <string name="settings_camera_upload_videos_allowed">Videoları Yükle</string>
-  <string name="settings_camera_upload_change_repo_title">Yükleme Kütüphanesi Değiştir</string>
   <string name="settings_camera_upload_repo_hint">Yükleme Kütüphanesi</string>
-  <string name="settings_camera_upload_turn_on">Açık</string>
   <string name="settings_camera_upload_choose_dir">Yükleme Dizini Seç</string>
   <string name="settings_camera_upload_dir_auto_scan">Otomatik Tarama</string>
   <string name="settings_camera_upload_lib_not_found">Yükleme Kütüphanesi Bulunamadı</string>
-  <string name="settings_camera_upload_advanced_feature_title">Gelişmiş Özellikler</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Kamera Fotoğrafı Yükleme Hizmeti için Gelişmiş Özellikler</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Özel Dizinler</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Açık</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Kapalı</string>
   <!--Camera Upload Configuration View-->
@@ -564,7 +561,6 @@
   <string name="editor_lines_error">Lütfen 1-10000 arasında bir değer girin</string>
   <string name="editor_file_save">Dosyayı kaydet</string>
   <string name="editor_file_save_success">Dosya başarıyla kaydedildi</string>
-  <string name="editor_file_save_failed">Dosya kaydedilemedi</string>
   <string name="editor_file_save_title">Dosya Kaydet</string>
   <string name="description">Açıklama</string>
   <string name="undo">Geri Al</string>
@@ -589,7 +585,6 @@
   <string name="weak_password">Zayıf parola</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Albüm Yedekleme Hakkında</string>
-  <string name="settings_folder_backup_switch_title">Albüm Yedekleme Etkinleştir</string>
   <string name="settings_folder_backup_service_started">Albüm yedekleme hizmeti başlatıldı</string>
   <string name="settings_folder_backup_service_stopped">Albüm yedekleme hizmeti durduruldu</string>
   <string name="settings_select_backup_folder_title">Yedekleme Klasörünü Seçin</string>
@@ -701,4 +696,5 @@
   <string name="file_transfer_stopped">Dosya transferi durduruldu</string>
   <!--font-style-->
   <!--sdoc system event-->
+  <!--Tips-->
 </resources>

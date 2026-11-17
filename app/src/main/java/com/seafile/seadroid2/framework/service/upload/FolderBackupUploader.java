@@ -127,9 +127,23 @@ public class FolderBackupUploader extends ParentEventUploader {
         SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
+            if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel transferModel = GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.pick();
             if (transferModel == null) {
                 break;
+            }
+
+            try {
+                if (!com.seafile.seadroid2.framework.service.BackupFileStability.awaitStable(
+                        new java.io.File(transferModel.full_path))) {
+                    // Leave pending, without persisting a successful backup for a changing source.
+                    GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.retryInterrupted(transferModel);
+                    return new SeafException(SeafException.CODE_FAILED,
+                            "Source file is changing; deferred until the next backup");
+                }
+            } catch (java.util.concurrent.CancellationException cancelled) {
+                GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.retryInterrupted(transferModel);
+                return SeafException.USER_CANCELLED_EXCEPTION;
             }
 
             try {
@@ -154,8 +168,7 @@ public class FolderBackupUploader extends ParentEventUploader {
 
         clearWhenComplete();
 
-        // clear all notifications
-        getTransferNotificationDispatcher().clearDelay();
+        // Producer scope owns its result notification.
 
         if (interruptException != SeafException.SUCCESS) {
             resultException = interruptException;

@@ -413,22 +413,25 @@
     <string name="settings_camera_upload_service_started">Upload service started</string>
     <string name="settings_camera_upload_service_stopped">Upload service stopped</string>
     <string name="settings_camera_upload_allow_data_plan">Allow Data Plan</string>
-    <string name="settings_camera_upload_allow_videos">Allow Videos to Upload</string>
+    <string name="settings_camera_upload_allow_videos">Allow videos to upload</string>
     <string name="settings_camera_upload_default_wifi">Use Wi-Fi only by default</string>
     <string name="settings_camera_upload_data_plan_allowed">Data plan allowed</string>
     <string name="settings_camera_upload_default_photos">Upload photos only by default</string>
     <string name="settings_camera_upload_videos_allowed">Videos included</string>
-    <string name="settings_camera_upload_change_repo_title">Change Upload Library</string>
+    <string name="settings_camera_upload_change_repo_title">Change upload library</string>
     <string name="settings_camera_upload_repo_hint">Please choose a library first</string>
-    <string name="settings_camera_upload_turn_on">Turn on Camera Upload</string>
+    <string name="settings_camera_upload_turn_on">Turn on camera upload</string>
     <string name="settings_camera_upload_choose_dir">Change albums</string>
     <string name="settings_camera_upload_dir_auto_scan">Auto scan photos by default</string>
     <string name="settings_camera_upload_lib_not_found">The selected library does not exist</string>
-    <string name="settings_camera_upload_advanced_feature_title">Advanced Options</string>
+    <string name="settings_camera_upload_advanced_feature_title">Advanced options</string>
     <string name="settings_camera_upload_advanced_feature_subtitle">Custom upload options</string>
-    <string name="settings_camera_upload_advanced_custom_directories">Custom Upload Albums</string>
+    <string name="settings_camera_upload_advanced_custom_directories">Custom upload albums</string>
     <string name="settings_camera_upload_advanced_custom_directories_on">Pick photo albums</string>
     <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan device</string>
+    <string name="settings_camera_auto_upload_pause">Pause auto uploading</string>
+    <string name="settings_camera_upload_original_photo">Back up motion photos as HEIC files</string>
+
     <!--Camera Upload Configuration View-->
     <string name="settings_cuc_title">Configuration Helper</string>
     <string name="settings_cuc_welcome_text">Thanks for using the camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps.</string>
@@ -598,6 +601,20 @@
     <string name="notification_background_file_monitor_desc">Used for Seafile background file monitoring persistent notifications</string>
     <string name="notification_background_file_monitor_title">Seafile file monitoring service</string>
     <string name="notification_background_file_monitor_content">Seafile is monitoring file changes in the background and uploading automatically.</string>
+
+    <string name="transfer_notice_manual">Manual upload</string>
+    <string name="transfer_notice_share">Share upload</string>
+    <string name="transfer_notice_local">Local file update</string>
+    <string name="transfer_notice_scanning">Scanning</string>
+    <string name="transfer_notice_preparing">Preparing transfer</string>
+    <string name="transfer_notice_uploading">Uploading</string>
+    <string name="transfer_notice_downloading">Downloading</string>
+    <string name="transfer_notice_success">Transfer completed</string>
+    <string name="transfer_notice_empty">Completed, no files transferred</string>
+    <string name="transfer_notice_failed">Transfer failed. Open the transfer list for details.</string>
+    <string name="transfer_notice_cancelled">Transfer cancelled</string>
+    <string name="transfer_notice_counts">Completed %1$d · Failed %2$d</string>
+
     <!--Gallery-->
     <string name="gallery_load_photos_error">Load photos error</string>
     <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
@@ -653,7 +670,7 @@
     <string name="editor_lines_error">Unable to operate multiple lines</string>
     <string name="editor_file_save">Do you want to save and quit?</string>
     <string name="editor_file_save_success">File save successfully</string>
-    <string name="editor_file_save_failed">Cache cleared failed</string>
+    <string name="editor_file_save_failed">File save failed</string>
     <string name="editor_file_save_title">File save</string>
     <string name="description">Description</string>
     <string name="undo">undo</string>
@@ -682,7 +699,7 @@
 
     <!--Folder backup Preference-->
     <string name="settings_folder_backup_info_title">Backup folder</string>
-    <string name="settings_folder_backup_switch_title">Turn on Folder Backup</string>
+    <string name="settings_folder_backup_switch_title">Turn on folder backup</string>
     <string name="settings_folder_backup_service_started">Backup service started</string>
     <string name="settings_folder_backup_service_stopped">Backup service stopped</string>
     <string name="settings_select_backup_folder_title">Select folder</string>
@@ -841,5 +858,7 @@
     <string name="tip_publish_wiki_desc">The custom part of the URL must be between 5 and 30 characters long and may only contain letters (a-z), numbers, and hyphens.</string>
     <string name="tip_stop_transfer_when_switch_or_logout">Files are transferring, do you still want to switch/exit?</string>
     <string name="tip_leave_share">Do you want to leave share?</string>
+
+
 
 </resources>

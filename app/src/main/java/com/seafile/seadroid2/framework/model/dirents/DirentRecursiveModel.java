@@ -6,10 +6,13 @@ import androidx.annotation.Nullable;
 
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.google.gson.annotations.SerializedName;
 
 
 public class DirentRecursiveModel {
+    @SerializedName("name")
     public String name;
+    @SerializedName("parent_dir")
     public String parent_dir;
 
     public String getParent_dir() {
@@ -26,22 +29,34 @@ public class DirentRecursiveModel {
 
     //net data id(file_id/folder_id)
     //when file is empty, id is 0000000000000000000000000000000000000000
+    @SerializedName("id")
     public String id;
+    @SerializedName("type")
     public String type;
+    @SerializedName("mtime")
     public long mtime;   // last modified timestamp
+    @SerializedName("permission")
     public String permission;
 
+    @SerializedName("size")
     public long size;    // size of file, 0 if type is dir
 
     //lock
+    @SerializedName("is_locked")
     public boolean is_locked;
 
+    @SerializedName("locked_by_me")
     public boolean locked_by_me;
+    @SerializedName("lock_time")
     public long lock_time;
+    @SerializedName("lock_owner")
     public String lock_owner;
 
+    @SerializedName("modifier_name")
     public String modifier_name;
+    @SerializedName("modifier_email")
     public String modifier_email;
+    @SerializedName("modifier_contact_email")
     public String modifier_contact_email;
 
     public boolean isDir() {

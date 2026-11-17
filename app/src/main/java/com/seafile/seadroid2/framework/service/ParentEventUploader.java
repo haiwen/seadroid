@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.CloneUtils;
 import com.blankj.utilcode.util.EncryptUtils;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -19,16 +18,16 @@ import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
-import com.seafile.seadroid2.framework.notification.GeneralNotificationHelper;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
-import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.MimeUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Times;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -53,7 +52,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.Normalizer;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -72,6 +70,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private static final long CHUNK_SIZE_BYTES = 8 * 1024 * 1024L; // 8MB
     private static final long CHUNK_TRIGGER_SIZE_BYTES = 1024 * 1024 * 200L; // 200MB
     private static final long CHUNK_UPLOAD_READ_TIMEOUT_SECONDS = 600L; // 10 min
+    public static final String BASE_DIR = "My Photos";
 
     public ParentEventUploader(Context context, ITransferNotification n) {
         super(context, n);
@@ -83,7 +82,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     /**
      * listener
      */
-    private final FileTransferProgressListener _fileTransferProgressListener = new FileTransferProgressListener();
+    private FileTransferProgressListener _fileTransferProgressListener = new FileTransferProgressListener();
 
     /**
      * progress listener
@@ -103,36 +102,14 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     };
 
     private void notifyProgress(String fileName, int percent) {
-        if (getTransferNotificationDispatcher() != null) {
-            getTransferNotificationDispatcher().showProgress(getFeatureDataSource(), fileName, percent);
-        }
     }
 
     public void notifyError(SeafException seafException) {
-        if (seafException == SeafException.OUT_OF_QUOTA) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.above_quota);
-        } else if (seafException == SeafException.NETWORK_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.network_error);
-        } else if (seafException == SeafException.NOT_FOUND_USER_EXCEPTION) {
-            getGeneralNotificationHelper().showErrorNotification(R.string.saf_account_not_found_exception);
-        } else if (seafException == SeafException.USER_CANCELLED_EXCEPTION) {
-            //do nothing
-        } else {
-            getGeneralNotificationHelper().showErrorNotification(seafException.getMessage());
-        }
-    }
-
-    private GeneralNotificationHelper generalNotificationHelper;
-
-    public GeneralNotificationHelper getGeneralNotificationHelper() {
-        if (generalNotificationHelper == null) {
-            this.generalNotificationHelper = new GeneralNotificationHelper(getContext());
-        }
-        return generalNotificationHelper;
+        // The file/producer result updates its own business notification; no separate error ID.
     }
 
     private TransferModel currentTransferModel;
-    private Call newCall;
+    private volatile Call newCall;
 
     /**
      * File size recorded at scan time, captured when the transfer starts. It is
@@ -146,7 +123,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private FileChunkRequestBody fileChunkRequestBody;
     private FileStreamRequestBody fileRequestBody;
 
-    private boolean isStop = false;
+    private volatile boolean isStop = false;
     private OkHttpClient primaryHttpClient;
     private OkHttpClient chunkUploadHttpClient;
 
@@ -210,24 +187,15 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             fileChunkRequestBody.setStop(true);
         }
 
-        if (primaryHttpClient != null) {
-            primaryHttpClient.dispatcher().cancelAll();
-        }
-
-        if (chunkUploadHttpClient != null) {
-            chunkUploadHttpClient.dispatcher().cancelAll();
-        }
-
+        // Cancel only the request owned by this transfer, never another business's shared client.
         if (newCall != null) {
             newCall.cancel();
         }
 
-        if (getTransferNotificationDispatcher() != null) {
-            getTransferNotificationDispatcher().clearDelay();
-        }
+        // Lifecycle cleanup is exclusively session-owned.
     }
 
-    public void clearWhenComplete(){
+    public void clearWhenComplete() {
         currentTransferModel = null;
         scanFileSize = -1L;
         newCall = null;
@@ -245,6 +213,14 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     }
 
     public void transfer(Account account, TransferModel transferModel) throws SeafException {
+        final String fileId = transferModel.getId();
+        beginNotificationFile(getFeatureDataSource(), transferModel);
+
+        final java.util.concurrent.atomic.AtomicLong sequence = new java.util.concurrent.atomic.AtomicLong();
+        _fileTransferProgressListener = new FileTransferProgressListener((model, percent, transferred, total) -> {
+            notificationProgress(getFeatureDataSource(), sequence.incrementAndGet(), total > 0 ? percent : -1);
+            progressListener.onProgressNotify(model, percent, transferred, total);
+        });
         try {
             if (isStop) {
                 isStop = false;
@@ -283,6 +259,8 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             //send an event, update transfer entity first.
             sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
             throw seafException;
+        } finally {
+            finishNotificationFile(getFeatureDataSource(), fileId, currentTransferModel != null && currentTransferModel.transfer_status == TransferStatus.SUCCEEDED, isStop);
         }
     }
 
@@ -299,7 +277,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
 
-        UploadSource source = resolveUploadSource();
+        UploadSource source = resolveUploadSource(account);
         notifyTransferStarted();
 
         String uploadUrl = getFileUploadUrl(account,
@@ -330,7 +308,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
     }
 
-    private UploadSource resolveUploadSource() throws SeafException {
+    private UploadSource resolveUploadSource(Account account) throws SeafException {
         long createdTime = -1;
         File uploadFile = null;
         Uri uploadUri = null;
@@ -345,11 +323,22 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             verifySourceFileSize(new File(currentTransferModel.full_path), scanFileSize);
         }
 
-        currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+        // This switch only applies to album backup: on -> convert JPEG motion photos to HEIC,
+        // off -> upload the original file without any detection or conversion.
+        // When it is off, motion_photo_path stays empty, the extra motion photo logic is skipped,
+        // and the file is uploaded as a regular original file (hasExtraMotionPhoto() is false).
+        if (currentTransferModel.data_source == FeatureDataSource.ALBUM_BACKUP) {
+            boolean isBackupAsHeic = AlbumBackupSharePreferenceHelper.readUploadOriginalPhotoSwitch(account.getEncryptSignature());
+            if (isBackupAsHeic) {
+                currentTransferModel.motion_photo_path = convertJpegToHeicIfMotionPhoto();
+            }
+        }
+
         if (currentTransferModel.hasExtraMotionPhoto()) {
             // hasExtraMotionPhoto() already guarantees the HEIC file exists and is non-empty
             uploadFile = new File(currentTransferModel.motion_photo_path);
             currentTransferModel.file_size = uploadFile.length();
+
             applyMotionPhotoFileName();
         } else if (currentTransferModel.full_path.startsWith("content://")) {
             uploadUri = Uri.parse(currentTransferModel.full_path);
@@ -602,6 +591,10 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private void executeUploadRequest(@NonNull Account account, @NonNull Request request, boolean chunkedMode, boolean markSuccess) throws SeafException {
         OkHttpClient client = chunkedMode ? getChunkUploadHttpClient(account) : getPrimaryHttpClient(account);
         newCall = client.newCall(request);
+        if (isExecutionCancelled() || isStop) {
+            newCall.cancel();
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        }
         try (Response response = newCall.execute()) {
             Protocol protocol = response.protocol();
             SafeLogs.d(TAG, "onRes()", "response code: " + response.code() + ", protocol: " + protocol);
@@ -639,7 +632,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
                     return mime;
                 }
             } else if (uploadFile != null) {
-                String mime = FileUtils.getMimeType(uploadFile);
+                String mime = MimeUtils.getMimeType(uploadFile);
                 if (!TextUtils.isEmpty(mime)) {
                     return mime;
                 }
@@ -821,15 +814,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         retrofit2.Response<String> res;
         try {
             if (isUpdate) {
-                res = HttpManager.getHttpWithAccount(account)
-                        .execute(FileService.class)
-                        .getFileUpdateLink(repoId)
-                        .execute();
+                res = ExecutionCancellation.execute(HttpManager.getHttpWithAccount(account)
+                        .execute(FileService.class).getFileUpdateLink(repoId));
             } else {
-                res = HttpManager.getHttpWithAccount(account)
-                        .execute(FileService.class)
-                        .getFileUploadLink(repoId, "/")
-                        .execute();
+                res = ExecutionCancellation.execute(HttpManager.getHttpWithAccount(account)
+                        .execute(FileService.class).getFileUploadLink(repoId, "/"));
             }
         } catch (Exception e) {
             SafeLogs.e(TAG, "getFileUploadUrl", e.getMessage());

@@ -63,6 +63,7 @@ public class ShareToSeafileUploader extends ParentEventUploader {
         SeafException lastException = SeafException.SUCCESS;
 
         while (true) {
+            if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel transferModel = GlobalTransferCacheList.SHARE_FILE_TO_SEAFILE_QUEUE.pick();
             if (transferModel == null) {
                 break;
@@ -70,11 +71,6 @@ public class ShareToSeafileUploader extends ParentEventUploader {
 
             try {
                 Account specialAccount = SupportAccountManager.getInstance().getSpecialAccount(transferModel.related_account);
-                if (specialAccount == null) {
-                    SafeLogs.e(TAG, "startUpload()", "special account is null: " + transferModel.related_account);
-                    continue;
-                }
-
                 transfer(specialAccount, transferModel);
 
             } catch (SeafException seafException) {
@@ -96,8 +92,7 @@ public class ShareToSeafileUploader extends ParentEventUploader {
 
         clearWhenComplete();
 
-        // clear all notifications
-        getTransferNotificationDispatcher().clearDelay();
+        // Producer scope owns its result notification.
 
         if (interruptException != SeafException.SUCCESS) {
             resultException = interruptException;

@@ -1,10 +1,10 @@
 package com.seafile.seadroid2.provider;
 
 import android.os.CancellationSignal;
+import android.os.OperationCanceledException;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.blankj.utilcode.util.FileUtils;
@@ -16,17 +16,13 @@ import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Utils;
-import com.seafile.seadroid2.framework.worker.TransferWorker;
 import com.seafile.seadroid2.ui.file.FileService;
 
-import org.apache.commons.io.input.TeeInputStream;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,19 +33,21 @@ import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import okio.BufferedSink;
 import retrofit2.Call;
 import retrofit2.Response;
 
 public class OpenDocumentWriter {
     private static final String TAG = "OpenDocumentWriter";
 
-    public static void uploadStreamToCloud(
+    public static void uploadFileToCloud(
             Account account, String repoId,
             String repoName, String fullPath,
-            String displayName, InputStream in,
+            String displayName, File tempFile,
             @Nullable CancellationSignal signal) throws FileNotFoundException {
 
+        if (signal != null) {
+            signal.throwIfCanceled();
+        }
         boolean isExists = false;
         String uploadUrl;
         try {
@@ -94,7 +92,9 @@ public class OpenDocumentWriter {
             }
         } catch (IOException e) {
             SLogs.e(e);
-            throw new FileNotFoundException("request transfer url failed, " + e.getMessage());
+            FileNotFoundException exception = new FileNotFoundException("request transfer url failed, " + e.getMessage());
+            exception.initCause(e);
+            throw exception;
         }
 
         MultipartBody.Builder builder = new MultipartBody.Builder();
@@ -109,43 +109,8 @@ public class OpenDocumentWriter {
 
         builder.addFormDataPart("replace", isExists ? "1" : "0");
 
-        File tempFile;
         try {
-            tempFile = DataManager.createTempFile();
-        } catch (IOException e) {
-            SLogs.d(TAG, "Create temp file failed: " + e.getMessage());
-            SLogs.e(e);
-            throw new FileNotFoundException("Create temp file failed");
-        }
-
-        try (FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
-             TeeInputStream teeInputStream = new TeeInputStream(in, fileOutputStream);) {
-
-            RequestBody fileRequestBody = new RequestBody() {
-                @Override
-                public MediaType contentType() {
-                    return MediaType.parse("application/octet-stream");
-                }
-
-                @Override
-                public long contentLength() {
-                    return -1;
-                }
-
-                @Override
-                public void writeTo(@NonNull BufferedSink sink) throws IOException {
-                    byte[] buffer = new byte[TransferWorker.SEGMENT_SIZE];
-                    int readCount;
-                    long total = 0;
-                    while ((readCount = teeInputStream.read(buffer)) != -1) {
-                        sink.write(buffer, 0, readCount);
-                        total += readCount;
-                    }
-
-                    SLogs.d(TAG, "Total bytes uploaded: " + Utils.readableFileSize(total));
-                    sink.flush();
-                }
-            };
+            RequestBody fileRequestBody = RequestBody.create(MediaType.parse("application/octet-stream"), tempFile);
             builder.addFormDataPart("file", displayName, fileRequestBody);
 
             RequestBody buildRequestBody = builder.build();
@@ -171,7 +136,16 @@ public class OpenDocumentWriter {
                 });
             }
 
-            try (okhttp3.Response response = call.execute()) {
+            okhttp3.Response uploadResponse;
+            try {
+                uploadResponse = call.execute();
+            } catch (IOException e) {
+                if (call.isCanceled()) {
+                    throw new OperationCanceledException();
+                }
+                throw e;
+            }
+            try (okhttp3.Response response = uploadResponse) {
                 if (response.isSuccessful()) {
                     File localFile = DataManager.getLocalFileCachePath(account, repoId, repoName, fullPath);
                     Path path = Files.move(tempFile.toPath(), localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -197,14 +171,28 @@ public class OpenDocumentWriter {
                         }
                     }
                 } else {
-                    String resStr = new String(response.body().bytes());
-                    SLogs.e("Upload failed: " + resStr);
+                    String errorMessage = "";
+
+                    ResponseBody errorBody = response.body();
+
+                    if (errorBody != null) {
+                        errorMessage = errorBody.string();
+                    }
+
+                    throw new IOException(
+                            "Upload failed. HTTP code: "
+                                    + response.code()
+                                    + ", message: "
+                                    + errorMessage
+                    );
                 }
             }
         } catch (IOException e) {
             SLogs.d(TAG, "Upload failed: " + e.getMessage());
             SLogs.e(e);
-            throw new FileNotFoundException("Upload failed: " + e.getMessage());
+            FileNotFoundException exception = new FileNotFoundException("Upload failed: " + e.getMessage());
+            exception.initCause(e);
+            throw exception;
         }
     }
 

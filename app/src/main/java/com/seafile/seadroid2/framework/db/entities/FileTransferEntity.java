@@ -19,6 +19,7 @@ import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.framework.worker.ExistingFileStrategy;
+import com.google.gson.annotations.SerializedName;
 
 @Entity(tableName = "file_transfer_list", indices = {
         @Index(value = {"uid", "full_path", "related_account"}, unique = true, name = "index_transfer_path")
@@ -29,6 +30,7 @@ public class FileTransferEntity extends BaseModel {
     /**
      * this field value is md5(account.email + transfer_action + full_path)
      */
+    @SerializedName("uid")
     @PrimaryKey
     @NonNull
     public String uid = "";
@@ -87,6 +89,7 @@ public class FileTransferEntity extends BaseModel {
      * }
      * </pre>
      */
+    @SerializedName("target_path")
     public String target_path;
 
     /**
@@ -112,6 +115,7 @@ public class FileTransferEntity extends BaseModel {
      * <p> full_path is the relative path to the file in the repository. <br>
      * eg. /a/b/c/d.txt (in remote repo)</p>
      */
+    @SerializedName("full_path")
     public String full_path;
 
 
@@ -144,6 +148,7 @@ public class FileTransferEntity extends BaseModel {
      * }
      * </pre>
      */
+    @SerializedName("parent_path")
     private String parent_path;
 
     public void setParent_path(String parent_path) {
@@ -179,6 +184,7 @@ public class FileTransferEntity extends BaseModel {
      * <br>
      * <br>
      */
+    @SerializedName("is_auto_transfer")
     @Deprecated
     public boolean is_auto_transfer = true;
 
@@ -187,20 +193,26 @@ public class FileTransferEntity extends BaseModel {
      *
      * @see TransferDataSource
      */
+    @SerializedName("data_source")
     public TransferDataSource data_source;
 
+    @SerializedName("repo_id")
     public String repo_id;
+    @SerializedName("repo_name")
     public String repo_name;
 
     //who
+    @SerializedName("related_account")
     public String related_account;
 
     /**
      * when action is upload: The value is the ID returned after the file upload is complete
      * when action is download: file_id is id.
      */
+    @SerializedName("file_id")
     public String file_id;
 
+    @SerializedName("file_name")
     public String file_name;
 
     public String getFileName() {
@@ -211,17 +223,21 @@ public class FileTransferEntity extends BaseModel {
         return Utils.pathJoin(parent_path, file_name);
     }
 
+    @SerializedName("file_format")
     @Nullable
     public String file_format;
 
     /**
      * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">media-types</a>
      */
+    @SerializedName("mime_type")
     @Nullable
     public String mime_type;
 
+    @SerializedName("file_size")
     public long file_size;
 
+    @SerializedName("transferred_size")
     @Deprecated
     public long transferred_size;
 
@@ -229,6 +245,7 @@ public class FileTransferEntity extends BaseModel {
      * When LocalAction is UPLOAD, this field should calculate the MD5 of the file first,
      * and when it is DOWNLOAD, it should wait until the file is downloaded before calculating the MD5 of the file
      */
+    @SerializedName("file_md5")
     public String file_md5;
 //
 //    /**
@@ -242,12 +259,14 @@ public class FileTransferEntity extends BaseModel {
     /**
      * An upgraded feat of the is_update field
      */
+    @SerializedName("file_strategy")
     @Deprecated
     public ExistingFileStrategy file_strategy = ExistingFileStrategy.AUTO;
 
     /**
      * whether is in /sdcard/Android/media/com.seafile.seadroid2.debug/Seafile/...
      */
+    @SerializedName("is_copy_to_local")
     @Deprecated
     public boolean is_copy_to_local;
 
@@ -255,6 +274,7 @@ public class FileTransferEntity extends BaseModel {
      * start timestamp (mills).
      * The time when the database was inserted
      */
+    @SerializedName("created_at")
     public long created_at;
 
     /**
@@ -266,6 +286,7 @@ public class FileTransferEntity extends BaseModel {
      * <p>if transfer_action = 'DOWNLOAD' and data_source = 'DOWNLOAD', value is downloaded time.</p>
      * <br>
      */
+    @SerializedName("file_original_modified_at")
     public long file_original_modified_at;
 
     /**
@@ -279,23 +300,27 @@ public class FileTransferEntity extends BaseModel {
      * <p><b>DOWNLOAD - ALBUM_BACKUP - FOLDER_BACKUP</b></p>
      * The time when the file was <i><b>created</b><i/> locally
      */
+    @SerializedName("modified_at")
     public long modified_at;
 
     /**
      * When the action ended (mills)
      * The time of the upload or download
      */
+    @SerializedName("action_end_at")
     @Deprecated
     public long action_end_at;
 
     /**
      * upload/download
      */
+    @SerializedName("transfer_action")
     public TransferAction transfer_action;
 
     /**
      * Status of upload
      */
+    @SerializedName("transfer_status")
     @Deprecated
     public TransferStatus transfer_status = TransferStatus.WAITING;
 
@@ -308,6 +333,7 @@ public class FileTransferEntity extends BaseModel {
     /**
      * Transfer the results. If it fails, content is failed reason.
      */
+    @SerializedName("result")
     @Deprecated
     public String result;
 

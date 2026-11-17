@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.google.gson.annotations.SerializedName;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,26 +14,44 @@ import java.util.Objects;
 
 public class RepoInfoModel {
 
+    @SerializedName("id")
     public String id;
+    @SerializedName("name")
     public String name;   //repo_name
 
+    @SerializedName("type")
     public String type;   //mine\group\shared
+    @SerializedName("owner")
     public String owner;
 
+    @SerializedName("mtime")
     public long mtime;
+    @SerializedName("size")
     public long size;
+    @SerializedName("encrypted")
     public boolean encrypted;
+    @SerializedName("root")
     public String root;
+    @SerializedName("permission")
     public String permission;
+    @SerializedName("modifier_email")
     public String modifier_email;
+    @SerializedName("modifier_contact_email")
     public String modifier_contact_email;
+    @SerializedName("modifier_name")
     public String modifier_name;
+    @SerializedName("file_count")
     public int file_count;
+    @SerializedName("head_commit_id")
     public String head_commit_id;
+    @SerializedName("enc_version")
     public int enc_version;
 
+    @SerializedName("magic")
     public String magic;
+    @SerializedName("salt")
     public String salt;
+    @SerializedName("random_key")
     public String random_key;
 
     public int getIcon() {

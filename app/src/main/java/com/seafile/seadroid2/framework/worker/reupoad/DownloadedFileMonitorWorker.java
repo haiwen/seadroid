@@ -85,6 +85,11 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         }
     }
 
+    private TransferModel interruptedMonitorModel;
+    @Override protected void retainInterruptedAttempt() {
+        super.retainInterruptedAttempt();
+        if (interruptedMonitorModel != null) GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.put(interruptedMonitorModel);
+    }
     private Result start() {
         SLogs.d(TAG, "start()", "started execution");
 
@@ -106,7 +111,9 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
         String interruptibleExceptionMsg = null;
         boolean wasThereSuccessfulUploaded = false;
         while (true) {
+            if (isTransferStopped()) return Result.failure();
             TransferModel missFieldDataTransferModel = GlobalTransferCacheList.LOCAL_FILE_MONITOR_QUEUE.pick(true);
+            interruptedMonitorModel = missFieldDataTransferModel;
             if (missFieldDataTransferModel == null) {
                 break;
             }
@@ -140,6 +147,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
                     transfer(account, tm);
                     SLogs.d(TAG, "start()", "transfer complete");
                     wasThereSuccessfulUploaded = true;
+                    interruptedMonitorModel = null;
                 } catch (Exception e) {
                     SeafException seafException = ExceptionUtils.parseByThrowable(e);
                     //Is there an interruption in the transmission in some cases?
@@ -232,7 +240,7 @@ public class DownloadedFileMonitorWorker extends BaseUploadWorker {
     private DirentFileModel getDirentDetail(String repoId, String path) throws IOException {
         //get parent dirent list from remote
         Call<DirentFileModel> fileDetailCall = HttpManager.getCurrentHttp().execute(FileService.class).getFileDetailCall(repoId, path);
-        retrofit2.Response<DirentFileModel> res = fileDetailCall.execute();
+        retrofit2.Response<DirentFileModel> res = com.seafile.seadroid2.framework.service.ExecutionCancellation.execute(fileDetailCall);
         if (!res.isSuccessful()) {
             SLogs.d(TAG, "request dirents failed");
             return null;

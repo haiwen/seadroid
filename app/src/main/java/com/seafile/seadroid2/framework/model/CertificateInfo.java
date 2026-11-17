@@ -12,6 +12,7 @@ import javax.security.auth.x500.X500Principal;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
+import com.google.gson.annotations.SerializedName;
 
 /*
  * 
@@ -28,6 +29,7 @@ import com.google.common.collect.Lists;
 public class CertificateInfo {
     private static final String DEBUG_TAG = "CertificateInfo";
 
+    @SerializedName("certificate")
     X509Certificate certificate;
 
     public CertificateInfo(X509Certificate certificate) {

@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.framework.model.sdoc;
 
 import com.blankj.utilcode.util.CollectionUtils;
+import com.google.gson.annotations.SerializedName;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,9 +18,11 @@ public class TextTypeModel {
      * checkbox
      * local-image: insert image into sdoc
      */
+    @SerializedName("type")
     public String type;
 
     // v4.0.5
+    @SerializedName("images")
     public List<UploadSdocImageModel> images;
 
     public TextTypeModel(String type) {

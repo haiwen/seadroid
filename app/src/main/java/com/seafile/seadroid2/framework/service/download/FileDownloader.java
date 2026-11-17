@@ -8,7 +8,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventDownloader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -84,11 +83,12 @@ public class FileDownloader extends ParentEventDownloader {
 
         SeafException resultSeafException = SeafException.SUCCESS;
         while (true) {
+            // checked first: a suspended run is also cancelled, but its pending models must be kept
             if (isSuspended()) {
                 SafeLogs.d(TAG, "download()", "suspended, the pending models are kept in the queue");
                 return returnSuspended();
             }
-
+            if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel transferModel = GlobalTransferCacheList.DOWNLOAD_QUEUE.pick();
             if (transferModel == null) {
                 break;
@@ -123,8 +123,7 @@ public class FileDownloader extends ParentEventDownloader {
             Toasts.show(R.string.download_completed);
         }
 
-        // clear all notifications
-        getTransferNotificationDispatcher().clearDelay();
+        // Producer scope owns its result notification.
 
 
         sendCompleteEvent(FeatureDataSource.DOWNLOAD, errorMsg, totalPendingCount);
@@ -132,14 +131,18 @@ public class FileDownloader extends ParentEventDownloader {
     }
 
     private void requeue(TransferModel transferModel) {
-        transferModel.transferred_size = 0;
-        transferModel.transfer_status = TransferStatus.WAITING;
-        transferModel.err_msg = null;
-        GlobalTransferCacheList.DOWNLOAD_QUEUE.put(transferModel);
+        // the queue holds the copy updated while downloading
+        TransferModel current = GlobalTransferCacheList.DOWNLOAD_QUEUE.getById(transferModel.getId());
+        if (current == null) {
+            return;
+        }
+        current.transferred_size = 0;
+        current.err_msg = null;
+        // not put(): it rejects writes from a cancelled execution
+        GlobalTransferCacheList.retryInterrupted(current);
     }
 
     private SeafException returnSuspended() {
-        getTransferNotificationDispatcher().clearDelay();
         send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED);
         return SeafException.SUCCESS;
     }

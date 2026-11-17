@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
+import android.os.SystemClock;
 
 import androidx.activity.contextaware.ContextAware;
 import androidx.annotation.Nullable;
@@ -50,6 +51,8 @@ public abstract class BaseNotification {
 
     @Nullable
     public NotificationCompat.Builder getNotificationBuilder(String title, String content, Intent intent) {
+        // Old transfer helpers retain signatures only, including notification construction.
+        if (NotificationUtils.FILE_TRANSFER_CHANNEL.equals(getChannelId())) return null;
         if (!hasPermission) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 int i = ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS);
@@ -111,6 +114,7 @@ public abstract class BaseNotification {
     }
 
     public void showNotification(int nid, String title, String content, Intent intent) {
+        if (NotificationUtils.FILE_TRANSFER_CHANNEL.equals(getChannelId())) return;
         Notification notification = getNotification(title, content, intent);
         if (notification != null) {
             getNotificationManager().notify(nid, notification);
@@ -124,7 +128,7 @@ public abstract class BaseNotification {
             return;
         }
 
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         if (now - last_time < 1000) {
             return;
         }
@@ -148,7 +152,7 @@ public abstract class BaseNotification {
             return null;
         }
 
-        long now = System.currentTimeMillis();
+        long now = SystemClock.elapsedRealtime();
         if (now - last_time < 1000) {
             return null;
         }
@@ -171,6 +175,8 @@ public abstract class BaseNotification {
     }
 
     public ForegroundInfo getForegroundNotification(int nid, String title, String content, Intent intent) {
+        // Legacy transfer helpers are compatibility shells, not foreground notification owners.
+        if (NotificationUtils.FILE_TRANSFER_CHANNEL.equals(getChannelId())) return null;
         if (!hasPermission) {
             return null;
         }
@@ -207,6 +213,7 @@ public abstract class BaseNotification {
      * Delay for a while before cancel notification in order user can see the result
      */
     public void cancel(int nid, long delayInMillis) {
+        if (NotificationUtils.FILE_TRANSFER_CHANNEL.equals(getChannelId())) return;
         if (delayInMillis <= 0) {
             getNotificationManager().cancel(nid);
         } else {

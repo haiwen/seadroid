@@ -3,22 +3,36 @@ package com.seafile.seadroid2.framework.model.sdoc;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import com.google.gson.annotations.SerializedName;
 
 public class SDocPageOptionsModel implements Parcelable {
+    @SerializedName("docName")
     public String docName;
+    @SerializedName("docUuid")
     public String docUuid;
+    @SerializedName("seadocServerUrl")
     public String seadocServerUrl;
+    @SerializedName("seadocAccessToken")
     public String seadocAccessToken;
+    @SerializedName("repoID")
     public String repoID;
+    @SerializedName("repoName")
     public String repoName;
+    @SerializedName("isLocked")
     public boolean isLocked;
+    @SerializedName("isStarred")
     public boolean isStarred;
 
+    @SerializedName("enableMetadataManagement")
     public boolean enableMetadataManagement;
+    @SerializedName("latestContributor")
     public String latestContributor;
+    @SerializedName("latestContributorName")
     public String latestContributorName;
+    @SerializedName("lastModificationTime")
     public String lastModificationTime;
 
+    @SerializedName("assetsUrl")
     public String assetsUrl;
 
     public boolean canUse() {

@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.repo.sheetaction;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
@@ -10,14 +9,13 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.config.ObjKey;
 import com.seafile.seadroid2.config.RepoType;
-import com.seafile.seadroid2.context.GlobalNavContext;
-import com.seafile.seadroid2.enums.ObjSelectType;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.DirentModel;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
+import com.seafile.seadroid2.listener.OnBottomSheetItemClickListener;
 import com.seafile.seadroid2.ui.bottomsheetmenu.ActionMenu;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +25,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -38,11 +34,11 @@ import io.reactivex.schedulers.Schedulers;
 
 public class BottomSheetMenuManager {
     private final Activity context;
-    private final BottomSheetActionViewPager bottomSheetView;
+    private final BottomSheetActionGridView bottomSheetView;
 
-    public BottomSheetMenuManager(Activity context, BottomSheetActionView.OnBottomSheetItemClickListener listener) {
+    public BottomSheetMenuManager(Activity context, OnBottomSheetItemClickListener listener) {
         this.context = context;
-        bottomSheetView = new BottomSheetActionViewPager(context);
+        bottomSheetView = new BottomSheetActionGridView(context);
         bottomSheetView.setOnItemClickListener(listener);
     }
 

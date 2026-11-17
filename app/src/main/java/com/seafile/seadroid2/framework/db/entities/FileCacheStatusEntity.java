@@ -15,6 +15,7 @@ import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.File;
 
@@ -30,6 +31,7 @@ public class FileCacheStatusEntity extends BaseModel {
     /**
      * this field value is md5(related_account + repo_id + full_path)
      */
+    @SerializedName("uid")
     @PrimaryKey
     @NonNull
     public String uid = "";
@@ -39,6 +41,7 @@ public class FileCacheStatusEntity extends BaseModel {
      * <p> full_path is the relative path in the repository. <br>
      * eg. /a/b/c/d.txt (in remote repo)</p>
      */
+    @SerializedName("full_path")
     public String full_path;
 
     /**
@@ -54,6 +57,7 @@ public class FileCacheStatusEntity extends BaseModel {
      * }
      * </pre>
      */
+    @SerializedName("target_path")
     public String target_path;
     /**
      * <pre>
@@ -64,6 +68,7 @@ public class FileCacheStatusEntity extends BaseModel {
      * }
      * </pre>
      */
+    @SerializedName("parent_path")
     private String parent_path;
 
     public void setParent_path(String parent_path) {
@@ -86,16 +91,22 @@ public class FileCacheStatusEntity extends BaseModel {
         return parent_path;
     }
 
+    @SerializedName("repo_id")
     public String repo_id;
+    @SerializedName("repo_name")
     public String repo_name;
+    @SerializedName("related_account")
     public String related_account;
 
     /**
      * file_id is dirent.id
      */
+    @SerializedName("file_id")
     public String file_id;
 
+    @SerializedName("file_name")
     public String file_name;
+    @SerializedName("motion_photo")
     public String motion_photo;
 
     public String getFileName() {
@@ -106,20 +117,26 @@ public class FileCacheStatusEntity extends BaseModel {
         return Utils.pathJoin(parent_path, file_name);
     }
 
+    @SerializedName("file_format")
     @Nullable
     public String file_format;
 
     /**
      * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">media-types</a>
      */
+    @SerializedName("mime_type")
     @Nullable
     public String mime_type;
 
+    @SerializedName("file_size")
     public long file_size;
 
+    @SerializedName("file_md5")
     public String file_md5;
 
+    @SerializedName("created_at")
     public long created_at;
+    @SerializedName("modified_at")
     public long modified_at;
 
     @Override

@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.framework.motionphoto;
 
+import androidx.annotation.NonNull;
+
 import com.seafile.seadroid2.annotation.Todo;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public final class MotionPhotoDescriptor {
 
     public List<MotionPhotoItem> items;
 
+    @NonNull
     @Override
     public String toString() {
         return "MotionPhotoDescriptor{" + mpType.name() + '}';

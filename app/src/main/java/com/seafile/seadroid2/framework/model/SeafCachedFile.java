@@ -2,17 +2,26 @@ package com.seafile.seadroid2.framework.model;
 
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.File;
 
 public class SeafCachedFile implements SeafItem {
+    @SerializedName("id")
     public int id;
+    @SerializedName("fileID")
     public String fileID;
+    @SerializedName("repoName")
     public String repoName;
+    @SerializedName("repoID")
     public String repoID;
+    @SerializedName("path")
     public String path;
+    @SerializedName("accountSignature")
     public String accountSignature;
+    @SerializedName("fileOriginalSize")
     public long fileOriginalSize;
+    @SerializedName("file")
     protected File file;
 
     public SeafCachedFile() {

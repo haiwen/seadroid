@@ -71,7 +71,7 @@ public class SeadroidApplication extends Application {
                 .lifecycleObserverAlwaysActive(true);
 
         //
-        NotificationUtils.initNotificationChannels(this);
+        com.seafile.seadroid2.framework.notification.TransferNotifications.get().init(this);
 
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(this);

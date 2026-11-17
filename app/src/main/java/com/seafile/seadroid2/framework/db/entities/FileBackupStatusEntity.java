@@ -17,6 +17,7 @@ import com.seafile.seadroid2.enums.TransferDataSource;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
 import com.seafile.seadroid2.framework.util.Utils;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.File;
 
@@ -32,6 +33,7 @@ public class FileBackupStatusEntity extends BaseModel {
     /**
      * this field value is md5(related_account + repo_id + data_source + full_path)
      */
+    @SerializedName("uid")
     @PrimaryKey
     @NonNull
     public String uid = "";
@@ -47,6 +49,7 @@ public class FileBackupStatusEntity extends BaseModel {
      * eg. /storage/emulated/0/DCIM/xxx.jpg or /storage/emulated/0/Downloads/xxx.txt
      * </p>
      */
+    @SerializedName("full_path")
     public String full_path;
 
 
@@ -76,6 +79,7 @@ public class FileBackupStatusEntity extends BaseModel {
      * }
      * </pre>
      */
+    @SerializedName("target_path")
     public String target_path;
 
     /**
@@ -90,6 +94,7 @@ public class FileBackupStatusEntity extends BaseModel {
      * }
      * </pre>
      */
+    @SerializedName("parent_path")
     private String parent_path;
 
     public void setParent_path(String parent_path) {
@@ -118,22 +123,30 @@ public class FileBackupStatusEntity extends BaseModel {
      *
      * @see TransferDataSource
      */
+    @SerializedName("data_source")
     public TransferDataSource data_source;
 
+    @SerializedName("repo_id")
     public String repo_id;
+    @SerializedName("repo_name")
     public String repo_name;
+    @SerializedName("related_account")
     public String related_account;
 
     /**
      * when action is upload: The value is the ID returned after the file upload is complete
      * when action is download: file_id is id.
      */
+    @SerializedName("file_id")
     public String file_id;
 
+    @SerializedName("file_name")
     public String file_name;
 
     // may be: file_name = a.heic, and original_name = a.jpg
+    @SerializedName("original_name")
     public String original_name;
+    @SerializedName("motion_photo")
     public String motion_photo;
 
     public String getFileName() {
@@ -152,21 +165,28 @@ public class FileBackupStatusEntity extends BaseModel {
         return Utils.pathJoin(parent_path, file_name);
     }
 
+    @SerializedName("file_format")
     @Nullable
     public String file_format;
 
     /**
      * <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">media-types</a>
      */
+    @SerializedName("mime_type")
     @Nullable
     public String mime_type;
 
+    @SerializedName("file_size")
     public long file_size;
 
+    @SerializedName("file_md5")
     public String file_md5;
 
+    @SerializedName("created_at")
     public long created_at;
+    @SerializedName("modified_at")
     public long modified_at;
+    @SerializedName("backup_status")
     public int backup_status = 1;
 
     @Override

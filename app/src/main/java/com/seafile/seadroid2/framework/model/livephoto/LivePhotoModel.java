@@ -1,11 +1,16 @@
 package com.seafile.seadroid2.framework.model.livephoto;
 
 import android.net.Uri;
+import com.google.gson.annotations.SerializedName;
 
 public class LivePhotoModel {
+    @SerializedName("imageUri")
     private final Uri imageUri;
+    @SerializedName("videoUri")
     private final Uri videoUri;
+    @SerializedName("displayName")
     private final String displayName;
+    @SerializedName("takenTime")
     private final long takenTime;
 
     public LivePhotoModel(Uri imageUri, Uri videoUri, String displayName, long takenTime) {

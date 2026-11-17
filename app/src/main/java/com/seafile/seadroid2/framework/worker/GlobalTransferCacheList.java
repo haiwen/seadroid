@@ -21,6 +21,18 @@ public class GlobalTransferCacheList {
      */
     public static final TransferQueue LOCAL_FILE_MONITOR_QUEUE = new TransferQueue();
 
+    public static void retryInterrupted(TransferModel model) {
+        if (model == null || model.data_source == null) return;
+        switch (model.data_source) {
+            case ALBUM_BACKUP -> ALBUM_BACKUP_QUEUE.retryInterrupted(model);
+            case FOLDER_BACKUP -> FOLDER_BACKUP_QUEUE.retryInterrupted(model);
+            case MANUAL_FILE_UPLOAD -> FILE_UPLOAD_QUEUE.retryInterrupted(model);
+            case SHARE_FILE_TO_SEAFILE -> SHARE_FILE_TO_SEAFILE_QUEUE.retryInterrupted(model);
+            case AUTO_UPDATE_LOCAL_FILE -> LOCAL_FILE_MONITOR_QUEUE.retryInterrupted(model);
+            case DOWNLOAD -> DOWNLOAD_QUEUE.retryInterrupted(model);
+        }
+    }
+
     public static int getUploadPendingCount() {
         return FOLDER_BACKUP_QUEUE.getPendingCount() + ALBUM_BACKUP_QUEUE.getPendingCount() + FILE_UPLOAD_QUEUE.getPendingCount();
     }

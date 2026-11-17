@@ -79,19 +79,19 @@ public class FileSyncService extends Service {
             return;
         }
 
-        // /storage/emulated/0/Android/media/com.seafile.seadroid2(.debug)/Seafile
+        // 0:/storage/emulated/0/Android/media/com.seafile.seadroid2(.debug)/Seafile
         String path = StorageManager.getInstance().getMediaDir().getAbsolutePath();
         IGNORE_PATHS.add(path);
 
-        // /storage/emulated/0/Android/media/com.seafile.seadroid2
+        // 1:/storage/emulated/0/Android/media/com.seafile.seadroid2
         String appCacheDir = Utils.getParentPath(path);
         IGNORE_PATHS.add(appCacheDir);
 
-        // /storage/emulated/0/Android/media
+        // 2:/storage/emulated/0/Android/media
         String mediaCacheDir = Utils.getParentPath(appCacheDir);
         IGNORE_PATHS.add(mediaCacheDir);
 
-        // /storage/emulated/0/Android
+        // 3:/storage/emulated/0/Android
         String androidCacheDir = Utils.getParentPath(mediaCacheDir);
         IGNORE_PATHS.add(androidCacheDir);
 
@@ -105,7 +105,7 @@ public class FileSyncService extends Service {
 
         registerMediaContentObserver();
 
-        startWorkers();
+        startWorks();
 
         compareFirstAndStartMonitor();
     }
@@ -219,7 +219,7 @@ public class FileSyncService extends Service {
         mediaContentObserver.register();
     }
 
-    private void startWorkers() {
+    private void startWorks() {
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().performSync();
         }
@@ -271,6 +271,23 @@ public class FileSyncService extends Service {
         }
     }
 
+    private List<String> initFolderMonitorPath() {
+        List<String> monitorPathList = new ArrayList<>();
+        boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
+        List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
+        if (!isEnable || CollectionUtils.isEmpty(pathList)) {
+            monitorPathList.add(IGNORE_PATHS.get(0));// local package dir
+        } else {
+            // if not found ignore path in the path list, add the first ignore path to the path list
+            boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
+            if (!isFound) {
+                pathList.add(IGNORE_PATHS.get(0));
+            }
+            monitorPathList.addAll(pathList);
+        }
+        return monitorPathList;
+    }
+
     private void startFolderMonitor() {
         List<String> pathList = initFolderMonitorPath();
 
@@ -280,15 +297,15 @@ public class FileSyncService extends Service {
 
         try {
             List<FileAlterationObserver> observerList = new ArrayList<>();
-            for (String str : pathList) {
-                boolean isExists = FileUtils.isFileExists(str);
+            for (String path : pathList) {
+                boolean isExists = FileUtils.isFileExists(path);
                 if (!isExists) {
-                    SLogs.d(TAG, "startFolderMonitor()", "backup path not exists: " + str);
+                    SLogs.d(TAG, "startFolderMonitor()", "backup path not exists: " + path);
                     continue;
                 }
 
-                SLogs.d(TAG, "startFolderMonitor()", "backup path: " + str);
-                FileAlterationObserver observer = new FileAlterationObserver(str, FILE_FILTER);
+                SLogs.d(TAG, "startFolderMonitor()", "backup path: " + path);
+                FileAlterationObserver observer = new FileAlterationObserver(path, FILE_FILTER);
 
                 observer.addListener(new FileSyncService.FolderStateChangedListener());
                 observerList.add(observer);
@@ -307,22 +324,7 @@ public class FileSyncService extends Service {
         }
     }
 
-    private List<String> initFolderMonitorPath() {
-        List<String> monitorPathList = new ArrayList<>();
-        boolean isEnable = FolderBackupSharePreferenceHelper.readBackupSwitch();
-        List<String> pathList = FolderBackupSharePreferenceHelper.readBackupPathsAsList();
-        if (!isEnable || CollectionUtils.isEmpty(pathList)) {
-            monitorPathList.add(IGNORE_PATHS.get(0));
-        } else {
-            // if not found ignore path in the path list, add the first ignore path to the path list
-            boolean isFound = pathList.stream().anyMatch(IGNORE_PATHS::contains);
-            if (!isFound) {
-                pathList.add(IGNORE_PATHS.get(0));
-            }
-            monitorPathList.addAll(pathList);
-        }
-        return monitorPathList;
-    }
+
 
     /**
      * it doesn't the 'change' event happen when download a large file

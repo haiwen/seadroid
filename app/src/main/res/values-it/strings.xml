@@ -170,6 +170,7 @@
   </string-array>
   <string name="add_repo">Aggiungi libreria</string>
   <string name="add_file">Aggiungi file</string>
+  <!--add_file_options_array Deprecated-->
   <string-array name="add_file_options_array">
     <item>Create file</item>
     <item>Create folder</item>
@@ -305,6 +306,7 @@
   <string name="gesture_lock">Movimento per Blocco</string>
   <string name="gesture_lock_on">Movimento blocco attivo</string>
   <string name="gesture_lock_off">Movimento blocco disattivo</string>
+  <!--Biometric lock-->
   <string name="lockscreen_access_pattern_hint">Imposta un pattern per bloccare lo schermo</string>
   <string name="lockscreen_access_pattern_start">Imposta pattern di accesso</string>
   <string name="lockscreen_access_pattern_cleared">Pattern pulito</string>
@@ -359,20 +361,15 @@
   <string name="settings_camera_upload_service_started">Servizio Caricamento Foto di Fotocamera Avviato</string>
   <string name="settings_camera_upload_service_stopped">Servizio Caricamento Foto di Fotocamera Arrestato</string>
   <string name="settings_camera_upload_allow_data_plan">Consenti caricamento su connessione dati</string>
-  <string name="settings_camera_upload_allow_videos">Consenti caricamento video</string>
   <string name="settings_camera_upload_default_wifi">Carica su connessione WiFi predefinita</string>
   <string name="settings_camera_upload_data_plan_allowed">Consenti caricamento su connessione dati</string>
   <string name="settings_camera_upload_default_photos">Carica foto di default</string>
   <string name="settings_camera_upload_videos_allowed">Consenti caricamento video</string>
-  <string name="settings_camera_upload_change_repo_title">Cambia Libreria</string>
   <string name="settings_camera_upload_repo_hint">Scegli una libreria per caricare le foto</string>
-  <string name="settings_camera_upload_turn_on">Abilita Caricamento Foto di Fotocamera</string>
   <string name="settings_camera_upload_choose_dir">Scegli directory</string>
   <string name="settings_camera_upload_dir_auto_scan">Scansiona directory automaticamente</string>
   <string name="settings_camera_upload_lib_not_found">Libreria non trovata</string>
-  <string name="settings_camera_upload_advanced_feature_title">Funzioni Avanzate</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Abilita le funzioni avanzate</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Directory personalizzate</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Abilita directory personalizzate</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Disabilita directory personalizzate</string>
   <!--Camera Upload Configuration View-->
@@ -573,7 +570,6 @@
   <string name="editor_lines_error">Numero di linee non valido</string>
   <string name="editor_file_save">Salva file</string>
   <string name="editor_file_save_success">File salvato con successo</string>
-  <string name="editor_file_save_failed">Impossibile salvare il file</string>
   <string name="editor_file_save_title">Salva file</string>
   <string name="description">Descrizione</string>
   <string name="undo">Annulla</string>
@@ -598,7 +594,6 @@
   <string name="weak_password">Password debole</string>
   <!--Folder backup Preference-->
   <string name="settings_folder_backup_info_title">Backup cartelle</string>
-  <string name="settings_folder_backup_switch_title">Abilita backup cartelle</string>
   <string name="settings_folder_backup_service_started">Servizio backup cartelle avviato</string>
   <string name="settings_folder_backup_service_stopped">Servizio backup cartelle fermato</string>
   <string name="settings_select_backup_folder_title">Seleziona cartella di backup</string>
@@ -710,4 +705,5 @@
   <string name="file_transfer_stopped">Transferimento file interrotto</string>
   <!--font-style-->
   <!--sdoc system event-->
+  <!--Tips-->
 </resources>

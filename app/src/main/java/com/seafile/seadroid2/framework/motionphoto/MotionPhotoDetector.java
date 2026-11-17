@@ -126,8 +126,8 @@ public final class MotionPhotoDetector {
         }
 
         SerializeOptions options = new SerializeOptions();
-        options.setOmitPacketWrapper(false);   // true=只要 <rdf:RDF>，false=保留<?xpacket?> 包裹
-        options.setUseCompactFormat(true);     // 紧凑格式
+        options.setOmitPacketWrapper(false);
+        options.setUseCompactFormat(true);
         options.setIndent("  ");
         try {
             String xml = XMPMetaFactory.serializeToString(xmpMeta, options);

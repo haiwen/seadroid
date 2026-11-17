@@ -20,17 +20,20 @@ import com.seafile.seadroid2.ui.base.viewholder.BaseViewHolder;
 
 public class BottomSheetMenuAdapter extends BaseAdapter<MenuItem, BottomSheetMenuAdapter.BottomSheetViewHolder> {
     private final int columnCount;
-    private final int screenWidth = ScreenUtils.getAppScreenWidth();
-    private boolean isHorizontal = false;
+    private final int availableWidth;
 
     public BottomSheetMenuAdapter(int columnCount, boolean isHorizontal) {
+        this(columnCount, isHorizontal, 0);
+    }
+
+    public BottomSheetMenuAdapter(int columnCount, boolean isHorizontal, int availableWidth) {
         this.columnCount = columnCount;
-        this.isHorizontal = isHorizontal;
+        this.availableWidth = availableWidth;
     }
 
     public BottomSheetMenuAdapter(int columnCount) {
         this.columnCount = columnCount;
-        this.isHorizontal = false;
+        this.availableWidth = 0;
     }
 
 
@@ -62,9 +65,6 @@ public class BottomSheetMenuAdapter extends BaseAdapter<MenuItem, BottomSheetMen
     protected BottomSheetMenuAdapter.BottomSheetViewHolder onCreateViewHolder(@NonNull Context context, @NonNull ViewGroup viewGroup, int i) {
         int layoutId = columnCount == 1 ? R.layout.bottom_sheet_item_list : R.layout.bottom_sheet_item_grid;
         View view = LayoutInflater.from(getContext()).inflate(layoutId, viewGroup, false);
-        if (isHorizontal && columnCount > 1) {
-            view.getLayoutParams().width = screenWidth / columnCount;
-        }
         return new BottomSheetMenuAdapter.BottomSheetViewHolder(view);
     }
 

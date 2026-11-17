@@ -7,25 +7,38 @@ import androidx.room.Entity;
 
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.permission.PermissionParentModel;
+import com.google.gson.annotations.SerializedName;
 
 @Entity(tableName = "permissions", primaryKeys = {"repo_id", "id"})
 public class PermissionEntity extends BaseModel {
 
+    @SerializedName("repo_id")
     @NonNull
     public String repo_id = "";
 
+    @SerializedName("id")
     public int id;
+    @SerializedName("description")
     public String description;
+    @SerializedName("name")
     public String name;
 
     //permissions
+    @SerializedName("create")
     public boolean create;
+    @SerializedName("upload")
     public boolean upload;
+    @SerializedName("download")
     public boolean download;
+    @SerializedName("preview")
     public boolean preview;
+    @SerializedName("copy")
     public boolean copy;
+    @SerializedName("delete")
     public boolean delete;
+    @SerializedName("modify")
     public boolean modify;
+    @SerializedName("download_external_link")
     public boolean download_external_link;
 
     public PermissionEntity() {

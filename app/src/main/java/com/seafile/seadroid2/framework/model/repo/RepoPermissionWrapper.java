@@ -2,9 +2,12 @@ package com.seafile.seadroid2.framework.model.repo;
 
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
+import com.google.gson.annotations.SerializedName;
 
 public class RepoPermissionWrapper {
+    @SerializedName("repoModel")
     public RepoModel repoModel;
+    @SerializedName("permission")
     public PermissionEntity permission;
 
     public RepoPermissionWrapper(RepoModel repoModel, PermissionEntity permission) {
