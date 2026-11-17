@@ -94,7 +94,31 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         return currentTransferModel;
     }
 
-    private boolean isStop = false;
+    private volatile boolean isStop = false;
+
+    /**
+     * set while the media dir is being moved, no new file should be downloaded
+     */
+    private volatile boolean isSuspended = false;
+
+    /**
+     * Stop the current download and don't start the next one until {@link #resume()} is called.
+     * The pending models are kept in the queue.
+     */
+    public void suspend() {
+        SafeLogs.d(TAG, "suspend()");
+        isSuspended = true;
+        stopThis();
+    }
+
+    public void resume() {
+        SafeLogs.d(TAG, "resume()");
+        isSuspended = false;
+    }
+
+    public boolean isSuspended() {
+        return isSuspended;
+    }
 
     /**
      * Stop downloading the model
@@ -121,9 +145,8 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     public void transfer(Account account, TransferModel transferModel) throws SeafException {
         try {
 
-            if (isStop) {
-                isStop = false;
-            }
+            // keep stopped if suspended after the model was picked
+            isStop = isSuspended;
 
             currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
             SafeLogs.d(TAG, "transfer start, model:");
@@ -344,6 +367,8 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
             File localFile = DataManager.getLocalFileCachePath(account, currentTransferModel.repo_id,
                     currentTransferModel.repo_name, currentTransferModel.full_path);
+            // the media dir may have been changed since the model was queued
+            currentTransferModel.target_path = localFile.getAbsolutePath();
             long fileSize = resolveDownloadSize(responseBody, localFile);
 
             File tempFile = DataManager.createTempFile();

@@ -226,8 +226,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                 loadDownloadFolderPrefInfo();
                 calculateCacheSize();
 
-                // send to main activity
-                mainViewModel.getRestartFileSyncMonitorLiveData().setValue(true);
+                // restarts the file monitor on the new media dir
+                mainViewModel.checkMediaDirChanged();
             }
         });
     }
@@ -587,11 +587,24 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             msg = getString(R.string.settings_download_folder_move_confirm, StorageManager.getCustomMediaDir(path).getAbsolutePath());
         }
 
+        // the files of the current custom dir can't be moved, don't report them as moved
+        StorageManager storageManager = StorageManager.getInstance();
+        if (storageManager.isCustomMediaDirUnavailable()) {
+            String curPath = storageManager.getConfiguredMediaDir().getAbsolutePath();
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.settings_download_folder_title)
+                    .setMessage(getString(R.string.settings_download_folder_unavailable_confirm, curPath))
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.settings_download_folder_switch_anyway, (dialog, which) -> viewModel.modifyStorageLocation(requireContext(), path, false))
+                    .show();
+            return;
+        }
+
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.settings_download_folder_title)
                 .setMessage(msg)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok, (dialog, which) -> viewModel.modifyStorageLocation(requireContext(), path))
+                .setPositiveButton(R.string.ok, (dialog, which) -> viewModel.modifyStorageLocation(requireContext(), path, true))
                 .show();
     }
 

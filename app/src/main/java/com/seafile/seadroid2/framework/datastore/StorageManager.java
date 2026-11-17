@@ -162,6 +162,45 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
     }
 
     /**
+     * @return true if the custom media dir is set, but it can't be used now (no permission or not mounted),
+     * the files are downloaded to the fallback dir {@link #getSelectedVolumeLocation()} meanwhile.
+     */
+    public boolean isCustomMediaDirUnavailable() {
+        Location custom = buildCustomLocation();
+        return custom != null && !custom.available;
+    }
+
+    /**
+     * The media dir set by user, it's the custom media dir even if it is unavailable now.
+     * Use {@link #getMediaDir()} to save files.
+     */
+    public File getConfiguredMediaDir() {
+        String customDir = AppDataManager.getCustomStorageDir();
+        if (!TextUtils.isEmpty(customDir)) {
+            return getCustomMediaDir(customDir);
+        }
+        return getSelectedVolumeLocation().mediaPath;
+    }
+
+    private static String lastMediaPath;
+
+    /**
+     * The media dir in use may be changed without user action,
+     * e.g. the permission of the custom media dir is revoked or granted again, the sd card is removed.
+     *
+     * @return true if the media dir in use is different from the one of the last call
+     */
+    public static synchronized boolean checkMediaDirChanged() {
+        String path = getInstance().getSelectedStorageLocation().mediaPath.getAbsolutePath();
+        boolean isChanged = lastMediaPath != null && !TextUtils.equals(lastMediaPath, path);
+        if (isChanged) {
+            Log.d(DEBUG_TAG, "media dir changed: " + lastMediaPath + " -> " + path);
+        }
+        lastMediaPath = path;
+        return isChanged;
+    }
+
+    /**
      * fill description info
      */
     private void fillLocationInfo(Location loc) {
@@ -622,6 +661,17 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         }
 
         MediaScannerConnection.scanFile(getContext(), list, null, this);
+    }
+
+    /**
+     * Deletes a media dir which is not in use, e.g. after its files are moved to another media dir
+     */
+    public final void deleteMediaDir(File mediaDir) {
+        Collection<File> fileList = FileUtils.listFiles(mediaDir, null, true);
+
+        FileUtils.deleteQuietly(mediaDir);
+
+        notifyAndroidGalleryDirectoryChange(fileList);
     }
 
     /**

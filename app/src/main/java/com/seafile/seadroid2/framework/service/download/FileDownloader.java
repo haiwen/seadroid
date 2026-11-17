@@ -8,6 +8,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
+import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventDownloader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -83,6 +84,11 @@ public class FileDownloader extends ParentEventDownloader {
 
         SeafException resultSeafException = SeafException.SUCCESS;
         while (true) {
+            if (isSuspended()) {
+                SafeLogs.d(TAG, "download()", "suspended, the pending models are kept in the queue");
+                return returnSuspended();
+            }
+
             TransferModel transferModel = GlobalTransferCacheList.DOWNLOAD_QUEUE.pick();
             if (transferModel == null) {
                 break;
@@ -92,6 +98,11 @@ public class FileDownloader extends ParentEventDownloader {
                 transfer(account, transferModel);
 
             } catch (SeafException seafException) {
+                if (isSuspended() && seafException == SeafException.USER_CANCELLED_EXCEPTION) {
+                    // not failed, download it again after resume
+                    requeue(transferModel);
+                    return returnSuspended();
+                }
 
                 SafeLogs.e("An exception occurred and the transmission has been interrupted");
                 notifyError(seafException);
@@ -117,6 +128,19 @@ public class FileDownloader extends ParentEventDownloader {
 
 
         sendCompleteEvent(FeatureDataSource.DOWNLOAD, errorMsg, totalPendingCount);
+        return SeafException.SUCCESS;
+    }
+
+    private void requeue(TransferModel transferModel) {
+        transferModel.transferred_size = 0;
+        transferModel.transfer_status = TransferStatus.WAITING;
+        transferModel.err_msg = null;
+        GlobalTransferCacheList.DOWNLOAD_QUEUE.put(transferModel);
+    }
+
+    private SeafException returnSuspended() {
+        getTransferNotificationDispatcher().clearDelay();
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED);
         return SeafException.SUCCESS;
     }
 

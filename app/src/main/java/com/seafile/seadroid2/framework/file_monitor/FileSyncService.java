@@ -17,6 +17,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
+import com.seafile.seadroid2.framework.datastore.MediaDirMigrator;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
@@ -150,6 +151,14 @@ public class FileSyncService extends Service {
 
     private void compareFirstAndStartMonitor() {
         CompletableFuture.runAsync(() -> {
+            // move the files downloaded while the custom media dir was unavailable back into it
+            // (before the monitor is started below)
+            try {
+                MediaDirMigrator.reconcileFallback();
+            } catch (Exception e) {
+                SLogs.e(TAG, "reconcileFallback()", e.getMessage());
+            }
+
             Account account = SupportAccountManager.getInstance().getCurrentAccount();
             if (account == null) {
                 SLogs.d(TAG, "scanLocalCacheFile", "account is null");

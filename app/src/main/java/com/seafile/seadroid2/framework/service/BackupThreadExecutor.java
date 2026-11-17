@@ -20,11 +20,17 @@ import com.seafile.seadroid2.framework.service.upload.MediaBackupScanner;
 import com.seafile.seadroid2.framework.service.upload.MediaBackupUploader;
 import com.seafile.seadroid2.framework.service.upload.ShareToSeafileUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
+import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
@@ -184,7 +190,68 @@ public class BackupThreadExecutor {
         }
     }
 
+    /**
+     * Running download loops, completed when the loop really exits.
+     * cancel() of {@link #fileDownloadFuture} doesn't stop the running downloader.
+     */
+    private final List<CompletableFuture<Void>> runningDownloads = new CopyOnWriteArrayList<>();
+
+    private volatile boolean isDownloadSuspended = false;
+
+    /**
+     * Stop the running download and wait until the downloader has really exited,
+     * no download will be started until {@link #resumeDownload()} is called.
+     * The pending downloads are kept in the queue.
+     * <p>
+     * Must not be called on the main thread.
+     *
+     * @throws TimeoutException the downloader didn't exit in time, downloads are resumed
+     */
+    public void suspendDownloadAndWait(long timeoutMillis) throws TimeoutException, InterruptedException {
+        SafeLogs.d(TAG, "suspendDownloadAndWait()");
+        isDownloadSuspended = true;
+
+        FileDownloader fileDownloader = getTransmitter(FeatureDataSource.DOWNLOAD);
+        fileDownloader.suspend();
+
+        CompletableFuture<?>[] running = runningDownloads.toArray(new CompletableFuture[0]);
+        if (running.length == 0) {
+            return;
+        }
+
+        try {
+            CompletableFuture.allOf(running).get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException e) {
+            // the downloader has exited
+        } catch (TimeoutException | InterruptedException e) {
+            resumeDownload();
+            throw e;
+        }
+    }
+
+    /**
+     * resume the downloads stopped by {@link #suspendDownloadAndWait(long)}
+     */
+    public void resumeDownload() {
+        SafeLogs.d(TAG, "resumeDownload()");
+        FileDownloader fileDownloader = getTransmitter(FeatureDataSource.DOWNLOAD);
+        fileDownloader.resume();
+        isDownloadSuspended = false;
+
+        if (GlobalTransferCacheList.getDownloadPendingCount() > 0) {
+            mainHandler.post(this::runDownloadTask);
+        }
+    }
+
     public void runDownloadTask() {
+        if (isDownloadSuspended) {
+            SafeLogs.d(TAG, "runDownloadTask()", "download is suspended, it will be started after resume");
+            return;
+        }
+
+        CompletableFuture<Void> finished = new CompletableFuture<>();
+        runningDownloads.add(finished);
+
         fileDownloadFuture = runTask(new Runnable() {
             @Override
             public void run() {
@@ -201,6 +268,8 @@ public class BackupThreadExecutor {
             @Override
             public void run() {
                 fileDownloadFuture = null;
+                runningDownloads.remove(finished);
+                finished.complete(null);
             }
         });
     }

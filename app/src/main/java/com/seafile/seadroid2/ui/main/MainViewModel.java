@@ -14,6 +14,8 @@ import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.SaveTo;
 import com.seafile.seadroid2.enums.TransferStatus;
+import com.seafile.seadroid2.framework.datastore.MediaDirMigrator;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
@@ -65,6 +67,34 @@ public class MainViewModel extends BaseViewModel {
 
     public MutableLiveData<Boolean> getRestartFileSyncMonitorLiveData() {
         return _restart_file_sync_monitor_live_data;
+    }
+
+    /**
+     * The media dir in use may be changed by user, or without user action when the custom media dir
+     * becomes available or unavailable (permission granted/revoked, sd card mounted/removed).
+     * <p>
+     * If it is changed, the files downloaded to the fallback dir are moved back into the custom
+     * media dir, and the file monitor is restarted on the new media dir.
+     */
+    public void checkMediaDirChanged() {
+        if (!StorageManager.checkMediaDirChanged()) {
+            return;
+        }
+
+        Single<Boolean> single = Single.fromCallable(MediaDirMigrator::reconcileFallback);
+        addSingleDisposable(single, new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean isMoved) throws Exception {
+                getRestartFileSyncMonitorLiveData().setValue(true);
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                // will be retried on next start
+                SLogs.e(TAG, "checkMediaDirChanged()", throwable.getMessage());
+                getRestartFileSyncMonitorLiveData().setValue(true);
+            }
+        });
     }
 
     public MutableLiveData<Boolean> getOnForceRefreshRepoListLiveData() {

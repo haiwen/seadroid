@@ -238,6 +238,14 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        // e.g. back from the system settings after the permission of the custom download folder is granted
+        mainViewModel.checkMediaDirChanged();
+    }
+
+    @Override
     protected void onDestroy() {
         SLogs.e(TAG, "onStart");
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
@@ -701,6 +709,9 @@ public class MainActivity extends BaseActivity {
 
     private void notifyMountChanged(String action, String path) {
         BusHelper.getMediaMountObserver().post(action + "-" + path);
+
+        // the custom download folder may be on the sd card
+        mainViewModel.checkMediaDirChanged();
     }
 
     /**

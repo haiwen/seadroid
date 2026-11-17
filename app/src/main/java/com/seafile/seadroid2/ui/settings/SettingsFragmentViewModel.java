@@ -9,15 +9,12 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
-import com.seafile.seadroid2.framework.db.AppDatabase;
-import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.datastore.MediaDirMigrator;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -29,16 +26,12 @@ import com.seafile.seadroid2.ui.main.MainService;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 public class SettingsFragmentViewModel extends BaseViewModel {
     public void getAccountInfo() {
@@ -111,26 +104,34 @@ public class SettingsFragmentViewModel extends BaseViewModel {
     }
 
     /**
+     * Move the downloaded files to the new location and use it.
+     *
      * @param newStoragePath empty means the default location
+     * @param moveFiles      false to switch without moving the files, only when the current custom dir is unavailable
      */
-    public void modifyStorageLocation(Context context, String newStoragePath) {
+    public void modifyStorageLocation(Context context, String newStoragePath, boolean moveFiles) {
+        StorageManager storageManager = StorageManager.getInstance();
 
-        StorageManager.Location location = StorageManager.getInstance().getSelectedStorageLocation();
-        String curPath = location.mediaPath.getAbsolutePath();
-        curPath = Utils.pathJoin(curPath, "/");
+        // the configured dir, not the fallback dir used while the custom dir is unavailable
+        File curMediaDir = storageManager.getConfiguredMediaDir();
+        String curPath = Utils.pathJoin(curMediaDir.getAbsolutePath(), "/");
 
         File newMediaDir;
         if (TextUtils.isEmpty(newStoragePath)) {
-            newMediaDir = StorageManager.getInstance().getSelectedVolumeLocation().mediaPath;
+            newMediaDir = storageManager.getSelectedVolumeLocation().mediaPath;
         } else {
             newMediaDir = StorageManager.getCustomMediaDir(newStoragePath);
         }
         String newPath = Utils.pathJoin(newMediaDir.getAbsolutePath(), "/");
 
         if (TextUtils.equals(newPath, curPath)) {
-            AppDataManager.writeCustomStorageDir(newStoragePath);
-            StorageManager.resetInstance();
+            // nothing to move
             getModifyStorageLocationLiveData().setValue(true);
+            return;
+        }
+
+        if (moveFiles && storageManager.isCustomMediaDirUnavailable()) {
+            Toasts.show(context.getString(R.string.settings_download_folder_unavailable_restore, curMediaDir.getAbsolutePath()));
             return;
         }
 
@@ -148,42 +149,10 @@ public class SettingsFragmentViewModel extends BaseViewModel {
 
         getSecondRefreshLiveData().setValue(true);
 
-        //stop download
-        BackupThreadExecutor.getInstance().stopDownload();
-
-        String finalNewStoragePath = newStoragePath;
-        String finalCurPath = curPath;
-        File finalNewMediaDir = newMediaDir;
-        Single<Boolean> s = Single.create(new SingleOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-
-                //copy
-                if (location.mediaPath.exists()) {
-                    FileUtils.copyDirectory(location.mediaPath, finalNewMediaDir);
-                }
-                emitter.onSuccess(true);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<Boolean>>() {
-            @Override
-            public SingleSource<Boolean> apply(Boolean aBoolean) throws Exception {
-
-                //delete old
-                StorageManager.getInstance().clearMedia();
-                return Single.just(true);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<? extends Boolean>>() {
-            @Override
-            public SingleSource<? extends Boolean> apply(Boolean aBoolean) throws Exception {
-                return migrateCachePathInPages(finalCurPath, newPath);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<Boolean>>() {
-            @Override
-            public SingleSource<Boolean> apply(Boolean aBoolean) throws Exception {
-                AppDataManager.writeCustomStorageDir(finalNewStoragePath);
-                StorageManager.resetInstance();
-                return Single.just(true);
-            }
+        Single<Boolean> s = Single.fromCallable(() -> {
+            // waits for the running download to exit before moving the files
+            MediaDirMigrator.changeMediaDir(newStoragePath, moveFiles);
+            return true;
         });
 
         addSingleDisposable(s, new Consumer<Boolean>() {
@@ -199,38 +168,6 @@ public class SettingsFragmentViewModel extends BaseViewModel {
                 getSecondRefreshLiveData().setValue(false);
                 Toasts.show(R.string.failed);
                 SafeLogs.e(throwable.getMessage());
-            }
-        });
-    }
-
-    public Single<Boolean> migrateCachePathInPages(String oldPrefix, String newPrefix) {
-        return Single.create(new SingleOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                int pageSize = 500;
-                int offset = 0;
-                List<FileCacheStatusEntity> page;
-
-                do {
-                    page = AppDatabase.getInstance().fileCacheStatusDAO().getPaged(pageSize, offset);
-                    List<FileCacheStatusEntity> toUpdate = new ArrayList<>();
-
-                    for (FileCacheStatusEntity entity : page) {
-                        if (entity.target_path.startsWith(oldPrefix)) {
-                            String tmp = entity.target_path.substring(oldPrefix.length());
-                            entity.target_path = Utils.pathJoin(newPrefix, tmp);
-                            toUpdate.add(entity);
-                        }
-                    }
-
-                    if (!toUpdate.isEmpty()) {
-                        AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // 批量更新
-                    }
-
-                    offset += pageSize;
-                } while (page.size() == pageSize); // the last page will < pageSize
-
-                emitter.onSuccess(true);
             }
         });
     }
