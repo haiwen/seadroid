@@ -11,9 +11,14 @@ import com.seafile.seadroid2.framework.notification.TransferNotifications;
 import com.seafile.seadroid2.framework.service.download.FileDownloader;
 import com.seafile.seadroid2.framework.service.upload.*;
 
+import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
+
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * One real execution chain per business, including scan, delayed preparation and synchronous IO.
@@ -127,6 +132,10 @@ public final class BackupThreadExecutor {
      * The returned completion is not a cancellation handle. Execution ownership ends only in finish().
      */
     private synchronized CompletableFuture<Void> start(FeatureDataSource source, boolean scan, boolean full) {
+        if (source == FeatureDataSource.DOWNLOAD && downloadSuspended) {
+            // started again by resumeDownload()
+            return CompletableFuture.completedFuture(null);
+        }
         Run existing = running.get(source);
         if (existing != null) {
             // Merge triggers, including the narrow queue-drained/completion race.
@@ -280,6 +289,55 @@ public final class BackupThreadExecutor {
 
     public void runDownloadTask() {
         start(FeatureDataSource.DOWNLOAD, false, false);
+    }
+
+    /**
+     * Set while the media dir is being moved, no download is started.
+     */
+    private boolean downloadSuspended;
+
+    /**
+     * Stop the running download and wait until the downloader has really exited. No download is
+     * started until {@link #resumeDownload()} is called. The pending downloads are kept in the queue,
+     * the interrupted one is queued again.
+     * <p>
+     * Must not be called on the main thread.
+     *
+     * @throws TimeoutException the downloader didn't exit in time, downloads are resumed
+     */
+    public void suspendDownloadAndWait(long timeoutMillis) throws TimeoutException, InterruptedException {
+        CompletableFuture<Void> completion;
+        synchronized (this) {
+            downloadSuspended = true;
+            Run run = running.get(FeatureDataSource.DOWNLOAD);
+            if (run == null) {
+                return;
+            }
+            ((FileDownloader) run.transfer).suspend();
+            cancelIO(run);
+            completion = run.completion;
+        }
+
+        try {
+            completion.get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException ignored) {
+            // the downloader has exited
+        } catch (TimeoutException | InterruptedException e) {
+            resumeDownload();
+            throw e;
+        }
+    }
+
+    /**
+     * Resume the downloads stopped by {@link #suspendDownloadAndWait(long)}.
+     */
+    public void resumeDownload() {
+        synchronized (this) {
+            downloadSuspended = false;
+        }
+        if (GlobalTransferCacheList.getDownloadPendingCount() > 0) {
+            runDownloadTask();
+        }
     }
 
     public void runManualFileUploadTask() {

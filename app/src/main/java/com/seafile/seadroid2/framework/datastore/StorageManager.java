@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.storage.StorageVolume;
+import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.Pair;
@@ -17,6 +18,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
+import com.seafile.seadroid2.framework.util.PermissionUtil;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 
@@ -73,6 +75,11 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
 
     protected static final String DEBUG_TAG = "StorageManager";
 
+    public static final int CUSTOM_LOCATION_ID = -2;
+
+    // sub folder of the custom dir, so clear cache won't delete other files of the user
+    private static final String CUSTOM_MEDIA_DIR_NAME = "Seafile";
+
     private static StorageManager instance = null;
 
     private final Location CLASSIC_LOCATION;
@@ -121,6 +128,76 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
 
         fillLocationInfo(classic);
         return classic;
+    }
+
+    /**
+     * custom media dir selected by user, the cache dir is not changed
+     */
+    private Location buildCustomLocation() {
+        String customDir = AppDataManager.getCustomStorageDir();
+        if (TextUtils.isEmpty(customDir)) {
+            return null;
+        }
+
+        Location custom = new Location();
+        custom.id = CUSTOM_LOCATION_ID;
+        custom.mediaPath = getCustomMediaDir(customDir);
+        custom.cachePath = getSelectedVolumeLocation().cachePath;
+        fillLocationInfo(custom);
+
+        // need MANAGE_EXTERNAL_STORAGE
+        custom.available = custom.available
+                && PermissionUtil.hasStoragePermission(getContext())
+                && (custom.mediaPath.isDirectory() ? custom.mediaPath.canWrite() : custom.mediaPath.mkdirs());
+        custom.label = custom.mediaPath.getAbsolutePath();
+        return custom;
+    }
+
+    public static File getCustomMediaDir(String customDir) {
+        return new File(customDir, CUSTOM_MEDIA_DIR_NAME);
+    }
+
+    public boolean isUsingCustomMediaDir() {
+        return !TextUtils.isEmpty(AppDataManager.getCustomStorageDir());
+    }
+
+    /**
+     * @return true if the custom media dir is set, but it can't be used now (no permission or not mounted),
+     * the files are downloaded to the fallback dir {@link #getSelectedVolumeLocation()} meanwhile.
+     */
+    public boolean isCustomMediaDirUnavailable() {
+        Location custom = buildCustomLocation();
+        return custom != null && !custom.available;
+    }
+
+    /**
+     * The media dir set by user, it's the custom media dir even if it is unavailable now.
+     * Use {@link #getMediaDir()} to save files.
+     */
+    public File getConfiguredMediaDir() {
+        String customDir = AppDataManager.getCustomStorageDir();
+        if (!TextUtils.isEmpty(customDir)) {
+            return getCustomMediaDir(customDir);
+        }
+        return getSelectedVolumeLocation().mediaPath;
+    }
+
+    private static String lastMediaPath;
+
+    /**
+     * The media dir in use may be changed without user action,
+     * e.g. the permission of the custom media dir is revoked or granted again, the sd card is removed.
+     *
+     * @return true if the media dir in use is different from the one of the last call
+     */
+    public static synchronized boolean checkMediaDirChanged() {
+        String path = getInstance().getSelectedStorageLocation().mediaPath.getAbsolutePath();
+        boolean isChanged = lastMediaPath != null && !TextUtils.equals(lastMediaPath, path);
+        if (isChanged) {
+            Log.d(DEBUG_TAG, "media dir changed: " + lastMediaPath + " -> " + path);
+        }
+        lastMediaPath = path;
+        return isChanged;
     }
 
     /**
@@ -446,6 +523,25 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      * @return Location info
      */
     public Location getSelectedStorageLocation() {
+        Location custom = buildCustomLocation();
+        if (custom != null) {
+            if (custom.available) {
+                return custom;
+            }
+
+            // keep the custom dir, it may be available again
+            Log.e(DEBUG_TAG, "Custom storage location " + custom.mediaPath + " is unavailable, falling back.");
+        }
+
+        return getSelectedVolumeLocation();
+    }
+
+    /**
+     * Return the storage location to be used in Seadroid, without the custom media dir.
+     *
+     * @return Location info
+     */
+    public Location getSelectedVolumeLocation() {
 
         int storageDirID = AppDataManager.readStorageDirId();
         Location storageLocation = lookupStorageLocation(storageDirID);
@@ -565,6 +661,17 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         }
 
         MediaScannerConnection.scanFile(getContext(), list, null, this);
+    }
+
+    /**
+     * Deletes a media dir which is not in use, e.g. after its files are moved to another media dir
+     */
+    public final void deleteMediaDir(File mediaDir) {
+        Collection<File> fileList = FileUtils.listFiles(mediaDir, null, true);
+
+        FileUtils.deleteQuietly(mediaDir);
+
+        notifyAndroidGalleryDirectoryChange(fileList);
     }
 
     /**

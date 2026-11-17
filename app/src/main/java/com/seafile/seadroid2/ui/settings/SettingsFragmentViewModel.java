@@ -9,17 +9,12 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.NotSupport;
-import com.seafile.seadroid2.annotation.Unstable;
-import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
-import com.seafile.seadroid2.framework.db.AppDatabase;
-import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
+import com.seafile.seadroid2.framework.datastore.MediaDirMigrator;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
 import com.seafile.seadroid2.framework.http.HttpIO;
-import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.util.Utils;
@@ -31,16 +26,12 @@ import com.seafile.seadroid2.ui.main.MainService;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 public class SettingsFragmentViewModel extends BaseViewModel {
     public void getAccountInfo() {
@@ -112,72 +103,56 @@ public class SettingsFragmentViewModel extends BaseViewModel {
         return modifyStorageLocationLiveData;
     }
 
-    @NotSupport
-    @Unstable
-    public void modifyStorageLocation(Context context, String newStoragePath) {
+    /**
+     * Move the downloaded files to the new location and use it.
+     *
+     * @param newStoragePath empty means the default location
+     * @param moveFiles      false to switch without moving the files, only when the current custom dir is unavailable
+     */
+    public void modifyStorageLocation(Context context, String newStoragePath, boolean moveFiles) {
+        StorageManager storageManager = StorageManager.getInstance();
 
+        // the configured dir, not the fallback dir used while the custom dir is unavailable
+        File curMediaDir = storageManager.getConfiguredMediaDir();
+        String curPath = Utils.pathJoin(curMediaDir.getAbsolutePath(), "/");
+
+        File newMediaDir;
         if (TextUtils.isEmpty(newStoragePath)) {
+            newMediaDir = storageManager.getSelectedVolumeLocation().mediaPath;
+        } else {
+            newMediaDir = StorageManager.getCustomMediaDir(newStoragePath);
+        }
+        String newPath = Utils.pathJoin(newMediaDir.getAbsolutePath(), "/");
+
+        if (TextUtils.equals(newPath, curPath)) {
+            // nothing to move
+            getModifyStorageLocationLiveData().setValue(true);
             return;
         }
 
-        StorageManager.Location location = StorageManager.getInstance().getSelectedStorageLocation();
-        String curPath = location.mediaPath.getAbsolutePath();
-        curPath = Utils.pathJoin(curPath, "/");
-        if (TextUtils.equals(newStoragePath, curPath)) {
-            return;
-        }
-        
-        File oldStorageFolder = new File(curPath);
-        if (!oldStorageFolder.exists()) {
-            Toasts.show(context.getString(R.string.storage_manager_storage_description_not_available, oldStorageFolder.getName()));
+        if (moveFiles && storageManager.isCustomMediaDirUnavailable()) {
+            Toasts.show(context.getString(R.string.settings_download_folder_unavailable_restore, curMediaDir.getAbsolutePath()));
             return;
         }
 
-        File newStorageFolder = new File(newStoragePath);
+        //can not move into itself
+        if (newPath.startsWith(curPath) || curPath.startsWith(newPath)) {
+            Toasts.show(R.string.settings_download_folder_invalid);
+            return;
+        }
+
+        File newStorageFolder = newMediaDir.getParentFile();
         if (!com.seafile.seadroid2.framework.util.FileUtils.isAvailable(newStorageFolder)) {
             Toasts.show(context.getString(R.string.storage_manager_storage_description_not_available, newStorageFolder.getName()));
             return;
         }
 
-        if (!com.blankj.utilcode.util.FileUtils.isDir(newStoragePath)) {
-            return;
-        }
-
         getSecondRefreshLiveData().setValue(true);
 
-        //stop download
-        BackupThreadExecutor.getInstance().stopDownload();
-
-        String finalNewStoragePath = newStoragePath;
-        String finalCurPath = curPath;
-        Single<Boolean> s = Single.create(new SingleOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-
-                //copy
-                FileUtils.copyDirectoryToDirectory(location.mediaPath, new File(finalNewStoragePath));
-                emitter.onSuccess(true);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<Boolean>>() {
-            @Override
-            public SingleSource<Boolean> apply(Boolean aBoolean) throws Exception {
-
-                //delete old
-                StorageManager.getInstance().clearMedia();
-                return Single.just(true);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<? extends Boolean>>() {
-            @Override
-            public SingleSource<? extends Boolean> apply(Boolean aBoolean) throws Exception {
-                return migrateCachePathInPages(finalCurPath, finalNewStoragePath);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<Boolean>>() {
-            @Override
-            public SingleSource<Boolean> apply(Boolean aBoolean) throws Exception {
-                AppDataManager.writeCustomStorageDir(finalNewStoragePath);
-                StorageManager.resetInstance();
-                return Single.just(true);
-            }
+        Single<Boolean> s = Single.fromCallable(() -> {
+            // waits for the running download to exit before moving the files
+            MediaDirMigrator.changeMediaDir(newStoragePath, moveFiles);
+            return true;
         });
 
         addSingleDisposable(s, new Consumer<Boolean>() {
@@ -193,38 +168,6 @@ public class SettingsFragmentViewModel extends BaseViewModel {
                 getSecondRefreshLiveData().setValue(false);
                 Toasts.show(R.string.failed);
                 SafeLogs.e(throwable.getMessage());
-            }
-        });
-    }
-
-    public Single<Boolean> migrateCachePathInPages(String oldPrefix, String newPrefix) {
-        return Single.create(new SingleOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                int pageSize = 500;
-                int offset = 0;
-                List<FileCacheStatusEntity> page;
-
-                do {
-                    page = AppDatabase.getInstance().fileCacheStatusDAO().getPaged(pageSize, offset);
-                    List<FileCacheStatusEntity> toUpdate = new ArrayList<>();
-
-                    for (FileCacheStatusEntity entity : page) {
-                        if (entity.target_path.startsWith(oldPrefix)) {
-                            String tmp = entity.target_path.substring(oldPrefix.length());
-                            entity.target_path = Utils.pathJoin(newPrefix, tmp);
-                            toUpdate.add(entity);
-                        }
-                    }
-
-                    if (!toUpdate.isEmpty()) {
-                        AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // 批量更新
-                    }
-
-                    offset += pageSize;
-                } while (page.size() == pageSize); // the last page will < pageSize
-
-                emitter.onSuccess(true);
             }
         });
     }

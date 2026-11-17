@@ -83,6 +83,11 @@ public class FileDownloader extends ParentEventDownloader {
 
         SeafException resultSeafException = SeafException.SUCCESS;
         while (true) {
+            // checked first: a suspended run is also cancelled, but its pending models must be kept
+            if (isSuspended()) {
+                SafeLogs.d(TAG, "download()", "suspended, the pending models are kept in the queue");
+                return returnSuspended();
+            }
             if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
             TransferModel transferModel = GlobalTransferCacheList.DOWNLOAD_QUEUE.pick();
             if (transferModel == null) {
@@ -93,6 +98,11 @@ public class FileDownloader extends ParentEventDownloader {
                 transfer(account, transferModel);
 
             } catch (SeafException seafException) {
+                if (isSuspended() && seafException == SeafException.USER_CANCELLED_EXCEPTION) {
+                    // not failed, download it again after resume
+                    requeue(transferModel);
+                    return returnSuspended();
+                }
 
                 SafeLogs.e("An exception occurred and the transmission has been interrupted");
                 notifyError(seafException);
@@ -117,6 +127,23 @@ public class FileDownloader extends ParentEventDownloader {
 
 
         sendCompleteEvent(FeatureDataSource.DOWNLOAD, errorMsg, totalPendingCount);
+        return SeafException.SUCCESS;
+    }
+
+    private void requeue(TransferModel transferModel) {
+        // the queue holds the copy updated while downloading
+        TransferModel current = GlobalTransferCacheList.DOWNLOAD_QUEUE.getById(transferModel.getId());
+        if (current == null) {
+            return;
+        }
+        current.transferred_size = 0;
+        current.err_msg = null;
+        // not put(): it rejects writes from a cancelled execution
+        GlobalTransferCacheList.retryInterrupted(current);
+    }
+
+    private SeafException returnSuspended() {
+        send(FeatureDataSource.DOWNLOAD, TransferEvent.EVENT_TRANSFER_TASK_CANCELLED);
         return SeafException.SUCCESS;
     }
 
