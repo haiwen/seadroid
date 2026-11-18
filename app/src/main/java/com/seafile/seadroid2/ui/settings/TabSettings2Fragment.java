@@ -1127,7 +1127,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().updateSystemSyncSettings();
-            // 取消当前任务，旧任务退出后清空待传模型并按新配置全量重扫。
+            // Cancel the current task. After the old task exits,
+            // clear the pending models and rescan the entire dataset according to the new configuration.
             CameraUploadManager.getInstance().restartSync();
         } else {
             // This code has been deliberately retained for compatibility with older versions.
@@ -1214,7 +1215,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             //start periodic folder backup scan worker
 //            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
-            // 取消当前任务，旧任务退出后清空待传模型并按新配置全量重扫。
+            // Cancel the current task. After the old task exits, clear the pending models and rescan the entire dataset according to the new configuration.
             BackupThreadExecutor.getInstance().restartFolderBackup();
 
         } else {
