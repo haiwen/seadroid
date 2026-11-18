@@ -85,6 +85,31 @@ The following commands are executed from the repository root and require satisfy
 - Pure documentation changes typically only require verifying paths, configs, and diffs—building an APK is unnecessary.
 - Do not run release builds by default: they require valid signing, and assembling a release APK updates `build_count.txt` in the root directory and renames output artifacts.
 
+## Coding Standards
+
+### Language, Comments, and Logging
+
+- All comments, log messages, and printed output must be written in English. This includes Java/Kotlin/C++ comments, Javadoc/KDoc, XML comments, Gradle/shell script comments, exception messages authored by the application, and console/debug output.
+- Keep user-facing text in localized Android string resources as described under UI and Internationalization; the English-only rule for diagnostic output does not replace UI localization.
+- Comments should explain intent, constraints, or non-obvious decisions rather than restating code. Keep them accurate when changing the implementation; do not leave commented-out code behind.
+- Use the existing project logging mechanism and appropriate log levels; avoid `System.out.println`, `printStackTrace`, or temporary debug prints in application code. Include useful operation context without logging passwords, tokens, authorization headers, or sensitive user data.
+
+### Naming and Formatting
+
+- Use descriptive English identifiers: `UpperCamelCase` for classes/interfaces, `lowerCamelCase` for methods/variables, and `UPPER_SNAKE_CASE` for constants. Follow existing Android resource naming with `lower_snake_case`.
+- Match the enclosing file's formatting, indentation, brace placement, and import order. Avoid wildcard imports, unused imports, trailing whitespace, and unrelated formatting changes.
+- Replace non-obvious magic numbers or repeated protocol values with meaningfully named constants. Prefer existing constants and resources over introducing duplicates.
+
+### Implementation and Resource Safety
+
+- Keep methods focused and control flow readable; prefer guard clauses to unnecessary nesting. Reuse existing helpers, but avoid speculative abstractions or unrelated refactoring.
+- Make nullability and ownership explicit at API boundaries. Use existing nullability annotations where applicable, check nullable external results, and do not suppress warnings or force non-null values merely to silence tooling.
+- Catch specific exceptions where recovery or useful context is possible; never silently swallow failures. Preserve the original cause when wrapping exceptions and retain cancellation/interruption semantics in background work.
+- Close owned streams, cursors, and other closeable resources deterministically using Java try-with-resources or Kotlin `use` where applicable. Release listeners, callbacks, and subscriptions according to the owning component's lifecycle.
+- Keep mutable state as narrowly scoped as possible; prefer `final`/`val` for references that do not change. Use the existing synchronization or executor model for shared state rather than introducing unsynchronized cross-thread access.
+- Add or update focused regression tests for changed behavior and bug fixes. Keep tests deterministic, avoid arbitrary sleeps and real network dependencies, and cover relevant failure, cancellation, and boundary cases.
+- Apply these standards to new or modified code; do not bulk-rewrite unrelated legacy or third-party code solely for compliance.
+
 ## Code Modification Conventions
 
 ### Style and Architecture

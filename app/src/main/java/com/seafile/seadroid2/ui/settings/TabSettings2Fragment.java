@@ -1125,11 +1125,10 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             AlbumBackupSharePreferenceHelper.resetLastScanTime();
         }
 
-        GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.clear();
-
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
             CameraUploadManager.getInstance().updateSystemSyncSettings();
-            CameraUploadManager.getInstance().performSync(isForce);
+            // 取消当前任务，旧任务退出后清空待传模型并按新配置全量重扫。
+            CameraUploadManager.getInstance().restartSync();
         } else {
             // This code has been deliberately retained for compatibility with older versions.
             // The goal is to remove the Worker from the system database in the old version.
@@ -1207,8 +1206,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             FolderBackupSharePreferenceHelper.resetLastScanTime();
         }
 
-        GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.clear();
-
         //RESTART_FILE_MONITOR
         mainViewModel.getRestartFileSyncMonitorLiveData().setValue(true);
 
@@ -1217,7 +1214,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             //start periodic folder backup scan worker
 //            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
-            BackupThreadExecutor.getInstance().runFolderBackupFuture(isFullScan);
+            // 取消当前任务，旧任务退出后清空待传模型并按新配置全量重扫。
+            BackupThreadExecutor.getInstance().restartFolderBackup();
 
         } else {
 

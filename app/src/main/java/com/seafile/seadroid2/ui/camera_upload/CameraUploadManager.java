@@ -41,6 +41,23 @@ public class CameraUploadManager {
     }
 
     /**
+     * 设置变更后立即按新配置重启：取消当前任务，旧任务退出后清空待传模型并全量重扫。
+     */
+    public void restartSync() {
+        if (getCameraAccount() == null) {
+            SLogs.d(TAG, "Photo backup not restarted: Account or backup configuration unavailable");
+            return;
+        }
+
+        if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+            SLogs.d(TAG, "Photo backup not restarted: Automatic upload is paused.");
+            return;
+        }
+
+        BackupThreadExecutor.getInstance().restartAlbumBackup();
+    }
+
+    /**
      * Get an account that meets the photo backup criteria: Backup enabled, library selected, album selected.
      * */
     public Account getCameraAccount() {
