@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.file;
 import com.seafile.seadroid2.framework.model.dirents.DirentDirModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentRecursiveModel;
+import com.seafile.seadroid2.framework.model.transfer.UploadedBytesModel;
 
 import java.util.List;
 import java.util.Map;
@@ -60,4 +61,8 @@ public interface FileService {
 
     @GET("api2/repos/{repo_id}/update-link/")
     Single<String> getFileUpdateLinkSync(@Path("repo_id") String repoId);
+
+
+    @GET("api/v2.1/repos/{repo_id}/file-uploaded-bytes/")
+    Call<UploadedBytesModel> getFileUploadedBytes(@Path("repo_id") String repoId, @Query("parent_dir") String parentDir, @Query("file_name") String fileName);
 }
