@@ -129,7 +129,8 @@ public final class BackupThreadExecutor {
     private synchronized CompletableFuture<Void> start(FeatureDataSource source, boolean scan, boolean full) {
         Run existing = running.get(source);
         if (existing != null) {
-            // 相册备份运行中直接返回，不合并请求或追加轮次；其他业务保留合并行为。
+            // The photo backup process returns directly during operation without merging requests or adding rounds;
+            // other services retain the merging behavior.
             if (source != FeatureDataSource.ALBUM_BACKUP){
                 existing.trigger(full);
             }

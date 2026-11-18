@@ -41,7 +41,7 @@ public class MediaBackupScanner extends ParentEventTransfer {
         }
 
         if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
-            SafeLogs.d(TAG, "相册扫描未启动：自动上传已暂停");
+            SafeLogs.d(TAG, "Photo album scanning not started: Automatic upload is paused.");
             return returnSuccess();
         }
 
