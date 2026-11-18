@@ -1,130 +1,109 @@
 package com.seafile.seadroid2.ui.camera_upload;
 
 import android.content.ContentResolver;
-import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
-import java.util.List;
-
-
-/**
- * Camera Upload Manager.
- * <p/>
- * This class can be used by other parts of Seadroid to enable/configure the camera upload
- * service.
- */
 public class CameraUploadManager {
     private final String TAG = "CameraUploadManager";
     public static final String KEY_IS_FULL_SCAN = "com.seafile.seadroid2.key_is_full_scan";
+    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".cameraupload.provider";
     private static final CameraUploadManager INSTANCE = new CameraUploadManager();
 
     public static CameraUploadManager getInstance() {
         return INSTANCE;
     }
 
-    /**
-     * The authority of the camera sync service
-     */
-    //com.seafile.seadroid2.debug.cameraupload.provider
-    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".cameraupload.provider";
-
-    /**
-     * Initiate a camera sync immediately.
-     */
     public void performSync() {
-        SLogs.d(TAG, "performSync()");
         performSync(false);
     }
 
     public void performSync(boolean isFullScan) {
-
-        SLogs.d(TAG, "performSyncByStatus()");
-        Account cameraAccount = getCameraAccount();
-        if (cameraAccount == null) {
-            SLogs.d(TAG, "No one has turned on album backup");
+        if (getCameraAccount() == null) {
+            SLogs.d(TAG, "Photo backup not started: Account or backup configuration unavailable");
             return;
         }
 
-        Bundle settingsBundle = new Bundle();
-        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        settingsBundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        settingsBundle.putBoolean(KEY_IS_FULL_SCAN, isFullScan);
-        ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, settingsBundle);
+        if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+            SLogs.d(TAG, "Photo backup not started: Automatic upload is paused.");
+            return;
+        }
+
+        SLogs.d(TAG, "Start the photo backup directly and perform a full scan:" + isFullScan);
+        BackupThreadExecutor.getInstance().runAlbumBackupTask(isFullScan);
     }
 
     /**
-     * Is camera upload enabled?
-     *
-     * @return true if camera upload is enabled.
+     * Restart immediately after setting changes: Cancel the current task, and after the old task exits, clear the models to be transferred and rescan the entire dataset.
      */
-    public boolean isCameraUploadEnabled() {
-        Account account = getCameraAccount();
-        return account != null;
+    public void restartSync() {
+        if (getCameraAccount() == null) {
+            SLogs.d(TAG, "Photo backup not restarted: Account or backup configuration unavailable");
+            return;
+        }
+
+        if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+            SLogs.d(TAG, "Photo backup not restarted: Automatic upload is paused.");
+            return;
+        }
+
+        BackupThreadExecutor.getInstance().restartAlbumBackup();
     }
 
     /**
-     * Get the account that is currently the remote target for the camera upload
-     *
-     * @return the account if camera is enabled, null otherwise.
-     */
+     * Get an account that meets the photo backup criteria: Backup enabled, library selected, album selected.
+     * */
     public Account getCameraAccount() {
-        List<Account> list = SupportAccountManager.getInstance().getAccountList();
-        for (Account account : list) {
-            int isSyncable = ContentResolver.getIsSyncable(account.getAndroidAccount(), AUTHORITY);
-            if (isSyncable > 0)
-                return account;
+        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        if (account == null
+                || !account.hasValidToken()
+                || !AlbumBackupSharePreferenceHelper.readBackupSwitch()) {
+            return null;
         }
-        return null;
+
+        RepoConfig config = AlbumBackupSharePreferenceHelper.readRepoConfig();
+        if (config == null
+                || TextUtils.isEmpty(config.getRepoId())
+                || !TextUtils.equals(account.getSignature(), config.getSignature())) {
+            return null;
+        }
+        return account;
     }
 
-    /**
-     * Change the account currently responsible for camera upload.
-     *
-     * @param account An account. must not be null.
-     */
-    public void setCameraAccount(Account account) {
-        List<Account> list = SupportAccountManager.getInstance().getAccountList();
-        for (Account a : list) {
-            if (a.equals(account)) {
-                // enable camera upload on this account
-                ContentResolver.setIsSyncable(a.getAndroidAccount(), AUTHORITY, 1);
-                ContentResolver.setSyncAutomatically(a.getAndroidAccount(), AUTHORITY, true);
-            } else {
-                // disable on all the others
-                ContentResolver.cancelSync(a.getAndroidAccount(), AUTHORITY);
-                ContentResolver.setIsSyncable(a.getAndroidAccount(), AUTHORITY, 0);
+    public void updateSystemSyncSettings() {
+        Account cameraAccount = getCameraAccount();
+        try {
+            for (Account account : SupportAccountManager.getInstance().getAccountList()) {
+                boolean enabled = cameraAccount != null
+                        && TextUtils.equals(cameraAccount.getSignature(), account.getSignature());
+                android.accounts.Account androidAccount = account.getAndroidAccount();
+                int syncable = ContentResolver.getIsSyncable(androidAccount, AUTHORITY);
+                if (enabled) {
+                    if (syncable <= 0) {
+                        ContentResolver.setIsSyncable(androidAccount, AUTHORITY, 1);
+                        ContentResolver.setSyncAutomatically(androidAccount, AUTHORITY, true);
+                    }
+                } else {
+                    ContentResolver.cancelSync(androidAccount, AUTHORITY);
+                    ContentResolver.setSyncAutomatically(androidAccount, AUTHORITY, false);
+                    ContentResolver.setIsSyncable(androidAccount, AUTHORITY, 0);
+                }
             }
+        } catch (SecurityException e) {
+            // The failure to configure the system synchronization entry point cannot prevent direct backup within the application.
+            SLogs.d(TAG, "unable to update system synchronization entry：" + e.getMessage());
         }
     }
 
-    /**
-     * Disable camera upload.
-     */
     public void disableCameraUpload() {
-        List<Account> list = SupportAccountManager.getInstance().getAccountList();
-        for (Account account : list) {
-            ContentResolver.cancelSync(account.getAndroidAccount(), AUTHORITY);
-            ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
-        }
-
         BackupThreadExecutor.getInstance().stopAlbumBackup();
-    }
-
-    /**
-     * Disable camera upload.
-     */
-    public void disableSpecialAccountCameraUpload(Account forAccount) {
-        List<Account> list = SupportAccountManager.getInstance().getAccountList();
-        for (Account account : list) {
-            if (forAccount.equals(account)) {
-                ContentResolver.cancelSync(account.getAndroidAccount(), AUTHORITY);
-                ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
-            }
-        }
+        updateSystemSyncSettings();
     }
 }

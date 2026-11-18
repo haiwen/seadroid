@@ -1125,24 +1125,15 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             AlbumBackupSharePreferenceHelper.resetLastScanTime();
         }
 
-        GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.clear();
-
         if (AlbumBackupSharePreferenceHelper.isAlbumBackupEnable()) {
-            CameraUploadManager.getInstance().setCameraAccount(currentAccount);
-            CameraUploadManager.getInstance().performSync(isForce);
-
-            // start periodic album backup scan worker
-//            BackgroundJobManagerImpl.getInstance().scheduleAlbumBackupPeriodicScan(SeadroidApplication.getAppContext());
+            CameraUploadManager.getInstance().updateSystemSyncSettings();
+            // Cancel the current task. After the old task exits,
+            // clear the pending models and rescan the entire dataset according to the new configuration.
+            CameraUploadManager.getInstance().restartSync();
         } else {
-
-            // call "stopAlbumBackupPeriodicScan()" anyway, as older versions may already have periodic scan tasks
-            // stop periodic album backup scan worker
+            // This code has been deliberately retained for compatibility with older versions.
+            // The goal is to remove the Worker from the system database in the old version.
             BackgroundJobManagerImpl.getInstance().stopAlbumBackupPeriodicScan();
-
-            //
-            BackupThreadExecutor.getInstance().stopAlbumBackup();
-
-            //
             CameraUploadManager.getInstance().disableCameraUpload();
         }
 
@@ -1216,8 +1207,6 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             FolderBackupSharePreferenceHelper.resetLastScanTime();
         }
 
-        GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.clear();
-
         //RESTART_FILE_MONITOR
         mainViewModel.getRestartFileSyncMonitorLiveData().setValue(true);
 
@@ -1226,7 +1215,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             //start periodic folder backup scan worker
 //            BackgroundJobManagerImpl.getInstance().scheduleFolderBackupPeriodicScan(requireContext().getApplicationContext());
 
-            BackupThreadExecutor.getInstance().runFolderBackupFuture(isFullScan);
+            // Cancel the current task. After the old task exits, clear the pending models and rescan the entire dataset according to the new configuration.
+            BackupThreadExecutor.getInstance().restartFolderBackup();
 
         } else {
 

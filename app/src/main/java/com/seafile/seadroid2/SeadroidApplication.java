@@ -23,7 +23,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.provider.DocumentCache;
-import com.seafile.seadroid2.ui.camera_upload.AlbumBackupAdapterBridge;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.functions.Consumer;
@@ -51,6 +51,7 @@ public class SeadroidApplication extends Application {
 
         //
         Settings.initUserSettings();
+        CameraUploadManager.getInstance().updateSystemSyncSettings();
 
         // init night mode
         if (Settings.NIGHT_MODE != null) {
@@ -75,9 +76,6 @@ public class SeadroidApplication extends Application {
 
         CrashHandler crashHandler = CrashHandler.getInstance();
         crashHandler.init(this);
-
-        //register album backup sync receiver
-        AlbumBackupAdapterBridge.registerSyncReceiver(getAppContext());
 
         //This feature can be extended
         registerActivityLifecycleCallbacks(new ActivityMonitor());

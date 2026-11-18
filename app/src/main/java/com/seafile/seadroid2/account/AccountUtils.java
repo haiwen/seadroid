@@ -3,7 +3,6 @@ package com.seafile.seadroid2.account;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 
-import com.blankj.utilcode.util.NotificationUtils;
 import com.seafile.seadroid2.context.ContextStackPreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.DataStoreKeys;
 import com.seafile.seadroid2.framework.datastore.DataStoreManager;
@@ -45,9 +44,7 @@ public class AccountUtils {
         // sign out operations
         SupportAccountManager.getInstance().signOutAccount(account);
         SupportAccountManager.getInstance().saveCurrentAccount(null);
-
-        // disable camera upload
-        CameraUploadManager.getInstance().disableSpecialAccountCameraUpload(account);
+        CameraUploadManager.getInstance().updateSystemSyncSettings();
 
         //cancel all jobs
 //        BackgroundJobManagerImpl.getInstance().cancelAllJobs();
@@ -89,12 +86,10 @@ public class AccountUtils {
 
         //
         Settings.initUserSettings();
+        CameraUploadManager.getInstance().updateSystemSyncSettings();
 
         // remove last path of share to seafile
         Settings.getCommonPreferences().edit().remove(DataStoreKeys.KEY_LAST_PATH_OF_SHARE_TO_SEAFILE).apply();
-
-        //switch camera upload
-        CameraUploadManager.getInstance().setCameraAccount(account);
 
         //reset IO instance for new account
         HttpIO.resetLoggedInInstance();

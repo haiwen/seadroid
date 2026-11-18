@@ -11,6 +11,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.service.BackupFileStability;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -134,8 +135,7 @@ public class FolderBackupUploader extends ParentEventUploader {
             }
 
             try {
-                if (!com.seafile.seadroid2.framework.service.BackupFileStability.awaitStable(
-                        new java.io.File(transferModel.full_path))) {
+                if (!BackupFileStability.awaitStable(new java.io.File(transferModel.full_path))) {
                     // Leave pending, without persisting a successful backup for a changing source.
                     GlobalTransferCacheList.FOLDER_BACKUP_QUEUE.retryInterrupted(transferModel);
                     return new SeafException(SeafException.CODE_FAILED,
@@ -184,7 +184,7 @@ public class FolderBackupUploader extends ParentEventUploader {
         if (resultException != SeafException.SUCCESS) {
             errorMsg = resultException.getMessage();
             Toasts.show(R.string.backup_failed);
-        }else{
+        } else {
             Toasts.show(R.string.backup_completed);
         }
 
