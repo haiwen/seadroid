@@ -27,15 +27,16 @@ public class CameraUploadManager {
 
     public void performSync(boolean isFullScan) {
         if (getCameraAccount() == null) {
-            SLogs.d(TAG, "相册备份未启动：账户或备份配置不可用");
-            return;
-        }
-        if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
-            SLogs.d(TAG, "相册备份未启动：自动上传已暂停");
+            SLogs.d(TAG, "Photo backup not started: Account or backup configuration unavailable");
             return;
         }
 
-        SLogs.d(TAG, "直接启动相册备份，全量扫描：" + isFullScan);
+        if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+            SLogs.d(TAG, "Photo backup not started: Automatic upload is paused.");
+            return;
+        }
+
+        SLogs.d(TAG, "Start the photo backup directly and perform a full scan:" + isFullScan);
         BackupThreadExecutor.getInstance().runAlbumBackupTask(isFullScan);
     }
 
@@ -79,8 +80,8 @@ public class CameraUploadManager {
                 }
             }
         } catch (SecurityException e) {
-            // 系统同步入口配置失败不能阻断应用内直接备份。
-            SLogs.d(TAG, "无法更新系统同步入口：" + e.getMessage());
+            // The failure to configure the system synchronization entry point cannot prevent direct backup within the application.
+            SLogs.d(TAG, "unable to update system synchronization entry：" + e.getMessage());
         }
     }
 

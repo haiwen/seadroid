@@ -1,19 +1,15 @@
 #!/bin/bash
-# 动态照片（Motion Photo / Live Photo）结构检测与内嵌视频提取
 # Motion Photo / Live Photo structure inspection and embedded video extraction
 #
-# 支持 / Supported:
-#   - Google Motion Photo / MicroVideo：JPEG 尾部附加 MP4，XMP GCamera 字段描述
-#     MP4 appended to JPEG, described by XMP GCamera (Xiaomi MVIMG_*.jpg, Redmi, Pixel)
-#   - Google Motion Photo v2：XMP Container:Directory 描述各 Item 长度
-#     Item lengths described by XMP Container:Directory
-#   - Samsung Motion Photo：JPEG 尾部附加 MP4；HEIF 使用顶层 mpvd box 内嵌视频
-#     MP4 appended to JPEG; HEIF embeds video in a top-level mpvd box
-#   - Apple Live Photo：HEIC + 伴生 MOV（或 MOV 封装的静态 JPEG）
-#     HEIC with companion MOV (or a still JPEG wrapped in a MOV container)
+# Supported:
+#   - Google Motion Photo / MicroVideo: MP4 appended to JPEG, described by XMP GCamera
+#     (Xiaomi MVIMG_*.jpg, Redmi, Pixel)
+#   - Google Motion Photo v2: Item lengths described by XMP Container:Directory
+#   - Samsung Motion Photo: MP4 appended to JPEG; HEIF embeds video in a top-level mpvd box
+#   - Apple Live Photo: HEIC with companion MOV (or a still JPEG wrapped in a MOV container)
 #
-# 用法 / Usage: ./verify_motion_photo.sh <file> [-o outdir] [-n]
-# 退出码 / Exit codes: 0=motion photo, 2=not a motion photo, 1=bad arguments/file
+# Usage: ./verify_motion_photo.sh <file> [-o outdir] [-n]
+# Exit codes: 0=motion photo, 2=not a motion photo, 1=bad arguments/file
 
 usage() {
     cat <<'EOF'
@@ -78,12 +74,11 @@ XMPTMP="$WORKDIR/xmp.xml"
 XMP_SIG_HEX=$(printf '%s' 'http://ns.adobe.com/xap/1.0/' | xxd -p | tr -d '\n')
 
 # ---------------------------------------------------------------------------
-# 基础工具 / Basic helpers
+# Basic helpers
 # ---------------------------------------------------------------------------
 
 file_size() { stat -f%z "$1" 2>/dev/null || stat -c%s "$1"; }
 
-# 读取指定偏移的原始字节，输出为连续小写 hex
 # Read raw bytes at the given offset and print them as contiguous lowercase hex
 read_hex() {
     od -An -tx1 -j "$2" -N "$3" "$1" 2>/dev/null | tr -d ' \n'
@@ -101,7 +96,7 @@ hex2ascii() {
     printf '%s' "${1:-}" | xxd -r -p 2>/dev/null
 }
 
-# 大端无符号 32 / 64 位整数 / Big-endian unsigned 32-bit and 64-bit integers
+# Big-endian unsigned 32-bit and 64-bit integers
 u32() { hex2dec "$(read_hex "$1" "$2" 4)"; }
 u64() {
     local hi lo
@@ -110,7 +105,7 @@ u64() {
     echo $(( hi * 4294967296 + lo ))
 }
 
-# 人类可读的文件大小 / Human-readable file size
+# Human-readable file size
 human_size() {
     awk -v b="$1" 'BEGIN{
         split("B KB MB GB TB", u, " ");
@@ -120,7 +115,6 @@ human_size() {
     }'
 }
 
-# 打印 4 字节 box 类型（不可打印时回退为 hex）
 # Print the 4-byte box type (fall back to hex when not printable)
 box_name() {
     local s
@@ -132,7 +126,7 @@ box_name() {
 }
 
 # ---------------------------------------------------------------------------
-# 文件类型识别 / File type detection
+# File type detection
 # ---------------------------------------------------------------------------
 
 FSIZE=$(file_size "$FILE")
@@ -151,7 +145,6 @@ elif [ "${MAGIC:8:8}" = "66747970" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# JPEG：段结构解析 + APP1 XMP 提取
 # JPEG: segment structure parsing and APP1 XMP extraction
 # ---------------------------------------------------------------------------
 
@@ -172,7 +165,7 @@ scan_jpeg() {
             echo "  [offset $pos] not a JPEG marker byte (0x${m1}), stop parsing"
             break
         fi
-        # 填充字节 FF FF / Fill byte FF FF
+        # Fill byte FF FF
         if [ "$m2" = "ff" ]; then
             pos=$((pos + 1))
             continue
@@ -238,7 +231,6 @@ scan_jpeg() {
                         name="APP1/Exif"
                     elif [ "${sighex:0:${#XMP_SIG_HEX}}" = "$XMP_SIG_HEX" ]; then
                         name="APP1/XMP"
-                        # 导出 XMP 包（跳过 29 字节命名空间标识）
                         # Dump the XMP packet (skip the 29-byte namespace identifier)
                         tail -c +$((pos + 4 + 29 + 1)) "$FILE" 2>/dev/null \
                             | head -c $((seglen - 29)) >> "$XMPTMP"
@@ -252,7 +244,6 @@ scan_jpeg() {
         esac
     done
     JPEG_SOS="$sos"
-    # SOS 之后为熵编码数据，其中 FF 字节均被填充为 FF00，因此第一个 FFD9 即 EOI
     # After SOS comes entropy-coded data where FF bytes are stuffed as FF00,
     # so the first FFD9 after SOS is the real EOI
     if [ -n "$sos" ] && [ -z "$eoi" ]; then
@@ -271,7 +262,6 @@ scan_jpeg() {
 }
 
 # ---------------------------------------------------------------------------
-# ISOBMFF（HEIF / MP4）顶层 box 解析
 # ISOBMFF (HEIF / MP4) top-level box parsing
 # ---------------------------------------------------------------------------
 
@@ -320,7 +310,6 @@ scan_boxes() {
         fi
         printf "\n"
 
-        # meta 是 FullBox，子 box 从 +12 开始；只展开一层用于观察结构
         # meta is a FullBox, its children start at +12; expand one level only
         if [ "$type" = "meta" ] && [ "$indent" -eq 0 ]; then
             scan_boxes "$file" "$((off + 12))" "$((off + total))" 2
@@ -330,13 +319,12 @@ scan_boxes() {
 }
 
 # ---------------------------------------------------------------------------
-# MP4 定位与校验 / MP4 locating and validation
+# MP4 locating and validation
 # ---------------------------------------------------------------------------
 
 MP4_OFF=""
 MP4_BRAND=""
 
-# 校验 box 偏移处是否为合法 ftyp box，成功时设置 MP4_OFF / MP4_BRAND
 # Validate that a legal ftyp box starts at the given offset; sets MP4_OFF / MP4_BRAND
 mp4_validate() {
     local box=$1
@@ -361,7 +349,6 @@ mp4_validate() {
         "") ;;
         *) return 1 ;;
     esac
-    # 校验 ftyp 之后紧跟的顶层 box，排除图像数据中的偶然命中
     # Check the top-level box right after ftyp to reject accidental matches in image data
     [ $((box + total + 8)) -gt "$FSIZE" ] && return 1
     local nh next_type
@@ -377,7 +364,6 @@ mp4_validate() {
     return 0
 }
 
-# 在 [from, from+window) 范围内寻找 ftyp box 起点
 # Find the start of an ftyp box within [from, from+window)
 mp4_probe_near() {
     local from=$1 window=${2:-4096}
@@ -394,7 +380,6 @@ mp4_probe_near() {
     mp4_validate "$((from + rel - 4))"
 }
 
-# 在整个文件中按 ftyp 签名扫描，选择 >= from 的第一个合法候选
 # Scan the whole file for the ftyp signature and pick the first valid candidate >= from
 mp4_find_after() {
     local from=${1:-0}
@@ -410,7 +395,7 @@ mp4_find_after() {
 }
 
 # ---------------------------------------------------------------------------
-# XMP 字段提取 / XMP field extraction
+# XMP field extraction
 # ---------------------------------------------------------------------------
 
 xmp_num() {
@@ -426,7 +411,6 @@ xmp_flag() {
     grep -qE "GCamera:$1=\"1\"|<GCamera:$1>1<" "$XMPTMP" 2>/dev/null
 }
 
-# MotionPhoto Item 的 Length / Padding（Container:Directory，兼容元素/属性两种写法）
 # Length / Padding of the MotionPhoto item in Container:Directory
 # (supports both element and attribute syntax)
 container_motion_fields() {
@@ -449,7 +433,7 @@ container_motion_fields() {
 }
 
 # ---------------------------------------------------------------------------
-# 主流程 / Main flow
+# Main flow
 # ---------------------------------------------------------------------------
 
 echo "========================================="
@@ -457,7 +441,7 @@ echo "Motion photo inspection: $(basename "$FILE")"
 echo "========================================="
 echo ""
 
-# 1. 文件信息 / File information
+# 1. File information
 echo "[1] File Information"
 echo "  Path      : $FILE"
 echo "  Size      : $FSIZE bytes ($(human_size "$FSIZE"))"
@@ -470,7 +454,7 @@ case "$FILEKIND" in
 esac
 echo ""
 
-# 2. 按类型解析结构 / Parse structure by file type
+# 2. Parse structure by file type
 STRUCT="$WORKDIR/struct.txt"
 : > "$STRUCT"
 
@@ -491,7 +475,6 @@ case "$FILEKIND" in
     JPEG)
         scan_jpeg > "$STRUCT"
 
-        # XMP：exiftool 缺失时也能用自解析结果
         # XMP: the self-parsed result works even without exiftool
         MICRO_OFFSET=$(xmp_num MicroVideoOffset)
         MICRO_LENGTH=$(xmp_num MicroVideoLength)
@@ -505,13 +488,12 @@ case "$FILEKIND" in
             PROTO="Google/Samsung Motion Photo (XMP GCamera:MotionPhoto=1)"
         fi
 
-        # Samsung 专有标记 / Samsung proprietary marker
+        # Samsung proprietary marker
         if LC_ALL=C grep -abo "MotionPhoto_Data" "$FILE" >/dev/null 2>&1; then
             [ -z "$PROTO" ] && PROTO="Samsung Motion Photo (MotionPhoto_Data trailer)"
             echo "  OK: Samsung MotionPhoto_Data marker found" >> "$STRUCT"
         fi
 
-        # 视频定位：优先 MicroVideoOffset（相对文件尾部）
         # Video location: prefer MicroVideoOffset (measured from end of file)
         if [ -n "$MICRO_OFFSET" ] && [ "$MICRO_OFFSET" -gt 0 ]; then
             if mp4_probe_near "$((FSIZE - MICRO_OFFSET))" 4096; then
@@ -520,7 +502,7 @@ case "$FILEKIND" in
                 VIDEO_DESC="MicroVideoOffset=${MICRO_OFFSET} (from end of file) -> video start $((FSIZE - MICRO_OFFSET))"
             fi
         fi
-        # Container:Directory 描述 / Container:Directory description
+        # Container:Directory description
         if [ -z "$VIDEO_OFF" ] && [ -n "$CONTAINER_LEN" ] && [ "$CONTAINER_LEN" -gt 0 ]; then
             local_cand=$((FSIZE - CONTAINER_LEN))
             if mp4_probe_near "$local_cand" 4096; then
@@ -529,7 +511,6 @@ case "$FILEKIND" in
                 VIDEO_DESC="Container:Directory MotionPhoto Item:Length=$CONTAINER_LEN Padding=$CONTAINER_PAD"
             fi
         fi
-        # 兜底：全文件搜索第一个合法 ftyp（要求位于 JPEG 主体之后）
         # Fallback: scan for the first valid ftyp after the JPEG body
         if [ -z "$VIDEO_OFF" ]; then
             if [ -n "$JPEG_EOI" ]; then
@@ -548,7 +529,6 @@ case "$FILEKIND" in
     HEIF)
         scan_boxes "$FILE" 0 "$FSIZE" 0 > "$STRUCT"
 
-        # XMP 在 meta box 内，借助 exiftool 提取
         # XMP lives inside the meta box, so use exiftool to extract it
         if command -v exiftool >/dev/null 2>&1; then
             exiftool -xmp -b "$FILE" > "$XMPTMP" 2>/dev/null
@@ -577,7 +557,6 @@ case "$FILEKIND" in
             PROTO="Google Motion Photo (HEIF, described by XMP GCamera)"
         fi
 
-        # 无内嵌视频时，尝试查找伴生 MOV
         # When there is no embedded video, look for a companion MOV
         if [ -z "$VIDEO_OFF" ]; then
             localbase="${FILE%.*}"
@@ -595,7 +574,6 @@ case "$FILEKIND" in
         if command -v exiftool >/dev/null 2>&1; then
             CONTENT_ID=$(exiftool -s3 -ContentIdentifier "$FILE" 2>/dev/null | head -1)
         fi
-        # Apple Live Photo 的 .JPG 实为 MOV 容器，moov/stsd 中含 'jpeg' 编码且 mdat 内为静态图
         # An Apple Live Photo .JPG is actually a MOV container: moov/stsd contains
         # a 'jpeg' codec entry and mdat holds the still image
         if [ -n "$MOOV_OFF" ] && [ "$FTYP_BRAND" = "qt  " ]; then
@@ -608,7 +586,7 @@ case "$FILEKIND" in
         ;;
 esac
 
-# 3. 元数据输出 / Metadata output
+# 3. Metadata output
 echo "[2] XMP Motion Photo Metadata"
 if [ -s "$XMPTMP" ] && grep -qE "GCamera|Container|Item:" "$XMPTMP" 2>/dev/null; then
     echo "  --- Key fields ---"
@@ -640,7 +618,7 @@ else
 fi
 echo ""
 
-# 4. 结构输出 / Structure output
+# 4. Structure output
 echo "[3] File Structure"
 if [ "$FILEKIND" = "JPEG" ]; then
     echo "  JPEG segment structure:"
@@ -656,7 +634,7 @@ else
 fi
 echo ""
 
-# 5. 视频定位 / Video location
+# 5. Video location
 echo "[4] Embedded Video Location"
 if [ -n "$VIDEO_OFF" ]; then
     echo "  OK: embedded video found"
@@ -679,7 +657,7 @@ else
 fi
 echo ""
 
-# 6. 结论 / Result
+# 6. Result
 echo "[5] Result"
 if [ -n "$PROTO" ] || [ -n "$VIDEO_OFF" ] || [ -n "$COMPANION" ]; then
     echo "  OK: this is a Motion Photo / Live Photo"
@@ -694,7 +672,7 @@ else
 fi
 echo ""
 
-# 7. 提取 / Extraction
+# 7. Extraction
 echo "[6] Extraction"
 if [ -z "$VIDEO_OFF" ]; then
     echo "  Nothing to extract (no embedded video)"

@@ -7,7 +7,6 @@ import android.net.Uri;
 
 /**
  * This stub content provider is just glue code between the Authenticator and the SyncProvider
- * 为系统同步框架保留的占位数据提供器，不提供实际数据访问。
  */
 public class StubContentProvider extends ContentProvider {
     @Override
