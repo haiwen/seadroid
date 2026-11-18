@@ -23,8 +23,10 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
+import com.seafile.seadroid2.framework.model.transfer.UploadedBytesModel;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
+import com.seafile.seadroid2.framework.service.upload.UploadResumeState;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.MimeUtils;
@@ -278,28 +280,43 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
 
         UploadSource source = resolveUploadSource(account);
-        notifyTransferStarted();
+
+        boolean useChunkedUpload = shouldUseChunkedUpload(source);
+        UploadResumeState resumeState = UploadResumeState.unsupported();
+        if (useChunkedUpload) {
+            resumeState = queryResumeState(account,
+                    currentTransferModel.repo_id,
+                    currentTransferModel.getParentPath(),
+                    currentTransferModel.file_name,
+                    source.fileSize);
+        }
+
+        notifyTransferStarted(resumeState.startOffset);
 
         String uploadUrl = getFileUploadUrl(account,
                 currentTransferModel.repo_id,
                 currentTransferModel.getParentPath(),
                 currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
 
-        boolean useChunkedUpload = shouldUseChunkedUpload(source);
         if (useChunkedUpload) {
             String chunkUploadUrl = appendRetJsonParam(uploadUrl);
-            int totalChunks = (int) Math.ceil((double) source.fileSize / CHUNK_SIZE_BYTES);
-            SafeLogs.d(TAG, "transferFile()", "using chunked upload, total chunks: " + totalChunks);
+            long startOffset = resumeState.startOffset;
+            int totalChunks = (int) Math.ceil((double) (source.fileSize - startOffset) / CHUNK_SIZE_BYTES);
+            SafeLogs.d(TAG, "transferFile()", "using chunked upload, start offset: " + startOffset
+                    + ", total size: " + source.fileSize + ", remaining chunks: " + totalChunks
+                    + ", resumable: " + resumeState.resumable);
+
+            long offset = startOffset;
             for (int i = 0; i < totalChunks; i++) {
                 if (isStop) {
                     throw SeafException.USER_CANCELLED_EXCEPTION;
                 }
-                long offset = i * CHUNK_SIZE_BYTES;
                 long currentChunkSize = Math.min(CHUNK_SIZE_BYTES, source.fileSize - offset);
-                boolean isLastChunk = i == totalChunks - 1;
+                boolean isLastChunk = offset + currentChunkSize >= source.fileSize;
                 int chunkNumber = i + 1;
                 uploadSingleChunk(account, source.createdTime, offset, currentChunkSize, source.fileSize, CHUNK_SIZE_BYTES, true, isLastChunk,
                         source.uploadFile, source.uploadUri, source.uploadFromUri, chunkNumber, totalChunks, chunkUploadUrl);
+                offset += currentChunkSize;
             }
         } else {
             SafeLogs.d(TAG, "transferFile()", "no chunked");
@@ -404,14 +421,19 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
     }
 
-    private void notifyTransferStarted() {
-        currentTransferModel.transferred_size = 0;
+    private void notifyTransferStarted(long initialTransferredSize) {
+        currentTransferModel.transferred_size = Math.max(initialTransferredSize, 0L);
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         _fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
         sendProgressEvent(getFeatureDataSource(), currentTransferModel);
-        notifyProgress(currentTransferModel.file_name, 0);
+
+        int percent = 0;
+        if (currentTransferModel.file_size > 0) {
+            percent = (int) (currentTransferModel.transferred_size * 100L / currentTransferModel.file_size);
+        }
+        notifyProgress(currentTransferModel.file_name, percent);
     }
 
     /**
@@ -847,6 +869,53 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
 
         return urlStr;
+    }
+
+    /**
+     * Probes whether the server supports resumable upload and computes the start offset for this upload.
+     * If the probe fails (old server, network error, invalid parameters, etc.), it degrades to
+     * non-resumable and does not block the subsequent upload.
+     */
+    @NonNull
+    private UploadResumeState queryResumeState(Account account, String repoId, String parentDir,
+                                               String fileName, long fileSize) throws SeafException {
+        if (fileSize <= 0) {
+            return UploadResumeState.unsupported();
+        }
+
+        try {
+            retrofit2.Response<UploadedBytesModel> res = ExecutionCancellation.execute(
+                    HttpManager.getHttpWithAccount(account)
+                            .execute(FileService.class)
+                            .getFileUploadedBytes(repoId, parentDir, fileName));
+
+            if (!res.isSuccessful()) {
+                SafeLogs.d(TAG, "queryResumeState()", "probe failed, code: " + res.code() + ", fallback to full upload");
+                return UploadResumeState.unsupported();
+            }
+
+            UploadedBytesModel body = res.body();
+            UploadResumeState state = UploadResumeState.decide(
+                    true,
+                    res.headers().get("Accept-Ranges"),
+                    body == null ? null : body.uploadedBytes,
+                    fileSize);
+
+            SafeLogs.d(TAG, "queryResumeState()", "supported: " + state.supported
+                    + ", uploadedBytes: " + state.uploadedBytes
+                    + ", startOffset: " + state.startOffset
+                    + ", fileSize: " + fileSize);
+
+            return state;
+        } catch (java.util.concurrent.CancellationException e) {
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        } catch (Exception e) {
+            if (isStop) {
+                throw SeafException.USER_CANCELLED_EXCEPTION;
+            }
+            SafeLogs.e(TAG, "queryResumeState()", "probe error, fallback to full upload: " + e.getMessage());
+            return UploadResumeState.unsupported();
+        }
     }
 
     @NonNull
