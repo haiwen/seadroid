@@ -41,7 +41,7 @@ public class CameraUploadManager {
     }
 
     /**
-     * 设置变更后立即按新配置重启：取消当前任务，旧任务退出后清空待传模型并全量重扫。
+     * Restart immediately after setting changes: Cancel the current task, and after the old task exits, clear the models to be transferred and rescan the entire dataset.
      */
     public void restartSync() {
         if (getCameraAccount() == null) {
