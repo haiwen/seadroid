@@ -159,7 +159,7 @@ public class SeaRatingBar extends LinearLayout {
         if (mRatingStatus == RatingStatus.Enable && !mBoundaryList.isEmpty()) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 float calculatedRating = calculateRating(event.getX());
-                // 如果点击位置对应的评分与当前评分相同，则重置为 0
+                // Reset to 0 if the rating at the tapped position matches the current rating
                 if (Math.abs(calculatedRating - mRating) < 0.1f) {
                     setRating(0);
                 } else {

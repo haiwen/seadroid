@@ -179,7 +179,7 @@ public class GalleryBucketUtils {
     private static List<Bucket> getImageBucketsBelowAndroid10Api29(Context context) {
         Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-        //MediaStore.Images.Media.DATA 在 android10以上被弃用，建议使用MediaStore.Images.Media.RELATIVE_PATH(api28+)
+        //MediaStore.Images.Media.DATA is deprecated on Android 10+, MediaStore.Images.Media.RELATIVE_PATH (api28+) is recommended instead
         String[] projection = new String[]{
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.BUCKET_ID,
@@ -308,7 +308,7 @@ public class GalleryBucketUtils {
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.BUCKET_ID,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN,  // 添加时间戳字段
+                MediaStore.Images.Media.DATE_TAKEN,  // timestamp field added
                 MediaStore.Images.Media.DATA
         } : new String[]{
                 MediaStore.Images.Media._ID,

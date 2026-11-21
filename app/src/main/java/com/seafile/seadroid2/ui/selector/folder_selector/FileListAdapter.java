@@ -80,7 +80,7 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
         FileBean currentItem = getItems().get(position);
         boolean isChecking = checkState == MaterialCheckBox.STATE_CHECKED;
 
-        // 如果是取消选择，直接处理
+        // Handle deselection directly
         if (!isChecking) {
             currentItem.setCheckedState(checkState);
             if (onFileItemChangeListener != null) {
@@ -89,9 +89,9 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
             return;
         }
 
-        // 处理选择逻辑
+        // Handle selection logic
         if (maxSelectCount == 1) {
-            // 单选模式：取消之前选中的项目
+            // Single-selection mode: deselect previously selected items
             for (int i = 0; i < getItems().size(); i++) {
                 FileBean item = getItems().get(i);
                 if (i != position && item.getCheckedState() == MaterialCheckBox.STATE_CHECKED) {
@@ -102,13 +102,13 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
                     }
                 }
             }
-            // 选中当前项目
+            // Select the current item
             currentItem.setCheckedState(checkState);
             if (onFileItemChangeListener != null) {
                 onFileItemChangeListener.onChanged(currentItem, position, true);
             }
         } else if (maxSelectCount > 1) {
-            // 多选模式：检查是否超过最大选择数量
+            // Multi-selection mode: check whether the selection limit is exceeded
             int checkedCount = 0;
             for (FileBean item : getItems()) {
                 if (item.getCheckedState() == MaterialCheckBox.STATE_CHECKED) {
@@ -116,21 +116,21 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
                 }
             }
 
-            // 如果已经达到最大选择数量且当前项未选中，则不允许再选
+            // Disallow selecting an unselected item once the selection limit is reached
             if (checkedCount >= maxSelectCount && currentItem.getCheckedState() != MaterialCheckBox.STATE_CHECKED) {
-                // 不更新选中状态，恢复为未选中
+                // Do not apply the selection; restore the unchecked state
                 currentItem.setCheckedState(MaterialCheckBox.STATE_UNCHECKED);
                 notifyItemChanged(position);
                 return;
             }
 
-            // 未达到最大数量，可以选中
+            // The limit has not been reached, so the item can be selected
             currentItem.setCheckedState(checkState);
             if (onFileItemChangeListener != null) {
                 onFileItemChangeListener.onChanged(currentItem, position, true);
             }
         } else {
-            // maxSelectCount = 0，不限制选择数量
+            // maxSelectCount = 0, no selection limit
             currentItem.setCheckedState(checkState);
             if (onFileItemChangeListener != null) {
                 onFileItemChangeListener.onChanged(currentItem, position, true);

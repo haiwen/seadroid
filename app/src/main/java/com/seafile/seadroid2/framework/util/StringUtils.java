@@ -20,7 +20,7 @@ public class StringUtils {
 //            return input;
 //        }
 //
-//        //如果绝对值大于总长度，返回原值
+//        //If the absolute value is greater than the total length, return the original value
 //        if (Math.abs(subLength) > input.length()) {
 //            return input;
 //        }

@@ -4,15 +4,15 @@ import com.google.gson.annotations.SerializedName;
 
 public class StorageInfo {
     @SerializedName("path")
-    public String path;           // 真实路径
+    public String path;           // Real path
     @SerializedName("label")
-    public String label;          // 用户可读的标签，如“内部存储”“SD 卡”“U盘”
+    public String label;          // User-readable label, e.g. "Internal storage", "SD card", "USB drive"
     @SerializedName("isRemovable")
-    public boolean isRemovable;   // 是否是可移除存储（如 SD 卡、OTG）
+    public boolean isRemovable;   // Whether it is removable storage (e.g. SD card, OTG)
     @SerializedName("isPrimary")
-    public boolean isPrimary;     // 是否为主存储（如 /storage/emulated/0）
+    public boolean isPrimary;     // Whether it is the primary storage (e.g. /storage/emulated/0)
     @SerializedName("isAvailable")
-    public boolean isAvailable;     // 是否可用
+    public boolean isAvailable;     // Whether it is available
     @SerializedName("type")
     public Type type;
 

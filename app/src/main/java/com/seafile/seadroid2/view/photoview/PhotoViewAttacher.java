@@ -139,7 +139,7 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
 
             mTotalDragX += Math.abs(dx);
             mTotalDragY += Math.abs(dy);
-            // 当累计滑动超过阈值时确定方向
+            // Determine the direction when the accumulated drag exceeds the threshold
             if (mScrollDirection == ScrollDirection.NONE) {
                 float distance = (float) Math.sqrt(mTotalDragX * mTotalDragX + mTotalDragY * mTotalDragY);
                 if (distance >= mScaleDragDetector.getTouchSlop()) {
@@ -149,7 +149,7 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
 
             if (mAllowParentInterceptOnEdge && !mScaleDragDetector.isScaling() && !mBlockParentIntercept) {
 
-                if (mScrollDirection == ScrollDirection.HORIZONTAL) { // 水平滑动
+                if (mScrollDirection == ScrollDirection.HORIZONTAL) { // Horizontal scrolling
                     if (mHorizontalScrollEdge == HORIZONTAL_EDGE_LEFT && dx > 1f) {
                         parent.requestDisallowInterceptTouchEvent(false);
                     } else if (mHorizontalScrollEdge == HORIZONTAL_EDGE_LEFT && dx >= -1f) {
@@ -161,7 +161,7 @@ public class PhotoViewAttacher implements View.OnTouchListener, View.OnLayoutCha
                     } else {
                         parent.requestDisallowInterceptTouchEvent(false);
                     }
-                } else if (mScrollDirection == ScrollDirection.VERTICAL) { // 垂直滑动
+                } else if (mScrollDirection == ScrollDirection.VERTICAL) { // Vertical scrolling
                     if (mVerticalScrollEdge == VERTICAL_EDGE_TOP && dy < -1f) {
                         //on the top edge, continue scroll up
 

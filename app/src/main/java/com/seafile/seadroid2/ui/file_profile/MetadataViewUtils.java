@@ -962,9 +962,9 @@ public class MetadataViewUtils {
         // 1 010 111,000000%
         // ￥101,110000
         // 101,110000~
-        // 101,110,000: enable_precision = true, precision=3,最后一个 comma 为小数点标识
-        // 101,110,00: 最后一个 comma 为小数点标识
-        // 101,110,000000: 最后一个 comma 为小数点标识
+        // 101,110,000: enable_precision = true, precision=3, the last comma indicates the decimal point
+        // 101,110,00: the last comma indicates the decimal point
+        // 101,110,000000: the last comma indicates the decimal point
 
         // Check if the input contains percentage sign
         boolean isPercentage = formattedString.contains("%");

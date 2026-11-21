@@ -81,7 +81,7 @@ public class PermissionEntity extends BaseModel {
         this.repo_id = repoId;
 
         if ("cloud-edit".equals(permission)) {
-            //用户可以通过浏览器在线查看和编辑，文件不能被下载。
+            //Users can view and edit online in a browser, but cannot download files.
             this.create = true;
             this.upload = false;
             this.download = false;
@@ -92,7 +92,7 @@ public class PermissionEntity extends BaseModel {
             this.download_external_link = false;
 
         } else if ("preview".equals(permission)) {
-            //用户只能通过浏览器在线查看，文件不能被下载。
+            //Users can only view online in a browser and cannot download files.
             this.create = false;
             this.upload = false;
             this.download = false;
@@ -102,7 +102,7 @@ public class PermissionEntity extends BaseModel {
             this.modify = false;
             this.download_external_link = false;
         } else if ("r".equals(permission)) {
-            //用户可以查看、下载和同步文件
+            //Users can view, download and sync files
             this.create = false;
             this.upload = false;
             this.download = true;

@@ -73,7 +73,7 @@ public class DraggableScrollView extends ScrollView {
                 }
                 float deltaY = mLastY - ev.getY();
                 mLastY = ev.getY();
-                if (deltaY < 0) { // 下滑
+                if (deltaY < 0) { // Swipe down
                     if (getScrollY() <= 0) {
                         setEnabled(false);
                         setVerticalScrollBarEnabled(false);

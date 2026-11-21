@@ -54,7 +54,7 @@ public class FolderBackupScanJobService extends JobService {
     }
 
     public int doWork() {
-        SafeLogs.e(TAG, "文件夹扫描 Job 启动");
+        SafeLogs.e(TAG, "Folder scan job started");
         int backupFileCount = 0;
 
         if (!canExc()) {

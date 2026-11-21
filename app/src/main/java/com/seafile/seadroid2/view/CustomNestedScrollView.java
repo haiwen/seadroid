@@ -55,20 +55,20 @@ public class CustomNestedScrollView extends ScrollView {
                 float deltaY = mLastY - ev.getY();
                 mLastY = ev.getY();
 
-                if (deltaY < 0) { // 下滑
+                if (deltaY < 0) { // Swipe down
                     if (getScrollY() <= 0) {
-                        // 已经到达顶部，让父视图处理
+                        // Already at the top; let the parent view handle it
                         getParent().requestDisallowInterceptTouchEvent(false);
                         return false;
                     }
-                } else { // 上滑
-                    // 如果没有更多内容可以滚动，让父视图处理
+                } else { // Swipe up
+                    // Let the parent view handle it if there is no more content to scroll
                     if (getScrollY() + getHeight() >= getChildAt(0).getHeight()) {
                         getParent().requestDisallowInterceptTouchEvent(false);
                         return false;
                     }
                 }
-                // 其他情况下自己处理滑动
+                // Handle scrolling here in all other cases
                 getParent().requestDisallowInterceptTouchEvent(true);
                 break;
 

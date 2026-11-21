@@ -421,7 +421,7 @@ public class PhotoFragment extends BaseFragment {
         binding.bottomScrollView.setOnViewDragListener(new OnViewDragListener() {
             @Override
             public void onDrag(ScrollDirection direction, float dx, float dy) {
-                // 修改滚动阈值判断逻辑
+                // Adjust the scroll threshold check logic
                 if (direction == ScrollDirection.RIGHT || direction == ScrollDirection.LEFT) {
                     binding.bottomScrollView.requestDisallowInterceptTouchEvent(false);
                 } else {
@@ -645,7 +645,7 @@ public class PhotoFragment extends BaseFragment {
 //
 //                    @Override
 //                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-////                        SLogs.e("缩略图：" + dataSource.name() + ": " + isFirstResource + ": " + thumbKey + ": " + thumbnailUrl);
+////                        SLogs.e("thumbnail: " + dataSource.name() + ": " + isFirstResource + ": " + thumbKey + ": " + thumbnailUrl);
 //                        return false;
 //                    }
 //                });
@@ -680,7 +680,7 @@ public class PhotoFragment extends BaseFragment {
     private String currentLocalImagePath;
 
     /**
-     * 纯 UI：根据动态照片类型更新 "Live" 按钮。须在主线程调用。
+     * Pure UI: update the "Live" button according to the motion photo type. Must be called on the main thread.
      */
     private void applyMotionPhotoUi(int type) {
         if (type == HeicNative.MOTION_PHOTO_TYPE_HEIC || type == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
@@ -694,8 +694,8 @@ public class PhotoFragment extends BaseFragment {
     }
 
     /**
-     * 本地图片加载成功后：在后台线程做动态照片检测与 EXIF 解析（避免阻塞主线程，
-     * 尤其是慢速/低内存设备），完成后回到主线程更新 UI。
+     * Called after a local image is loaded successfully: detect motion photo and parse EXIF on a background thread
+     * (to avoid blocking the main thread, especially on slow/low-memory devices), then return to the main thread to update the UI.
      */
     private void handleLocalImageLoaded(String oriUrl) {
         if (TextUtils.isEmpty(oriUrl)) {
@@ -727,12 +727,12 @@ public class PhotoFragment extends BaseFragment {
     private ExoPlayer exoPlayer;
 
     /**
-     * 动态照片视频的临时文件，播放结束后在 releasePlayer 中清理。
+     * Temporary file for the motion photo video, cleaned up in releasePlayer after playback ends.
      */
     private File livePhotoVideoFile;
 
     /**
-     * 是否正在后台提取动态照片视频，防止长按重复触发。
+     * Whether the motion photo video is being extracted in the background, to prevent repeated triggers from long press.
      */
     private boolean isLivePhotoExtracting = false;
 
@@ -891,7 +891,7 @@ public class PhotoFragment extends BaseFragment {
                     @Override
                     public boolean onResourceReady(@NonNull GifDrawable resource, @NonNull Object model, Target<GifDrawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                         binding.progressBar.setVisibility(GONE);
-                        // 图片加载成功
+                        // Image loaded successfully
                         SLogs.d(TAG, "loadOriGifUrl()", dataSource.name() + ": " + isFirstResource + ": " + rawUrl);
                         return false;
                     }
@@ -1069,7 +1069,7 @@ public class PhotoFragment extends BaseFragment {
                 exifBinding.exifFocalLength.setText(focalLengthValue + " mm");
 
             } else {
-                SLogs.d(TAG, "ExifData", "焦距: " + focalLength + " mm");
+                SLogs.d(TAG, "ExifData", "focal length: " + focalLength + " mm");
                 exifBinding.exifFocalLength.setText(focalLength + " mm");
             }
         } else {

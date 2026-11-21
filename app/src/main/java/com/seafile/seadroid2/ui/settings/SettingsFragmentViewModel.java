@@ -218,7 +218,7 @@ public class SettingsFragmentViewModel extends BaseViewModel {
                     }
 
                     if (!toUpdate.isEmpty()) {
-                        AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // 批量更新
+                        AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // Batch update
                     }
 
                     offset += pageSize;

@@ -43,7 +43,7 @@ public class FileUtils {
     private static final HashMap<String, String> needUpdateFileMime = new HashMap<>();
 
     static {
-        //{fileType，    MIME}
+        //{fileType,    MIME}
         needUpdateFileMime.put(".doc", "application/msword");
         needUpdateFileMime.put(".dot", "application/msword");
         needUpdateFileMime.put(".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
@@ -285,7 +285,7 @@ public class FileUtils {
         Cursor cursor = null;
 
         try {
-            // 优先使用 MediaStore.DATE_ADDED + LAST_MODIFIED
+            // Prefer MediaStore.DATE_ADDED + LAST_MODIFIED
             String[] projection = {
                     MediaStore.MediaColumns.DATE_ADDED,
                     MediaStore.MediaColumns.DATE_MODIFIED,
@@ -328,12 +328,12 @@ public class FileUtils {
     }
 
     /**
-     * 获取 Uri 文件的实际大小（字节数）。
-     * 优先使用 OpenableColumns.SIZE，如果不可用则通过流读取计算。
+     * Get the actual size of the file referenced by the Uri (in bytes).
+     * Prefer OpenableColumns.SIZE; if unavailable, calculate it by reading the stream.
      *
-     * @param context 上下文
-     * @param uri     文件 Uri
-     * @return 文件大小，如果获取失败返回 -1
+     * @param context context
+     * @param uri     file Uri
+     * @return file size, or -1 if it cannot be obtained
      */
     public static long getFileSize(Context context, Uri uri) {
         if (context == null || uri == null) {
@@ -344,12 +344,12 @@ public class FileUtils {
         if (size > 0) {
             return size;
         }
-        // fallback: 通过流读取计算
+        // fallback: calculate by reading the stream
         return getSizeFromStream(context, uri);
     }
 
     /**
-     * 优先通过 OpenableColumns.SIZE 获取文件大小
+     * Prefer getting the file size via OpenableColumns.SIZE
      */
     private static long getSizeFromOpenableColumns(Context context, Uri uri) {
         Cursor cursor = null;
@@ -365,7 +365,7 @@ public class FileUtils {
                 }
             }
         } catch (Exception ignore) {
-            // 忽略异常，继续使用流式计算
+            // Ignore the exception and continue with stream-based calculation
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -375,7 +375,7 @@ public class FileUtils {
     }
 
     /**
-     * 通过流读取计算文件大小
+     * Calculate the file size by reading the stream
      */
     private static long getSizeFromStream(Context context, Uri uri) {
         long totalBytes = 0;
@@ -390,7 +390,7 @@ public class FileUtils {
                 totalBytes += bytesRead;
             }
         } catch (IOException ignore) {
-            // 忽略异常，返回 -1
+            // Ignore the exception and return -1
         } finally {
             if (inputStream != null) {
                 try {

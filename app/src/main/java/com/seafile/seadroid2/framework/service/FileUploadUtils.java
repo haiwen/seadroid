@@ -24,7 +24,7 @@ public class FileUploadUtils {
         ContentResolver resolver = context.getContentResolver();
         long size = -1L;
 
-        // 获取 OpenableColumns 信息
+        // Get OpenableColumns info
         try (Cursor cursor = resolver.query(uri,
                 new String[]{OpenableColumns.SIZE},
                 null,

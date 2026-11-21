@@ -309,7 +309,7 @@ public final class MotionPhotoDetector {
                 continue;
             }
 
-            // 跳过 padding FF
+            // Skip padding FF
             int marker;
             do {
                 marker = is.read();
@@ -317,7 +317,7 @@ public final class MotionPhotoDetector {
                 offset++;
             } while (marker == 0xFF);
 
-            // standalone marker（无 length）
+            // standalone marker (no length)
             if (isStandaloneMarker(marker)) {
                 if (marker == 0xD9) { // EOI
                     return offset;
@@ -327,7 +327,7 @@ public final class MotionPhotoDetector {
 
             // --- SOS ---
             if (marker == 0xDA) {
-                // 读取 SOS header 长度
+                // Read the SOS header length
                 int lh = is.read();
                 int ll = is.read();
                 if (lh == -1 || ll == -1) return -1;
@@ -336,12 +336,12 @@ public final class MotionPhotoDetector {
                 int len = (lh << 8) | ll;
                 if (len < 2) return -1;
 
-                // 跳过 SOS header 剩余部分
+                // Skip the rest of the SOS header
                 long skipped = skipFully(is, len - 2);
                 if (skipped != len - 2) return -1;
                 offset += skipped;
 
-                // 扫描熵编码数据直到 EOI
+                // Scan entropy-coded data until EOI
                 while (true) {
                     int data = is.read();
                     if (data == -1) return -1;
@@ -360,12 +360,12 @@ public final class MotionPhotoDetector {
                             // EOI
                             return offset;
                         }
-                        // 其他 marker：继续扫描
+                        // Other markers: keep scanning
                     }
                 }
             }
 
-            // --- 普通 marker，读取 length ---
+            // --- Regular marker, read length ---
             int lh = is.read();
             int ll = is.read();
             if (lh == -1 || ll == -1) {
@@ -393,7 +393,7 @@ public final class MotionPhotoDetector {
         while (remaining > 0) {
             long skipped = is.skip(remaining);
             if (skipped <= 0) {
-                // fallback: 读一个字节防止死循环
+                // fallback: read one byte to avoid an infinite loop
                 if (is.read() == -1) {
                     break;
                 }

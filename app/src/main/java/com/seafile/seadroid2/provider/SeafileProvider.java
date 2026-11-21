@@ -619,7 +619,7 @@ public class SeafileProvider extends DocumentsProvider {
 
     private ParcelFileDescriptor writeDocumentAsync(final String documentId, final String mode, Account account, RepoModel repoModel, String path, final CancellationSignal signal) throws FileNotFoundException {
         if (documentId.endsWith("/")) {
-            // 返回一个黑洞的 ParcelFileDescriptor，系统会写进去但实际丢弃
+            // Return a black-hole ParcelFileDescriptor: the system writes into it but the data is actually discarded
             return ParcelFileDescriptor.open(new File("/dev/null"), ParcelFileDescriptor.MODE_WRITE_ONLY);
         }
 
@@ -812,8 +812,8 @@ public class SeafileProvider extends DocumentsProvider {
 
         try {
             ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createReliableSocketPair();
-            final ParcelFileDescriptor toSystemFd = pipe[0];  // 返回给系统，交给第三方 App，用于"读取数据"
-            final ParcelFileDescriptor mySideFd = pipe[1]; // 你来写入下载内容，自己使用，用于"写入数据"
+            final ParcelFileDescriptor toSystemFd = pipe[0];  // Returned to the system and passed to third-party apps, used for "reading data"
+            final ParcelFileDescriptor mySideFd = pipe[1]; // You write the downloaded content here for your own use, used for "writing data"
 
             CompletableFuture.runAsync(() -> {
 
@@ -923,7 +923,7 @@ public class SeafileProvider extends DocumentsProvider {
                     public void onComplete() {
                         downloadResult.set(true);
                         SLogs.d(TAG, "openDocument()", "download complete");
-                        // 下载完成后，通知系统文件已准备好
+                        // Notify the system that the file is ready after the download completes
 //                            getContext().getContentResolver().notifyChange(toNotifyUri(documentId), null);
                     }
 

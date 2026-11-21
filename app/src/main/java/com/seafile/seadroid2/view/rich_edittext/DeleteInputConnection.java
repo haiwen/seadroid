@@ -26,7 +26,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
  *     @author 杨充
  *     blog  : https://github.com/yangchong211
  *     time  : 2019/07/18
- *     desc  : 自定义InputConnectionWrapper
+ *     desc  : Custom InputConnectionWrapper
  *     revise:
  * </pre>
  */
@@ -36,7 +36,7 @@ public class DeleteInputConnection extends InputConnectionWrapper {
 
     public interface BackspaceListener {
         /**
-         * @return true 代表消费了这个事件
+         * @return true if this event was consumed
          */
         boolean onBackspace();
     }
@@ -51,11 +51,11 @@ public class DeleteInputConnection extends InputConnectionWrapper {
     }
 
     /**
-     * 提交文本
-     * 输入法输入了字符，包括表情，字母、文字、数字和符号等内容，会回调该方法
+     * Commits text
+     * Called when the input method enters characters, including emoji, letters, text, numbers, and symbols
      *
      * @param text              text
-     * @param newCursorPosition 新索引位置
+     * @param newCursorPosition New cursor position
      * @return
      */
     @Override
@@ -64,16 +64,16 @@ public class DeleteInputConnection extends InputConnectionWrapper {
     }
 
     /**
-     * 按键事件
-     * 在commitText方法中，
-     * 如果执行父类的 commitText（即super.commitText(text, newCursorPosition)）那么表示不拦截，
-     * 如果返回false则表示拦截
+     * Key events
+     * In the commitText method,
+     * calling the superclass commitText (i.e. super.commitText(text, newCursorPosition)) means not intercepting,
+     * while returning false means intercepting
      * <p>
-     * 当有按键输入时，该方法会被回调。比如点击退格键时，搜狗输入法应该就是通过调用该方法，
-     * 发送keyEvent的，但谷歌输入法却不会调用该方法，而是调用下面的deleteSurroundingText()方法。
-     * 网上说少数低端手机，无法响应退格键删除功能，后期找华为p9手机，安装搜狗输入法测试
+     * Called when a key is pressed. For example, Sogou input likely calls this method when backspace is pressed
+     * to send a keyEvent, whereas Google input calls deleteSurroundingText() below instead.
+     * Some low-end phones reportedly do not respond to backspace; test later on a Huawei P9 with Sogou input installed
      *
-     * @param event event事件
+     * @param event Key event
      * @return
      */
     @Override
@@ -88,8 +88,8 @@ public class DeleteInputConnection extends InputConnectionWrapper {
     }
 
     /**
-     * 删除操作
-     * 有文本删除操作时（剪切，点击退格键），会触发该方法
+     * Deletion operations
+     * Called when text is deleted (by cutting or pressing backspace)
      *
      * @param beforeLength beforeLength
      * @param afterLength  afterLength
@@ -106,7 +106,7 @@ public class DeleteInputConnection extends InputConnectionWrapper {
     }
 
     /**
-     * 结 束组合文本输入的时候，回调该方法
+     * Called when composing text input is finished
      *
      * @return
      */

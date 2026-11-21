@@ -206,7 +206,7 @@ public class EditorViewModel extends BaseViewModel {
 //        Response response = newCall.execute();
 //        if (!response.isSuccessful()) {
 //            String b = response.body() != null ? response.body().string() : null;
-//            SLogs.e("上传结果，失败：" + b);
+//            SLogs.e("Upload result, failed: " + b);
 //
 //            //[text={"error": "Out of quota.\n"}]
 //            if (b != null && b.toLowerCase().contains("out of quota")) {
@@ -218,7 +218,7 @@ public class EditorViewModel extends BaseViewModel {
 //
 //        String str = response.body().string();
 //        String fileId = str.replace("\"", "");
-//        SLogs.e("上传结果，文件 ID：" + str);
+//        SLogs.e("Upload result, file ID: " + str);
 //
 //        return fileId;
 //

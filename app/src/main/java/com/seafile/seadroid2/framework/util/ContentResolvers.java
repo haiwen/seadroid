@@ -24,7 +24,7 @@ public class ContentResolvers {
         return fileName;
     }
 
-    // 获取文件内容的方法
+    // Method to get file content
     public static byte[] getFileContentFromUri(ContentResolver contentResolver, Uri uri) {
         byte[] fileContent = null;
         InputStream inputStream = null;

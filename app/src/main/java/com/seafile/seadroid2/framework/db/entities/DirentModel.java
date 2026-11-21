@@ -352,12 +352,12 @@ public class DirentModel extends BaseModel implements Parcelable {
         dest.writeString(this.type);
         dest.writeLong(this.mtime);
         dest.writeString(this.permission);
-        dest.writeString(this.dir_id);
-        dest.writeByte(this.starred ? (byte) 1 : (byte) 0);
-        dest.writeLong(this.size);
-        dest.writeString(this.related_account);
         dest.writeString(this.repo_id);
         dest.writeString(this.repo_name);
+        dest.writeByte(this.starred ? (byte) 1 : (byte) 0);
+        dest.writeString(this.dir_id);
+        dest.writeString(this.related_account);
+        dest.writeLong(this.size);
         dest.writeByte(this.is_locked ? (byte) 1 : (byte) 0);
         dest.writeByte(this.is_freezed ? (byte) 1 : (byte) 0);
         dest.writeByte(this.locked_by_me ? (byte) 1 : (byte) 0);
@@ -382,12 +382,12 @@ public class DirentModel extends BaseModel implements Parcelable {
         this.type = source.readString();
         this.mtime = source.readLong();
         this.permission = source.readString();
-        this.dir_id = source.readString();
-        this.starred = source.readByte() != 0;
-        this.size = source.readLong();
-        this.related_account = source.readString();
         this.repo_id = source.readString();
         this.repo_name = source.readString();
+        this.starred = source.readByte() != 0;
+        this.dir_id = source.readString();
+        this.related_account = source.readString();
+        this.size = source.readLong();
         this.is_locked = source.readByte() != 0;
         this.is_freezed = source.readByte() != 0;
         this.locked_by_me = source.readByte() != 0;
@@ -423,9 +423,9 @@ public class DirentModel extends BaseModel implements Parcelable {
             } catch (Exception e) {
                 SLogs.e("DirentModel", "Failed to unparcel", e);
 
-                // 返回一个基本的对象，避免崩溃
+                // Return a basic object to avoid a crash
                 DirentModel model = new DirentModel();
-                // 尝试读取 uid（最重要的字段）
+                // Try to read uid (the most important field)
                 try {
                     model.uid = in.readString();
                 } catch (Exception ignored) {

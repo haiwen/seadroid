@@ -222,7 +222,7 @@ public class ExoPlayerView extends ConstraintLayout {
 
         @Override
         public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-            //播放暂停会回调该方法，播放时playWhenReady为true
+            //Called on play or pause; playWhenReady is true during playback
             updateProgressState();
         }
     }

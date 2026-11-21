@@ -27,8 +27,8 @@ import androidx.appcompat.widget.AppCompatEditText;
  *     @author 杨充
  *     blog  : https://github.com/yangchong211
  *     time  : 2016/3/31
- *     desc  : 自定义EditText
- *     revise: 主要用途是处理软键盘回删按钮backSpace时回调OnKeyListener
+ *     desc  : Custom EditText
+ *     revise: Primarily used to invoke OnKeyListener when the soft keyboard's backSpace button is pressed
  * </pre>
  */
 public class DeletableEditText extends AppCompatEditText {
@@ -56,8 +56,8 @@ public class DeletableEditText extends AppCompatEditText {
     }
 
     /**
-     * 当输入法和EditText建立连接的时候会通过这个方法返回一个InputConnection。
-     * 我们需要代理这个方法的父类方法生成的InputConnection并返回我们自己的代理类。
+     * Returns an InputConnection when the input method connects to the EditText.
+     * Wrap the InputConnection created by the superclass method and return our own wrapper.
      * @param outAttrs                          attrs
      * @return
      */
@@ -69,7 +69,7 @@ public class DeletableEditText extends AppCompatEditText {
     }
 
     /**
-     * 设置格键删除监听事件，主要是解决少部分手机，使用搜狗输入法无法响应当内容为空时的删除逻辑
+     * Sets a backspace listener, mainly to handle deletion of empty content with Sogou input on some phones
      * @param listener                          listener
      */
     public void setBackSpaceListener(DeleteInputConnection.BackspaceListener listener){

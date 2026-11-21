@@ -102,7 +102,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         if (externalMediaDirs != null && externalMediaDirs.length > 0 && externalMediaDirs[0] != null) {
             rootPath = externalMediaDirs[0].getAbsolutePath();
         } else {
-            // 降级处理：使用内部存储路径
+            // Fallback: use the internal storage path
             rootPath = getContext().getFilesDir().getAbsolutePath();
         }
 
