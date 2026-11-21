@@ -910,19 +910,19 @@ public class PhotoFragment extends BaseFragment {
                 return exifMap;
             }
 
-            // 1. 读取相机型号
+            // 1. read the camera model
             String cameraModel = exifInterface.getAttribute(ExifInterface.TAG_MODEL);
-            SLogs.d(TAG, "ExifData", "相机型号: " + cameraModel);
+            SLogs.d(TAG, "ExifData", "camera model: " + cameraModel);
             if (!TextUtils.isEmpty(cameraModel)) {
                 exifMap.put("_model", cameraModel);
             }
 
-            // 2. 读取创建时间
+            // 2. read the creation time
             String dateTime = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
             if (TextUtils.isEmpty(dateTime)) {
                 dateTime = exifInterface.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
             }
-            SLogs.d(TAG, "ExifData", "创建时间: " + dateTime);
+            SLogs.d(TAG, "ExifData", "creation time: " + dateTime);
             if (!TextUtils.isEmpty(dateTime)) {
                 long m = TimeUtils.string2Millis(dateTime, "yyyy:MM:dd HH:mm:ss");
                 String d = TimeUtils.millis2String(m, "yyyy-MM-dd HH:mm:ss");
@@ -930,16 +930,16 @@ public class PhotoFragment extends BaseFragment {
             }
 
 
-            // 3. 读取尺寸（需要额外处理）
+            // 3. read the size additional processing required
             int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
             int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
             String wh = width + "x" + height;
             exifMap.put("_width_height", wh);
-            SLogs.d(TAG, "ExifData", "尺寸: " + wh);
+            SLogs.d(TAG, "ExifData", "size: " + wh);
 
-            // 4. 读取色彩空间
+            // 4. read the color space
             String colorSpace = exifInterface.getAttribute(ExifInterface.TAG_COLOR_SPACE);
-            SLogs.d(TAG, "ExifData", "色彩空间: " + colorSpace);
+            SLogs.d(TAG, "ExifData", "color space: " + colorSpace);
             if (!TextUtils.isEmpty(colorSpace)) {
                 exifMap.put("_color_space", colorSpace);
             }
@@ -955,23 +955,23 @@ public class PhotoFragment extends BaseFragment {
 //                });
 //            }
 
-            // 5. 读取焦距
+            // 5. read the focal length
             String focalLength = exifInterface.getAttribute(ExifInterface.TAG_FOCAL_LENGTH);
-            SLogs.d(TAG, "ExifData", "焦距: " + focalLength);
+            SLogs.d(TAG, "ExifData", "focal length: " + focalLength);
             if (!TextUtils.isEmpty(focalLength)) {
                 exifMap.put("_focal_length", focalLength);
             }
 
-            // 6. 读取光圈值
+            // 6. read the aperture value
             String apertureValue = exifInterface.getAttribute(ExifInterface.TAG_APERTURE_VALUE);
-            SLogs.d(TAG, "ExifData", "光圈值: " + apertureValue);
+            SLogs.d(TAG, "ExifData", "aperture value: " + apertureValue);
             if (!TextUtils.isEmpty(apertureValue)) {
                 exifMap.put("_aperture_value", apertureValue);
             }
 
-            // 7. 读取光圈数（F-number）
+            // 7. read the F-Number
             String fNumber = exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER);
-            SLogs.d(TAG, "ExifData", "光圈数: " + fNumber);
+            SLogs.d(TAG, "ExifData", "f-number: " + fNumber);
             if (!TextUtils.isEmpty(fNumber)) {
                 try {
                     double fDouble = Double.parseDouble(fNumber);
@@ -981,9 +981,9 @@ public class PhotoFragment extends BaseFragment {
                 }
             }
 
-            // 8. 读取曝光时间
+            // 8. read the exposure time
             String exposureTime = exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME);
-            SLogs.d(TAG, "ExifData", "曝光时间: " + exposureTime);
+            SLogs.d(TAG, "ExifData", "exposure time: " + exposureTime);
             if (!TextUtils.isEmpty(exposureTime)) {
                 try {
                     double exposureValue = Double.parseDouble(exposureTime);

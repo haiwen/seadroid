@@ -112,6 +112,7 @@ import com.seafile.seadroid2.ui.repo.sheetaction.BottomSheetMenuManager;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
 import com.seafile.seadroid2.ui.selector.OpSelectorActivity;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
+import com.seafile.seadroid2.ui.text_preview.TextPreviewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 import com.seafile.seadroid2.view.ViewSortPopupWindow;
 
@@ -1855,7 +1856,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         if (Utils.isTextMimeType(fileName)) {
             File local = getLocalDestinationFile(dirent.repo_id, dirent.repo_name, dirent.full_path);
             if (TextUtils.equals(dirent.id, dirent.local_file_id) && local.exists()) {
-                MarkdownActivity.start(requireContext(), local.getAbsolutePath(), dirent.repo_id, dirent.full_path);
+                if (MarkdownActivity.isMarkdownFile(fileName)) {
+                    MarkdownActivity.start(requireContext(), local.getAbsolutePath(), dirent.repo_id, dirent.full_path);
+                } else {
+                    TextPreviewActivity.start(requireContext(), local.getAbsolutePath(), dirent.repo_id, dirent.full_path);
+                }
             } else {
                 Intent intent = FileActivity.start(requireContext(), dirent, FileReturnActionEnum.OPEN_TEXT_MIME);
                 fileActivityLauncher.launch(intent);
@@ -2316,9 +2321,11 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
                     WidgetUtils.openWith(requireContext(), destinationFile);
 
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
-
-                    MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
-
+                    if (MarkdownActivity.isMarkdownFile(targetFile)) {
+                        MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                    } else {
+                        TextPreviewActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                    }
                 } else if (TextUtils.equals(FileReturnActionEnum.SAVE_AS.name(), action)) {
                     checkMotionPhotoAndExport(destinationFile, FileReturnActionEnum.SAVE_AS);
                 }

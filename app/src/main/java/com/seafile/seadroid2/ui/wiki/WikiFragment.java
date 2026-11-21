@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.wiki;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -91,12 +92,20 @@ public class WikiFragment extends BaseFragmentWithVM<WikiViewModel> {
                 WikiInfoModel wikiInfoModel = (WikiInfoModel) model;
                 String url;
                 if (StringUtils.equalsIgnoreCase(wikiInfoModel.type, WikiType.TYPE_OLD)) {
+                    if (TextUtils.isEmpty(wikiInfoModel.slug)) {
+                        return;
+                    }
                     url = Utils.pathJoin(account.getServer(), "published", wikiInfoModel.slug);
                 } else {
+                    if (TextUtils.isEmpty(wikiInfoModel.id)) {
+                        return;
+                    }
                     url = Utils.pathJoin(account.getServer(), "wikis", wikiInfoModel.id);
                 }
 
-                SeaWebViewActivity.openUrl(requireContext(), url, true);
+                if (!TextUtils.isEmpty(url)) {
+                    SeaWebViewActivity.openUrl(requireContext(), url, true);
+                }
             }
         });
 

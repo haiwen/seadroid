@@ -46,7 +46,7 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
         -fPIC
 )
 
-# 总是启用 16KB 对齐
+# always enable 16kb alignment
 if(ANDROID_ABI STREQUAL "arm64-v8a")
     target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
             -Wl,-z,max-page-size=16384
@@ -64,7 +64,7 @@ elseif(ANDROID_ABI STREQUAL "armeabi-v7a")
     )
 endif()
 
-# Release 构建的额外优化
+# additional optimizations for the release build
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
             -O3

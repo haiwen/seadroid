@@ -1,25 +1,20 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
-import androidx.collection.LongSparseArray;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.blankj.utilcode.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class ViewPager2Adapter extends FragmentStateAdapter {
     private final List<Fragment> fragments = new ArrayList<>();
     private final List<Long> fragmentIds = new ArrayList<>();
-
-    private final SparseLongCompat itemIds = new SparseLongCompat();
-    private static final AtomicLong nextId = new AtomicLong();
 
     public ViewPager2Adapter(FragmentActivity fa) {
         super(fa);
@@ -30,14 +25,16 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
         this.fragmentIds.clear();
 
         for (int i = 0; i < fts.size(); i++) {
-            this.fragments.add(fts.get(i));
-            this.fragmentIds.add(itemIds.get(i));
+            Fragment f = fts.get(i);
+            this.fragments.add(f);
+            this.fragmentIds.add(getStableId(f, i));
         }
     }
 
     public void addFragment(Fragment ft) {
+        long id = getStableId(ft, this.fragments.size());
         this.fragments.add(ft);
-        this.fragmentIds.add(itemIds.get(this.fragments.size()));
+        this.fragmentIds.add(id);
     }
 
     public List<Fragment> getFragments() {
@@ -45,10 +42,9 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
     }
 
     public void removeFragment(int position) {
-        fragments.remove(position);
-        fragmentIds.remove(position);
-
-        if (position != -1) {
+        if (position >= 0 && position < fragments.size()) {
+            fragments.remove(position);
+            fragmentIds.remove(position);
             notifyItemRemoved(position);
         }
     }
@@ -68,7 +64,14 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
         }
 
         String cName = clz.getName();
-        return fragments.removeIf(fragment -> cName.equals(fragment.getClass().getName()));
+        boolean removed = false;
+        for (int i = fragments.size() - 1; i >= 0; i--) {
+            if (cName.equals(fragments.get(i).getClass().getName())) {
+                removeFragment(i);
+                removed = true;
+            }
+        }
+        return removed;
     }
 
     /**
@@ -127,20 +130,30 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
         return fragmentIds.contains(itemId);
     }
 
-    private static class SparseLongCompat {
-        private final LongSparseArray<Long> mKeyToIdMap = new LongSparseArray<>();
-        private final LongSparseArray<Integer> mIdToKeyMap = new LongSparseArray<>();
-
-        public long get(int key) {
-            int index = mKeyToIdMap.indexOfKey(key);
-            if (index >= 0) {
-                return mKeyToIdMap.valueAt(index);
-            }
-
-            long id = nextId.getAndIncrement();
-            mKeyToIdMap.put(key, id);
-            mIdToKeyMap.put(id, key);
-            return id;
+    private long getStableId(Fragment fragment, int position) {
+        long id = computeBaseId(fragment, position);
+        while (fragmentIds.contains(id)) {
+            id++;
         }
+        return id;
+    }
+
+    private long computeBaseId(Fragment fragment, int position) {
+        if (fragment != null) {
+            Bundle args = fragment.getArguments();
+            if (args != null) {
+                String url = args.getString("image_url");
+                if (url != null) {
+                    return url.hashCode();
+                }
+                String repoId = args.getString("repoId");
+                String fullPath = args.getString("fullPath");
+                if (repoId != null && fullPath != null) {
+                    return (repoId + ":" + fullPath).hashCode();
+                }
+            }
+            return fragment.getClass().getName().hashCode();
+        }
+        return position;
     }
 }

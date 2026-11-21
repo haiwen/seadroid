@@ -17,8 +17,8 @@ public class HeicNative {
     public static final int MOTION_PHOTO_TYPE_NONE = 2;  // Not a motion photo
 
     /**
-     * 原生库加载失败（如 32 位设备缺对应 ABI 的库）时为 true，
-     * 调用方应跳过所有原生调用，避免 UnsatisfiedLinkError。
+     * It is true when the native library fails to load (such as when a 32-bit device lacks the corresponding ABI library).
+     * The caller should skip all native calls to avoid UnsatisfiedLinkError.
      */
     private static volatile boolean nativeUnavailable = false;
 

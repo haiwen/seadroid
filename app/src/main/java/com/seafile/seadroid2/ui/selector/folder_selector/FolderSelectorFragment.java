@@ -103,13 +103,13 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
             }
 
             if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
-                SLogs.d(TAG, "Storage", "设备挂载");
+                SLogs.d(TAG, "Storage", "mounted");
                 reload();
             } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
-                SLogs.d(TAG, "Storage", "设备卸载");
+                SLogs.d(TAG, "Storage", "unmounted");
                 reload();
             } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
-                SLogs.d(TAG, "Storage", "设备移除");
+                SLogs.d(TAG, "Storage", "removed");
                 reload();
             }
         }
@@ -145,8 +145,8 @@ public class FolderSelectorFragment extends BaseFragmentWithVM<FolderSelectorVie
     private void initRootPath() {
         volumeList = FileUtils.getAllStorageInfos(requireContext());
         for (StorageInfo info : volumeList) {
-            SLogs.d("Storage", "路径: " + info.path + "，类型: " + info.label +
-                    "，可移除: " + info.isRemovable + "，是否主存储: " + info.isPrimary);
+            SLogs.d("Storage", "path: " + info.path + "，lable: " + info.label +
+                    "，removable: " + info.isRemovable + "，primary: " + info.isPrimary);
         }
 
         if (volumeList.isEmpty()) {

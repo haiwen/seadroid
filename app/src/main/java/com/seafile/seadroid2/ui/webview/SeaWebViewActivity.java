@@ -18,17 +18,18 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
 import com.blankj.utilcode.util.ActivityUtils;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.databinding.ActivitySeaWebviewBinding;
 import com.seafile.seadroid2.databinding.ToolbarActionbarProgressBarBinding;
 import com.seafile.seadroid2.framework.util.SLogs;
+import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.ui.base.BaseActivity;
 import com.seafile.seadroid2.view.webview.PreloadWebView;
 import com.seafile.seadroid2.view.webview.SeaWebView;
@@ -56,9 +57,13 @@ public class SeaWebViewActivity extends BaseActivity {
     private ActivityResultLauncher<String> storagePermissionLauncher;
 
     public static void openUrl(Context context, String url, boolean withToken) {
+        if (TextUtils.isEmpty(url)) {
+            SLogs.e("SeaWebViewActivity", "Cannot open SeaWebViewActivity: url is empty");
+            return;
+        }
         Intent intent = new Intent(context, SeaWebViewActivity.class);
         intent.putExtra("targetUrl", url);
-        intent.putExtra("withToken", true);
+        intent.putExtra("withToken", withToken);
 
         ActivityUtils.startActivity(intent);
     }
@@ -86,13 +91,19 @@ public class SeaWebViewActivity extends BaseActivity {
             withToken = savedInstanceState.getBoolean("withToken");
         } else {
             Intent intent = getIntent();
-            targetUrl = intent.getStringExtra("targetUrl");
-            if (intent.hasExtra("withToken")) {
-                withToken = intent.getBooleanExtra("withToken", false);
+            if (intent != null) {
+                targetUrl = intent.getStringExtra("targetUrl");
+                if (intent.hasExtra("withToken")) {
+                    withToken = intent.getBooleanExtra("withToken", false);
+                }
             }
-            if (TextUtils.isEmpty(targetUrl)) {
-                throw new IllegalArgumentException("targetUrl is empty");
-            }
+        }
+
+        if (TextUtils.isEmpty(targetUrl)) {
+            SLogs.e(TAG, "targetUrl is empty, finishing SeaWebViewActivity");
+            Toasts.show(R.string.err_server_andress_empty);
+            finish();
+            return;
         }
 
         initStoragePermissionLauncher();

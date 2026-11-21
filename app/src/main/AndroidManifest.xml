@@ -103,6 +103,7 @@
             android:windowSoftInputMode="adjustNothing" />
 
         <activity android:name=".ui.markdown.MarkdownActivity" />
+        <activity android:name=".ui.text_preview.TextPreviewActivity" />
 
         <activity
             android:name=".ui.account.AccountDetailActivity"

@@ -297,7 +297,7 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
 }
 
 /**
- * Decode from JPEG data and encode as HEIC Primary Image (用于 Motion Photo)
+ * Decode from JPEG data and encode as HEIC Primary Image,
  * Return image handle for subsequent XMP metadata addition
  */
 static heif_image_handle *EncodePrimaryImageForMotionPhoto(

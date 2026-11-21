@@ -255,7 +255,7 @@ public class SDocViewModel extends BaseViewModel {
 
             Map<String, Object> t = new HashMap<>();
             t.put("file_tags_data", fileTags);
-            SLogs.d("标签请求参数：");
+            SLogs.d("tags params：");
             SLogs.d(GsonUtils.toJson(t));
 
             Single<ResultModel> tagSingle = HttpManager.getCurrentHttp().execute(SDocService.class).putRecordTag(repoId, t);
@@ -266,7 +266,7 @@ public class SDocViewModel extends BaseViewModel {
             Map<String, Object> params = new HashMap<>();
             params.put("data", data);
             params.put("record_id", recordId);
-            SLogs.d("Data请求参数：");
+            SLogs.d("data params：");
             SLogs.d(GsonUtils.toJson(params));
             Single<ResultModel> recordSingle = HttpManager.getCurrentHttp().execute(SDocService.class).putRecord(repoId, params);
             singleList.add(recordSingle);

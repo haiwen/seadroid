@@ -53,6 +53,7 @@ import com.seafile.seadroid2.ui.media.image.CarouselImagePreviewActivity;
 import com.seafile.seadroid2.ui.media.player.CustomExoVideoPlayerActivity;
 import com.seafile.seadroid2.ui.office_doc.OfficeDocumentWebActivity;
 import com.seafile.seadroid2.ui.sdoc.SDocWebViewActivity;
+import com.seafile.seadroid2.ui.text_preview.TextPreviewActivity;
 import com.seafile.seadroid2.view.TipsViews;
 
 import java.io.File;
@@ -168,8 +169,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
                     WidgetUtils.openWith(requireContext(), destinationFile);
                 } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), action)) {
-
-                    MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                    if (MarkdownActivity.isMarkdownFile(targetFile)) {
+                        MarkdownActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                    } else {
+                        TextPreviewActivity.start(requireContext(), localFullPath, repoId, targetFile);
+                    }
                 }
             }
         });
@@ -521,8 +525,11 @@ public class AllActivitiesFragment extends BaseFragmentWithVM<ActivityViewModel>
 
                         WidgetUtils.openWith(requireContext(), localFile);
                     } else if (TextUtils.equals(FileReturnActionEnum.OPEN_TEXT_MIME.name(), actionEnum.name())) {
-                        MarkdownActivity.start(requireContext(), localFile.getAbsolutePath(), model.repo_id, model.path);
-
+                        if (MarkdownActivity.isMarkdownFile(model.path)) {
+                            MarkdownActivity.start(requireContext(), localFile.getAbsolutePath(), model.repo_id, model.path);
+                        } else {
+                            TextPreviewActivity.start(requireContext(), localFile.getAbsolutePath(), model.repo_id, model.path);
+                        }
                     }
                 } else {
                     Intent intent = FileActivity.startFromActivity(requireContext(), model, actionEnum);

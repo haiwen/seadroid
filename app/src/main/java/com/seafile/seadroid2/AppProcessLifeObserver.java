@@ -25,6 +25,11 @@ public class AppProcessLifeObserver implements DefaultLifecycleObserver {
 
         // Re-lock the app if the configured timeout has elapsed
         AppLockManager.onAppForegrounded();
+
+        if (com.seafile.seadroid2.preferences.Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH != null
+                && Boolean.TRUE.equals(com.seafile.seadroid2.preferences.Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue())) {
+            com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager.getInstance().startService();
+        }
     }
 
     @Override

@@ -1,9 +1,11 @@
 package com.seafile.seadroid2.framework.file_monitor;
 
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.core.content.ContextCompat;
 
+import com.blankj.utilcode.util.AppUtils;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.framework.util.SLogs;
 
@@ -29,6 +31,12 @@ public class FileDaemonServiceManager {
 
     public boolean startService() {
         synchronized (lock) {
+            // On Android 12+ (API 31+), foreground services cannot be started from the background.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !AppUtils.isAppForeground()) {
+                SLogs.d(TAG, "Skip starting FileDaemonService: app is in background");
+                return false;
+            }
+
             try {
                 Intent intent = new Intent(SeadroidApplication.getAppContext(), FileDaemonService.class);
                 ContextCompat.startForegroundService(SeadroidApplication.getAppContext(), intent);
