@@ -58,13 +58,8 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private String repoId;
     private String filePath;
 
-<<<<<<< Updated upstream
-    /** 用户是否手动锁定了横屏；false 时走自动旋转（跟随系统设置） */
-    private boolean isOrientationLocked = false;
-=======
     private int userRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private OrientationEventListener orientationEventListener;
->>>>>>> Stashed changes
     private boolean startAutoPlay;
     private int startItemIndex;
     private long startPosition;
@@ -84,7 +79,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         binding = ActivityExoPlayerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //
         BarUtils.setNavBarVisibility(this, false);
         BarUtils.setStatusBarVisibility(this, false);
 
@@ -96,7 +90,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         if (!intent.hasExtra("filePath")) {
             throw new IllegalArgumentException("no filePath param");
         }
-
 
         if (savedInstanceState != null) {
             fileName = savedInstanceState.getString("fileName");
@@ -123,14 +116,8 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             clearStartPosition();
         }
 
-<<<<<<< Updated upstream
-        // 默认自动旋转（跟随系统设置），若此前手动锁定了横屏则恢复锁定
-        if (isOrientationLocked) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-=======
         if (userRequestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
             setRequestedOrientation(userRequestedOrientation);
->>>>>>> Stashed changes
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         }
@@ -149,14 +136,13 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
                     return;
                 }
 
-                // When the system's automatic rotation is turned off, the player must not rotate along with the system
+                // When system auto-rotation is disabled, the player must not rotate with the device
                 if (!isSystemAutoRotationEnabled()) {
                     return;
                 }
 
-                // When the system's automatic rotation is enabled:
-                // If the user previously manually specified the direction by clicking the full-screen button,
-                // it will reset to automatic rotation when the device physically rotates to the opposite direction
+                // When system auto-rotation is enabled: if the user previously manually specified an orientation via the fullscreen button,
+                // reset to auto-rotation once the device is physically rotated to the opposite orientation
                 if (userRequestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
                     boolean isDeviceLandscape = (orientation >= 60 && orientation <= 120) || (orientation >= 240 && orientation <= 300);
                     boolean isDevicePortrait = (orientation >= 330 || orientation <= 30) || (orientation >= 150 && orientation <= 210);
@@ -197,17 +183,10 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
 
         exoPlayerView = binding.playerView;
 
-<<<<<<< Updated upstream
-        binding.back.setOnClickListener(v -> {
-            if (isOrientationLocked) {
-                // 解锁横屏，回到自动旋转
-                unlockOrientation();
-                return;
-            }
-=======
+        // Close current page directly on back button click
         binding.back.setOnClickListener(v -> finish());
->>>>>>> Stashed changes
 
+        // Toggle between landscape and portrait on fullscreen button click
         binding.fullscreen.setOnClickListener(v -> toggleFullscreen());
         updateFullscreenIcon(getResources().getConfiguration().orientation);
 
@@ -308,39 +287,20 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         binding.playPause.setImageResource(isPlay ? R.drawable.ic_play_fill : R.drawable.ic_pause_fill);
     }
 
-<<<<<<< Updated upstream
-    /** 手动锁定横屏，同时更新图标 */
-    private void lockToLandscape() {
-        isOrientationLocked = true;
-        binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    }
-
-    /** 解除横屏锁定，回到自动旋转；根据当前设备方向更新全屏图标 */
-    private void unlockOrientation() {
-        isOrientationLocked = false;
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
-        updateFullscreenIcon();
-    }
-
-    /** 根据当前设备方向同步全屏按钮图标 */
-    private void updateFullscreenIcon() {
-        int orientation = getResources().getConfiguration().orientation;
-=======
     /**
-     * switch to full screen non full screen mode
-     * When in landscape mode, it is in full-screen mode. Click to switch to portrait mode (not full-screen).
-     * When in portrait mode, it is not full-screen mode. Click to switch to landscape (full screen, SENSOR_LANDSCAPE).
+     * Toggle fullscreen / non-fullscreen mode:
+     * When currently in landscape (fullscreen), click to switch to portrait (non-fullscreen);
+     * When currently in portrait (non-fullscreen), click to switch to landscape (fullscreen, SENSOR_LANDSCAPE).
      */
     private void toggleFullscreen() {
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            // Current landscape screen -> Switch to landscape screen
+            // Current orientation is landscape -> switch to portrait
             userRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             updateFullscreenIcon(Configuration.ORIENTATION_PORTRAIT);
         } else {
-            // Current portrait -> Switch to landscape (SENSOR_LANDSCAPE)
+            // Current orientation is portrait -> switch to landscape (SENSOR_LANDSCAPE)
             userRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
             updateFullscreenIcon(Configuration.ORIENTATION_LANDSCAPE);
@@ -348,11 +308,10 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     }
 
     /**
-     * sync full screen exit full screen icon
-     * The horizontal screen is ic_fullscreen_exit, and the vertical screen is ic_fullscreen_enter
+     * Sync fullscreen / exit fullscreen icon:
+     * Landscape displays ic_fullscreen_exit, portrait displays ic_fullscreen_enter
      */
     private void updateFullscreenIcon(int orientation) {
->>>>>>> Stashed changes
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
         } else {
@@ -363,14 +322,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-<<<<<<< Updated upstream
-        // 自动旋转引起的方向变化：同步全屏图标
-        if (!isOrientationLocked) {
-            updateFullscreenIcon();
-        }
-=======
         updateFullscreenIcon(newConfig.orientation);
->>>>>>> Stashed changes
     }
 
     @OptIn(markerClass = UnstableApi.class)
@@ -403,7 +355,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
                 binding.progressBar.setDuration(duration);
                 binding.progressBar.setPosition(currentPosition);
 
-                //
                 hideControllerView();
             }
         });
@@ -420,7 +371,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
 
     /**
      * Must be higher than 0. 1 is normal speed, 2 is twice as fast, 0.5 is half normal speed.
-     *
      */
     private void changeVideoSpeed() {
         float speed = exoPlayer.getPlaybackParameters().speed;
