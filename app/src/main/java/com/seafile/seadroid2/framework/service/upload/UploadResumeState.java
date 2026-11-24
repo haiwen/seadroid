@@ -56,10 +56,10 @@ public final class UploadResumeState {
      * Computes how the upload should start from the probe result.
      *
      * <p>The upload resumes when the server supports resumable upload, the reported
-     * offset is within the file and is greater than 0. An offset that is not usable
-     * (greater than or equal to the file size) does not fall back to chunking from 0:
-     * the file server rejects a Content-Range that does not match the length of the
-     * existing temp file, so the caller uploads the file as a single request instead.</p>
+     * offset is within the file and is greater than 0. A negative or out-of-range offset
+     * does not fall back to chunking from 0: the file server rejects a Content-Range that
+     * does not match the length of the existing temp file, so the caller uploads the file
+     * as a single request instead.</p>
      */
     public static UploadResumeState decide(boolean httpSuccessful,
                                            String acceptRangesHeader,
@@ -71,7 +71,12 @@ public final class UploadResumeState {
             return chunkedFromZero(0L);
         }
 
-        long bytes = uploadedBytes == null ? 0L : Math.max(uploadedBytes, 0L);
+        long bytes = uploadedBytes == null ? 0L : uploadedBytes;
+        if (bytes < 0L) {
+            // A negative offset is not a valid checkpoint; do not normalize it to 0 and
+            // continue chunking, because a stale temp file may still reject offset 0.
+            return fullUpload(bytes);
+        }
         if (bytes == 0L) {
             return chunkedFromZero(0L);
         }

@@ -933,7 +933,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         } catch (CancellationException e) {
             throw SeafException.USER_CANCELLED_EXCEPTION;
         } catch (Exception e) {
-            if (isStop || isExecutionCancelled()) {
+            if (isUploadStopped()) {
                 throw SeafException.USER_CANCELLED_EXCEPTION;
             }
             // Probe failures (old server, network error, ...) must not rely on a
@@ -969,9 +969,19 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
      *                       was stopped or the whole execution was cancelled.
      */
     private void checkUploadCancelled() throws SeafException {
-        if (isStop || isExecutionCancelled()) {
+        if (isUploadStopped()) {
             throw SeafException.USER_CANCELLED_EXCEPTION;
         }
+    }
+
+    /**
+     * A bulk stop cancels the execution token before the transfer-level stop flag is
+     * published, so the token is checked directly. Checking only the flags would let an
+     * IOException thrown by the token-cancelled probe be mistaken for a normal probe
+     * failure.
+     */
+    private boolean isUploadStopped() {
+        return isStop || isExecutionCancelled() || ExecutionCancellation.isCancelled();
     }
 
     @NonNull

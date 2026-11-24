@@ -8,7 +8,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
-import com.seafile.seadroid2.enums.TransferStatus;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -56,10 +55,10 @@ public class FileUploader extends ParentEventUploader {
             return;
         }
 
-        if (transferModel.transfer_status == TransferStatus.IN_PROGRESS) {
-            stopThis();
-        }
-
+        // Cancel the in-flight file even when it is not marked IN_PROGRESS yet: during
+        // the resume probe the model can still be WAITING, but the blocking probe and
+        // the pending upload must be cancelled as well.
+        stopThis();
     }
 
     public SeafException upload() {
