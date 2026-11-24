@@ -133,7 +133,7 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> {
         });
 
 
-        binding.accountListView.addFooterView(footerView, null, true);
+        binding.accountListView.addFooterView(footerView, null, false);
         binding.accountListView.setFooterDividersEnabled(false);
 
         adapter = new AccountAdapter(this);
@@ -207,6 +207,9 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> {
     }
 
     private void onListItemClick(int position) {
+        if (accounts == null || position < 0 || position >= accounts.size()) {
+            return;
+        }
         Account clickedAccount = accounts.get(position);
         Account loggedAccount = SupportAccountManager.getInstance().getCurrentAccount();
         if (clickedAccount.is_checked && loggedAccount != null) {
@@ -316,13 +319,20 @@ public class AccountsActivity extends BaseActivityWithVM<AccountViewModel> {
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        if (info == null) {
+            return super.onContextItemSelected(item);
+        }
+        int pos = (int) info.id;
+        if (pos < 0 || pos >= adapter.getCount()) {
+            return super.onContextItemSelected(item);
+        }
         Account account;
         if (item.getItemId() == R.id.edit) {
-            account = adapter.getItem((int) info.id);
+            account = adapter.getItem(pos);
             startEditAccountActivity(account);
             return true;
         } else if (item.getItemId() == R.id.delete) {
-            account = adapter.getItem((int) info.id);
+            account = adapter.getItem(pos);
 
             getViewModel().deleteAccount(account);
             SLogs.d(DEBUG_TAG, "removing account = " + account);
