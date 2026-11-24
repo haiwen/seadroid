@@ -15,16 +15,16 @@ public class FileUploadUtils {
     private static final String TAG = "FileUploadUtils";
 
     /**
-     * 1、get File Size from ContentResolver.OpenableColumns.SIZE
-     * 2、if uri is trusted, return size
-     * 3、check file size by stream if size is small, and return size
-     * 5、return size
+     * 1. get File Size from ContentResolver.OpenableColumns.SIZE
+     * 2. if uri is trusted, return size
+     * 3. check file size by stream if size is small, and return size
+     * 5. return size
      */
     public static long resolveSize(Context context, Uri uri) {
         ContentResolver resolver = context.getContentResolver();
         long size = -1L;
 
-        // 获取 OpenableColumns 信息
+        // Get OpenableColumns info
         try (Cursor cursor = resolver.query(uri,
                 new String[]{OpenableColumns.SIZE},
                 null,
@@ -79,7 +79,7 @@ public class FileUploadUtils {
     }
 
     /**
-     * fallback：size is calculated via input stream
+     * fallback: size is calculated via input stream
      */
     private static long getSizeByStream(ContentResolver resolver, Uri uri) {
         try (InputStream in = resolver.openInputStream(uri)) {

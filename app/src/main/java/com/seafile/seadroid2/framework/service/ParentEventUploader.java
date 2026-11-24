@@ -90,7 +90,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
         @Override
         public void onProgressNotify(TransferModel transferModel, int percent, long transferredSize, long totalSize) {
-            SafeLogs.d(TAG, "onProgressNotify()", "UPLOAD: " + transferModel.file_name + " -> progress：" + percent);
+            SafeLogs.d(TAG, "onProgressNotify()", "UPLOAD: " + transferModel.file_name + " -> progress: " + percent);
 
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);

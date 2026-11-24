@@ -6,7 +6,7 @@ import android.text.method.NumberKeyListener;
 import androidx.annotation.NonNull;
 
 /**
- * @desc: Only numbers 、dots、comma are allowed
+ * @desc: Only numbers, dots, comma are allowed
  */
 public class NumberDotOnlyInputFilter extends NumberKeyListener {
     @Override

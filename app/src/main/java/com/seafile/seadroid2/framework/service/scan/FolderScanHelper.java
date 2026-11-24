@@ -123,7 +123,7 @@ public class FolderScanHelper {
             if (stopwatch != null) {
                 stopwatch.stop();
                 long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-                SafeLogs.d(TAG, "onlyTraverseBackupPathFileCount()", "folder backup scan time：" + stopwatch);
+                SafeLogs.d(TAG, "onlyTraverseBackupPathFileCount()", "folder backup scan time: " + stopwatch);
                 long now = System.currentTimeMillis();
                 FolderBackupSharePreferenceHelper.writeLastScanTime2(now - diff);
             }

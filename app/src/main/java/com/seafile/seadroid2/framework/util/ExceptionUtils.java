@@ -295,7 +295,7 @@ public class ExceptionUtils {
             "Invalid basic header. no credentials provided"
     );
 
-    //no org、group、email、wiki
+    //no org, group, email, wiki
     private static final List<String> HTTP_403_FORBIDDEN_DETAIL_LIST = Arrays.asList(
             "permission denied",
             "password is required",

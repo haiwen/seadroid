@@ -40,7 +40,7 @@ public class FileRangeDataSource implements DataSource {
         raf = new RandomAccessFile(file, "r");
 
         long requestPosition = dataSpec.position;
-        long absolutePosition = start + requestPosition; // 映射到 JPEG 内
+        long absolutePosition = start + requestPosition; // map into the JPEG
 
         raf.seek(absolutePosition);
 

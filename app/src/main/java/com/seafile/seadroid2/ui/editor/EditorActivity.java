@@ -87,7 +87,7 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 蓝色 Toolbar 背景延伸进状态栏/导航栏区域，系统栏图标需保持浅色
+        // The blue Toolbar background extends into the status bar/navigation bar area, so system bar icons must stay light
         EdgeToEdge.enable(this,
                 SystemBarStyle.dark(Color.TRANSPARENT),
                 SystemBarStyle.dark(Color.TRANSPARENT));

@@ -461,7 +461,7 @@ public class FileProfileEditorActivity extends BaseActivityWithVM<SDocViewModel>
         }
 
         if (configModel.getRecordMetaDataMap().isEmpty()) {
-            // todo 空布局
+            // todo empty layout
             return;
         }
 

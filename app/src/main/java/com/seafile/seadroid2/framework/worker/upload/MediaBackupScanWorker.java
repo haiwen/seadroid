@@ -147,7 +147,7 @@ public class MediaBackupScanWorker extends BaseScanWorker {
         SeafException seafException = AlbumScanHelper.loadMedia(getApplicationContext(), account, repoConfig, lastScanTime);
         if (seafException != SeafException.SUCCESS) {
             noticeScanFailed();
-            SafeLogs.d(TAG, "doWork()", "loadMedia() failed：" + seafException.getMessage());
+            SafeLogs.d(TAG, "doWork()", "loadMedia() failed: " + seafException.getMessage());
             send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
             return returnSuccess();
         }
