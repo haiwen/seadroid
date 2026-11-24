@@ -201,20 +201,28 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
     private void launchSingleSignOnFlow() {
         Intent intent = new Intent(this, SingleSignOnActivity.class);
-        Account account = new Account(getIntent().getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_NAME), Constants.Account.ACCOUNT_TYPE);
-
-        String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
-        intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
-        if (getIntent() != null) {
-            intent.putExtras(getIntent().getExtras());
+        Intent currentIntent = getIntent();
+        if (currentIntent != null) {
+            String accountName = currentIntent.getStringExtra(Constants.AccountKeys.ARG_ACCOUNT_NAME);
+            if (!TextUtils.isEmpty(accountName)) {
+                Account account = new Account(accountName, Constants.Account.ACCOUNT_TYPE);
+                String serverUrl = SupportAccountManager.getInstance().getUserData(account, Authenticator.KEY_SERVER_URI);
+                if (!TextUtils.isEmpty(serverUrl)) {
+                    intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
+                }
+            }
+            if (currentIntent.getExtras() != null) {
+                intent.putExtras(currentIntent.getExtras());
+            }
         }
         launchAuthFlow(intent, FLOW_SSO);
     }
 
     private void launchEditAccountFlow() {
         Intent intent = new Intent(this, AccountDetailActivity.class);
-        if (getIntent() != null) {
-            intent.putExtras(getIntent().getExtras());
+        Intent currentIntent = getIntent();
+        if (currentIntent != null && currentIntent.getExtras() != null) {
+            intent.putExtras(currentIntent.getExtras());
         }
         launchAuthFlow(intent, FLOW_ACCOUNT_DETAIL);
     }

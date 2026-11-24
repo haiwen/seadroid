@@ -6,10 +6,12 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.FolderBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
 import com.seafile.seadroid2.framework.util.AppLockManager;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.BackgroundJobManagerImpl;
+import com.seafile.seadroid2.preferences.Settings;
 
 public class AppProcessLifeObserver implements DefaultLifecycleObserver {
     @Override
@@ -25,6 +27,11 @@ public class AppProcessLifeObserver implements DefaultLifecycleObserver {
 
         // Re-lock the app if the configured timeout has elapsed
         AppLockManager.onAppForegrounded();
+
+        if (Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH != null
+                && Boolean.TRUE.equals(Settings.BACKUP_SETTINGS_BACKGROUND_SWITCH.queryValue())) {
+            FileDaemonServiceManager.getInstance().startService();
+        }
     }
 
     @Override

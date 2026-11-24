@@ -240,7 +240,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        SLogs.e(TAG, "onStart");
+        SLogs.e(TAG, "onDestroy");
         NetworkUtils.unregisterNetworkStatusChangedListener(onNetworkStatusChangedListener);
 
         stopWatching();
@@ -713,16 +713,21 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+    private boolean isWatchingMediaMount = false;
+
     /**
      * Start observing mount/unmount events
      */
     public void startMediaMountWatching() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-        filter.addAction(Intent.ACTION_MEDIA_REMOVED);
-        filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
-        filter.addDataScheme("file");
-        registerReceiver(storageReceiver, filter);
+        if (!isWatchingMediaMount) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+            filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+            filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+            filter.addDataScheme("file");
+            registerReceiver(storageReceiver, filter);
+            isWatchingMediaMount = true;
+        }
     }
 
     private final BroadcastReceiver storageReceiver = new BroadcastReceiver() {
@@ -761,7 +766,15 @@ public class MainActivity extends BaseActivity {
      * Stop observing
      */
     public void stopWatching() {
-        unregisterReceiver(storageReceiver);
+        if (isWatchingMediaMount) {
+            try {
+                unregisterReceiver(storageReceiver);
+            } catch (IllegalArgumentException e) {
+                SLogs.e(TAG, "storageReceiver not registered", e);
+            } finally {
+                isWatchingMediaMount = false;
+            }
+        }
     }
 
 }
