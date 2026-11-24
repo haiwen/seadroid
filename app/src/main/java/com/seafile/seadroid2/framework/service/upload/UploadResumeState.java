@@ -1,67 +1,86 @@
 package com.seafile.seadroid2.framework.service.upload;
 
 /**
- * Result of the resumable upload capability probe and the start offset for the current upload.
+ * Result of the resumable upload probe: how the current upload should start.
  */
 public final class UploadResumeState {
 
     private static final String ACCEPT_RANGES_BYTES = "bytes";
 
+    public enum Mode {
+        /**
+         * Chunked upload from offset 0. The server reported no stored bytes, so there is
+         * no stale chunk temp file that could be appended to.
+         */
+        CHUNKED_FROM_ZERO,
+        /**
+         * Chunked upload resuming from the offset reported by the server.
+         */
+        CHUNKED_RESUME,
+        /**
+         * Upload the whole file in a single request. The persistent chunk temp file is
+         * never used, so an unusable checkpoint cannot be appended to.
+         */
+        FULL_UPLOAD
+    }
+
+    public final Mode mode;
     /**
-     * Whether the server supports resumable upload
-     * (the file-uploaded-bytes response header contains "Accept-Ranges: bytes").
-     */
-    public final boolean supported;
-    /**
-     * Number of bytes already stored on the server.
+     * Number of bytes reported by the server, kept for logging.
      */
     public final long uploadedBytes;
     /**
-     * Start offset actually used by the current upload.
+     * Start offset used by the current upload. Only non-zero for {@link Mode#CHUNKED_RESUME}.
      */
     public final long startOffset;
-    /**
-     * Whether the upload really resumes from a checkpoint (startOffset > 0).
-     */
-    public final boolean resumable;
 
-    private UploadResumeState(boolean supported, long uploadedBytes, long startOffset, boolean resumable) {
-        this.supported = supported;
+    private UploadResumeState(Mode mode, long uploadedBytes, long startOffset) {
+        this.mode = mode;
         this.uploadedBytes = uploadedBytes;
         this.startOffset = startOffset;
-        this.resumable = resumable;
     }
 
-    public static UploadResumeState unsupported() {
-        return new UploadResumeState(false, 0L, 0L, false);
+    public static UploadResumeState chunkedFromZero(long uploadedBytes) {
+        return new UploadResumeState(Mode.CHUNKED_FROM_ZERO, uploadedBytes, 0L);
+    }
+
+    public static UploadResumeState resume(long uploadedBytes) {
+        return new UploadResumeState(Mode.CHUNKED_RESUME, uploadedBytes, uploadedBytes);
+    }
+
+    public static UploadResumeState fullUpload(long uploadedBytes) {
+        return new UploadResumeState(Mode.FULL_UPLOAD, uploadedBytes, 0L);
     }
 
     /**
-     * Computes the start offset for the current upload from the probe result.
+     * Computes how the upload should start from the probe result.
      *
-     * <p>The upload resumes from the checkpoint only when the server supports resumable upload,
-     * the uploaded bytes are greater than 0 and less than the total file size. Otherwise
-     * (not supported, first upload, or invalid offset) it starts from 0 and keeps the original flow.</p>
+     * <p>The upload resumes when the server supports resumable upload, the reported
+     * offset is within the file and is greater than 0. An offset that is not usable
+     * (greater than or equal to the file size) does not fall back to chunking from 0:
+     * the file server rejects a Content-Range that does not match the length of the
+     * existing temp file, so the caller uploads the file as a single request instead.</p>
      */
     public static UploadResumeState decide(boolean httpSuccessful,
                                            String acceptRangesHeader,
                                            Long uploadedBytes,
                                            long fileSize) {
         if (!httpSuccessful || !isBytesRangeSupported(acceptRangesHeader)) {
-            return unsupported();
+            // The server did not report a checkpoint; chunking from 0 cannot append to
+            // an existing temp file that we know nothing about.
+            return chunkedFromZero(0L);
         }
 
-        long bytes = uploadedBytes == null ? 0L : uploadedBytes;
-        if (bytes <= 0L) {
-            return new UploadResumeState(true, Math.max(bytes, 0L), 0L, false);
+        long bytes = uploadedBytes == null ? 0L : Math.max(uploadedBytes, 0L);
+        if (bytes == 0L) {
+            return chunkedFromZero(0L);
         }
 
-        // Fall back to a full upload when the server offset is unreliable (greater than or equal to the file size)
-        if (fileSize <= 0L || bytes >= fileSize) {
-            return new UploadResumeState(true, bytes, 0L, false);
+        if (fileSize > 0L && bytes < fileSize) {
+            return resume(bytes);
         }
 
-        return new UploadResumeState(true, bytes, bytes, true);
+        return fullUpload(bytes);
     }
 
     private static boolean isBytesRangeSupported(String acceptRangesHeader) {

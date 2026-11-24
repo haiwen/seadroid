@@ -55,6 +55,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -112,6 +113,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     private TransferModel currentTransferModel;
     private volatile Call newCall;
+    /**
+     * Retrofit call of the resumable upload probe, so a single-file stop can cancel
+     * the blocking probe instead of letting it continue and publish a running state.
+     */
+    private volatile retrofit2.Call<?> probeCall;
 
     /**
      * File size recorded at scan time, captured when the transfer starts. It is
@@ -194,6 +200,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             newCall.cancel();
         }
 
+        // The probe blocks on its own Retrofit call; cancel it as well, otherwise it
+        // returns normally and the upload proceeds even though this file was stopped.
+        retrofit2.Call<?> call = probeCall;
+        if (call != null) {
+            call.cancel();
+        }
+
         // Lifecycle cleanup is exclusively session-owned.
     }
 
@@ -201,6 +214,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel = null;
         scanFileSize = -1L;
         newCall = null;
+        probeCall = null;
         uriRequestBody = null;
         uriChunkRequestBody = null;
         fileRequestBody = null;
@@ -282,14 +296,20 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         UploadSource source = resolveUploadSource(account);
 
         boolean useChunkedUpload = shouldUseChunkedUpload(source);
-        UploadResumeState resumeState = UploadResumeState.unsupported();
+        UploadResumeState resumeState = UploadResumeState.chunkedFromZero(0L);
         if (useChunkedUpload) {
-            resumeState = queryResumeState(account,
-                    currentTransferModel.repo_id,
-                    currentTransferModel.getParentPath(),
-                    currentTransferModel.file_name,
-                    source.fileSize);
+            resumeState = resolveResumeState(account, source);
+            if (resumeState.mode == UploadResumeState.Mode.FULL_UPLOAD) {
+                // The reported checkpoint is not usable and the API offers no way to
+                // clear it: send the file as one request so the persistent chunk temp
+                // file is never touched.
+                useChunkedUpload = false;
+            }
         }
+
+        // Do not publish a running state or request an upload link when this file was
+        // stopped or the whole execution was cancelled during the blocking probe.
+        checkUploadCancelled();
 
         notifyTransferStarted(resumeState.startOffset);
 
@@ -304,7 +324,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             int totalChunks = (int) Math.ceil((double) (source.fileSize - startOffset) / CHUNK_SIZE_BYTES);
             SafeLogs.d(TAG, "transferFile()", "using chunked upload, start offset: " + startOffset
                     + ", total size: " + source.fileSize + ", remaining chunks: " + totalChunks
-                    + ", resumable: " + resumeState.resumable);
+                    + ", mode: " + resumeState.mode);
 
             long offset = startOffset;
             for (int i = 0; i < totalChunks; i++) {
@@ -872,49 +892,85 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     }
 
     /**
-     * Probes whether the server supports resumable upload and computes the start offset for this upload.
-     * If the probe fails (old server, network error, invalid parameters, etc.), it degrades to
-     * non-resumable and does not block the subsequent upload.
+     * Probes the server-reported checkpoint and decides how the chunked upload starts.
+     *
+     * <p>The upload resumes from the reported offset when it is within the file. An
+     * offset that is not usable (greater than or equal to the file size) falls back to a
+     * single-request upload: the API offers no way to clear the stale temp file, and
+     * sending chunks from 0 would be rejected by the file server while it still exists.
+     * Starting from 0 is never treated as a successful rollback.</p>
      */
     @NonNull
-    private UploadResumeState queryResumeState(Account account, String repoId, String parentDir,
-                                               String fileName, long fileSize) throws SeafException {
-        if (fileSize <= 0) {
-            return UploadResumeState.unsupported();
+    private UploadResumeState resolveResumeState(Account account, @NonNull UploadSource source) throws SeafException {
+        if (source.fileSize <= 0) {
+            return UploadResumeState.fullUpload(0L);
         }
 
-        try {
-            retrofit2.Response<UploadedBytesModel> res = ExecutionCancellation.execute(
-                    HttpManager.getHttpWithAccount(account)
-                            .execute(FileService.class)
-                            .getFileUploadedBytes(repoId, parentDir, fileName));
+        String repoId = currentTransferModel.repo_id;
+        String parentDir = currentTransferModel.getParentPath();
+        String fileName = currentTransferModel.file_name;
 
-            if (!res.isSuccessful()) {
-                SafeLogs.d(TAG, "queryResumeState()", "probe failed, code: " + res.code() + ", fallback to full upload");
-                return UploadResumeState.unsupported();
-            }
+        try {
+            retrofit2.Response<UploadedBytesModel> res = executeResumeProbe(account, repoId, parentDir, fileName);
 
             UploadedBytesModel body = res.body();
             UploadResumeState state = UploadResumeState.decide(
-                    true,
+                    res.isSuccessful(),
                     res.headers().get("Accept-Ranges"),
                     body == null ? null : body.uploadedBytes,
-                    fileSize);
+                    source.fileSize);
 
-            SafeLogs.d(TAG, "queryResumeState()", "supported: " + state.supported
+            SafeLogs.d(TAG, "resolveResumeState()", "mode: " + state.mode
                     + ", uploadedBytes: " + state.uploadedBytes
                     + ", startOffset: " + state.startOffset
-                    + ", fileSize: " + fileSize);
+                    + ", fileSize: " + source.fileSize);
+
+            if (state.mode == UploadResumeState.Mode.FULL_UPLOAD) {
+                SafeLogs.e(TAG, "resolveResumeState()", "reported checkpoint is not usable and cannot be cleared via the documented API, fall back to a single-request upload");
+            }
 
             return state;
-        } catch (java.util.concurrent.CancellationException e) {
+        } catch (CancellationException e) {
             throw SeafException.USER_CANCELLED_EXCEPTION;
         } catch (Exception e) {
-            if (isStop) {
+            if (isStop || isExecutionCancelled()) {
                 throw SeafException.USER_CANCELLED_EXCEPTION;
             }
-            SafeLogs.e(TAG, "queryResumeState()", "probe error, fallback to full upload: " + e.getMessage());
-            return UploadResumeState.unsupported();
+            // Probe failures (old server, network error, ...) must not rely on a
+            // checkpoint we know nothing about; keep the previous chunked-from-0 flow.
+            SafeLogs.e(TAG, "resolveResumeState()", "probe error, start chunked upload from 0: " + e.getMessage());
+            return UploadResumeState.chunkedFromZero(0L);
+        }
+    }
+
+    @NonNull
+    private retrofit2.Response<UploadedBytesModel> executeResumeProbe(Account account, String repoId,
+                                                                      String parentDir, String fileName) throws Exception {
+        retrofit2.Call<UploadedBytesModel> call = HttpManager.getHttpWithAccount(account)
+                .execute(FileService.class)
+                .getFileUploadedBytes(repoId, parentDir, fileName);
+
+        // Register the probe on the single-file cancellation path.
+        probeCall = call;
+        try {
+            checkUploadCancelled();
+            retrofit2.Response<UploadedBytesModel> res = ExecutionCancellation.execute(call);
+            checkUploadCancelled();
+            return res;
+        } finally {
+            if (probeCall == call) {
+                probeCall = null;
+            }
+        }
+    }
+
+    /**
+     * @throws SeafException {@link SeafException#USER_CANCELLED_EXCEPTION} when this file
+     *                       was stopped or the whole execution was cancelled.
+     */
+    private void checkUploadCancelled() throws SeafException {
+        if (isStop || isExecutionCancelled()) {
+            throw SeafException.USER_CANCELLED_EXCEPTION;
         }
     }
 
