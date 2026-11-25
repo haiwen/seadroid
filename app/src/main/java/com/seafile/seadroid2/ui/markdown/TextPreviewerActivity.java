@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.markdown;
 
-import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -34,17 +33,22 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.editor.EditorActivity;
 import com.seafile.seadroid2.ui.editor.EditorViewModel;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * Activity for previewing plain text files with WebView
  */
 public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
     private static final String TAG = "TextPreviewActivity";
+    private static final String PREVIEW_URL = "https://preview.local/text";
     private ActivityTextPreviewBinding binding;
     private String path, repoId, fullPathInRemote;
     private PermissionEntity repoPermission;
@@ -117,69 +121,43 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
         binding.webView.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                if (request == null) {
+                if (request == null || request.getUrl() == null || !request.isForMainFrame()) {
                     return build404Response();
                 }
 
-                if (request.getUrl() == null) {
+                if (!PREVIEW_URL.equalsIgnoreCase(request.getUrl().toString())) {
                     return build404Response();
                 }
 
-                if (!request.isForMainFrame()) {
-                    return build404Response();
-                }
-
-                Uri reqUri = request.getUrl();
-
-                if (!"file".equalsIgnoreCase(reqUri.getScheme())) {
-                    return build404Response();
-                }
-
-                String filePath = reqUri.getPath();
-                File file = filePath != null ? new File(filePath) : null;
-                if (file == null || !file.exists() || !file.isFile() || !isTargetPath(filePath)) {                    view.post(() -> Toasts.show(R.string.file_not_found));
+                File file = path != null ? new File(path) : null;
+                if (file == null || !file.exists() || !file.isFile()) {
+                    view.post(() -> Toasts.show(R.string.file_not_found));
                     return build404Response();
                 }
 
                 try {
-                    return new WebResourceResponse("text/plain", "UTF-8", new FileInputStream(file));
+                    InputStream source = new BufferedInputStream(new FileInputStream(file));
+                    InputStream stream = new EscapedHtmlInputStream(source, css);
+                    return new WebResourceResponse("text/html", "UTF-8", stream);
                 } catch (Exception e) {
                     SafeLogs.e(TAG, "shouldInterceptRequest failed to read file", e.getMessage());
                     view.post(() -> Toasts.show(R.string.file_not_found));
                     return build404Response();
                 }
             }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                String js = "javascript:(function() {"
-                        + "var meta = document.querySelector('meta[name=viewport]');"
-                        + "if (!meta) {"
-                        + "  meta = document.createElement('meta');"
-                        + "  meta.name = 'viewport';"
-                        + "  meta.content = 'width=device-width, initial-scale=1.0, user-scalable=yes';"
-                        + "  document.head.appendChild(meta);"
-                        + "}"
-                        + "var style = document.createElement('style');"
-                        + "style.innerHTML = '" + css + "';"
-                        + "document.head.appendChild(style);"
-                        + "})()";
-                view.evaluateJavascript(js, null);
-            }
         });
 
-        Uri uri = Uri.fromFile(new File(path));
-        binding.webView.loadUrl(uri.toString());
+        binding.webView.loadUrl(PREVIEW_URL);
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     @NonNull
     private WebSettings getWebSettings() {
         WebSettings webSettings = binding.webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setAllowFileAccess(true);
+        webSettings.setJavaScriptEnabled(false);
+        webSettings.setAllowFileAccess(false);
         webSettings.setAllowContentAccess(false);
+        webSettings.setAllowFileAccessFromFileURLs(false);
+        webSettings.setAllowUniversalAccessFromFileURLs(false);
 
         webSettings.setDefaultTextEncodingName("UTF-8");
         webSettings.setUseWideViewPort(false);
@@ -195,11 +173,98 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
         return webSettings;
     }
 
-    private boolean isTargetPath(String requestedPath) {
-        if (this.path == null || requestedPath == null) {
-            return false;
+    private static class EscapedHtmlInputStream extends InputStream {
+        private final byte[] head;
+        private final byte[] tail;
+        private final InputStream source;
+        private int headOffset = 0;
+        private int tailOffset = 0;
+        private boolean sourceEnded = false;
+        private byte[] pendingBytes = null;
+        private int pendingOffset = 0;
+
+        private static final byte[] AMP = "&amp;".getBytes(StandardCharsets.UTF_8);
+        private static final byte[] LT = "&lt;".getBytes(StandardCharsets.UTF_8);
+        private static final byte[] GT = "&gt;".getBytes(StandardCharsets.UTF_8);
+
+        public EscapedHtmlInputStream(InputStream source, String css) {
+            this.source = source;
+            String headStr = "<!DOCTYPE html><html><head>"
+                    + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\">"
+                    + "<style>" + css + "</style></head><body><pre>";
+            this.head = headStr.getBytes(StandardCharsets.UTF_8);
+            this.tail = "</pre></body></html>".getBytes(StandardCharsets.UTF_8);
         }
-        return new File(this.path).getAbsolutePath().equals(new File(requestedPath).getAbsolutePath());
+
+        @Override
+        public int read() throws IOException {
+            if (headOffset < head.length) {
+                return head[headOffset++] & 0xFF;
+            }
+            if (pendingBytes != null && pendingOffset < pendingBytes.length) {
+                int b = pendingBytes[pendingOffset++] & 0xFF;
+                if (pendingOffset >= pendingBytes.length) {
+                    pendingBytes = null;
+                    pendingOffset = 0;
+                }
+                return b;
+            }
+            if (!sourceEnded) {
+                int b = source.read();
+                if (b == -1) {
+                    sourceEnded = true;
+                } else if (b == '&') {
+                    pendingBytes = AMP;
+                    pendingOffset = 1;
+                    return pendingBytes[0] & 0xFF;
+                } else if (b == '<') {
+                    pendingBytes = LT;
+                    pendingOffset = 1;
+                    return pendingBytes[0] & 0xFF;
+                } else if (b == '>') {
+                    pendingBytes = GT;
+                    pendingOffset = 1;
+                    return pendingBytes[0] & 0xFF;
+                } else {
+                    return b;
+                }
+            }
+            if (tailOffset < tail.length) {
+                return tail[tailOffset++] & 0xFF;
+            }
+            return -1;
+        }
+
+        @Override
+        public int read(@NonNull byte[] b, int off, int len) throws IOException {
+            Objects.requireNonNull(b);
+            if (off < 0 || len < 0 || len > b.length - off) {
+                throw new IndexOutOfBoundsException();
+            } else if (len == 0) {
+                return 0;
+            }
+
+            int first = read();
+            if (first == -1) {
+                return -1;
+            }
+            b[off] = (byte) first;
+
+            int i = 1;
+            for (; i < len; i++) {
+                int next = read();
+                if (next == -1) {
+                    break;
+                }
+                b[off + i] = (byte) next;
+            }
+            return i;
+        }
+
+        @Override
+        public void close() throws IOException {
+            source.close();
+        }
     }
 
     private WebResourceResponse build404Response() {
