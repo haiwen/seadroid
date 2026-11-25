@@ -90,6 +90,7 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
         }
 
         if (path == null) {
+            finish();
             return;
         }
 
@@ -182,6 +183,7 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
         private boolean sourceEnded = false;
         private byte[] pendingBytes = null;
         private int pendingOffset = 0;
+        private final byte[] singleByteBuffer = new byte[1];
 
         private static final byte[] AMP = "&amp;".getBytes(StandardCharsets.UTF_8);
         private static final byte[] LT = "&lt;".getBytes(StandardCharsets.UTF_8);
@@ -190,49 +192,17 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
         public EscapedHtmlInputStream(InputStream source, String css) {
             this.source = source;
             String headStr = "<!DOCTYPE html><html><head>"
+                    + "<meta charset=\"utf-8\">"
                     + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\">"
-                    + "<style>" + css + "</style></head><body><pre>";
+                    + "<style>" + css + "</style></head><body><div class=\"content\">";
             this.head = headStr.getBytes(StandardCharsets.UTF_8);
-            this.tail = "</pre></body></html>".getBytes(StandardCharsets.UTF_8);
+            this.tail = "</div></body></html>".getBytes(StandardCharsets.UTF_8);
         }
 
         @Override
         public int read() throws IOException {
-            if (headOffset < head.length) {
-                return head[headOffset++] & 0xFF;
-            }
-            if (pendingBytes != null && pendingOffset < pendingBytes.length) {
-                int b = pendingBytes[pendingOffset++] & 0xFF;
-                if (pendingOffset >= pendingBytes.length) {
-                    pendingBytes = null;
-                    pendingOffset = 0;
-                }
-                return b;
-            }
-            if (!sourceEnded) {
-                int b = source.read();
-                if (b == -1) {
-                    sourceEnded = true;
-                } else if (b == '&') {
-                    pendingBytes = AMP;
-                    pendingOffset = 1;
-                    return pendingBytes[0] & 0xFF;
-                } else if (b == '<') {
-                    pendingBytes = LT;
-                    pendingOffset = 1;
-                    return pendingBytes[0] & 0xFF;
-                } else if (b == '>') {
-                    pendingBytes = GT;
-                    pendingOffset = 1;
-                    return pendingBytes[0] & 0xFF;
-                } else {
-                    return b;
-                }
-            }
-            if (tailOffset < tail.length) {
-                return tail[tailOffset++] & 0xFF;
-            }
-            return -1;
+            int n = read(singleByteBuffer, 0, 1);
+            return n == 1 ? singleByteBuffer[0] & 0xFF : -1;
         }
 
         @Override
@@ -244,21 +214,73 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
                 return 0;
             }
 
-            int first = read();
-            if (first == -1) {
-                return -1;
-            }
-            b[off] = (byte) first;
+            int bytesRead = 0;
 
-            int i = 1;
-            for (; i < len; i++) {
-                int next = read();
+            // 1. Drain head if still remaining
+            if (headOffset < head.length) {
+                int toCopy = Math.min(len, head.length - headOffset);
+                System.arraycopy(head, headOffset, b, off, toCopy);
+                headOffset += toCopy;
+                bytesRead += toCopy;
+                if (bytesRead == len) {
+                    return bytesRead;
+                }
+            }
+
+            // 2. Drain pending escaped bytes if any
+            if (pendingBytes != null) {
+                int available = pendingBytes.length - pendingOffset;
+                int toCopy = Math.min(len - bytesRead, available);
+                System.arraycopy(pendingBytes, pendingOffset, b, off + bytesRead, toCopy);
+                pendingOffset += toCopy;
+                bytesRead += toCopy;
+                if (pendingOffset >= pendingBytes.length) {
+                    pendingBytes = null;
+                    pendingOffset = 0;
+                }
+                if (bytesRead == len) {
+                    return bytesRead;
+                }
+            }
+
+            // 3. Read from source stream
+            while (!sourceEnded && bytesRead < len) {
+                int next = source.read();
                 if (next == -1) {
+                    sourceEnded = true;
                     break;
                 }
-                b[off + i] = (byte) next;
+                if (next == '&') {
+                    pendingBytes = AMP;
+                } else if (next == '<') {
+                    pendingBytes = LT;
+                } else if (next == '>') {
+                    pendingBytes = GT;
+                } else {
+                    b[off + bytesRead++] = (byte) next;
+                    continue;
+                }
+
+                int toCopy = Math.min(len - bytesRead, pendingBytes.length);
+                System.arraycopy(pendingBytes, 0, b, off + bytesRead, toCopy);
+                bytesRead += toCopy;
+                if (toCopy < pendingBytes.length) {
+                    pendingOffset = toCopy;
+                } else {
+                    pendingBytes = null;
+                    pendingOffset = 0;
+                }
             }
-            return i;
+
+            // 4. Drain tail if source ended and there are no pending bytes
+            if (sourceEnded && pendingBytes == null && bytesRead < len && tailOffset < tail.length) {
+                int toCopy = Math.min(len - bytesRead, tail.length - tailOffset);
+                System.arraycopy(tail, tailOffset, b, off + bytesRead, toCopy);
+                tailOffset += toCopy;
+                bytesRead += toCopy;
+            }
+
+            return bytesRead > 0 ? bytesRead : -1;
         }
 
         @Override
@@ -282,7 +304,7 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
     private String getCss(boolean isNight) {
         String bgColor = isNight ? "#1c1b1f" : "#ffffff";
         String textColor = isNight ? "#ffffff" : "#212121";
-        return "body, pre {"
+        return "body, pre, .content {"
                 + "margin: 0 !important;"
                 + "padding: 8px !important;"
                 + "font-family: monospace, sans-serif !important;"
