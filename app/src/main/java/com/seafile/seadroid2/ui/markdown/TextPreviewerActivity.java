@@ -34,8 +34,11 @@ import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.editor.EditorActivity;
 import com.seafile.seadroid2.ui.editor.EditorViewModel;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 /**
  * Activity for previewing plain text files with WebView
@@ -100,24 +103,8 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
         load();
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     private void initWebView() {
-        WebSettings webSettings = binding.webView.getSettings();
-        webSettings.setAllowFileAccess(true);
-        webSettings.setAllowContentAccess(true);
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDefaultTextEncodingName("UTF-8");
-
-        webSettings.setUseWideViewPort(false);
-        webSettings.setLoadWithOverviewMode(false);
-
-        webSettings.setTextZoom(100);
-        webSettings.setDefaultFontSize(16);
-        webSettings.setDefaultFixedFontSize(15);
-
-        webSettings.setSupportZoom(true);
-        webSettings.setBuiltInZoomControls(true);
-        webSettings.setDisplayZoomControls(false);
+        WebSettings webSettings = getWebSettings();
 
         int mode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         boolean isNight = mode == Configuration.UI_MODE_NIGHT_YES;
@@ -130,23 +117,37 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
         binding.webView.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                if (request != null && request.getUrl() != null && request.isForMainFrame()) {
-                    Uri reqUri = request.getUrl();
-                    if ("file".equalsIgnoreCase(reqUri.getScheme())) {
-                        String filePath = reqUri.getPath();
-                        if (filePath != null) {
-                            File file = new File(filePath);
-                            if (file.exists()) {
-                                try {
-                                    return new WebResourceResponse("text/plain", "UTF-8", new FileInputStream(file));
-                                } catch (Exception e) {
-                                    SafeLogs.e(TAG, "shouldInterceptRequest", e.getMessage());
-                                }
-                            }
-                        }
-                    }
+                if (request == null) {
+                    return build404Response();
                 }
-                return super.shouldInterceptRequest(view, request);
+
+                if (request.getUrl() == null) {
+                    return build404Response();
+                }
+
+                if (!request.isForMainFrame()) {
+                    return build404Response();
+                }
+
+                Uri reqUri = request.getUrl();
+
+                if (!"file".equalsIgnoreCase(reqUri.getScheme())) {
+                    return build404Response();
+                }
+
+                String filePath = reqUri.getPath();
+                File file = filePath != null ? new File(filePath) : null;
+                if (file == null || !file.exists() || !file.isFile() || !isTargetPath(filePath)) {                    view.post(() -> Toasts.show(R.string.file_not_found));
+                    return build404Response();
+                }
+
+                try {
+                    return new WebResourceResponse("text/plain", "UTF-8", new FileInputStream(file));
+                } catch (Exception e) {
+                    SafeLogs.e(TAG, "shouldInterceptRequest failed to read file", e.getMessage());
+                    view.post(() -> Toasts.show(R.string.file_not_found));
+                    return build404Response();
+                }
             }
 
             @Override
@@ -172,11 +173,51 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
         binding.webView.loadUrl(uri.toString());
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
+    @NonNull
+    private WebSettings getWebSettings() {
+        WebSettings webSettings = binding.webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowContentAccess(false);
+
+        webSettings.setDefaultTextEncodingName("UTF-8");
+        webSettings.setUseWideViewPort(false);
+        webSettings.setLoadWithOverviewMode(false);
+
+        webSettings.setTextZoom(100);
+        webSettings.setDefaultFontSize(16);
+        webSettings.setDefaultFixedFontSize(15);
+
+        webSettings.setSupportZoom(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setDisplayZoomControls(false);
+        return webSettings;
+    }
+
+    private boolean isTargetPath(String requestedPath) {
+        if (this.path == null || requestedPath == null) {
+            return false;
+        }
+        return new File(this.path).getAbsolutePath().equals(new File(requestedPath).getAbsolutePath());
+    }
+
+    private WebResourceResponse build404Response() {
+        return new WebResourceResponse(
+                "text/plain",
+                "UTF-8",
+                404,
+                "Not Found",
+                Collections.emptyMap(),
+                new ByteArrayInputStream("File not found or failed to read.".getBytes(StandardCharsets.UTF_8))
+        );
+    }
+
     @NonNull
     private String getCss(boolean isNight) {
         String bgColor = isNight ? "#1c1b1f" : "#ffffff";
         String textColor = isNight ? "#ffffff" : "#212121";
-        String css = "body, pre {"
+        return "body, pre {"
                 + "margin: 0 !important;"
                 + "padding: 8px !important;"
                 + "font-family: monospace, sans-serif !important;"
@@ -189,7 +230,6 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
                 + "background-color: " + bgColor + " !important;"
                 + "color: " + textColor + " !important;"
                 + "}";
-        return css;
     }
 
     private void load() {
