@@ -106,14 +106,11 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
         adaptInputMethod();
 
         initViewModel();
-        initMarkdown();
 
         if (savedInstanceState != null) {
             localPath = savedInstanceState.getString("local_path");
             repoId = savedInstanceState.getString("repo_id");
             filePathInRepo = savedInstanceState.getString("file_path_in_repo");
-
-            loadData();
         } else {
             Intent intent = getIntent();
             localPath = intent.getStringExtra("local_path");
@@ -123,9 +120,11 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
             if (!NetworkUtils.isConnected()) {
                 Toasts.show(R.string.network_unavailable);
             }
-
-            loadData();
         }
+
+        initMarkdown();
+
+        loadData();
 
         if (!TextUtils.isEmpty(localPath) && getSupportActionBar() != null) {
             getSupportActionBar().setTitle(new File(localPath).getName());

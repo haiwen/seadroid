@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -33,6 +35,7 @@ import com.seafile.seadroid2.ui.editor.EditorActivity;
 import com.seafile.seadroid2.ui.editor.EditorViewModel;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 /**
  * Activity for previewing plain text files with WebView
@@ -126,6 +129,27 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
 
         binding.webView.setWebViewClient(new WebViewClient() {
             @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                if (request != null && request.getUrl() != null && request.isForMainFrame()) {
+                    Uri reqUri = request.getUrl();
+                    if ("file".equalsIgnoreCase(reqUri.getScheme())) {
+                        String filePath = reqUri.getPath();
+                        if (filePath != null) {
+                            File file = new File(filePath);
+                            if (file.exists()) {
+                                try {
+                                    return new WebResourceResponse("text/plain", "UTF-8", new FileInputStream(file));
+                                } catch (Exception e) {
+                                    SafeLogs.e(TAG, "shouldInterceptRequest", e.getMessage());
+                                }
+                            }
+                        }
+                    }
+                }
+                return super.shouldInterceptRequest(view, request);
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 String js = "javascript:(function() {"
@@ -144,7 +168,8 @@ public class TextPreviewerActivity extends BaseActivityWithVM<EditorViewModel> {
             }
         });
 
-        binding.webView.loadUrl("file://" + path);
+        Uri uri = Uri.fromFile(new File(path));
+        binding.webView.loadUrl(uri.toString());
     }
 
     @NonNull

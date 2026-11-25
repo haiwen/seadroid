@@ -265,10 +265,16 @@ public class PerformEdit {
 
     private void trimHistory() {
         while (history.size() > MAX_HISTORY_SIZE) {
-            history.remove(0);
+            int targetIndex = history.get(0).index;
+            while (!history.isEmpty() && history.get(0).index == targetIndex) {
+                history.remove(0);
+            }
         }
         while (historyBack.size() > MAX_HISTORY_SIZE) {
-            historyBack.remove(0);
+            int targetIndex = historyBack.get(0).index;
+            while (!historyBack.isEmpty() && historyBack.get(0).index == targetIndex) {
+                historyBack.remove(0);
+            }
         }
     }
 
