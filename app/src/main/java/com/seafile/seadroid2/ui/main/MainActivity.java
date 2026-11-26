@@ -804,6 +804,7 @@ public class MainActivity extends BaseActivity {
         offlineRootUnavailableDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.offline_root_unavailable_title)
                 .setMessage(R.string.offline_root_unavailable_message)
+                .setCancelable(false)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.offline_root_unavailable_action,
                         (dialog, which) -> selectNavigationItem(R.id.tabs_settings))
