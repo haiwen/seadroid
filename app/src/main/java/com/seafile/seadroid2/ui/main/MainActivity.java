@@ -19,6 +19,7 @@ import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
@@ -27,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.NetworkUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigationrail.NavigationRailView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -37,6 +39,8 @@ import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.context.GlobalNavContext;
 import com.seafile.seadroid2.context.NavContext;
 import com.seafile.seadroid2.databinding.ActivityMainBinding;
+import com.seafile.seadroid2.framework.datastore.StorageManager;
+import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.file_monitor.FileDaemonServiceManager;
 import com.seafile.seadroid2.framework.file_monitor.FileSyncService;
 import com.seafile.seadroid2.framework.model.ServerInfo;
@@ -53,6 +57,7 @@ import com.seafile.seadroid2.ui.settings.TabSettings2Fragment;
 import com.seafile.seadroid2.ui.star.StarredQuickFragment;
 import com.seafile.seadroid2.ui.wiki.WikiFragment;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -127,6 +132,8 @@ public class MainActivity extends BaseActivity {
         requestServerInfo(true);
 
         startMediaMountWatching();
+
+        checkOfflineRootAvailable();
     }
 
     private void resetOverflowIcon() {
@@ -746,12 +753,62 @@ public class MainActivity extends BaseActivity {
             } else if (Intent.ACTION_MEDIA_UNMOUNTED.equals(action)) {
                 SLogs.d("Storage", "unmounted: " + path);//unmounted: /storage/67DA-5855
                 notifyMountChanged(action, path);
+                checkOfflineRootAvailable();
             } else if (Intent.ACTION_MEDIA_REMOVED.equals(action)) {
                 SLogs.d("Storage", "removed: " + path);//removed: /storage/67DA-5855
                 notifyMountChanged(action, path);
+                checkOfflineRootAvailable();
             }
         }
     };
+
+    private AlertDialog offlineRootUnavailableDialog;
+
+    /**
+     * Checks whether the offline file root is still available, and prompts the user to
+     * select a new cache directory when it is not.
+     */
+    private void checkOfflineRootAvailable() {
+        if (isOfflineRootAvailable()) {
+            return;
+        }
+
+        showOfflineRootUnavailableDialog();
+    }
+
+    private boolean isOfflineRootAvailable() {
+        String customDir = AppDataManager.getCustomStorageDir();
+        if (!TextUtils.isEmpty(customDir)) {
+            return new File(customDir).exists();
+        }
+
+        // The default root lives under the selected storage volume.
+        StorageManager.Location location = StorageManager.getInstance().lookupStorageLocation(AppDataManager.readStorageDirId());
+        if (location == null || location.mediaPath == null) {
+            return true;
+        }
+
+        File parent = location.mediaPath.getParentFile();
+        return parent != null && parent.exists();
+    }
+
+    private void showOfflineRootUnavailableDialog() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        if (offlineRootUnavailableDialog != null && offlineRootUnavailableDialog.isShowing()) {
+            return;
+        }
+
+        offlineRootUnavailableDialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.offline_root_unavailable_title)
+                .setMessage(R.string.offline_root_unavailable_message)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.offline_root_unavailable_action,
+                        (dialog, which) -> selectNavigationItem(R.id.tabs_settings))
+                .show();
+    }
 
     private void notifyMountChanged(String action, String path) {
         BusHelper.getMediaMountObserver().post(action + "-" + path);

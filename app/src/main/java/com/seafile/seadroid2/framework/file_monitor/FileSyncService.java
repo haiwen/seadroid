@@ -9,12 +9,14 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
+import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.DataManager;
 import com.seafile.seadroid2.framework.datastore.StorageManager;
@@ -66,9 +68,27 @@ public class FileSyncService extends Service {
      */
     private final List<String> IGNORE_PATHS = new ArrayList<>();
 
-    private final String TEMP_FILE_DIR = StorageManager.getInstance().getTempDir().getAbsolutePath();
+    private String TEMP_FILE_DIR = StorageManager.getInstance().getTempDir().getAbsolutePath();
 
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+
+    /**
+     * Stops file monitoring before the cache path is switched, and re-initializes
+     * monitoring for the new path after the switch completes.
+     */
+    private final Observer<String> offlineRootObserver = new Observer<String>() {
+        @Override
+        public void onChanged(String action) {
+            if (BusHelper.ACTION_OFFLINE_ROOT_SWITCH_START.equals(action)) {
+                stopFolderMonitor();
+            } else if (BusHelper.ACTION_OFFLINE_ROOT_SWITCH_COMPLETE.equals(action)) {
+                IGNORE_PATHS.clear();
+                initIgnorePath();
+                TEMP_FILE_DIR = StorageManager.getInstance().getTempDir().getAbsolutePath();
+                restartFolderMonitor();
+            }
+        }
+    };
 
     /**
      * TODO: Multiple cache directories
@@ -101,6 +121,8 @@ public class FileSyncService extends Service {
         super.onCreate();
 
         initIgnorePath();
+
+        BusHelper.getCommonObserver().observeForever(offlineRootObserver);
 
         registerMediaContentObserver();
 
@@ -428,6 +450,7 @@ public class FileSyncService extends Service {
     private void destroy() {
         SLogs.e(TAG, "onDestroy()", "file monitor service destroy");
         stopFolderMonitor();
+        BusHelper.getCommonObserver().removeObserver(offlineRootObserver);
 
         //
         if (mediaContentObserver != null) {

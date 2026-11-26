@@ -16,6 +16,15 @@ public class BusHelper {
     private static final String COMMON_BUS_EVENT = "COMMON_BUS_EVENT";
     private static final String MEDIA_MOUNT_BUS_EVENT = "MediaMountEvent";
 
+    /**
+     * Offline root switch started: stop file monitoring and other operations.
+     */
+    public static final String ACTION_OFFLINE_ROOT_SWITCH_START = "ACTION_OFFLINE_ROOT_SWITCH_START";
+    /**
+     * Offline root switch completed: re-initialize monitoring for the new root.
+     */
+    public static final String ACTION_OFFLINE_ROOT_SWITCH_COMPLETE = "ACTION_OFFLINE_ROOT_SWITCH_COMPLETE";
+
 
     public static Observable<String> getMediaMountObserver() {
         return LiveEventBus.get(MEDIA_MOUNT_BUS_EVENT);

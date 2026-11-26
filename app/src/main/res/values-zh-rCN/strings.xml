@@ -655,6 +655,17 @@ Email: support@seafile.com<br>
   <string name="settings_folder_backup_service_started">备份服务已启动</string>
   <string name="settings_folder_backup_service_stopped">备份服务已停止</string>
   <string name="settings_select_backup_folder_title">选择文件夹</string>
+  <string name="offline_root_select_title">选择缓存目录</string>
+  <string name="offline_root_same_dir">当前已是该缓存目录</string>
+  <string name="offline_root_dir_unavailable">所选目录不可用</string>
+  <string name="offline_root_not_writable">所选目录不可写</string>
+  <string name="offline_root_switch_success">缓存目录已切换</string>
+  <string name="offline_root_switch_failed">切换缓存目录失败</string>
+  <string name="offline_root_switch_confirm_title">切换缓存目录</string>
+  <string name="offline_root_switch_confirm_message">切换后会删除本机所有离线文件与缓存记录，需要重新下载。确定要切换吗？</string>
+  <string name="offline_root_unavailable_title">离线文件位置不可用</string>
+  <string name="offline_root_unavailable_message">当前离线文件存储位置已不可用，请重新选择缓存目录。</string>
+  <string name="offline_root_unavailable_action">重新选择</string>
   <string name="settings_sync_hidden_files_switch">同步隐藏文件</string>
   <string name="settings_sync_hidden_files_disabled">不同步隐藏文件</string>
   <string name="settings_sync_hidden_files_enabled">同步隐藏文件</string>

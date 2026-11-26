@@ -25,10 +25,19 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
      * default 0, no limit.;
      */
     private int maxSelectCount = 0;
+    private boolean showCheckBox = true;
     private OnFileItemChangeListener onFileItemChangeListener;
 
     public void setMaxSelectCount(int maxSelectCount) {
         this.maxSelectCount = maxSelectCount;
+    }
+
+    /**
+     * Whether to show the check box. In cache-directory selection mode the user only
+     * needs to navigate into a directory, so no selection is needed.
+     */
+    public void setShowCheckBox(boolean showCheckBox) {
+        this.showCheckBox = showCheckBox;
     }
 
     public void setOnFileItemChangeListener(OnFileItemChangeListener onFileItemChangeListener) {
@@ -61,7 +70,7 @@ public class FileListAdapter extends BaseAdapter<FileBean, FileListViewHolder> {
         holder.checkBoxFile.clearOnCheckedStateChangedListeners();
 
         holder.checkBoxFile.setCheckedState(fileBean.getCheckedState());
-        if (fileBean.isDir()) {
+        if (showCheckBox && fileBean.isDir()) {
             holder.checkBoxFile.setVisibility(View.VISIBLE);
         } else {
             holder.checkBoxFile.setVisibility(View.GONE);

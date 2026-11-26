@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.storage.StorageVolume;
+import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.util.Pair;
@@ -427,6 +428,10 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      * @return the base directory for media storage to be used in Seadroid.
      */
     public final File getMediaDir() {
+        String customDir = AppDataManager.getCustomStorageDir();
+        if (!TextUtils.isEmpty(customDir)) {
+            return getDirectoryCreateIfNeeded(new File(customDir));
+        }
         return getDirectoryCreateIfNeeded(getSelectedStorageLocation().mediaPath);
     }
 

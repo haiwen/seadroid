@@ -9,11 +9,9 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.NotSupport;
-import com.seafile.seadroid2.annotation.Unstable;
+import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.framework.datastore.sp.AppDataManager;
 import com.seafile.seadroid2.framework.db.AppDatabase;
-import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
 import com.seafile.seadroid2.framework.model.ServerInfo;
 import com.seafile.seadroid2.framework.model.server.ServerInfoModel;
@@ -22,7 +20,6 @@ import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.account.AccountService;
 import com.seafile.seadroid2.baseviewmodel.BaseViewModel;
@@ -31,16 +28,12 @@ import com.seafile.seadroid2.ui.main.MainService;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 public class SettingsFragmentViewModel extends BaseViewModel {
     public void getAccountInfo() {
@@ -112,119 +105,80 @@ public class SettingsFragmentViewModel extends BaseViewModel {
         return modifyStorageLocationLiveData;
     }
 
-    @NotSupport
-    @Unstable
+    /**
+     * Changes the cache directory.
+     * <p>All transfers and file monitoring are stopped first. All offline cache records and
+     * files in the old directory are deleted, then the selected directory becomes the new
+     * media root.
+     */
     public void modifyStorageLocation(Context context, String newStoragePath) {
-
         if (TextUtils.isEmpty(newStoragePath)) {
             return;
         }
 
-        StorageManager.Location location = StorageManager.getInstance().getSelectedStorageLocation();
-        String curPath = location.mediaPath.getAbsolutePath();
-        curPath = Utils.pathJoin(curPath, "/");
-        if (TextUtils.equals(newStoragePath, curPath)) {
-            return;
-        }
-        
-        File oldStorageFolder = new File(curPath);
-        if (!oldStorageFolder.exists()) {
-            Toasts.show(context.getString(R.string.storage_manager_storage_description_not_available, oldStorageFolder.getName()));
-            return;
-        }
-
         File newStorageFolder = new File(newStoragePath);
-        if (!com.seafile.seadroid2.framework.util.FileUtils.isAvailable(newStorageFolder)) {
-            Toasts.show(context.getString(R.string.storage_manager_storage_description_not_available, newStorageFolder.getName()));
+        if (!newStorageFolder.exists() || !newStorageFolder.isDirectory()) {
+            Toasts.show(R.string.offline_root_dir_unavailable);
             return;
         }
 
-        if (!com.blankj.utilcode.util.FileUtils.isDir(newStoragePath)) {
+        if (!newStorageFolder.canWrite()) {
+            Toasts.show(R.string.offline_root_not_writable);
+            return;
+        }
+
+        String currentPath = StorageManager.getInstance().getMediaDir().getAbsolutePath();
+        if (TextUtils.equals(newStoragePath, currentPath)) {
+            Toasts.show(R.string.offline_root_same_dir);
             return;
         }
 
         getSecondRefreshLiveData().setValue(true);
 
-        //stop download
-        BackupThreadExecutor.getInstance().stopDownload();
+        // Stop all transfers
+        BackupThreadExecutor.getInstance().stopAll();
+        // Stop file monitoring
+        BusHelper.getCommonObserver().post(BusHelper.ACTION_OFFLINE_ROOT_SWITCH_START);
 
-        String finalNewStoragePath = newStoragePath;
-        String finalCurPath = curPath;
-        Single<Boolean> s = Single.create(new SingleOnSubscribe<Boolean>() {
+        Single<Boolean> single = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
-            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+            public void subscribe(SingleEmitter<Boolean> emitter) {
+                if (emitter == null || emitter.isDisposed()) {
+                    return;
+                }
 
-                //copy
-                FileUtils.copyDirectoryToDirectory(location.mediaPath, new File(finalNewStoragePath));
-                emitter.onSuccess(true);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<Boolean>>() {
-            @Override
-            public SingleSource<Boolean> apply(Boolean aBoolean) throws Exception {
+                try {
+                    // Delete all offline cache records
+                    AppDatabase.getInstance().fileCacheStatusDAO().deleteAll();
+                    // Delete all files in the old cache directory
+                    StorageManager.getInstance().clearMedia();
 
-                //delete old
-                StorageManager.getInstance().clearMedia();
-                return Single.just(true);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<? extends Boolean>>() {
-            @Override
-            public SingleSource<? extends Boolean> apply(Boolean aBoolean) throws Exception {
-                return migrateCachePathInPages(finalCurPath, finalNewStoragePath);
-            }
-        }).flatMap(new Function<Boolean, SingleSource<Boolean>>() {
-            @Override
-            public SingleSource<Boolean> apply(Boolean aBoolean) throws Exception {
-                AppDataManager.writeCustomStorageDir(finalNewStoragePath);
-                StorageManager.resetInstance();
-                return Single.just(true);
+                    AppDataManager.writeCustomStorageDir(newStoragePath);
+                    StorageManager.resetInstance();
+                    StorageManager.getInstance().getMediaDir().mkdirs();
+                    emitter.onSuccess(true);
+                } catch (Exception e) {
+                    SafeLogs.e("modify storage location failed: " + e.getMessage());
+                    emitter.onError(e);
+                }
             }
         });
 
-        addSingleDisposable(s, new Consumer<Boolean>() {
+        addSingleDisposable(single, new Consumer<Boolean>() {
             @Override
             public void accept(Boolean aBoolean) {
-                Toasts.show(R.string.success);
-                getModifyStorageLocationLiveData().setValue(true);
                 getSecondRefreshLiveData().setValue(false);
+                BusHelper.getCommonObserver().post(BusHelper.ACTION_OFFLINE_ROOT_SWITCH_COMPLETE);
+                Toasts.show(R.string.offline_root_switch_success);
+                getModifyStorageLocationLiveData().setValue(true);
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) {
                 getSecondRefreshLiveData().setValue(false);
-                Toasts.show(R.string.failed);
+                BusHelper.getCommonObserver().post(BusHelper.ACTION_OFFLINE_ROOT_SWITCH_COMPLETE);
+                Toasts.show(R.string.offline_root_switch_failed);
                 SafeLogs.e(throwable.getMessage());
-            }
-        });
-    }
-
-    public Single<Boolean> migrateCachePathInPages(String oldPrefix, String newPrefix) {
-        return Single.create(new SingleOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
-                int pageSize = 500;
-                int offset = 0;
-                List<FileCacheStatusEntity> page;
-
-                do {
-                    page = AppDatabase.getInstance().fileCacheStatusDAO().getPaged(pageSize, offset);
-                    List<FileCacheStatusEntity> toUpdate = new ArrayList<>();
-
-                    for (FileCacheStatusEntity entity : page) {
-                        if (entity.target_path.startsWith(oldPrefix)) {
-                            String tmp = entity.target_path.substring(oldPrefix.length());
-                            entity.target_path = Utils.pathJoin(newPrefix, tmp);
-                            toUpdate.add(entity);
-                        }
-                    }
-
-                    if (!toUpdate.isEmpty()) {
-                        AppDatabase.getInstance().fileCacheStatusDAO().updateAll(toUpdate); // 批量更新
-                    }
-
-                    offset += pageSize;
-                } while (page.size() == pageSize); // the last page will < pageSize
-
-                emitter.onSuccess(true);
             }
         });
     }

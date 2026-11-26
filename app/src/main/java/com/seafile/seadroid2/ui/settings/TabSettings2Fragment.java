@@ -44,9 +44,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountUtils;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.annotation.NotSupport;
 import com.seafile.seadroid2.annotation.Todo;
-import com.seafile.seadroid2.annotation.Unstable;
 import com.seafile.seadroid2.bus.BusHelper;
 import com.seafile.seadroid2.config.Constants;
 import com.seafile.seadroid2.config.ObjKey;
@@ -225,6 +223,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
             @Override
             public void onChanged(Boolean aBoolean) {
                 loadCacheLocationPrefInfo();
+                calculateCacheSize();
             }
         });
     }
@@ -501,12 +500,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                     @Override
                     public boolean onPreferenceClick(@NonNull Preference preference) {
                         SLogs.d(TAG, "initCachePref, cacheLocationPref clicked");
-                        if (dialogFragment != null && dialogFragment.isVisible()) {
-                            return true;
-                        }
-
-                        dialogFragment = SwitchStorageDialogFragment.newInstance();
-                        dialogFragment.show(getChildFragmentManager(), SwitchStorageDialogFragment.class.getSimpleName());
+                        requestModifyStoragePermission();
                         return true;
                     }
                 });
@@ -977,6 +971,7 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
 
             Intent intent = new Intent(requireContext(), FolderSelectorActivity.class);
             intent.putExtra(FolderSelectorActivity.PARAM_SELECTOR_MAX_COUNT, 1);
+            intent.putExtra(FolderSelectorActivity.PARAM_SELECTOR_MODE, FolderSelectorActivity.MODE_OFFLINE_ROOT);
             intent.putStringArrayListExtra(FolderSelectorActivity.PARAM_FILTER_PATHS, filterPaths);
             folderSelectorLauncher.launch(intent);
 
@@ -1340,8 +1335,8 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
                     return;
                 }
 
-//                List<String> paths = o.getData().getStringArrayListExtra(FolderSelectorActivity.FOLDER_SELECTED_PATHS);
-//                changeStorageLocation(paths);
+                List<String> paths = o.getData().getStringArrayListExtra(FolderSelectorActivity.FOLDER_SELECTED_PATHS);
+                changeStorageLocation(paths);
             }
         });
 
@@ -1496,24 +1491,24 @@ public class TabSettings2Fragment extends RenameSharePreferenceFragmentCompat {
     }
 
     private void loadCacheLocationPrefInfo() {
-        StorageManager.Location location = StorageManager.getInstance().getSelectedStorageLocation();
-        if (location == null) {
-            return;
-        }
-
         if (cacheLocationPref != null) {
-            cacheLocationPref.setSummary(location.label);
+            cacheLocationPref.setSummary(StorageManager.getInstance().getMediaDir().getAbsolutePath());
         }
     }
 
-    @NotSupport
-    @Unstable
     private void changeStorageLocation(List<String> paths) {
         if (paths == null || paths.isEmpty()) {
             return;
         }
 
-        viewModel.modifyStorageLocation(requireContext(), paths.get(0));
+        String newPath = paths.get(0);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.offline_root_switch_confirm_title)
+                .setMessage(R.string.offline_root_switch_confirm_message)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.confirm, (dialog, which) -> viewModel.modifyStorageLocation(requireContext(), newPath))
+                .show();
     }
 
     private final Observer<String> mediaMountBusObserver = new Observer<String>() {

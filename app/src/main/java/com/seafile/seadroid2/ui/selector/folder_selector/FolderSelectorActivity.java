@@ -41,6 +41,16 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
     public static final String FOLDER_SELECTED_PATHS = "folder_selected_paths";
     public static final String PARAM_SELECTOR_MAX_COUNT = "param_max_select_count";
     public static final String PARAM_FILTER_PATHS = "param_filter_paths";
+    public static final String PARAM_SELECTOR_MODE = "param_selector_mode";
+
+    /**
+     * Folder backup: select one or more directories
+     */
+    public static final int MODE_FOLDER_BACKUP = 0;
+    /**
+     * Select the cache directory: return the directory the user is currently in
+     */
+    public static final int MODE_OFFLINE_ROOT = 1;
 
     private final String TAG = "FolderSelectorActivity";
     /**
@@ -51,6 +61,7 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
      * default 0, no limit.;
      */
     private int maxSelectCount = 0;
+    private int selectorMode = MODE_FOLDER_BACKUP;
     private List<String> filterPaths;
     private ActivityFolderSelectorBinding binding;
     private LinearLayoutManager rvManager;
@@ -85,6 +96,10 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
         initToolbar();
 
         applyEdgeToEdge(binding.getRoot());
+
+        if (getIntent().hasExtra(PARAM_SELECTOR_MODE)) {
+            selectorMode = getIntent().getIntExtra(PARAM_SELECTOR_MODE, MODE_FOLDER_BACKUP);
+        }
 
         initView();
 
@@ -125,12 +140,18 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
             }
         });
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.settings_select_backup_folder_title);
+            getSupportActionBar().setTitle(selectorMode == MODE_OFFLINE_ROOT
+                    ? R.string.offline_root_select_title
+                    : R.string.settings_select_backup_folder_title);
         }
         binding.confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishPage();
+                if (selectorMode == MODE_OFFLINE_ROOT) {
+                    confirmOfflineRoot();
+                } else {
+                    finishPage();
+                }
             }
         });
 
@@ -241,6 +262,9 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
 
         mFileListAdapter = new FileListAdapter();
         mFileListAdapter.setMaxSelectCount(maxSelectCount);
+        if (selectorMode == MODE_OFFLINE_ROOT) {
+            mFileListAdapter.setShowCheckBox(false);
+        }
         mFileListAdapter.setOnFileItemChangeListener((fileBean, position, isChecked) -> {
             if (!isChecked) {
                 getViewModel().removeSpecialPath(fileBean.getFilePath());
@@ -438,6 +462,25 @@ public class FolderSelectorActivity extends BaseActivityWithVM<FolderSelectorVie
         }
     }
 
+
+    /**
+     * Cache directory mode: return the directory the user is currently in.
+     */
+    private void confirmOfflineRoot() {
+        if (TextUtils.isEmpty(mCurrentPath)) {
+            return;
+        }
+        finishWithPath(mCurrentPath);
+    }
+
+    private void finishWithPath(String path) {
+        Intent intent = new Intent();
+        ArrayList<String> paths = new ArrayList<>();
+        paths.add(path);
+        intent.putStringArrayListExtra(FOLDER_SELECTED_PATHS, paths);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
 
     public void finishPage() {
         Intent intent = new Intent();

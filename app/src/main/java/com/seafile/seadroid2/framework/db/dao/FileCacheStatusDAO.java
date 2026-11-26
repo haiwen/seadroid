@@ -28,6 +28,9 @@ public interface FileCacheStatusDAO {
     @Delete
     void delete(FileCacheStatusEntity entity);
 
+    @Query("DELETE FROM file_cache_status")
+    void deleteAll();
+
     @Update
     Completable updateAsync(FileCacheStatusEntity entity);
 

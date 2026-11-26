@@ -693,6 +693,17 @@
     <string name="settings_folder_backup_service_started">Backup service started</string>
     <string name="settings_folder_backup_service_stopped">Backup service stopped</string>
     <string name="settings_select_backup_folder_title">Select folder</string>
+    <string name="offline_root_select_title">Select cache directory</string>
+    <string name="offline_root_same_dir">This is already the current cache directory</string>
+    <string name="offline_root_dir_unavailable">The selected directory is not available</string>
+    <string name="offline_root_not_writable">The selected directory is not writable</string>
+    <string name="offline_root_switch_success">Cache directory changed</string>
+    <string name="offline_root_switch_failed">Failed to change the cache directory</string>
+    <string name="offline_root_switch_confirm_title">Change cache directory</string>
+    <string name="offline_root_switch_confirm_message">All offline files and cache records on this device will be deleted. You need to download them again. Change anyway?</string>
+    <string name="offline_root_unavailable_title">Offline files unavailable</string>
+    <string name="offline_root_unavailable_message">The current offline file location is unavailable. Please select a new cache directory.</string>
+    <string name="offline_root_unavailable_action">Select</string>
     <string name="settings_sync_hidden_files_switch">Sync hidden files</string>
     <string name="settings_sync_hidden_files_disabled">Hidden files are not synced</string>
     <string name="settings_sync_hidden_files_enabled">Hidden files are synced</string>
