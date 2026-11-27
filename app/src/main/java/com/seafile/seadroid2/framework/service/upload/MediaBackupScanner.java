@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.enums.TransferResult;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
@@ -35,20 +34,14 @@ public class MediaBackupScanner extends ParentEventTransfer {
     public SeafException scan(boolean isFullScan) {
         SafeLogs.e(TAG, "Album backup scanner launch");
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        CameraUploadManager manager = CameraUploadManager.getInstance();
+        Account account = manager.getCameraAccount();
         if (account == null) {
             return returnSuccess();
         }
 
-        boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isEnable) {
-            SafeLogs.d(TAG, "doWork()", "the album scan task was not started, because the switch is off");
-            return returnSuccess();
-        }
-
-        Account backupAccount = CameraUploadManager.getInstance().getCameraAccount();
-        if (backupAccount == null) {
-            SafeLogs.d(TAG, "doWork()", "the album scan task was not started, because the backup account is null");
+        if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+            SafeLogs.d(TAG, "Photo album scanning not started: Automatic upload is paused.");
             return returnSuccess();
         }
 

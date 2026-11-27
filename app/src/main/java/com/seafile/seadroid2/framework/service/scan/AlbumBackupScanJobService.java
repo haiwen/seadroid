@@ -58,7 +58,7 @@ public class AlbumBackupScanJobService extends JobService {
     }
 
     private boolean doWork() {
-        SafeLogs.e(TAG, "Album scan Job started");
+        SafeLogs.e(TAG, "photo album scanning job started");
 
         if (!canExc()) {
             SafeLogs.d(TAG, "doWork()", "The album scan task was not started, because the transfer service is not running");

@@ -2,99 +2,45 @@ package com.seafile.seadroid2.ui.camera_upload;
 
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
-import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
-import com.seafile.seadroid2.framework.service.BackupThreadExecutor;
 import com.seafile.seadroid2.framework.util.SLogs;
-import com.seafile.seadroid2.framework.util.Toasts;
 
 /**
- * Sync adapter for media upload.
- * <p/>
- * This class uploads images/videos from the gallery to the configured seafile account.
- * It is not called directly, but managed by the Android Sync Manager instead.
+ * The system triggers a compatibility entry point for album backup, but is not responsible for the lifecycle management of upload tasks.
  */
 public class AlbumBackupAdapter extends AbstractThreadedSyncAdapter {
     private final String TAG = "AlbumBackupAdapter";
 
-    /**
-     * Set up the sync adapter
-     */
     public AlbumBackupAdapter(Context context) {
-        /*
-         * autoInitialize is set to false because we need to handle initialization
-         * ourselves in performSync() (resetting the photo database).
-         */
         super(context, false);
     }
 
-
     @Override
-    public void onSecurityException(android.accounts.Account account, Bundle extras, String authority, SyncResult syncResult) {
-        super.onSecurityException(account, extras, authority, syncResult);
-        SLogs.d(TAG, "onSecurityException()", "syncResult -> " + syncResult.toString());
-    }
-
-    @Override
-    public boolean onUnsyncableAccount() {
-        SLogs.d(TAG, "onUnsyncableAccount()");
-        return super.onUnsyncableAccount();
-    }
-
-    @Override
-    public void onSyncCanceled(Thread thread) {
-        super.onSyncCanceled(thread);
-        SLogs.d(TAG, "onSyncCanceled()", thread.getName());
-        BackupThreadExecutor.getInstance().stopAlbumBackup();
-    }
-
-    @Override
-    public void onSyncCanceled() {
-        super.onSyncCanceled();
-        SLogs.d(TAG, "onSyncCanceled()");
-        BackupThreadExecutor.getInstance().stopAlbumBackup();
-    }
-
-    @Override
-    public void onPerformSync(android.accounts.Account account,
+    public void onPerformSync(android.accounts.Account androidAccount,
                               Bundle extras, String authority,
                               ContentProviderClient provider,
                               SyncResult syncResult) {
-
-        boolean isFullScan = extras.getBoolean(CameraUploadManager.KEY_IS_FULL_SCAN, false);
-        SLogs.d(TAG, "onPerformSync()", " isFullScan = " + isFullScan);
-
-        Account seafileAccount = SupportAccountManager.getInstance().getSeafileAccount(account);
-
-        // this should never occur, as camera upload is supposed to be disabled once the camera upload account signs out.
-        if (!seafileAccount.hasValidToken()) {
-            SLogs.d(TAG, "onPerformSync()", "This account has no auth token. Disable camera upload.");
+        Account account = SupportAccountManager.getInstance().getSeafileAccount(androidAccount);
+        if (!account.hasValidToken()) {
             syncResult.stats.numAuthExceptions++;
-
-            // we're logged out on this account. disable camera upload.
-            CameraUploadManager.getInstance().disableSpecialAccountCameraUpload(seafileAccount);
             return;
         }
 
-        boolean isEnable = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isEnable) {
-            SLogs.d(TAG, "onPerformSync()", "backup switch is off");
+        CameraUploadManager manager = CameraUploadManager.getInstance();
+        Account cameraAccount = manager.getCameraAccount();
+        if (cameraAccount == null || !TextUtils.equals(cameraAccount.getSignature(), account.getSignature())) {
             return;
         }
 
-        boolean isAutoUploadPause = AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch();
-        if (isAutoUploadPause) {
-            SLogs.d(TAG, "onPerformSync()", "Automatic uploading has been paused.");
-            return;
-        }
-
-        //start
-        AlbumBackupAdapterBridge.syncAlbumBackup(getContext(), isFullScan);
+        // 异步交接后由共享执行器管理任务，系统取消回调不能停止应用内发起的备份。
+        // After asynchronous handover, the shared executor manages the tasks, and the system's cancellation of callbacks cannot stop the backup initiated within the application.
+        SLogs.d(TAG, "The system synchronously triggers album backups, and the upload lifecycle is managed by the shared executor.");
+        manager.performSync(extras.getBoolean(CameraUploadManager.KEY_IS_FULL_SCAN, false));
     }
 }

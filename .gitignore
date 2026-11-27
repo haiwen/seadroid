@@ -64,6 +64,6 @@ build_count.txt
 /.kotlin
 .transifexrc
 CLAUDE.md
-
+/app/src/test
 # Legacy Proguard output
 **/proguard/

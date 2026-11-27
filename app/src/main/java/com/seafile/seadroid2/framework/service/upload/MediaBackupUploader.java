@@ -7,9 +7,9 @@ import com.blankj.utilcode.util.NetworkUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.enums.FeatureDataSource;
 import com.seafile.seadroid2.framework.datastore.sp_livedata.AlbumBackupSharePreferenceHelper;
+import com.seafile.seadroid2.framework.service.BackupFileStability;
 import com.seafile.seadroid2.framework.service.ITransferNotification;
 import com.seafile.seadroid2.framework.service.ParentEventUploader;
 import com.seafile.seadroid2.framework.util.SafeLogs;
@@ -17,6 +17,7 @@ import com.seafile.seadroid2.framework.util.Toasts;
 import com.seafile.seadroid2.framework.worker.GlobalTransferCacheList;
 import com.seafile.seadroid2.framework.worker.TransferEvent;
 import com.seafile.seadroid2.framework.worker.queue.TransferModel;
+import com.seafile.seadroid2.ui.camera_upload.CameraUploadManager;
 import com.seafile.seadroid2.ui.folder_backup.RepoConfig;
 
 public class MediaBackupUploader extends ParentEventUploader {
@@ -66,14 +67,14 @@ public class MediaBackupUploader extends ParentEventUploader {
         //send a start event
         send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_TRANSFER_TASK_START);
 
-        Account account = SupportAccountManager.getInstance().getCurrentAccount();
+        CameraUploadManager manager = CameraUploadManager.getInstance();
+        Account account = manager.getCameraAccount();
         if (account == null) {
-            SafeLogs.d(TAG, "account is null");
+            SafeLogs.d(TAG, "Photo upload not started: Account or backup configuration unavailable");
             return returnSuccess();
         }
-        boolean isTurnOn = AlbumBackupSharePreferenceHelper.readBackupSwitch();
-        if (!isTurnOn) {
-            SafeLogs.d(TAG, "backup switch is off");
+        if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+            SafeLogs.d(TAG, "Photo upload not started: Automatic upload is paused.");
             return returnSuccess();
         }
 
@@ -120,6 +121,11 @@ public class MediaBackupUploader extends ParentEventUploader {
 
         while (true) {
             if (isExecutionCancelled()) return SeafException.USER_CANCELLED_EXCEPTION;
+            if (AlbumBackupSharePreferenceHelper.readBackupAutoPauseSwitch()) {
+                SafeLogs.d(TAG, "Photo uploads are now paused: Retrieving subsequent tasks has been stopped.");
+                return returnSuccess();
+            }
+
             TransferModel transferModel = GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.pick();
             if (transferModel == null) {
                 break;
@@ -130,8 +136,7 @@ public class MediaBackupUploader extends ParentEventUploader {
             transferModel.repo_name = repoConfig.getRepoName();
 
             try {
-                if (!com.seafile.seadroid2.framework.service.BackupFileStability.awaitStable(
-                        new java.io.File(transferModel.full_path))) {
+                if (!BackupFileStability.awaitStable(new java.io.File(transferModel.full_path))) {
                     // Leave pending, without persisting a successful backup for a changing source.
                     GlobalTransferCacheList.ALBUM_BACKUP_QUEUE.retryInterrupted(transferModel);
                     return new SeafException(SeafException.CODE_FAILED,
@@ -182,7 +187,7 @@ public class MediaBackupUploader extends ParentEventUploader {
         if (resultException != SeafException.SUCCESS) {
             errorMsg = resultException.getMessage();
             Toasts.show(R.string.backup_failed);
-        }else{
+        } else {
             Toasts.show(R.string.backup_completed);
         }
 
