@@ -50,9 +50,6 @@ public class OfficeDocumentWebActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mWebView != null) {
-            mWebView.saveState(outState);
-        }
         outState.putString("repoId", repoId);
         outState.putString("repoName", repoName);
         outState.putString("path", path);
@@ -87,12 +84,10 @@ public class OfficeDocumentWebActivity extends BaseActivity {
             repoName = savedInstanceState.getString("repoName");
             path = savedInstanceState.getString("path");
             targetUrl = savedInstanceState.getString("targetUrl");
-
-            mWebView.restoreState(savedInstanceState);
-        } else {
-            //let's go
-            mWebView.load(targetUrl);
         }
+
+        //let's go
+        mWebView.load(targetUrl);
     }
 
 

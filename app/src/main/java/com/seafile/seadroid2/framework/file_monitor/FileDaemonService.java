@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.framework.file_monitor;
 
-import static android.app.PendingIntent.FLAG_IMMUTABLE;
-
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -15,7 +13,6 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.seafile.seadroid2.R;
@@ -47,14 +44,13 @@ public class FileDaemonService extends Service {
         SLogs.e(TAG, "onCreate()");
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         SLogs.e(TAG, "onStartCommand()", "file daemon service started");
 
         if (!STARTED.compareAndSet(false, true)) {
             SLogs.d(TAG, "Service already started, ignore duplicated start command");
-            return START_NOT_STICKY;
+            return START_STICKY;
         }
 
         try {
@@ -62,10 +58,14 @@ public class FileDaemonService extends Service {
             startPeriodicScanTask();
             return START_STICKY;
 
-        } catch (ForegroundServiceStartNotAllowedException e) {
-            SLogs.e(TAG, "Cannot start foreground service from background", e);
+        } catch (IllegalStateException e) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e instanceof ForegroundServiceStartNotAllowedException) {
+                SLogs.e(TAG, "Cannot start foreground service from background", e);
+            } else {
+                SLogs.e(TAG, "IllegalStateException in FileDaemonService", e);
+            }
 
-            STARTED.set(false);
+            cleanupServiceState();
             stopSelf();
             return START_NOT_STICKY;
 

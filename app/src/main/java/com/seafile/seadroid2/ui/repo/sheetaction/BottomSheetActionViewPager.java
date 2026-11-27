@@ -91,11 +91,8 @@ public class BottomSheetActionViewPager {
             return;
         }
 
-        detachFloatingView();
-
-        floatingView = LayoutInflater.from(context).inflate(
-                R.layout.layout_bottom_sheet_menu_view_pager, null, false);
-        pager = floatingView.findViewById(R.id.pager);
+        floatingView = LayoutInflater.from(context).inflate(R.layout.layout_bottom_sheet_menu_view_pager, null, false);
+        pager = floatingView.findViewById(R.id.bottom_sheet_pager);
 
         pagerAdapter = new ViewPagerAdapter(vs);
         pager.setAdapter(pagerAdapter);

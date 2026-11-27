@@ -605,14 +605,14 @@ public class Utils {
 
 
     public static String cleanServerURL(String serverURL) throws MalformedURLException {
+        if (serverURL == null) {
+            throw new MalformedURLException("serverURL is null");
+        }
+        serverURL = serverURL.trim().replace('：', ':').replaceAll("(?i)^(https?://)\\s+", "$1");
         if (!serverURL.endsWith("/")) {
             serverURL = serverURL + "/";
         }
 
-        // XXX: android 4.0.3 ~ 4.0.4 can't handle urls with underscore (_) in the host field.
-        // See https://github.com/nostra13/Android-Universal-Image-Loader/issues/256 , and
-        // https://code.google.com/p/android/issues/detail?id=24924
-        //
         new URL(serverURL); // will throw MalformedURLException if serverURL not valid
         return serverURL;
     }

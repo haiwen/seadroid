@@ -13,7 +13,7 @@
         app:dividerColor="@color/divider_color" />
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/pager"
+        android:id="@+id/bottom_sheet_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />

@@ -114,7 +114,16 @@ public class HttpIO {
 
         Retrofit.Builder rBuilder = new Retrofit.Builder();
 
-        rBuilder.baseUrl(getCurrentServer());
+        String rawServer = getCurrentServer();
+        if (rawServer == null) {
+            throw new IllegalArgumentException("Server URL is null");
+        }
+        String serverUrl = rawServer.trim().replace('：', ':').replaceAll("(?i)^(https?://)\\s+", "$1");
+        if (!serverUrl.endsWith("/")) {
+            serverUrl = serverUrl + "/";
+        }
+
+        rBuilder.baseUrl(serverUrl);
         rBuilder.addConverterFactory(ConverterFactory.create());
         rBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());
 
