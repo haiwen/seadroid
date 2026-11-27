@@ -19,7 +19,7 @@ public class ExceptionHandler {
             try {
                 handler.accept((T) throwable);
             } catch (Exception e) {
-                // 处理异常
+                // handle exception
             }
         });
         return this;
@@ -31,13 +31,13 @@ public class ExceptionHandler {
             try {
                 handler.accept(throwable);
             } catch (Exception e) {
-                // 处理异常
+                // handle exception
             }
         } else if (defaultHandler != null) {
             try {
                 defaultHandler.accept(throwable);
             } catch (Exception e) {
-                // 处理异常
+                // handle exception
             }
         }
     }

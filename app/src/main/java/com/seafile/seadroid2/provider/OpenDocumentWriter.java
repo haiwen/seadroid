@@ -71,7 +71,7 @@ public class OpenDocumentWriter {
                 }
             }
 
-            SLogs.d(TAG, "is exists in remote？: " + isExists);
+            SLogs.d(TAG, "is exists in remote?: " + isExists);
 
             //get upload url
             Response<String> uploadUrlRes = HttpManager.getHttpWithAccount(account)
@@ -160,7 +160,7 @@ public class OpenDocumentWriter {
                                 // it is set to null and uploaded when the next scan arrives
                                 SLogs.d(TAG, "Upload successful", "but file id is empty", "targetPath: " + fullPath);
                             } else {
-                                SLogs.d(TAG, "Upload successful", "fileId：" + resStr, "targetPath: " + fullPath);
+                                SLogs.d(TAG, "Upload successful", "fileId: " + resStr, "targetPath: " + fullPath);
                                 String fileId = resStr.replace("\"", "");
                                 saveIntoLocalDb(account, repoId, repoName, fullPath, localFile, fileId);
                             }

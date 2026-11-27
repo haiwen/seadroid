@@ -52,7 +52,7 @@ public class MediaContentObserver extends ContentObserver {
         String newVersion = MediaStore.getVersion(SeadroidApplication.getAppContext());
         String lastVersion = AlbumBackupSharePreferenceHelper.readLastMediaVersion();
 
-        SLogs.d("media store：newVersion -> " + newVersion + ", lastVersion -> " + lastVersion);
+        SLogs.d("media store: newVersion -> " + newVersion + ", lastVersion -> " + lastVersion);
         SLogs.d("A new file is detected and the Media task begins");
 
         if (TextUtils.equals(newVersion, lastVersion)) {

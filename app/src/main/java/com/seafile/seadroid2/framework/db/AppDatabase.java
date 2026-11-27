@@ -113,10 +113,10 @@ public abstract class AppDatabase extends RoomDatabase {
     static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // 1. 添加 transfer_result2 列
+            // 1. Add transfer_result2 column
             database.execSQL("ALTER TABLE file_transfer_list ADD COLUMN result TEXT");
 
-            // 2. 将 transfer_result 的枚举值迁移到 transfer_result2
+            // 2. Migrate the enum values of transfer_result to transfer_result2
             database.execSQL("UPDATE file_transfer_list SET result = transfer_result");
         }
     };
@@ -128,7 +128,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     "CREATE TABLE file_transfer_list_new (" +
                             "'v' INTEGER NOT NULL DEFAULT 1, " +
                             "data_status INTEGER NOT NULL DEFAULT 0, " +
-                            "uid TEXT PRIMARY KEY NOT NULL, " +  // 主键
+                            "uid TEXT PRIMARY KEY NOT NULL, " +  // primary key
                             "target_path TEXT, " +
                             "full_path TEXT, " +
                             "parent_path TEXT, " +
@@ -156,7 +156,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             ")"
             );
 
-            // 2. 将旧表数据复制到新表（排除 transfer_result）
+            // 2. Copy old table data to the new table (excluding transfer_result)
             database.execSQL(
                     "INSERT INTO file_transfer_list_new (" +
                             "data_status, v,uid, target_path, full_path, parent_path, is_auto_transfer, data_source, " +
@@ -173,13 +173,13 @@ public abstract class AppDatabase extends RoomDatabase {
                             "FROM file_transfer_list"
             );
 
-            // 3. 删除旧表
+            // 3. Drop the old table
             database.execSQL("DROP TABLE file_transfer_list");
 
-            // 4. 重命名新表
+            // 4. Rename the new table
             database.execSQL("ALTER TABLE file_transfer_list_new RENAME TO file_transfer_list");
 
-            // 5. 重新创建索引（如果需要）
+            // 5. Recreate indexes (if needed)
             database.execSQL(
                     "CREATE UNIQUE INDEX index_transfer_path ON file_transfer_list (uid, full_path, related_account)"
             );
@@ -195,7 +195,7 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE TABLE IF NOT EXISTS `file_backup_status` (" +
                     "'v' INTEGER NOT NULL DEFAULT 1, " +
                     "data_status INTEGER NOT NULL DEFAULT 0, " +
-                    "uid TEXT PRIMARY KEY NOT NULL, " +  // 主键
+                    "uid TEXT PRIMARY KEY NOT NULL, " +  // primary key
                     "full_path TEXT, " +
                     "target_path TEXT, " +
                     "parent_path TEXT, " +
@@ -215,11 +215,11 @@ public abstract class AppDatabase extends RoomDatabase {
                     ")"
             );
 
-            // 重建符合要求的唯一索引
+            // Recreate the required unique index
             database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_backup_path` " +
                     "ON `file_backup_status` (`uid`, `full_path`, `related_account`)");
 
-            // 2. 分页处理旧数据（防止内存溢出）
+            // 2. Process old data in pages (to avoid OOM)
             int offset = 0;
             int limit = 500;
             while (true) {
@@ -282,7 +282,7 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE TABLE IF NOT EXISTS `file_cache_status` (" +
                     "'v' INTEGER NOT NULL DEFAULT 2, " +
                     "data_status INTEGER NOT NULL DEFAULT 0, " +
-                    "uid TEXT PRIMARY KEY NOT NULL, " +  // 主键
+                    "uid TEXT PRIMARY KEY NOT NULL, " +  // primary key
                     "full_path TEXT, " +
                     "target_path TEXT, " +
                     "parent_path TEXT, " +

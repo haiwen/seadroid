@@ -57,11 +57,11 @@ public class TransferModel implements Comparable<TransferModel> {
     public String file_name;
     public String original_name;
     /**
-     * 排序键：单调递增，严格区分先后顺序，用于上传队列排序（不是墙钟时间，不能直接展示）。
+     * Sort key: monotonically increasing to strictly order the upload queue (not wall-clock time, cannot be displayed directly).
      */
     public long created_at;
     /**
-     * 入队时的墙钟时间（ms），仅用于 UI 展示"加入时间"。
+     * Wall-clock time at enqueueing (ms), used only to display "time added" in the UI.
      */
     public long added_at = System.currentTimeMillis();
     public int retry_times = 0;
@@ -73,12 +73,12 @@ public class TransferModel implements Comparable<TransferModel> {
      */
     public String motion_photo_path;
 
-    public long file_size; //文件大小
-    public long transferred_size; //已传输大小
-    public TransferStatus transfer_status; //传输状态，用于传输列表页展示当前状态
-    public FeatureDataSource data_source; //数据来源，用于区分不同的传输任务
+    public long file_size; // file size
+    public long transferred_size; // transferred size
+    public TransferStatus transfer_status; // transfer status, used to show the current state on the transfer list page
+    public FeatureDataSource data_source; // data source, used to distinguish different transfer tasks
     public ExistingFileStrategy transfer_strategy = ExistingFileStrategy.APPEND;
-    public String err_msg; //传输结果/异常内容
+    public String err_msg; // transfer result / error content
     /**
      * save to where, 0:no save, 1: db,
      */
@@ -197,12 +197,12 @@ public class TransferModel implements Comparable<TransferModel> {
 
     @Override
     public int compareTo(TransferModel o) {
-//        // 优先按传输状态排序（WAITING > TRANSFERRING > FAILED > FINISHED）
+//        // Sort by transfer status first (WAITING > TRANSFERRING > FAILED > FINISHED)
 //        if (this.transfer_status != o.transfer_status) {
 //            return this.transfer_status.ordinal() - o.transfer_status.ordinal();
 //        }
 
-        // 状态相同则按创建时间倒序排序
+        // If the status is the same, sort by creation time in descending order
         return Long.compare(o.created_at, this.created_at);
     }
 }

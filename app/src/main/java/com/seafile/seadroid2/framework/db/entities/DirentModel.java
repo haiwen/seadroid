@@ -423,9 +423,9 @@ public class DirentModel extends BaseModel implements Parcelable {
             } catch (Exception e) {
                 SLogs.e("DirentModel", "Failed to unparcel", e);
 
-                // 返回一个基本的对象，避免崩溃
+                // Return a basic object to avoid a crash
                 DirentModel model = new DirentModel();
-                // 尝试读取 uid（最重要的字段）
+                // Try to read uid (the most important field)
                 try {
                     model.uid = in.readString();
                 } catch (Exception ignored) {

@@ -277,7 +277,7 @@ public class RichEditText extends MaxHeightScrollView {
 
                 container.removeView(nextEdit);
                 preEdit.setText(mergeText);
-                //设置光标的定位
+                //Set the cursor position
                 preEdit.requestFocus();
                 preEdit.setSelection(str1.length(), str1.length());
             }

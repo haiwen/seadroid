@@ -44,7 +44,7 @@ public class PermissionUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED;
         } else {
-            return false; // Android 12 及以下无需手动授权
+            return false; // Android 12 and below do not require manual authorization
         }
     }
 

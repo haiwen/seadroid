@@ -40,7 +40,7 @@ public class AlbumBackupScanJobService extends JobService {
                     BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
                 }
 
-                // 标记任务完成
+                // Mark the task as finished
                 jobFinished(params, false);
             }
         });
@@ -58,7 +58,7 @@ public class AlbumBackupScanJobService extends JobService {
     }
 
     private boolean doWork() {
-        SafeLogs.e(TAG, "相册扫描 Job 启动");
+        SafeLogs.e(TAG, "Album scan Job started");
 
         if (!canExc()) {
             SafeLogs.d(TAG, "doWork()", "The album scan task was not started, because the transfer service is not running");

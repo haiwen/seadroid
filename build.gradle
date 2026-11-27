@@ -13,7 +13,7 @@ buildscript {
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-//        maven { url "https://maven.aliyun.com/repository/public" }  //do not use，because F-Droid.
+//        maven { url "https://maven.aliyun.com/repository/public" }  //do not use, because F-Droid.
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.13.0'

@@ -58,7 +58,7 @@ public class CenterScaleLayoutManager extends LinearLayoutManager {
     public void onScrollStateChanged(int state) {
         super.onScrollStateChanged(state);
         if (state == RecyclerView.SCROLL_STATE_IDLE) {
-            // 滑动停止时，如果中心位置有变化，触发回调
+            // When scrolling stops, trigger the callback if the center position has changed
             if (centerItemChangedListener != null && currentCenterPosition != RecyclerView.NO_POSITION
                     && currentCenterPosition != lastCenterPosition) {
                 centerItemChangedListener.onCenterItemChanged(currentCenterPosition);
@@ -121,7 +121,7 @@ public class CenterScaleLayoutManager extends LinearLayoutManager {
                 child.setScaleY(scale);
             }
 
-            // 记录最近的item（用于回调）
+            // Record the closest item (used for callback)
             if (distanceFromCenter < minDistance) {
                 minDistance = (int) distanceFromCenter;
                 closestChild = child;
@@ -129,11 +129,11 @@ public class CenterScaleLayoutManager extends LinearLayoutManager {
             }
         }
 
-        // 更新当前中心位置，但不触发回调
+        // Update the current center position, but do not trigger the callback
         if (closestChild != null) {
             currentCenterPosition = closestPosition;
         }
-//        // 更新中心item的位置（用于回调）
+//        // Update the position of the center item (used for callback)
 //        if (closestChild != null && centerItemChangedListener != null && closestPosition != lastCenterPosition) {
 //            centerItemChangedListener.onCenterItemChanged(closestPosition);
 //            lastCenterPosition = closestPosition;
