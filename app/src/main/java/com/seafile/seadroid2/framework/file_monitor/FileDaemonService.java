@@ -50,7 +50,7 @@ public class FileDaemonService extends Service {
 
         if (!STARTED.compareAndSet(false, true)) {
             SLogs.d(TAG, "Service already started, ignore duplicated start command");
-            return START_NOT_STICKY;
+            return START_STICKY;
         }
 
         try {
