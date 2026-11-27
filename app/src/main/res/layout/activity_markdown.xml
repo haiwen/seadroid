@@ -28,19 +28,4 @@
 
     </ScrollView>
 
-    <ScrollView
-        android:id="@+id/scroll_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lineSpacingExtra="4dp"
-            android:padding="16dp"
-            android:textSize="16sp" />
-
-    </ScrollView>
-
 </LinearLayout>

@@ -30,55 +30,55 @@ public class SimpleMarkdownParser {
     private static SpannableStringBuilder parseMarkdown(TextView textView, String markdown) {
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        // 1. 解析粗斜体：***富文本***
+        // 1. Parse bold italic: ***rich text***
         applyPattern(builder, "\\*\\*\\*(.*?)\\*\\*\\*", match -> {
             builder.setSpan(new StyleSpan(Typeface.BOLD_ITALIC),
                     match.start(1), match.end(1),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         });
 
-        // 2. 解析引用：> ***引用***
+        // 2. Parse blockquote: > ***quote***
         applyPattern(builder, "^>\\s?(.*)", match -> {
             builder.setSpan(new StyleSpan(Typeface.ITALIC),
                     match.start(1), match.end(1),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         });
 
-        // 3. 解析无序列表：* 1
+        // 3. Parse unordered list: * 1
         applyPattern(builder, "^\\*\\s(.*)", match -> {
             builder.setSpan(new BulletSpan(20),
                     match.start(1), match.end(1),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         });
 
-        // 4. 解析有序列表：1. 1
+        // 4. Parse ordered list: 1. 1
         applyPattern(builder, "^\\d+\\.\\s(.*)", match -> {
             builder.setSpan(new StyleSpan(Typeface.BOLD),
                     match.start(1), match.end(1),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         });
 
-        // 5. 解析链接：[https://xxx](xxx)
+        // 5. Parse link: [https://xxx](xxx)
         applyPattern(builder, "\\[(.*?)\\]\\((.*?)\\)", match -> {
             builder.setSpan(new URLSpan(match.group(2)),
                     match.start(1), match.end(1),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.replace(match.start(2), match.end(2), ""); // 删除链接部分
+            builder.replace(match.start(2), match.end(2), ""); // remove the link part
         });
 
-        // 6. 解析图片：![1.jpg](https://xxx)
+        // 6. Parse image: ![1.jpg](https://xxx)
         applyPattern(builder, "!\\[(.*?)\\]\\((.*?)\\)", match -> {
             String imageUrl = match.group(2);
-            builder.replace(match.start(), match.end(), match.group(1)); // 替换为占位符文字
+            builder.replace(match.start(), match.end(), match.group(1)); // replace with placeholder text
             int start = match.start();
             int end = start + match.group(1).length();
 
-            // 异步加载图片
+            // Load image asynchronously
             loadImageAsync(textView, imageUrl, drawable -> {
                 drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
                 ImageSpan imageSpan = new ImageSpan(drawable, ImageSpan.ALIGN_BOTTOM);
                 builder.setSpan(imageSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                textView.setText(builder); // 更新 TextView
+                textView.setText(builder); // update TextView
             });
         });
         return builder;
@@ -99,23 +99,23 @@ public class SimpleMarkdownParser {
 //                .into(new CustomTarget<Drawable>() {
 //                    @Override
 //                    public void onResourceReady(@NonNull Drawable resource, Transition<? super Drawable> transition) {
-//                        // 设置图片尺寸，适配 TextView
+//                        // Set the image size to fit the TextView
 //                        int maxWidth = textView.getWidth() - textView.getPaddingLeft() - textView.getPaddingRight();
 //                        int width = Math.min(resource.getIntrinsicWidth(), maxWidth);
 //                        int height = width * resource.getIntrinsicHeight() / resource.getIntrinsicWidth();
 //                        resource.setBounds(0, 0, width, height);
 //
-//                        // 替换文字为图片
+//                        // Replace the text with the image
 //                        ImageSpan imageSpan = new ImageSpan(resource, ImageSpan.ALIGN_BOTTOM);
 //                        builder.setSpan(imageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 //
-//                        // 更新 TextView 内容
+//                        // Update the TextView content
 //                        textView.setText(builder);
 //                    }
 //
 //                    @Override
 //                    public void onLoadCleared(Drawable placeholder) {
-//                        // 可选：当图片加载被取消时的处理
+//                        // Optional: handling when image loading is cancelled
 //                    }
 //                });
     }

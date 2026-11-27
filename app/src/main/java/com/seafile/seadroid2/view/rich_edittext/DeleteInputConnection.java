@@ -26,7 +26,7 @@ import com.seafile.seadroid2.framework.util.SLogs;
  *     @author 杨充
  *     blog  : https://github.com/yangchong211
  *     time  : 2019/07/18
- *     desc  : 自定义InputConnectionWrapper
+ *     desc  : Custom InputConnectionWrapper
  *     revise:
  * </pre>
  */
@@ -36,7 +36,7 @@ public class DeleteInputConnection extends InputConnectionWrapper {
 
     public interface BackspaceListener {
         /**
-         * @return true 代表消费了这个事件
+         * @return true if this event is consumed
          */
         boolean onBackspace();
     }
@@ -51,11 +51,11 @@ public class DeleteInputConnection extends InputConnectionWrapper {
     }
 
     /**
-     * 提交文本
-     * 输入法输入了字符，包括表情，字母、文字、数字和符号等内容，会回调该方法
+     * Commit text
+     * This method is called back when the input method enters characters, including emoji, letters, text, numbers and symbols, etc.
      *
      * @param text              text
-     * @param newCursorPosition 新索引位置
+     * @param newCursorPosition new cursor position
      * @return
      */
     @Override
@@ -64,16 +64,18 @@ public class DeleteInputConnection extends InputConnectionWrapper {
     }
 
     /**
-     * 按键事件
-     * 在commitText方法中，
-     * 如果执行父类的 commitText（即super.commitText(text, newCursorPosition)）那么表示不拦截，
-     * 如果返回false则表示拦截
+     * Key event
+     * In the commitText method,
+     * if the super class commitText is executed (i.e. super.commitText(text, newCursorPosition)), it means no interception,
+     * if it returns false, it means interception.
      * <p>
-     * 当有按键输入时，该方法会被回调。比如点击退格键时，搜狗输入法应该就是通过调用该方法，
-     * 发送keyEvent的，但谷歌输入法却不会调用该方法，而是调用下面的deleteSurroundingText()方法。
-     * 网上说少数低端手机，无法响应退格键删除功能，后期找华为p9手机，安装搜狗输入法测试
+     * This method is called back when there is key input. For example, when the backspace key is tapped, the Sogou input method
+     * probably sends a keyEvent through this method, but the Google input method does not call this method; instead it calls
+     * the deleteSurroundingText() method below.
+     * It is said online that a few low-end phones cannot respond to backspace delete; we later tested by installing the
+     * Sogou input method on a Huawei P9 phone.
      *
-     * @param event event事件
+     * @param event the event
      * @return
      */
     @Override
@@ -88,8 +90,8 @@ public class DeleteInputConnection extends InputConnectionWrapper {
     }
 
     /**
-     * 删除操作
-     * 有文本删除操作时（剪切，点击退格键），会触发该方法
+     * Delete operation
+     * This method is triggered when there is a text delete operation (cut, tap the backspace key).
      *
      * @param beforeLength beforeLength
      * @param afterLength  afterLength
@@ -106,7 +108,7 @@ public class DeleteInputConnection extends InputConnectionWrapper {
     }
 
     /**
-     * 结 束组合文本输入的时候，回调该方法
+     * This method is called back when composing text input ends.
      *
      * @return
      */

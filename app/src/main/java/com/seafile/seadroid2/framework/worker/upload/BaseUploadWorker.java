@@ -72,7 +72,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
     private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
         @Override
         public void onProgressNotify(TransferModel transferModel, int percent, long transferredSize, long totalSize) {
-            SLogs.d(TAG, "onProgressNotify()", "UPLOAD: " + transferModel.file_name + " -> progress：" + percent);
+            SLogs.d(TAG, "onProgressNotify()", "UPLOAD: " + transferModel.file_name + " -> progress: " + percent);
 
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);
@@ -364,7 +364,7 @@ public abstract class BaseUploadWorker extends TransferWorker {
                 } else {
                     String fileId = bodyStr.replace("\"", "");
 
-                    SafeLogs.d(TAG, "transferFile()", "result，file ID：" + bodyStr);
+                    SafeLogs.d(TAG, "transferFile()", "result, file ID: " + bodyStr);
                     updateToSuccess(fileId);
                 }
             } else {

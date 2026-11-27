@@ -415,7 +415,7 @@ public class DataMigrationActivity extends BaseActivity {
         }
 
         AppDatabase.getInstance().fileTransferDAO().insertAll(list);
-        SLogs.d(TAG, "--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> done");
     }
 
 
@@ -509,7 +509,7 @@ public class DataMigrationActivity extends BaseActivity {
         }
 
         AppDatabase.getInstance().fileTransferDAO().insertAll(list);
-        SLogs.d(TAG, "--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> done");
     }
 
     private void queryRepoConfigOfFolderBackDB() {
@@ -702,10 +702,10 @@ public class DataMigrationActivity extends BaseActivity {
                     transferEntity.file_md5 = FileUtils.getFileMD5ToString(absPath).toLowerCase();
                     transferEntity.target_path = absPath;
                 } else if (TransferDataSource.FOLDER_BACKUP == transferEntity.data_source) {
-                    //queryFolderBackupDB() 方法已实现数据迁移
+                    //queryFolderBackupDB() has already implemented the data migration
                 } else if (TransferDataSource.ALBUM_BACKUP == transferEntity.data_source) {
                     //My Photos/a/b.png
-                    //文件属性数据为空
+                    //file attribute data is empty
                 }
 
                 transferEntity.file_format = FileUtils.getFileExtension(transferEntity.full_path);
@@ -728,7 +728,7 @@ public class DataMigrationActivity extends BaseActivity {
         }
 
         AppDatabase.getInstance().fileTransferDAO().insertAll(list);
-        SLogs.d(TAG, "--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> done");
 
     }
 
@@ -834,7 +834,7 @@ public class DataMigrationActivity extends BaseActivity {
 //            c.close();
 //        }
 //
-//        SLogs.d(TAG,"--------------------" + table + " -> 完成");
+//        SLogs.d(TAG,"--------------------" + table + " -> done");
 //    }
 
     private void queryDirentsCacheOfDataDB() {
@@ -940,7 +940,7 @@ public class DataMigrationActivity extends BaseActivity {
         }
 
         AppDatabase.getInstance().encKeyCacheDAO().insertAllSync(list);
-        SLogs.d(TAG, "--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> done");
 
     }
 
@@ -986,7 +986,7 @@ public class DataMigrationActivity extends BaseActivity {
 
         //Not stored in the database
 //        AppDatabase.getInstance().certDAO().insertAll(list);
-        SLogs.d(TAG, "--------------------" + table + " -> 完成");
+        SLogs.d(TAG, "--------------------" + table + " -> done");
 
     }
 
@@ -1058,7 +1058,7 @@ public class DataMigrationActivity extends BaseActivity {
                 .subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
-                        SLogs.d(TAG, "--------------------" + table + " -> 完成");
+                        SLogs.d(TAG, "--------------------" + table + " -> done");
                     }
                 }));
     }

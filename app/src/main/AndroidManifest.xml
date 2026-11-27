@@ -98,6 +98,7 @@
             android:windowSoftInputMode="adjustNothing" />
 
         <activity android:name=".ui.markdown.MarkdownActivity" />
+        <activity android:name=".ui.markdown.TextPreviewerActivity" />
 
         <activity
             android:name=".ui.account.AccountDetailActivity"
@@ -142,6 +143,7 @@
 
         <activity
             android:name=".ui.media.player.CustomExoVideoPlayerActivity"
+            android:screenOrientation="fullUser"
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
         <activity android:name=".ui.webview.SeaWebViewActivity" />

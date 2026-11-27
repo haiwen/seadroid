@@ -421,7 +421,7 @@ public class PhotoFragment extends BaseFragment {
         binding.bottomScrollView.setOnViewDragListener(new OnViewDragListener() {
             @Override
             public void onDrag(ScrollDirection direction, float dx, float dy) {
-                // 修改滚动阈值判断逻辑
+                // Modify the scroll threshold judgment logic
                 if (direction == ScrollDirection.RIGHT || direction == ScrollDirection.LEFT) {
                     binding.bottomScrollView.requestDisallowInterceptTouchEvent(false);
                 } else {
@@ -645,7 +645,7 @@ public class PhotoFragment extends BaseFragment {
 //
 //                    @Override
 //                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-////                        SLogs.e("缩略图：" + dataSource.name() + ": " + isFirstResource + ": " + thumbKey + ": " + thumbnailUrl);
+////                        SLogs.e("thumbnail: " + dataSource.name() + ": " + isFirstResource + ": " + thumbKey + ": " + thumbnailUrl);
 //                        return false;
 //                    }
 //                });
@@ -680,7 +680,7 @@ public class PhotoFragment extends BaseFragment {
     private String currentLocalImagePath;
 
     /**
-     * 纯 UI：根据动态照片类型更新 "Live" 按钮。须在主线程调用。
+     * Pure UI: update the "Live" button according to the motion photo type. Must be called on the main thread.
      */
     private void applyMotionPhotoUi(int type) {
         if (type == HeicNative.MOTION_PHOTO_TYPE_HEIC || type == HeicNative.MOTION_PHOTO_TYPE_JPEG) {
@@ -694,8 +694,8 @@ public class PhotoFragment extends BaseFragment {
     }
 
     /**
-     * 本地图片加载成功后：在后台线程做动态照片检测与 EXIF 解析（避免阻塞主线程，
-     * 尤其是慢速/低内存设备），完成后回到主线程更新 UI。
+     * After the local image is loaded successfully: perform motion photo detection and EXIF parsing on a background thread (to avoid blocking the main thread,
+     * especially on slow/low-memory devices), then return to the main thread to update the UI.
      */
     private void handleLocalImageLoaded(String oriUrl) {
         if (TextUtils.isEmpty(oriUrl)) {
@@ -727,12 +727,12 @@ public class PhotoFragment extends BaseFragment {
     private ExoPlayer exoPlayer;
 
     /**
-     * 动态照片视频的临时文件，播放结束后在 releasePlayer 中清理。
+     * Temporary file of the motion photo video, cleaned up in releasePlayer after playback ends.
      */
     private File livePhotoVideoFile;
 
     /**
-     * 是否正在后台提取动态照片视频，防止长按重复触发。
+     * Whether the motion photo video is being extracted in the background, to prevent repeated triggering on long press.
      */
     private boolean isLivePhotoExtracting = false;
 
@@ -891,7 +891,7 @@ public class PhotoFragment extends BaseFragment {
                     @Override
                     public boolean onResourceReady(@NonNull GifDrawable resource, @NonNull Object model, Target<GifDrawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                         binding.progressBar.setVisibility(GONE);
-                        // 图片加载成功
+                        // Image loaded successfully
                         SLogs.d(TAG, "loadOriGifUrl()", dataSource.name() + ": " + isFirstResource + ": " + rawUrl);
                         return false;
                     }
@@ -910,19 +910,19 @@ public class PhotoFragment extends BaseFragment {
                 return exifMap;
             }
 
-            // 1. 读取相机型号
+            // 1. Read camera model
             String cameraModel = exifInterface.getAttribute(ExifInterface.TAG_MODEL);
-            SLogs.d(TAG, "ExifData", "相机型号: " + cameraModel);
+            SLogs.d(TAG, "ExifData", "Camera model: " + cameraModel);
             if (!TextUtils.isEmpty(cameraModel)) {
                 exifMap.put("_model", cameraModel);
             }
 
-            // 2. 读取创建时间
+            // 2. Read creation time
             String dateTime = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
             if (TextUtils.isEmpty(dateTime)) {
                 dateTime = exifInterface.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
             }
-            SLogs.d(TAG, "ExifData", "创建时间: " + dateTime);
+            SLogs.d(TAG, "ExifData", "Creation time: " + dateTime);
             if (!TextUtils.isEmpty(dateTime)) {
                 long m = TimeUtils.string2Millis(dateTime, "yyyy:MM:dd HH:mm:ss");
                 String d = TimeUtils.millis2String(m, "yyyy-MM-dd HH:mm:ss");
@@ -930,16 +930,16 @@ public class PhotoFragment extends BaseFragment {
             }
 
 
-            // 3. 读取尺寸（需要额外处理）
+            // 3. Read dimensions (requires extra handling)
             int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
             int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
             String wh = width + "x" + height;
             exifMap.put("_width_height", wh);
-            SLogs.d(TAG, "ExifData", "尺寸: " + wh);
+            SLogs.d(TAG, "ExifData", "Dimensions: " + wh);
 
-            // 4. 读取色彩空间
+            // 4. Read color space
             String colorSpace = exifInterface.getAttribute(ExifInterface.TAG_COLOR_SPACE);
-            SLogs.d(TAG, "ExifData", "色彩空间: " + colorSpace);
+            SLogs.d(TAG, "ExifData", "Color space: " + colorSpace);
             if (!TextUtils.isEmpty(colorSpace)) {
                 exifMap.put("_color_space", colorSpace);
             }
@@ -955,23 +955,23 @@ public class PhotoFragment extends BaseFragment {
 //                });
 //            }
 
-            // 5. 读取焦距
+            // 5. Read focal length
             String focalLength = exifInterface.getAttribute(ExifInterface.TAG_FOCAL_LENGTH);
-            SLogs.d(TAG, "ExifData", "焦距: " + focalLength);
+            SLogs.d(TAG, "ExifData", "Focal length: " + focalLength);
             if (!TextUtils.isEmpty(focalLength)) {
                 exifMap.put("_focal_length", focalLength);
             }
 
-            // 6. 读取光圈值
+            // 6. Read aperture value
             String apertureValue = exifInterface.getAttribute(ExifInterface.TAG_APERTURE_VALUE);
-            SLogs.d(TAG, "ExifData", "光圈值: " + apertureValue);
+            SLogs.d(TAG, "ExifData", "Aperture value: " + apertureValue);
             if (!TextUtils.isEmpty(apertureValue)) {
                 exifMap.put("_aperture_value", apertureValue);
             }
 
-            // 7. 读取光圈数（F-number）
+            // 7. Read f-number
             String fNumber = exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER);
-            SLogs.d(TAG, "ExifData", "光圈数: " + fNumber);
+            SLogs.d(TAG, "ExifData", "F-number: " + fNumber);
             if (!TextUtils.isEmpty(fNumber)) {
                 try {
                     double fDouble = Double.parseDouble(fNumber);
@@ -981,9 +981,9 @@ public class PhotoFragment extends BaseFragment {
                 }
             }
 
-            // 8. 读取曝光时间
+            // 8. Read exposure time
             String exposureTime = exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME);
-            SLogs.d(TAG, "ExifData", "曝光时间: " + exposureTime);
+            SLogs.d(TAG, "ExifData", "Exposure time: " + exposureTime);
             if (!TextUtils.isEmpty(exposureTime)) {
                 try {
                     double exposureValue = Double.parseDouble(exposureTime);
@@ -1069,7 +1069,7 @@ public class PhotoFragment extends BaseFragment {
                 exifBinding.exifFocalLength.setText(focalLengthValue + " mm");
 
             } else {
-                SLogs.d(TAG, "ExifData", "焦距: " + focalLength + " mm");
+                SLogs.d(TAG, "ExifData", "Focal length: " + focalLength + " mm");
                 exifBinding.exifFocalLength.setText(focalLength + " mm");
             }
         } else {

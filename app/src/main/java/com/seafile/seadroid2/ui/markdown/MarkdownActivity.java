@@ -7,16 +7,13 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
-import androidx.media3.common.MimeTypes;
 
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.NetworkUtils;
@@ -28,6 +25,7 @@ import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.util.MimeUtils;
 import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
+import com.seafile.seadroid2.framework.util.Utils;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.ui.editor.EditorActivity;
 import com.seafile.seadroid2.ui.editor.EditorViewModel;
@@ -45,16 +43,26 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
     private final String TAG = "MarkdownActivity";
     private ActivityMarkdownBinding binding;
     private String path, repoId, fullPathInRemote;
-    private boolean isMarkdown;
     private PermissionEntity repoPermission;
 
-
     public static void start(Context context, String localPath, String repoId, String target_file) {
+        if (!isMarkdownFile(localPath)) {
+            TextPreviewerActivity.start(context, localPath, repoId, target_file);
+            return;
+        }
         Intent starter = new Intent(context, MarkdownActivity.class);
         starter.putExtra("local_path", localPath);
         starter.putExtra("full_path", target_file);
         starter.putExtra("repo_id", repoId);
         context.startActivity(starter);
+    }
+
+    public static boolean isMarkdownFile(String path) {
+        if (TextUtils.isEmpty(path)) {
+            return false;
+        }
+        String lower = path.toLowerCase();
+        return lower.endsWith(".md") || lower.endsWith(".markdown");
     }
 
     @Override
@@ -87,15 +95,13 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
 
         if (path == null) return;
 
-        isMarkdown = path.toLowerCase().endsWith(".md") || path.toLowerCase().endsWith(".markdown");
-        if (isMarkdown) {
-            initMarkdown();
-            binding.scrollTextView.setVisibility(View.GONE);
-            binding.scrollMarkdownView.setVisibility(View.VISIBLE);
-        } else {
-            binding.scrollTextView.setVisibility(View.VISIBLE);
-            binding.scrollMarkdownView.setVisibility(View.GONE);
+        if (!isMarkdownFile(path)) {
+            TextPreviewerActivity.start(this, path, repoId, fullPathInRemote);
+            finish();
+            return;
         }
+
+        initMarkdown();
 
         getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +118,14 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
         }
 
         load();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (path != null) {
+            loadMarkContent();
+        }
     }
 
     private void initMarkdown() {
@@ -150,13 +164,9 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
                 invalidateOptionsMenu();
             }
         });
-
-
-        loadMarkContent();
     }
 
     private void loadMarkContent() {
-
         getViewModel().read(path, new Consumer<String>() {
             @Override
             public void accept(String s) {
@@ -164,11 +174,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
                     return;
                 }
 
-                if (isMarkdown) {
-                    binding.markdownView.loadMarkdown(s);
-                } else {
-                    binding.textView.setText(s);
-                }
+                binding.markdownView.loadMarkdown(s);
             }
         });
     }
@@ -230,7 +236,7 @@ public class MarkdownActivity extends BaseActivityWithVM<EditorViewModel> {
     public void onDestroy() {
         super.onDestroy();
 
-        if (isMarkdown) {
+        if (binding != null && binding.markdownView != null) {
             binding.markdownView.loadUrl("about:blank");
             binding.markdownView.stopLoading();
             binding.markdownView.destroy();

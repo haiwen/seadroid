@@ -334,8 +334,8 @@ android {
 
         // https://github.com/noties/Markwon
 //        implementation 'org.commonmark:commonmark:0.21.0'
-//        implementation 'org.commonmark:commonmark-ext-gfm-tables:0.21.0'  // 如果需要表格支持
-//        implementation 'org.commonmark:commonmark-ext-autolink:0.21.0'   // 如果需要自动链接支持
+//        implementation 'org.commonmark:commonmark-ext-gfm-tables:0.21.0'  // if table support is needed
+//        implementation 'org.commonmark:commonmark-ext-autolink:0.21.0'   // if auto-link support is needed
 
 
         //https://noties.io/Markwon/

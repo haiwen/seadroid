@@ -297,7 +297,7 @@ static bool WriteMpvdBox(FILE *file, const std::vector<uint8_t> &mp4Data) {
 }
 
 /**
- * Decode from JPEG data and encode as HEIC Primary Image (用于 Motion Photo)
+ * Decode from JPEG data and encode as HEIC Primary Image (for Motion Photo)
  * Return image handle for subsequent XMP metadata addition
  */
 static heif_image_handle *EncodePrimaryImageForMotionPhoto(
@@ -438,7 +438,7 @@ static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
  *   - ftyp box
  *   - meta box
  *      - XMP must contain Google Motion Photo
- * Identifier fields: e.g.(G)Camera:MotionPhoto、(G)Camera:MotionPhotoVersion、(G)Camera:MotionPhotoPresentationTimestampUs
+ * Identifier fields: e.g.(G)Camera:MotionPhoto, (G)Camera:MotionPhotoVersion, (G)Camera:MotionPhotoPresentationTimestampUs
  *      - XMP Item must have Mime, Semantic, Length, Padding
  *      - ISOBMFF image XMP must also define Primary media item's Padding property value as 8.
  *   - mdat box: image contents
@@ -447,12 +447,12 @@ static std::string GenerateHeicMotionPhotoXMP(size_t mp4VideoLength, size_t hdrD
  *      - Location: the "mpvd" box must come after all the HEIC image file's boxes.
  *
  *  Technical requirements:
- *  1、libheif provides XMP_metadata operation APIs, you can use them
- *  2、primaryImageBytes, mp4VideoBytes are raw byte array data
- *  3、Prefer using libheif's built-in APIs.
- *  4、HDR data
+ *  1. libheif provides XMP_metadata operation APIs, you can use them
+ *  2. primaryImageBytes, mp4VideoBytes are raw byte array data
+ *  3. Prefer using libheif's built-in APIs.
+ *  4. HDR data
  *   - If HDR is available, use metadata item to implement GainMap binding. libheif has already implemented this capability.
- *  5、EXIF data
+ *  5. EXIF data
  *   - If EXIF data is available, you can use heif_context_add_exif_metadata interface to bind it.
  */
 extern "C" JNIEXPORT jstring JNICALL
@@ -926,7 +926,7 @@ static MotionPhotoXmpInfo ParseMotionPhotoXmpContent(const std::string &xmpConte
  * - GCamera:MotionPhoto="1" - Identifier for Motion Photo
  * - GCamera:MotionPhotoVersion="1" - Version number
  * - GCamera:MotionPhotoPresentationTimestampUs="1"
- * - Item:Semantic="MotionPhoto" 的 Item:Length - Video data length
+ * - Item:Semantic="MotionPhoto"'s Item:Length - Video data length
  * - Item:Padding - Possibly existing padding bytes
  *
  * Reference:
@@ -998,7 +998,7 @@ static std::string ExtractHeicXmpWithLibheif2(const char *filePath) {
                     i, id, type ? type : "(null)",
                     contentType ? contentType : "(null)");
 
-            // XMP 的 content_type 是 "application/rdf+xml"
+            // The content_type of XMP is "application/rdf+xml"
             bool isXmp = (contentType && strcmp(contentType, "application/rdf+xml") == 0) ||
                          (type && strcmp(type, "mime") == 0 && contentType &&
                           strstr(contentType, "xmp") != nullptr);
@@ -1062,7 +1062,7 @@ static std::string ExtractHeicXmpWithLibheif2(const char *filePath) {
  * Requirements:
  * Parse XMP metadata from JPEG file data and extract Motion Photo information
  *
- * XMP 在 JPEG 中的Location: 
+ * Location of XMP in JPEG: 
  * - Stored in APP1 segment (0xFF 0xE1)
  *
  * Main namespaces:
@@ -1082,7 +1082,7 @@ static std::string ExtractHeicXmpWithLibheif2(const char *filePath) {
  * - GCamera:MotionPhoto="1" - Identifier for Motion Photo
  * - GCamera:MotionPhotoVersion="1" - Version number
  * - GCamera:MotionPhotoPresentationTimestampUs="1"
- * - Item:Semantic="MotionPhoto" 的 Item:Length - Video data length
+ * - Item:Semantic="MotionPhoto"'s Item:Length - Video data length
  * - Item:Padding - Possibly existing padding bytes
  *
  * Reference:
@@ -1940,7 +1940,7 @@ Java_com_seafile_seadroid2_jni_HeicNative_ExtractJpegVideo(JNIEnv *env, jclass c
         }
     }
 
-    // ==================== 方式二：Fallback to ftyp search method ====================
+    // ==================== Method 2: Fallback to ftyp search method ====================
     if (mp4StartPos < 0) {
         LOGI_MP("[ExtractJPEGVideo] Falling back to ftyp search method (Huawei style)...");
 

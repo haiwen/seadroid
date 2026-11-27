@@ -55,8 +55,6 @@ import com.seafile.seadroid2.ui.repo.vh.UnsupportedViewHolder;
 import com.seafile.seadroid2.ui.viewholder.GroupItemViewHolder;
 import com.seafile.seadroid2.widget.prefs.background_pref.BackgroundShapeUtils;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -438,7 +436,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 
 //        holder.binding.getRoot().setBackground(AnimatedStateListDrawableCompatUtils.createDrawableCompat(getContext()));
 
-        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
+        if (model.isDir() || repoEncrypted || !Utils.isSupportThumbnail(model.name)) {
             GlideApp.with(getContext())
                     .load(model.getIcon())
                     .apply(GlideLoadConfig.getCacheableThumbnailOptions())
@@ -532,7 +530,7 @@ public class RepoQuickAdapter extends BaseMultiAdapter<BaseModel> {
 //            holder.binding.itemOutline.setVisibility(View.VISIBLE);
 //        }
 
-        if (model.isDir() || repoEncrypted || !Utils.availableThumbnail(model.name)) {
+        if (model.isDir() || repoEncrypted || !Utils.isSupportThumbnail(model.name)) {
             holder.binding.itemIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
             GlideApp.with(getContext())
                     .load(model.getIcon())

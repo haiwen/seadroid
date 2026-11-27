@@ -40,7 +40,7 @@ public class AlbumBackupScanJobService extends JobService {
                     BackgroundJobManagerImpl.getInstance().startMediaBackupChain(true);
                 }
 
-                // 标记任务完成
+                // Mark the task as finished
                 jobFinished(params, false);
             }
         });

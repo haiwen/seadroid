@@ -23,8 +23,10 @@ import com.seafile.seadroid2.framework.db.AppDatabase;
 import com.seafile.seadroid2.framework.db.entities.FileBackupStatusEntity;
 import com.seafile.seadroid2.framework.db.entities.FileCacheStatusEntity;
 import com.seafile.seadroid2.framework.http.HttpManager;
+import com.seafile.seadroid2.framework.model.transfer.UploadedBytesModel;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDescriptor;
 import com.seafile.seadroid2.framework.motionphoto.MotionPhotoDetector;
+import com.seafile.seadroid2.framework.service.upload.UploadResumeState;
 import com.seafile.seadroid2.framework.util.ExceptionUtils;
 import com.seafile.seadroid2.framework.util.FileUtils;
 import com.seafile.seadroid2.framework.util.MimeUtils;
@@ -53,6 +55,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -68,7 +71,7 @@ import okhttp3.ResponseBody;
 public abstract class ParentEventUploader extends ParentEventTransfer {
     public static final String TAG = "Foreground-Thread-Uploader";//ParentEventUploader
     private static final long CHUNK_SIZE_BYTES = 8 * 1024 * 1024L; // 8MB
-    private static final long CHUNK_TRIGGER_SIZE_BYTES = 1024 * 1024 * 200L; // 200MB
+    private static final long CHUNK_TRIGGER_SIZE_BYTES = 1024 * 1024 * 100L; // 200MB
     private static final long CHUNK_UPLOAD_READ_TIMEOUT_SECONDS = 600L; // 10 min
     public static final String BASE_DIR = "My Photos";
 
@@ -90,7 +93,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
     private final FileTransferProgressListener.TransferProgressListener progressListener = new FileTransferProgressListener.TransferProgressListener() {
         @Override
         public void onProgressNotify(TransferModel transferModel, int percent, long transferredSize, long totalSize) {
-            SafeLogs.d(TAG, "onProgressNotify()", "UPLOAD: " + transferModel.file_name + " -> progress：" + percent);
+            SafeLogs.d(TAG, "onProgressNotify()", "UPLOAD: " + transferModel.file_name + " -> progress: " + percent);
 
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);
@@ -110,6 +113,11 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
 
     private TransferModel currentTransferModel;
     private volatile Call newCall;
+    /**
+     * Retrofit call of the resumable upload probe, so a single-file stop can cancel
+     * the blocking probe instead of letting it continue and publish a running state.
+     */
+    private volatile retrofit2.Call<?> probeCall;
 
     /**
      * File size recorded at scan time, captured when the transfer starts. It is
@@ -192,6 +200,13 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
             newCall.cancel();
         }
 
+        // The probe blocks on its own Retrofit call; cancel it as well, otherwise it
+        // returns normally and the upload proceeds even though this file was stopped.
+        retrofit2.Call<?> call = probeCall;
+        if (call != null) {
+            call.cancel();
+        }
+
         // Lifecycle cleanup is exclusively session-owned.
     }
 
@@ -199,6 +214,7 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel = null;
         scanFileSize = -1L;
         newCall = null;
+        probeCall = null;
         uriRequestBody = null;
         uriChunkRequestBody = null;
         fileRequestBody = null;
@@ -278,28 +294,49 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         SafeLogs.d(TAG, "transferFile()", "start transfer, local file path: " + currentTransferModel.full_path);
 
         UploadSource source = resolveUploadSource(account);
-        notifyTransferStarted();
+
+        boolean useChunkedUpload = shouldUseChunkedUpload(source);
+        UploadResumeState resumeState = UploadResumeState.chunkedFromZero(0L);
+        if (useChunkedUpload) {
+            resumeState = resolveResumeState(account, source);
+            if (resumeState.mode == UploadResumeState.Mode.FULL_UPLOAD) {
+                // The reported checkpoint is not usable and the API offers no way to
+                // clear it: send the file as one request so the persistent chunk temp
+                // file is never touched.
+                useChunkedUpload = false;
+            }
+        }
+
+        // Do not publish a running state or request an upload link when this file was
+        // stopped or the whole execution was cancelled during the blocking probe.
+        checkUploadCancelled();
+
+        notifyTransferStarted(resumeState.startOffset);
 
         String uploadUrl = getFileUploadUrl(account,
                 currentTransferModel.repo_id,
                 currentTransferModel.getParentPath(),
                 currentTransferModel.transfer_strategy == ExistingFileStrategy.REPLACE);
 
-        boolean useChunkedUpload = shouldUseChunkedUpload(source);
         if (useChunkedUpload) {
             String chunkUploadUrl = appendRetJsonParam(uploadUrl);
-            int totalChunks = (int) Math.ceil((double) source.fileSize / CHUNK_SIZE_BYTES);
-            SafeLogs.d(TAG, "transferFile()", "using chunked upload, total chunks: " + totalChunks);
+            long startOffset = resumeState.startOffset;
+            int totalChunks = (int) Math.ceil((double) (source.fileSize - startOffset) / CHUNK_SIZE_BYTES);
+            SafeLogs.d(TAG, "transferFile()", "using chunked upload, start offset: " + startOffset
+                    + ", total size: " + source.fileSize + ", remaining chunks: " + totalChunks
+                    + ", mode: " + resumeState.mode);
+
+            long offset = startOffset;
             for (int i = 0; i < totalChunks; i++) {
                 if (isStop) {
                     throw SeafException.USER_CANCELLED_EXCEPTION;
                 }
-                long offset = i * CHUNK_SIZE_BYTES;
                 long currentChunkSize = Math.min(CHUNK_SIZE_BYTES, source.fileSize - offset);
-                boolean isLastChunk = i == totalChunks - 1;
+                boolean isLastChunk = offset + currentChunkSize >= source.fileSize;
                 int chunkNumber = i + 1;
                 uploadSingleChunk(account, source.createdTime, offset, currentChunkSize, source.fileSize, CHUNK_SIZE_BYTES, true, isLastChunk,
                         source.uploadFile, source.uploadUri, source.uploadFromUri, chunkNumber, totalChunks, chunkUploadUrl);
+                offset += currentChunkSize;
             }
         } else {
             SafeLogs.d(TAG, "transferFile()", "no chunked");
@@ -404,14 +441,19 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         currentTransferModel.target_path = Utils.getFullPath(currentTransferModel.target_path) + currentTransferModel.file_name;
     }
 
-    private void notifyTransferStarted() {
-        currentTransferModel.transferred_size = 0;
+    private void notifyTransferStarted(long initialTransferredSize) {
+        currentTransferModel.transferred_size = Math.max(initialTransferredSize, 0L);
         currentTransferModel.transfer_status = TransferStatus.IN_PROGRESS;
         GlobalTransferCacheList.updateTransferModel(currentTransferModel);
 
         _fileTransferProgressListener.setCurrentTransferModel(currentTransferModel);
         sendProgressEvent(getFeatureDataSource(), currentTransferModel);
-        notifyProgress(currentTransferModel.file_name, 0);
+
+        int percent = 0;
+        if (currentTransferModel.file_size > 0) {
+            percent = (int) (currentTransferModel.transferred_size * 100L / currentTransferModel.file_size);
+        }
+        notifyProgress(currentTransferModel.file_name, percent);
     }
 
     /**
@@ -847,6 +889,99 @@ public abstract class ParentEventUploader extends ParentEventTransfer {
         }
 
         return urlStr;
+    }
+
+    /**
+     * Probes the server-reported checkpoint and decides how the chunked upload starts.
+     *
+     * <p>The upload resumes from the reported offset when it is within the file. An
+     * offset that is not usable (greater than or equal to the file size) falls back to a
+     * single-request upload: the API offers no way to clear the stale temp file, and
+     * sending chunks from 0 would be rejected by the file server while it still exists.
+     * Starting from 0 is never treated as a successful rollback.</p>
+     */
+    @NonNull
+    private UploadResumeState resolveResumeState(Account account, @NonNull UploadSource source) throws SeafException {
+        if (source.fileSize <= 0) {
+            return UploadResumeState.fullUpload(0L);
+        }
+
+        String repoId = currentTransferModel.repo_id;
+        String parentDir = currentTransferModel.getParentPath();
+        String fileName = currentTransferModel.file_name;
+
+        try {
+            retrofit2.Response<UploadedBytesModel> res = executeResumeProbe(account, repoId, parentDir, fileName);
+
+            UploadedBytesModel body = res.body();
+            UploadResumeState state = UploadResumeState.decide(
+                    res.isSuccessful(),
+                    res.headers().get("Accept-Ranges"),
+                    body == null ? null : body.uploadedBytes,
+                    source.fileSize);
+
+            SafeLogs.d(TAG, "resolveResumeState()", "mode: " + state.mode
+                    + ", uploadedBytes: " + state.uploadedBytes
+                    + ", startOffset: " + state.startOffset
+                    + ", fileSize: " + source.fileSize);
+
+            if (state.mode == UploadResumeState.Mode.FULL_UPLOAD) {
+                SafeLogs.e(TAG, "resolveResumeState()", "reported checkpoint is not usable and cannot be cleared via the documented API, fall back to a single-request upload");
+            }
+
+            return state;
+        } catch (CancellationException e) {
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        } catch (Exception e) {
+            if (isUploadStopped()) {
+                throw SeafException.USER_CANCELLED_EXCEPTION;
+            }
+            // Probe failures (old server, network error, ...) must not rely on a
+            // checkpoint we know nothing about; keep the previous chunked-from-0 flow.
+            SafeLogs.e(TAG, "resolveResumeState()", "probe error, start chunked upload from 0: " + e.getMessage());
+            return UploadResumeState.chunkedFromZero(0L);
+        }
+    }
+
+    @NonNull
+    private retrofit2.Response<UploadedBytesModel> executeResumeProbe(Account account, String repoId,
+                                                                      String parentDir, String fileName) throws Exception {
+        retrofit2.Call<UploadedBytesModel> call = HttpManager.getHttpWithAccount(account)
+                .execute(FileService.class)
+                .getFileUploadedBytes(repoId, parentDir, fileName);
+
+        // Register the probe on the single-file cancellation path.
+        probeCall = call;
+        try {
+            checkUploadCancelled();
+            retrofit2.Response<UploadedBytesModel> res = ExecutionCancellation.execute(call);
+            checkUploadCancelled();
+            return res;
+        } finally {
+            if (probeCall == call) {
+                probeCall = null;
+            }
+        }
+    }
+
+    /**
+     * @throws SeafException {@link SeafException#USER_CANCELLED_EXCEPTION} when this file
+     *                       was stopped or the whole execution was cancelled.
+     */
+    private void checkUploadCancelled() throws SeafException {
+        if (isUploadStopped()) {
+            throw SeafException.USER_CANCELLED_EXCEPTION;
+        }
+    }
+
+    /**
+     * A bulk stop cancels the execution token before the transfer-level stop flag is
+     * published, so the token is checked directly. Checking only the flags would let an
+     * IOException thrown by the token-cancelled probe be mistaken for a normal probe
+     * failure.
+     */
+    private boolean isUploadStopped() {
+        return isStop || isExecutionCancelled() || ExecutionCancellation.isCancelled();
     }
 
     @NonNull

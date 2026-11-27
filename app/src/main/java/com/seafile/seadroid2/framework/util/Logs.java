@@ -14,8 +14,8 @@ import com.seafile.seadroid2.BuildConfig;
 
 /**
  * <p>
- * <br>DevEnv: VERBOSE、DEBUG
- * <br>ProductEnv: INFO、WARN、ERROR
+ * <br>DevEnv: VERBOSE, DEBUG
+ * <br>ProductEnv: INFO, WARN, ERROR
  * </p>
  *
  * <p>

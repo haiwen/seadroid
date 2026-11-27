@@ -44,7 +44,7 @@ import com.seafile.seadroid2.view.TipsViews;
 import java.util.List;
 
 /**
- * can select account、repo、dir
+ * can select account, repo, dir
  */
 public class ObjSelectorActivity extends BaseActivityWithVM<ObjSelectorViewModel> {
     private ObjSelectType mCurrentStepType = ObjSelectType.ACCOUNT;

@@ -40,25 +40,25 @@ import retrofit2.HttpException;
 @Todo
 public class WrapViewModel extends ViewModel {
     /**
-     * 视图状态枚举
+     * View state enum
      */
     public enum ViewState {
-        IDLE,       // 空闲状态
-        LOADING,    // 加载中
-        SUCCESS,    // 成功
-        ERROR       // 错误
+        IDLE,       // Idle state
+        LOADING,    // Loading
+        SUCCESS,    // Success
+        ERROR       // Error
     }
 
     /**
-     * 操作类型枚举
+     * Operation type enum
      */
     public enum OperationType {
-        NORMAL,     // 普通操作
-        LOADING,    // 需要显示加载对话框
-        REFRESH     // 需要显示刷新动画
+        NORMAL,     // Normal operation
+        LOADING,    // Needs to show the loading dialog
+        REFRESH     // Needs to show the refresh animation
     }
 
-    // LiveData 状态管理
+    // LiveData state management
     private final MutableLiveData<ViewState> _stateLiveData = new MutableLiveData<>(ViewState.IDLE);
     private final MutableLiveData<Boolean> _refreshLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> _secondRefreshLiveData = new MutableLiveData<>(false);
@@ -66,10 +66,10 @@ public class WrapViewModel extends ViewModel {
     private final MutableLiveData<SeafException> _seafExceptionLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _showLoadingDialogLiveData = new MutableLiveData<>(false);
 
-    // 订阅管理
+    // Subscription management
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    // 异常处理器
+    // Exception handler
     private final ExceptionHandler exceptionHandler = new ExceptionHandler()
             .setDefaultHandler(throwable -> {
                 SLogs.e(throwable);
@@ -84,7 +84,7 @@ public class WrapViewModel extends ViewModel {
             .addHandler(IOException.class, this::handleIOException);
 
     /**
-     * 异常处理类，支持针对不同类型异常的处理
+     * Exception handler class, supports handling different types of exceptions
      */
     public static class ExceptionHandler {
         private final Map<Class<? extends Throwable>, Consumer<Throwable>> handlers = new HashMap<>();
@@ -125,7 +125,7 @@ public class WrapViewModel extends ViewModel {
     }
 
     /**
-     * RxJava任务构建器
+     * RxJava task builder
      */
     public class RxTaskBuilder<T> {
         private Observable<T> observable;
@@ -226,21 +226,21 @@ public class WrapViewModel extends ViewModel {
     }
 
     /**
-     * 创建一个新的RxJava任务构建器
+     * Create a new RxJava task builder
      */
     public <T> RxTaskBuilder<T> task() {
         return new RxTaskBuilder<>();
     }
 
     /**
-     * 创建一个新的Completable任务构建器
+     * Create a new Completable task builder
      */
     public RxTaskBuilder<Object> completableTask(Completable completable) {
         return task().source(completable.toObservable());
     }
 
     /**
-     * 添加一个带生命周期感知的订阅
+     * Add a lifecycle-aware subscription
      */
     public <T> void addWithLifecycle(LifecycleOwner owner, Observable<T> observable, Consumer<T> onNext) {
         Disposable disposable = observable
@@ -264,14 +264,14 @@ public class WrapViewModel extends ViewModel {
     }
 
     /**
-     * 添加一个Disposable到CompositeDisposable
+     * Add a Disposable to CompositeDisposable
      */
     public void addDisposable(@NonNull Disposable disposable) {
         compositeDisposable.add(disposable);
     }
 
     /**
-     * 处理HTTP异常
+     * Handle HTTP exceptions
      */
     private void handleHttpException(HttpException httpException) {
         if (httpException.getCause() instanceof SSLHandshakeException) {
@@ -282,14 +282,14 @@ public class WrapViewModel extends ViewModel {
     }
 
     /**
-     * 处理IO异常
+     * Handle IO exceptions
      */
     private void handleIOException(IOException ioException) {
         getSeafExceptionLiveData().setValue(new SeafException(SeafException.NETWORK_EXCEPTION.getCode(), ioException.getMessage()));
     }
 
     /**
-     * 生成请求体
+     * Generate request body
      */
     public Map<String, RequestBody> genRequestBody(Map<String, String> requestDataMap) {
         Map<String, RequestBody> requestBodyMap = new HashMap<>();
@@ -309,21 +309,21 @@ public class WrapViewModel extends ViewModel {
     }
 
     /**
-     * 显示刷新状态
+     * Show refresh state
      */
     public void showRefresh() {
         getRefreshLiveData().setValue(true);
     }
 
     /**
-     * 关闭刷新状态
+     * Close refresh state
      */
     public void closeRefresh() {
         getRefreshLiveData().setValue(false);
     }
 
     /**
-     * 清除所有订阅
+     * Clear all subscriptions
      */
     public void clearAll() {
         SLogs.d("CompositeDisposable current size: " + compositeDisposable.size());
@@ -338,7 +338,7 @@ public class WrapViewModel extends ViewModel {
         clearAll();
     }
 
-    // Getter方法
+    // Getter methods
     public LiveData<ViewState> getStateLiveData() {
         return _stateLiveData;
     }

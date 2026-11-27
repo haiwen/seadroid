@@ -70,9 +70,9 @@ public abstract class TransferWorker extends BaseWorker {
                 .execute(FileService.class).mkDirCall(repoId, path, requestBodyMap));
 
         if (response.isSuccessful()) {
-            SLogs.d(TAG, "mkdirRemote()", "folder create success：" + path);
+            SLogs.d(TAG, "mkdirRemote()", "folder create success: " + path);
         } else {
-            SLogs.d(TAG, "mkdirRemote()", "folder create failed：" + response.errorBody().string());
+            SLogs.d(TAG, "mkdirRemote()", "folder create failed: " + response.errorBody().string());
         }
     }
 

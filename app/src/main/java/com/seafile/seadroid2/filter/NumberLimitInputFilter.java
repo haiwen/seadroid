@@ -4,7 +4,7 @@ import android.text.InputFilter;
 import android.text.Spanned;
 
 /**
- * @desc: Only numbers 、dots、comma are allowed
+ * @desc: Only numbers, dots, comma are allowed
  */
 public class NumberLimitInputFilter implements InputFilter {
 
