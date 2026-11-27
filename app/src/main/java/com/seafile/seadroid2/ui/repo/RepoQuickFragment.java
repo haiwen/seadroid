@@ -211,8 +211,13 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
         super.onConfigurationChanged(newConfig);
 
         if (lastKnownOrientation != newConfig.orientation) {
-            removeFloatingView();
-            closeActionMode();
+            boolean hasActiveSelection = adapter != null && adapter.isOnActionMode();
+            boolean isMenuShowing = bottomSheetMenuManager != null
+                    && bottomSheetMenuManager.isShowing();
+            if (isMenuShowing || actionMode != null || hasActiveSelection) {
+                removeFloatingView();
+                closeActionMode();
+            }
             lastKnownOrientation = newConfig.orientation;
         }
     }

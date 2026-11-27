@@ -40,6 +40,7 @@ public class BottomSheetActionGridView {
     private View indicatorThumb;
     private ViewTreeObserver scrollObserver;
     private ViewTreeObserver.OnScrollChangedListener scrollChangedListener;
+    private Runnable pendingScrollRestore;
     private OnBottomSheetItemClickListener itemClickListener;
 
     public BottomSheetActionGridView(@NonNull Activity context) {
@@ -63,11 +64,25 @@ public class BottomSheetActionGridView {
         if (floatingView != null && floatingView.isAttachedToWindow()) {
             int savedScrollX = scrollView == null ? 0 : scrollView.getScrollX();
             buildGrid(menuItems);
-            if (scrollView != null) {
-                scrollView.post(() -> {
-                    scrollView.scrollTo(savedScrollX, 0);
-                    updateScrollIndicator();
-                });
+            HorizontalScrollView targetScrollView = scrollView;
+            if (targetScrollView != null) {
+                cancelPendingScrollRestore();
+                Runnable restoreScroll = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (pendingScrollRestore == this) {
+                            pendingScrollRestore = null;
+                        }
+                        if (scrollView != targetScrollView
+                                || !targetScrollView.isAttachedToWindow()) {
+                            return;
+                        }
+                        targetScrollView.scrollTo(savedScrollX, 0);
+                        updateScrollIndicator();
+                    }
+                };
+                pendingScrollRestore = restoreScroll;
+                targetScrollView.post(restoreScroll);
             }
             return;
         }
@@ -248,11 +263,41 @@ public class BottomSheetActionGridView {
         detachFloatingView();
     }
 
+    public boolean isShowing() {
+        return floatingView != null && floatingView.isAttachedToWindow();
+    }
+
+    public void disableActions() {
+        if (menuGrid == null) {
+            return;
+        }
+
+        int disabledColor = ContextCompat.getColor(context, R.color.bottom_sheet_pop_disable_color);
+        for (int i = 0; i < menuGrid.getChildCount(); i++) {
+            View itemView = menuGrid.getChildAt(i);
+            itemView.setOnClickListener(null);
+            itemView.setClickable(false);
+            itemView.setEnabled(false);
+
+            ImageView icon = itemView.findViewById(R.id.icon);
+            if (icon != null) {
+                icon.setImageTintList(ColorStateList.valueOf(disabledColor));
+            }
+
+            TextView text = itemView.findViewById(R.id.text);
+            if (text != null) {
+                text.setTextColor(disabledColor);
+                text.setEnabled(false);
+            }
+        }
+    }
+
     private void detachFloatingView() {
         // The ViewTreeObserver belongs to the window, not to this view, so the
         // listener has to be removed explicitly or it keeps this instance (and the
         // Activity it holds) alive across every show/dismiss cycle.
         removeScrollListener();
+        cancelPendingScrollRestore();
 
         if (floatingView != null) {
             ViewParent parent = floatingView.getParent();
@@ -266,6 +311,13 @@ public class BottomSheetActionGridView {
         menuGrid = null;
         indicatorContainer = null;
         indicatorThumb = null;
+    }
+
+    private void cancelPendingScrollRestore() {
+        if (pendingScrollRestore != null && scrollView != null) {
+            scrollView.removeCallbacks(pendingScrollRestore);
+        }
+        pendingScrollRestore = null;
     }
 
     private void removeScrollListener() {

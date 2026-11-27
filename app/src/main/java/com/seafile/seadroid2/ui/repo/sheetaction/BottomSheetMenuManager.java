@@ -47,6 +47,9 @@ public class BottomSheetMenuManager {
         // Drop any in-flight permission query from a previous selection, otherwise an
         // older result can arrive later and rebuild the menu with stale permissions.
         compositeDisposable.clear();
+        // Keep the previous selection's permissions from being used while the new
+        // selection is still waiting for its permission query.
+        bottomSheetView.disableActions();
 
         List<Integer> disableMenuIds = getDisableMenuIds(objKey, selectedItems);
         List<Integer> removedMenuIds = getWillBeRemovedMenuIds(objKey, selectedItems);
@@ -63,6 +66,10 @@ public class BottomSheetMenuManager {
     public void dismiss() {
         compositeDisposable.clear();
         bottomSheetView.dismiss();
+    }
+
+    public boolean isShowing() {
+        return bottomSheetView.isShowing();
     }
 
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
