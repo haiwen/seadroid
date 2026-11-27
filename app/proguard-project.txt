@@ -174,6 +174,19 @@
 # LiveEventBus does not ship consumer rules; suppress warnings for optional deps
 -dontwarn com.jeremyliao.liveeventbus.**
 
+# ------------------------------ Markdown (flexmark) ------------------------------
+# R8's horizontal class merging can merge two distinct Dependent classes into one
+# (observed: BlockQuoteParser$Factory and FootnoteBlockParser$Factory -> a single
+# class). flexmark's DependencyHandler keys dependents by Class identity, so the
+# merged classes look duplicated and it throws:
+#   IllegalStateException: Dependent class class X is duplicated.
+#   Only one instance can be present in the list
+# which crashes Parser creation when opening any Markdown file in release builds.
+-keep,allowshrinking,allowobfuscation class com.vladsch.flexmark.** { *; }
+# MarkdownView's own extensions (twitter, video, ...) also implement flexmark's
+# Dependent/PostProcessorFactory and hit the same merging problem.
+-keep,allowshrinking,allowobfuscation class br.tiagohm.markdownview.** { *; }
+
 # ------------------------------ Libraries with consumer rules ------------------------------
 # utilcode, Retrofit, OkHttp, Glide, Room, WorkManager, Media3, Firebase,
 # AndroidX/Material, and JsBridge (no reflection) are not kept as whole packages
