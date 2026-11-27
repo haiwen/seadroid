@@ -28,9 +28,6 @@ import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.transport.LargeObjectIntent;
-import com.seafile.seadroid2.framework.transport.LargeObjectTransport;
-import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -78,7 +75,6 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> {
         Intent starter = new Intent(context, FileActivity.class);
         starter.putExtra("action", actionEnum.name());
         starter.putExtra("dirent", direntModel);
-        TransportHolder.get().put("dirent", direntModel);
         return starter;
     }
 
@@ -134,11 +130,7 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> {
         if (savedInstanceState != null && savedInstanceState.containsKey("dirent")) {
             direntModel = savedInstanceState.getParcelable("dirent");
         } else {
-            direntModel = TransportHolder.get().get("dirent");
-            if (direntModel == null) {
-                direntModel = intent.getParcelableExtra("dirent");
-            }
-            TransportHolder.get().remove("dirent");
+            direntModel = intent.getParcelableExtra("dirent");
         }
 
         if (null == direntModel) {

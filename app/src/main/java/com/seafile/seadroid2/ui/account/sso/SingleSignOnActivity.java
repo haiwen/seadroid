@@ -273,8 +273,9 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         }
 
         Intent intent = new Intent(this, SingleSignOnAuthorizeActivity.class);
-        intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
         intent.putExtras(getIntent());
+        // The address used for this verification is written last to avoid being overwritten by the original extra of the same name in the Intent
+        intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
         authLauncher.launch(intent);
     }
 
