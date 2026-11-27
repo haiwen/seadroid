@@ -29,7 +29,7 @@ import java.util.List;
 /** Two-row, continuously scrolling action menu backed by a GridLayout. */
 public class BottomSheetActionGridView {
     private static final int MAX_ROW_COUNT = 2;
-    private static final int MIN_THUMB_WIDTH_DP = 16;
+    private static final int MIN_THUMB_WIDTH_DP = 8;
     private static final int MAX_ITEM_WIDTH_DP = 96;
 
     private final Activity context;
@@ -85,12 +85,6 @@ public class BottomSheetActionGridView {
 
         buildGrid(menuItems);
 
-        if (scrollChangedListener == null) {
-            scrollChangedListener = this::updateScrollIndicator;
-        }
-        scrollObserver = scrollView.getViewTreeObserver();
-        scrollObserver.addOnScrollChangedListener(scrollChangedListener);
-
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.BOTTOM;
@@ -104,6 +98,14 @@ public class BottomSheetActionGridView {
         }
 
         content.addView(floatingView);
+        if (scrollChangedListener == null) {
+            scrollChangedListener = this::updateScrollIndicator;
+        }
+        // Read the observer after attachment so this listener belongs to the
+        // window observer that receives scroll changes.
+        scrollObserver = scrollView.getViewTreeObserver();
+        scrollObserver.addOnScrollChangedListener(scrollChangedListener);
+
         applyEdgeToEdge(floatingView);
         ViewCompat.requestApplyInsets(floatingView);
         // Do not rely on post() alone: it can run before the first layout pass, when
@@ -220,7 +222,7 @@ public class BottomSheetActionGridView {
         }
 
         int thumbWidth = Math.max(dp(MIN_THUMB_WIDTH_DP), Math.round(
-                trackWidth * viewportWidth / (float) contentWidth));
+                trackWidth * viewportWidth / (2f * contentWidth)));
         int travel = Math.max(0, trackWidth - thumbWidth);
 
         // Only write the width back when it actually changed: this runs on every

@@ -61,6 +61,8 @@
     <color name="bottom_sheet_pop_enable_color">#d3d3d3</color>
     <color name="bottom_sheet_pop_disable_color">@color/material_grey_666</color>
     <color name="bottom_sheet_input_background_color">@color/material_grey_800</color>
+    <color name="bottom_sheet_scroll_track_color">#666666</color>
+    <color name="bottom_sheet_scroll_thumb_color">#C5C5C5</color>
 
     <!-- toolbar bar color -->
     <color name="toolbar_progress_bar_background_color">@color/material_grey_700</color>
