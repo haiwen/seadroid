@@ -30,24 +30,24 @@
 
     <FrameLayout
         android:id="@+id/scroll_indicator_container"
-        android:layout_width="64dp"
-        android:layout_height="4dp"
+        android:layout_width="24dp"
+        android:layout_height="8dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="8dp">
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="12dp">
 
         <View
             android:id="@+id/scroll_indicator_track"
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_gravity="center_vertical"
-            android:background="@color/divider_color" />
+            android:background="@drawable/bottom_sheet_scroll_indicator_track" />
 
         <View
             android:id="@+id/scroll_indicator_thumb"
-            android:layout_width="20dp"
+            android:layout_width="8dp"
             android:layout_height="4dp"
             android:layout_gravity="center_vertical|start"
-            android:background="@color/bottom_sheet_pop_enable_color" />
+            android:background="@drawable/bottom_sheet_scroll_indicator_thumb" />
     </FrameLayout>
 </LinearLayout>

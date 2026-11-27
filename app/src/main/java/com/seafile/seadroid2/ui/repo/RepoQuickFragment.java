@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -170,6 +171,7 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     };
     private AppCompatActivity activity;
     private ActionMode actionMode;
+    private int lastKnownOrientation = Configuration.ORIENTATION_UNDEFINED;
     private long lastVisibleElapsedRealtime;
 
     //result launcher
@@ -201,6 +203,23 @@ public class RepoQuickFragment extends BaseFragmentWithVM<RepoViewModel> {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         activity = (AppCompatActivity) context;
+        lastKnownOrientation = context.getResources().getConfiguration().orientation;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (lastKnownOrientation != newConfig.orientation) {
+            boolean hasActiveSelection = adapter != null && adapter.isOnActionMode();
+            boolean isMenuShowing = bottomSheetMenuManager != null
+                    && bottomSheetMenuManager.isShowing();
+            if (isMenuShowing || actionMode != null || hasActiveSelection) {
+                removeFloatingView();
+                closeActionMode();
+            }
+            lastKnownOrientation = newConfig.orientation;
+        }
     }
 
     @Override
