@@ -27,10 +27,12 @@
 
         <com.yydcdut.markdown.MarkdownEditText
             android:id="@+id/edit_md"
+            android:breakStrategy="simple"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/blue_bg"
             android:gravity="start|top"
+            android:hyphenationFrequency="none"
             android:padding="16dp"
             android:saveEnabled="false"
             android:textColor="@color/white" />

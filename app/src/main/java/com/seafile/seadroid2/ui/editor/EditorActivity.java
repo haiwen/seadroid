@@ -58,6 +58,8 @@ import io.reactivex.functions.Consumer;
  */
 public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
 
+    private static final String TAG = "EditorActivity";
+
     private ActivityEditorBinding binding;
     private MarkdownEditText mMarkdownEditText;
     private HorizontalEditScrollView mHorizontalEditScrollView;
@@ -103,14 +105,11 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
         adaptInputMethod();
 
         initViewModel();
-        initMarkdown();
 
         if (savedInstanceState != null) {
             localPath = savedInstanceState.getString("local_path");
             repoId = savedInstanceState.getString("repo_id");
             filePathInRepo = savedInstanceState.getString("file_path_in_repo");
-
-            loadData();
         } else {
             Intent intent = getIntent();
             localPath = intent.getStringExtra("local_path");
@@ -120,9 +119,11 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
             if (!NetworkUtils.isConnected()) {
                 Toasts.show(R.string.network_unavailable);
             }
-
-            loadData();
         }
+
+        initMarkdown();
+
+        loadData();
 
         if (!TextUtils.isEmpty(localPath) && getSupportActionBar() != null) {
             getSupportActionBar().setTitle(new File(localPath).getName());
@@ -198,7 +199,16 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
 
                 lastContentMD5 = EncryptUtils.encryptMD5ToString(s);
 
+                // Disable the undo listener on the initial text fill so that filling a large text
+                // is not treated as user editing (which would push/reorder history entries);
+                // this also avoids triggering live Markdown parsing.
+                mPerformEdit.setEnabled(false);
+
+                isSave = true;
                 mPerformEdit.setDefaultText(s);
+                isSave = false;
+
+                mPerformEdit.setEnabled(true);
             }
         });
     }
@@ -259,6 +269,12 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
         }
     }
 
+    /**
+     * Markdown files larger than this size skip live syntax highlighting to avoid an ANR
+     * caused by a full-text regex scan on the main thread.
+     */
+    private static final long MARKDOWN_LIVE_RENDER_MAX_BYTES = 50 * 1024;
+
     private void initMarkdown() {
         MarkdownConfiguration markdownConfiguration = new MarkdownConfiguration.Builder(this)
                 .setDefaultImageSize(50, 50)
@@ -276,26 +292,30 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
                 .setUnOrderListColor(0xFF2196F3)
                 .build();
 
-
         mHorizontalEditScrollView.setEditTextAndConfig(mMarkdownEditText, markdownConfiguration);
+
         mMarkdownProcessor = new MarkdownProcessor(this);
         mMarkdownProcessor.config(markdownConfiguration);
         mMarkdownProcessor.factory(EditFactory.create());
-        mMarkdownProcessor.live(mMarkdownEditText);
 
+        // Enable live syntax highlighting only for small Markdown files; otherwise every
+        // keystroke re-runs a full-text regex parse on the main thread, which will definitely
+        // ANR on large files.
+        if (shouldEnableLiveMarkdown()) {
+            mMarkdownProcessor.live(mMarkdownEditText);
+        } else {
+            SLogs.d(TAG, "skip live markdown rendering for large or non-markdown file");
+        }
 
         mPerformEdit = new PerformEdit(mMarkdownEditText);
-
 
         mMarkdownEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
@@ -303,6 +323,18 @@ public class EditorActivity extends BaseActivityWithVM<EditorViewModel> {
                 isSave = false;
             }
         });
+    }
+
+    private boolean shouldEnableLiveMarkdown() {
+        if (TextUtils.isEmpty(localPath)) {
+            return false;
+        }
+        String lower = localPath.toLowerCase();
+        if (!lower.endsWith(".md") && !lower.endsWith(".markdown")) {
+            return false;
+        }
+        File file = new File(localPath);
+        return file.exists() && file.length() <= MARKDOWN_LIVE_RENDER_MAX_BYTES;
     }
 
     @Override

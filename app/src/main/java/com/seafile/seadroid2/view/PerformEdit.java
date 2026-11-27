@@ -25,27 +25,37 @@ import androidx.annotation.NonNull;
 import java.util.Stack;
 
 /**
- * Undo and redo
- * Created by 沈钦赐 on 16/6/23.
+ * Undo and redo.
+ * Created by Shen Qinci on 16/6/23.
  */
 public class PerformEdit {
-    //Operation index (one edit may correspond to multiple operations, e.g. replacing text is delete + insert)
+    // Operation sequence number (a single edit may map to several operations, e.g. replacing
+    // text is a delete plus an insert).
     int index;
-    //Undo stack
+    // Maximum number of undo records kept, to prevent memory growth while editing large files.
+    private static final int MAX_HISTORY_SIZE = 50;
+    // Undo stack.
     Stack<Action> history = new Stack<>();
-    //Redo stack
+    // Redo stack.
     Stack<Action> historyBack = new Stack<>();
 
     private Editable editable;
     private EditText editText;
-    //Automatic operation flag to prevent repeated callbacks and infinite undo
+    // Automatic-operation flag, used to avoid re-entrant callbacks that would cause endless undo.
     private boolean flag = false;
+    // Whether undo history is recorded. Set to false while filling text in bulk so the loading
+    // process is not mistaken for user edits.
+    private boolean enabled = true;
 
     public PerformEdit(@NonNull EditText editText) {
-        CheckNull(editText, "EditText cannot be null");
+        CheckNull(editText, "EditText must not be null");
         this.editable = editText.getText();
         this.editText = editText;
         editText.addTextChangedListener(new Watcher());
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     protected void onEditableChanged(Editable s) {
@@ -58,6 +68,7 @@ public class PerformEdit {
 
 
     /**
+     * Clear records.
      * Clear history.
      */
     public final void clearHistory() {
@@ -71,16 +82,16 @@ public class PerformEdit {
      */
     public final void undo() {
         if (history.empty()) return;
-        //Lock operation
+        // Lock operations.
         flag = true;
         Action action = history.pop();
         historyBack.push(action);
         if (action.isAdd) {
-            //Undo add
+            // Undo an insertion.
             editable.delete(action.startCursor, action.startCursor + action.actionTarget.length());
             editText.setSelection(action.startCursor, action.startCursor);
         } else {
-            //Undo delete
+            // Undo a deletion.
             editable.insert(action.startCursor, action.actionTarget);
             if (action.endCursor == action.startCursor) {
                 editText.setSelection(action.startCursor + action.actionTarget.length());
@@ -88,9 +99,9 @@ public class PerformEdit {
                 editText.setSelection(action.startCursor, action.endCursor);
             }
         }
-        //Release operation
+        // Release the lock.
         flag = false;
-        //Check whether the next action is the same operation as this one, until they differ
+        // Keep undoing while the next action belongs to the same operation.
         if (!history.empty() && history.peek().index == action.index) {
             undo();
         }
@@ -105,7 +116,7 @@ public class PerformEdit {
         Action action = historyBack.pop();
         history.push(action);
         if (action.isAdd) {
-            //Redo add
+            // Redo an insertion.
             editable.insert(action.startCursor, action.actionTarget);
             if (action.endCursor == action.startCursor) {
                 editText.setSelection(action.startCursor + action.actionTarget.length());
@@ -113,17 +124,18 @@ public class PerformEdit {
                 editText.setSelection(action.startCursor, action.endCursor);
             }
         } else {
-            //Redo delete
+            // Redo a deletion.
             editable.delete(action.startCursor, action.startCursor + action.actionTarget.length());
             editText.setSelection(action.startCursor, action.startCursor);
         }
         flag = false;
-        //Check whether the next action is the same operation as this one
+        // Check whether the next action belongs to the same operation.
         if (!historyBack.empty() && historyBack.peek().index == action.index)
             redo();
     }
 
     /**
+     * Set the text for the first time.
      * Set default text.
      */
     public final void setDefaultText(CharSequence text) {
@@ -139,31 +151,33 @@ public class PerformEdit {
          * Before text changed.
          *
          * @param s     the s
-         * @param start the start cursor
-         * @param count the endCursor selection count
-         * @param after the after number of characters added by the replacement
+         * @param start the start, i.e. the initial cursor position
+         * @param count the endCursor, i.e. the number of selected characters
+         * @param after the after, i.e. the number of characters added by the replacement
          */
         @Override
         public final void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            if (flag) return;
+            if (flag || !enabled) return;
             int end = start + count;
             if (end > start && end <= s.length()) {
                 CharSequence charSequence = s.subSequence(start, end);
-                //Text deleted
+                // Text was deleted.
                 if (charSequence.length() > 0) {
                     Action action = new Action(charSequence, start, false);
                     if (count > 1) {
-                        //If more than one character at a time, the user selected text and then replaced or deleted it
+                        // More than one character at once means the user selected text and then
+                        // replaced or deleted it.
                         action.setSelectCount(count);
                     } else if (count == 1 && count == after) {
-                        //Single character replacement
+                        // A single character was replaced.
                         action.setSelectCount(count);
                     }
-                    //Another case: select a character and then delete it (not considered for now)
+                    // Another case: select one character and then delete it (not handled yet).
 
                     history.push(action);
                     historyBack.clear();
                     action.setIndex(++index);
+                    trimHistory();
                 }
             }
         }
@@ -172,28 +186,30 @@ public class PerformEdit {
          * On text changed.
          *
          * @param s      the s
-         * @param start  the start cursor
-         * @param before the before selection count
-         * @param count  the endCursor number added
+         * @param start  the start, i.e. the initial cursor position
+         * @param before the before, i.e. the number of selected characters
+         * @param count  the endCursor, i.e. the number of added characters
          */
         @Override
         public final void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (flag) return;
+            if (flag || !enabled) return;
             int end = start + count;
             if (end > start) {
                 CharSequence charSequence = s.subSequence(start, end);
-                //Text added
+                // Text was added.
                 if (charSequence.length() > 0) {
                     Action action = new Action(charSequence, start, true);
 
                     history.push(action);
                     historyBack.clear();
                     if (before > 0) {
-                        //Text replacement (delete first, then add); delete and add are the same operation, so no need to increment the index
+                        // Text replacement (delete first, then insert). The delete and the insert
+                        // belong to the same operation, so the sequence number is not incremented.
                         action.setIndex(index);
                     } else {
                         action.setIndex(++index);
                     }
+                    trimHistory();
                 }
             }
         }
@@ -212,7 +228,7 @@ public class PerformEdit {
 
     private class Action {
         /**
-         * Changed characters.
+         * The changed characters.
          */
         CharSequence actionTarget;
         /**
@@ -221,11 +237,11 @@ public class PerformEdit {
         int startCursor;
         int endCursor;
         /**
-         * Flag for add operation.
+         * Whether this is an insert operation.
          */
         boolean isAdd;
         /**
-         * Operation index.
+         * Operation sequence number.
          */
         int index;
 
@@ -246,6 +262,21 @@ public class PerformEdit {
         }
     }
 
+
+    private void trimHistory() {
+        while (history.size() > MAX_HISTORY_SIZE) {
+            int targetIndex = history.get(0).index;
+            while (!history.isEmpty() && history.get(0).index == targetIndex) {
+                history.remove(0);
+            }
+        }
+        while (historyBack.size() > MAX_HISTORY_SIZE) {
+            int targetIndex = historyBack.get(0).index;
+            while (!historyBack.isEmpty() && historyBack.get(0).index == targetIndex) {
+                historyBack.remove(0);
+            }
+        }
+    }
 
     private static void CheckNull(Object o, String message) {
         if (o == null) throw new IllegalStateException(message);
