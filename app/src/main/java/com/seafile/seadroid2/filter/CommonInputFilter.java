@@ -11,42 +11,42 @@ public class CommonInputFilter implements InputFilter {
         //source : old input
         //dest : new input
 
-//        //只有一个小数点
+//        //only one decimal point
 //        if (dest.toString().equals(".")) {
 //            return "0.";
 //        }
 
-        //不能重复输入小数点
+        //cannot enter the decimal point repeatedly
         if (source.toString().contains(".") && dest.toString().contains(".")) {
             return "";
         }
 
-//        //整数不能超过10位
+//        //the integer part cannot exceed 10 digits
 //        if (!source.toString().equals(".") && !dest.toString().contains(".")) {
 //            if (dest.toString().length() > 9) {
 //                return "";
 //            }
 //        }
 
-        //不能以小数点开始
+        //cannot start with a decimal point
         if (source.toString().contains(".")) {
             if (TextUtils.isEmpty(dest.toString()) && source.toString().equals(".")) {
                 return "0.";
             }
         }
 
-//        //小数点后要保留两位小数
+//        //keep two decimal places after the decimal point
 //        if (start < end && dest.toString().contains(".") && (dest.length() - dest.toString().indexOf(".")) > 3) {
-//            LogUtils.e("小数点后只能输两位");
+//            LogUtils.e("only two digits are allowed after the decimal point");
 //            return "";
 //        }
 
-//        //确保不会出现不是小数的第一位为0
+//        //ensure the first digit is not 0 when it is not a decimal
 //        if (start < end && dest.toString().indexOf(".") > 1 && dest.toString().equals("0.") && source.equals("0")) {
-//            LogUtils.e("不能从0开始");
+//            LogUtils.e("cannot start with 0");
 //            return "";
 //        } else if (start < end && !dest.toString().contains(".") && dest.toString().equals("0") && !source.equals(".")) {
-//            LogUtils.e("请输入正确格式的金额");
+//            LogUtils.e("please enter an amount in the correct format");
 //            return "";
 //        }
         return null;

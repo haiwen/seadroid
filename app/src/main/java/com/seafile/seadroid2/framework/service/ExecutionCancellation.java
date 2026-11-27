@@ -36,6 +36,21 @@ public final class ExecutionCancellation {
     }
 
     /**
+     * @return whether the execution token of the current thread is already cancelled.
+     * Callers use this to detect a cancellation that happened before the transfer-level
+     * stop flag was published.
+     */
+    public static boolean isCancelled() {
+        ExecutionCancellation token = CURRENT.get();
+        if (token == null) {
+            return false;
+        }
+        synchronized (token) {
+            return token.cancelled;
+        }
+    }
+
+    /**
      * Wait on the background execution, waking immediately when its owner is cancelled.
      */
     public static void await(long millis) {

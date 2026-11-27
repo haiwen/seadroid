@@ -88,7 +88,7 @@ public class MediaBackupScanner extends ParentEventTransfer {
 
         SeafException seafException = AlbumScanHelper.loadMedia(getContext(), account, repoConfig, lastScanTime);
         if (seafException != SeafException.SUCCESS) {
-            SafeLogs.d(TAG, "doWork()", "loadMedia() failed：" + seafException.getMessage());
+            SafeLogs.d(TAG, "doWork()", "loadMedia() failed: " + seafException.getMessage());
             send(FeatureDataSource.ALBUM_BACKUP, TransferEvent.EVENT_SCAN_COMPLETE);
             return seafException;
         }

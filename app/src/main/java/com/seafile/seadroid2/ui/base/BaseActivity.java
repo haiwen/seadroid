@@ -33,7 +33,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Android 15+ 强制 edge-to-edge，官方 API 统一处理系统栏样式与对比度
+        // Android 15+ enforces edge-to-edge; the official API handles system bar style and contrast uniformly
         EdgeToEdge.enable(this);
 
         super.onCreate(savedInstanceState);
@@ -68,9 +68,9 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * 官方推荐：把 insets 直接绑定到具体组件。
-     * - 顶部：绑定到 Toolbar（高度同步增加，背景自然延伸进状态栏）；无 Toolbar 的页面兜底给根容器
-     * - 底部：有 BottomNavigationView 时绑定到它自身（背景延伸到导航栏）；否则根容器兜底处理导航栏
+     * Official recommendation: bind insets directly to concrete components.
+     * - Top: bind to the Toolbar (height grows accordingly, the background naturally extends into the status bar); pages without a Toolbar fall back to the root container
+     * - Bottom: when there is a BottomNavigationView, bind to it (the background extends into the navigation bar); otherwise the root container handles the navigation bar as a fallback
      */
     public static void setupInsets(View root) {
         View toolbar = root.findViewById(R.id.toolbar_actionbar);
@@ -84,7 +84,7 @@ public class BaseActivity extends AppCompatActivity {
         final int rootPaddingRight = root.getPaddingRight();
         final int rootPaddingBottom = root.getPaddingBottom();
 
-        // 根容器：只处理左右 system bars 和顶部（无 Toolbar 时）；底部在有 BottomNav 时跳过
+        // Root container: only handles the left/right system bars and the top (when there is no Toolbar); the bottom is skipped when a BottomNav exists
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
@@ -131,7 +131,7 @@ public class BaseActivity extends AppCompatActivity {
             final int bottomNavPaddingTop = bottomNav.getPaddingTop();
             final int bottomNavPaddingRight = bottomNav.getPaddingRight();
             final int bottomNavPaddingBottom = bottomNav.getPaddingBottom();
-            // BottomNavigationView 导航栏 inset 绑定到自身，背景延伸到系统导航栏后方
+            // Bind the BottomNavigationView navigation bar inset to itself so the background extends behind the system navigation bar
             ViewCompat.setOnApplyWindowInsetsListener(bottomNav, (v, insets) -> {
                 int bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
                 v.setPadding(bottomNavPaddingLeft,
@@ -165,7 +165,7 @@ public class BaseActivity extends AppCompatActivity {
                 loadingDialog.dismiss();
             }
         } catch (Exception e) {
-            // 忽略异常，防止因为 Activity 已经销毁导致的崩溃
+            // Ignore the exception to avoid a crash caused by the Activity already being destroyed
         } finally {
             loadingDialog = null;
         }

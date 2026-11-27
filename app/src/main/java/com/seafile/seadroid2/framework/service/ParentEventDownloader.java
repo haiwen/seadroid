@@ -49,7 +49,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     public abstract FeatureDataSource getFeatureDataSource();
 
     private FileTransferProgressListener transferProgressListener = new FileTransferProgressListener((transferModel, percent, transferredSize, totalSize) -> {
-        SafeLogs.d(TAG, "onProgressNotify()", transferModel.file_name + " -> progress：" + percent);
+        SafeLogs.d(TAG, "onProgressNotify()", transferModel.file_name + " -> progress: " + percent);
         transferModel.transferred_size = transferredSize;
         GlobalTransferCacheList.updateTransferModel(transferModel);
 
@@ -128,7 +128,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
 
             sendProgressCompleteEvent(getFeatureDataSource(), currentTransferModel);
 
-            SafeLogs.d(TAG, "transferFile()", "download complete：" + currentTransferModel.full_path);
+            SafeLogs.d(TAG, "transferFile()", "download complete: " + currentTransferModel.full_path);
         } catch (Exception e) {
             SafeLogs.d(TAG, "transferFile()", "download file failed -> " + currentTransferModel.full_path);
             SeafException seafException = e instanceof SeafException
@@ -158,7 +158,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
                     }
             );
             if (retryError == null) {
-                SafeLogs.d(TAG, "transferFile()", "download complete after retry：" + currentTransferModel.full_path);
+                SafeLogs.d(TAG, "transferFile()", "download complete after retry: " + currentTransferModel.full_path);
                 return;
             }
             finalException = retryError;
@@ -224,7 +224,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     private void download(Account account, String dlink) throws SeafException {
         markDownloadStarted();
 
-        SafeLogs.d(TAG, "download()", "download start：" + currentTransferModel.full_path);
+        SafeLogs.d(TAG, "download()", "download start: " + currentTransferModel.full_path);
 
         Request request = buildDownloadRequest(dlink);
         cancelCurrentCallIfExecuted("download()");
@@ -330,7 +330,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         if (!response.isSuccessful()) {
             int code = response.code();
             String b = response.body() != null ? response.body().string() : null;
-            SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is : " + b);
+            SafeLogs.d(TAG, "download()", "download failed: " + code + ", resBody is : " + b);
 
             //
             newCall.cancel();
@@ -341,7 +341,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
         try (ResponseBody responseBody = response.body()) {
             if (responseBody == null) {
                 int code = response.code();
-                SafeLogs.d(TAG, "download()", "download failed：" + code + ", resBody is null ", currentTransferModel.target_path);
+                SafeLogs.d(TAG, "download()", "download failed: " + code + ", resBody is null ", currentTransferModel.target_path);
 
                 throw SeafException.NETWORK_EXCEPTION;
             }
@@ -359,7 +359,7 @@ public abstract class ParentEventDownloader extends ParentEventTransfer {
     private long resolveDownloadSize(@NonNull ResponseBody responseBody, @NonNull File localFile) {
         long fileSize = responseBody.contentLength();
         if (fileSize == -1) {
-            SafeLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
+            SafeLogs.d(TAG, "download()", "download failed: contentLength is -1", localFile.getAbsolutePath());
             fileSize = currentTransferModel.file_size;
         }
         return fileSize;

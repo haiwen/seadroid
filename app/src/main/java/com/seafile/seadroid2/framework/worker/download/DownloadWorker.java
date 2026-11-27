@@ -79,7 +79,7 @@ public class DownloadWorker extends BaseDownloadWorker {
         notificationHelper = new DownloadNotificationHelper(context);
 
         transferProgressListener = new FileTransferProgressListener((transferModel, percent, transferredSize, totalSize) -> {
-            SLogs.d(TAG, "onProgressNotify()", transferModel.file_name + " -> progress：" + percent);
+            SLogs.d(TAG, "onProgressNotify()", transferModel.file_name + " -> progress: " + percent);
             transferModel.transferred_size = transferredSize;
             GlobalTransferCacheList.updateTransferModel(transferModel);
 
@@ -137,7 +137,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             try {
                 int p = GlobalTransferCacheList.DOWNLOAD_QUEUE.getPendingCount();
-                SLogs.d(TAG, "doWork()", "pending count: " + p + ", download start：" + transferModel.full_path);
+                SLogs.d(TAG, "doWork()", "pending count: " + p + ", download start: " + transferModel.full_path);
                 currentTransferModel = CloneUtils.deepClone(transferModel, TransferModel.class);
                 noticeAttempt = noticeFile(currentTransferModel);
                 noticeSequence = 0;
@@ -207,7 +207,7 @@ public class DownloadWorker extends BaseDownloadWorker {
 
             sendProgressEvent(FeatureDataSource.DOWNLOAD, currentTransferModel);
 
-            SLogs.d(TAG, "transferFile()", "download complete：" + currentTransferModel.full_path);
+            SLogs.d(TAG, "transferFile()", "download complete: " + currentTransferModel.full_path);
         } catch (Exception e) {
             SLogs.d(TAG, "transferFile()", "download file failed -> " + currentTransferModel.full_path);
             SeafException seafException = ExceptionUtils.parseByThrowable(e);
@@ -324,7 +324,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             if (!response.isSuccessful()) {
                 int code = response.code();
                 String b = response.body() != null ? response.body().string() : null;
-                SLogs.d(TAG, "download()", "download failed：" + code + ", resBody is : " + b);
+                SLogs.d(TAG, "download()", "download failed: " + code + ", resBody is : " + b);
 
                 //
                 newCall.cancel();
@@ -335,7 +335,7 @@ public class DownloadWorker extends BaseDownloadWorker {
             try (ResponseBody responseBody = response.body()) {
                 if (responseBody == null) {
                     int code = response.code();
-                    SLogs.d(TAG, "download()", "download failed：" + code + ", resBody is null ", currentTransferModel.target_path);
+                    SLogs.d(TAG, "download()", "download failed: " + code + ", resBody is null ", currentTransferModel.target_path);
 
                     throw SeafException.NETWORK_EXCEPTION;
                 }
@@ -345,11 +345,11 @@ public class DownloadWorker extends BaseDownloadWorker {
 
                 long fileSize = responseBody.contentLength();
                 if (fileSize == -1) {
-                    SLogs.d(TAG, "download()", "download failed：contentLength is -1", localFile.getAbsolutePath());
+                    SLogs.d(TAG, "download()", "download failed: contentLength is -1", localFile.getAbsolutePath());
                     fileSize = currentTransferModel.file_size;
                 }
 
-                //todo 检查剩余空间
+                //todo Check remaining space
 
                 File tempFile = DataManager.createTempFile();
                 try (InputStream inputStream = responseBody.byteStream();

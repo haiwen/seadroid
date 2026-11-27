@@ -153,7 +153,7 @@ public class AlbumScanHelper {
             stopwatch.stop();
 
             long diff = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-            SafeLogs.d(TAG, "readMediaResult()", "album backup scan time：" + stopwatch);
+            SafeLogs.d(TAG, "readMediaResult()", "album backup scan time: " + stopwatch);
             long now = System.currentTimeMillis();
             AlbumBackupSharePreferenceHelper.writeLastScanTime2(now - diff);
         }
@@ -587,9 +587,9 @@ public class AlbumScanHelper {
         }
 
         if (res.isSuccessful()) {
-            SafeLogs.d(TAG, "renameRemoteFile()", "Folder rename success：" + fullPath);
+            SafeLogs.d(TAG, "renameRemoteFile()", "Folder rename success: " + fullPath);
         } else {
-            SafeLogs.d(TAG, "renameRemoteFile()", "Folder rename failed：" + fullPath);
+            SafeLogs.d(TAG, "renameRemoteFile()", "Folder rename failed: " + fullPath);
         }
     }
 

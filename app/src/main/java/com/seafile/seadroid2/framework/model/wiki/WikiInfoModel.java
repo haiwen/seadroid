@@ -30,9 +30,9 @@ public class WikiInfoModel extends BaseModel {
     @SerializedName("owner_avatar_url")
     public String owner_avatar_url;//wiki1
     @SerializedName("permission")
-    public String permission;//wiki1、wiki2
+    public String permission;//wiki1, wiki2
     @SerializedName("public_url")
-    public String public_url;//wiki1、wiki2
+    public String public_url;//wiki1, wiki2
     @SerializedName("public_url_suffix")
     public String public_url_suffix;
     @SerializedName("slug")
