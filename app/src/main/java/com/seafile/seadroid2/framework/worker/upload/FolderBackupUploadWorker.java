@@ -74,7 +74,7 @@ public class FolderBackupUploadWorker extends BaseUploadWorker {
         super.onStopped();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            SLogs.e("Folder backup stopped, reason：" + getStopReason());
+            SLogs.e("Folder backup stopped, reason: " + getStopReason());
         }
     }
 

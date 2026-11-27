@@ -68,7 +68,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private String repoId;
     private String filePath;
 
-    /** 用户是否手动锁定了横屏；false 时走自动旋转（跟随系统设置） */
+    /** Whether the user has manually locked landscape orientation; when false, use auto-rotation (follow system settings) */
     private boolean isOrientationLocked = false;
     private boolean startAutoPlay;
     private int startItemIndex;
@@ -128,7 +128,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             clearStartPosition();
         }
 
-        // 默认自动旋转（跟随系统设置），若此前手动锁定了横屏则恢复锁定
+        // Auto-rotate by default (follow system settings); if landscape was previously locked manually, restore the lock
         if (isOrientationLocked) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
@@ -154,7 +154,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
 
         binding.back.setOnClickListener(v -> {
             if (isOrientationLocked) {
-                // 解锁横屏，回到自动旋转
+                // Unlock landscape and return to auto-rotation
                 unlockOrientation();
                 return;
             }
@@ -267,21 +267,21 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         binding.playPause.setImageResource(isPlay ? R.drawable.ic_play_fill : R.drawable.ic_pause_fill);
     }
 
-    /** 手动锁定横屏，同时更新图标 */
+    /** Manually lock landscape orientation, and update the icon at the same time */
     private void lockToLandscape() {
         isOrientationLocked = true;
         binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
-    /** 解除横屏锁定，回到自动旋转；根据当前设备方向更新全屏图标 */
+    /** Release the landscape orientation lock and return to auto-rotation; update the fullscreen icon according to the current device orientation */
     private void unlockOrientation() {
         isOrientationLocked = false;
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         updateFullscreenIcon();
     }
 
-    /** 根据当前设备方向同步全屏按钮图标 */
+    /** Synchronize the fullscreen button icon according to the current device orientation */
     private void updateFullscreenIcon() {
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -294,7 +294,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // 自动旋转引起的方向变化：同步全屏图标
+        // Orientation change caused by auto-rotation: synchronize the fullscreen icon
         if (!isOrientationLocked) {
             updateFullscreenIcon();
         }

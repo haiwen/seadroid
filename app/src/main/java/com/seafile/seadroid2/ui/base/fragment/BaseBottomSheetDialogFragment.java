@@ -50,7 +50,7 @@ public abstract class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
 ////
 //
     /**
-     * 获取屏幕高度
+     * Get the screen height
      *
      * @return height
      */

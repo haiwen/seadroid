@@ -14,7 +14,7 @@ import io.reactivex.Single;
 
 @Dao
 public interface GroupDAO {
-    // 查询所有 Group 数据
+    // Query all Group data
     @Query("SELECT * FROM 'groups'")
     Single<List<GroupEntity>> queryAll();
 

@@ -18,7 +18,7 @@ public class MetadataConfigDataModel {
     public boolean enable_precision;
     @SerializedName("precision")
     public int precision;
-    // 小数点分隔符
+    // decimal separator
     @SerializedName("decimal")
     public String decimal;
     @SerializedName("thousands")

@@ -225,7 +225,7 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
 
         @Override
         public void onNext(Long aLong) {
-            SLogs.d("Timer：" + aLong);
+            SLogs.d("Timer:" + aLong);
         }
 
         @Override
@@ -235,7 +235,7 @@ public abstract class RequestCustomDialogFragmentWithVM<VM extends BaseViewModel
 
         @Override
         public void onComplete() {
-            SLogs.d("Timer：finish");
+            SLogs.d("Timer:finish");
 
             if (textInputLayoutId != 0) {
                 setInputError(textInputLayoutId, null);

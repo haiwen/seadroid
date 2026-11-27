@@ -39,7 +39,7 @@ public class DataMigrationV303Activity extends AppCompatActivity {
         binding = ActivityDataMigrationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // 无 Toolbar 的迁移页面，根容器兜底处理顶部状态栏和底部导航栏/IME 安全区域
+        // Migration page without a Toolbar; the root container handles the top status bar and the bottom navigation bar/IME safe area as a fallback
         BaseActivity.setupInsets(binding.getRoot());
 
         List<Account> accounts = SupportAccountManager.getInstance().getAccountList();

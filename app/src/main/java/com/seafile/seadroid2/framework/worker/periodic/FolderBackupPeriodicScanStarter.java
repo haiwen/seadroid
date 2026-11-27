@@ -46,7 +46,7 @@ public class FolderBackupPeriodicScanStarter extends com.seafile.seadroid2.frame
     @Override
     public Result doWork() {
 
-        SLogs.e(TAG, "文件夹扫描 Worker 启动");
+        SLogs.e(TAG, "Folder scan Worker started");
 
         if (isTransferStopped()) return Result.retry();
 

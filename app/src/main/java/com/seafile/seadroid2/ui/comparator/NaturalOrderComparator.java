@@ -31,7 +31,7 @@ public abstract class NaturalOrderComparator<T> implements Comparator<T> {
         if (s1 == null) return -1;
         if (s2 == null) return 1;
 
-        // 类型检查和名称提取
+        // Type check and name extraction
         String name1 = extractName(s1);
         String name2 = extractName(s2);
 

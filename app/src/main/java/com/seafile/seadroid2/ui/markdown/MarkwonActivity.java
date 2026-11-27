@@ -270,7 +270,7 @@
 //
 //        @Override
 //        public void resolve(@NonNull View view, @NonNull String link) {
-//            ToastUtils.showLong("ImageLinkResolver打开此链接：" + link);
+//            ToastUtils.showLong("ImageLinkResolver open this link: " + link);
 //        }
 //    }
 //
@@ -286,11 +286,11 @@
 //        public void onClick(View widget) {
 //            String link = getLink();
 //            if (TextUtils.isEmpty(link) || !link.toLowerCase(Locale.getDefault()).startsWith("http")) {
-//                ToastUtils.showLong("此链接不支持：" + link);
+//                ToastUtils.showLong("This link is not supported: " + link);
 //                return;
 //            }
 //
-//            ToastUtils.showLong("ClickSelfSpan打开此链接：" + link);
+//            ToastUtils.showLong("ClickSelfSpan open this link: " + link);
 //        }
 //    }
 //

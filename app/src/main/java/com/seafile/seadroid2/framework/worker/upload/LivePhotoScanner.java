@@ -43,7 +43,7 @@ public class LivePhotoScanner extends Worker {
         return Result.success();
     }
 
-    private static final long TIME_TOLERANCE_MS = 3000; // 3秒容差
+    private static final long TIME_TOLERANCE_MS = 3000; // 3-second tolerance
 
     public static List<LivePhotoModel> scanLivePhotos(Context context) {
         Map<String, Pair<String, Long>> imageMap = loadMediaMap(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
