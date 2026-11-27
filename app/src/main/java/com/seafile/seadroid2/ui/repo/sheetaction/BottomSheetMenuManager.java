@@ -15,6 +15,7 @@ import com.seafile.seadroid2.framework.db.entities.PermissionEntity;
 import com.seafile.seadroid2.framework.db.entities.RepoModel;
 import com.seafile.seadroid2.framework.model.BaseModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
+import com.seafile.seadroid2.framework.util.SafeLogs;
 import com.seafile.seadroid2.listener.OnBottomSheetItemClickListener;
 import com.seafile.seadroid2.ui.bottomsheetmenu.ActionMenu;
 
@@ -43,6 +44,10 @@ public class BottomSheetMenuManager {
     }
 
     public void showMenu(String relatedAccount, String objKey, List<BaseModel> selectedItems) {
+        // Drop any in-flight permission query from a previous selection, otherwise an
+        // older result can arrive later and rebuild the menu with stale permissions.
+        compositeDisposable.clear();
+
         List<Integer> disableMenuIds = getDisableMenuIds(objKey, selectedItems);
         List<Integer> removedMenuIds = getWillBeRemovedMenuIds(objKey, selectedItems);
 
@@ -66,7 +71,13 @@ public class BottomSheetMenuManager {
         compositeDisposable.add(single
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(consumer));
+                .subscribe(consumer, throwable -> {
+                    if (throwable instanceof Exception) {
+                        SafeLogs.e((Exception) throwable);
+                    } else {
+                        SafeLogs.e(String.valueOf(throwable));
+                    }
+                }));
     }
 
     public void inflateRepoMenuWithSelected(Context context, String relatedAccount, List<BaseModel> selectedItems, List<Integer> disableMenuIds, List<Integer> removedMenuIds) {
@@ -83,9 +94,7 @@ public class BottomSheetMenuManager {
 
         List<PermissionEntity> permissionList = CollectionUtils.newArrayList();
 
-        if (CollectionUtils.isEmpty(models)) {
-            toParseMenu(context, menuId, permissionList, disableMenuIds, removedMenuIds);
-        } else if (models.size() == 1) {
+        if (models.size() == 1) {
             RepoModel repoModel = models.get(0);
             Single<PermissionEntity> permissionSingle = getRepoPermission(relatedAccount, repoModel.repo_id);
             addSingleDisposable(permissionSingle, new Consumer<PermissionEntity>() {
@@ -164,7 +173,7 @@ public class BottomSheetMenuManager {
                                 @Override
                                 public SingleSource<PermissionEntity> apply(List<PermissionEntity> permissionEntities) throws Exception {
                                     PermissionEntity repoPerm;
-                                    if (CollectionUtils.isEmpty(permissionEntities)) {
+                                    if (!CollectionUtils.isEmpty(permissionEntities)) {
                                         repoPerm = permissionEntities.get(0);
                                     } else {
                                         repoPerm = new PermissionEntity(repoModel.repo_id, "r");
@@ -255,10 +264,6 @@ public class BottomSheetMenuManager {
 
         //to disable
         for (MenuItem item : items) {
-            if (!item.isEnabled()) {
-                continue;
-            }
-
             if (item.getItemId() == R.id.rename) {
                 long l = permissionList.stream().filter(f -> !f.modify).count();
                 item.setEnabled(!(l > 0));

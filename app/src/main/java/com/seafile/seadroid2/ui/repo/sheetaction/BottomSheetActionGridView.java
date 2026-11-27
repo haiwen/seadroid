@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.HorizontalScrollView;
@@ -29,6 +30,7 @@ import java.util.List;
 public class BottomSheetActionGridView {
     private static final int MAX_ROW_COUNT = 2;
     private static final int MIN_THUMB_WIDTH_DP = 16;
+    private static final int MAX_ITEM_WIDTH_DP = 96;
 
     private final Activity context;
     private View floatingView;
@@ -36,6 +38,8 @@ public class BottomSheetActionGridView {
     private GridLayout menuGrid;
     private View indicatorContainer;
     private View indicatorThumb;
+    private ViewTreeObserver scrollObserver;
+    private ViewTreeObserver.OnScrollChangedListener scrollChangedListener;
     private OnBottomSheetItemClickListener itemClickListener;
 
     public BottomSheetActionGridView(@NonNull Activity context) {
@@ -52,11 +56,25 @@ public class BottomSheetActionGridView {
             return;
         }
 
-        if (floatingView != null && floatingView.isAttachedToWindow()) {
-            buildGrid(menuItems);
-            scrollView.post(this::updateScrollIndicator);
+        if (context.isFinishing() || context.isDestroyed()) {
             return;
         }
+
+        if (floatingView != null && floatingView.isAttachedToWindow()) {
+            int savedScrollX = scrollView == null ? 0 : scrollView.getScrollX();
+            buildGrid(menuItems);
+            if (scrollView != null) {
+                scrollView.post(() -> {
+                    scrollView.scrollTo(savedScrollX, 0);
+                    updateScrollIndicator();
+                });
+            }
+            return;
+        }
+
+        // A view that is no longer attached must be detached before a new one is
+        // inflated, otherwise it stays parented and is never garbage collected.
+        detachFloatingView();
 
         floatingView = LayoutInflater.from(context).inflate(
                 R.layout.layout_bottom_sheet_menu_view_grid, null, false);
@@ -66,8 +84,12 @@ public class BottomSheetActionGridView {
         indicatorThumb = floatingView.findViewById(R.id.scroll_indicator_thumb);
 
         buildGrid(menuItems);
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(
-                this::updateScrollIndicator);
+
+        if (scrollChangedListener == null) {
+            scrollChangedListener = this::updateScrollIndicator;
+        }
+        scrollObserver = scrollView.getViewTreeObserver();
+        scrollObserver.addOnScrollChangedListener(scrollChangedListener);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -76,21 +98,52 @@ public class BottomSheetActionGridView {
 
         FrameLayout content = context.getWindow().getDecorView()
                 .findViewById(android.R.id.content);
+        if (content == null) {
+            detachFloatingView();
+            return;
+        }
+
         content.addView(floatingView);
-        ViewCompat.requestApplyInsets(floatingView);
         applyEdgeToEdge(floatingView);
+        ViewCompat.requestApplyInsets(floatingView);
+        // Do not rely on post() alone: it can run before the first layout pass, when
+        // the grid still has no measured width.
+        updateIndicatorAfterLayout();
         scrollView.post(this::updateScrollIndicator);
     }
 
+    private void updateIndicatorAfterLayout() {
+        if (menuGrid == null) {
+            return;
+        }
+        menuGrid.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                v.removeOnLayoutChangeListener(this);
+                updateScrollIndicator();
+            }
+        });
+    }
+
     private void buildGrid(List<MenuItem> menuItems) {
+        if (scrollView == null || menuGrid == null) {
+            return;
+        }
+
         int availableWidth = BottomSheetActionLayoutHelper.getAvailableWidth(context);
         int visibleColumnCount = BottomSheetActionLayoutHelper.getColumnCount(
                 context, availableWidth);
-        int itemWidth = BottomSheetActionLayoutHelper.getItemWidth(
-                availableWidth, visibleColumnCount);
         int rowCount = menuItems.size() <= visibleColumnCount ? 1 : MAX_ROW_COUNT;
-        int totalColumnCount = Math.max(visibleColumnCount,
-                (menuItems.size() + rowCount - 1) / rowCount);
+        int desiredColumnCount = (menuItems.size() + rowCount - 1) / rowCount;
+        int totalColumnCount = Math.max(visibleColumnCount, desiredColumnCount);
+        int columnsToFit = Math.min(visibleColumnCount, desiredColumnCount);
+
+        // Share the available width between the columns the menu actually needs, so a
+        // short menu is not squeezed into the left-most columns of a wide window.
+        int itemWidth = Math.min(
+                BottomSheetActionLayoutHelper.getItemWidth(availableWidth, columnsToFit),
+                dp(MAX_ITEM_WIDTH_DP));
 
         menuGrid.removeAllViews();
         menuGrid.setRowCount(rowCount);
@@ -107,8 +160,19 @@ public class BottomSheetActionGridView {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams(
                     GridLayout.spec(row), GridLayout.spec(column));
             params.width = itemWidth;
-            params.height = itemWidth;
+            // Let the cell grow with its content: a fixed square clips the label on
+            // narrow screens or with large font scales.
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             menuGrid.addView(itemView, params);
+        }
+
+        // Centre the row when the items do not fill the available width.
+        int gridWidth = desiredColumnCount * itemWidth;
+        int sidePadding = Math.max(0, (availableWidth - gridWidth) / 2);
+        if (scrollView.getPaddingLeft() != sidePadding
+                || scrollView.getPaddingRight() != sidePadding) {
+            scrollView.setPaddingRelative(sidePadding, scrollView.getPaddingTop(),
+                    sidePadding, scrollView.getPaddingBottom());
         }
     }
 
@@ -136,12 +200,13 @@ public class BottomSheetActionGridView {
     }
 
     private void updateScrollIndicator() {
-        if (scrollView == null || indicatorContainer == null || indicatorThumb == null) {
+        if (scrollView == null || indicatorContainer == null
+                || indicatorThumb == null || menuGrid == null) {
             return;
         }
 
         int viewportWidth = scrollView.getWidth();
-        int contentWidth = menuGrid == null ? 0 : menuGrid.getWidth();
+        int contentWidth = menuGrid.getWidth();
         int scrollableWidth = contentWidth - viewportWidth;
         if (viewportWidth <= 0 || scrollableWidth <= 0) {
             indicatorContainer.setVisibility(View.GONE);
@@ -157,13 +222,20 @@ public class BottomSheetActionGridView {
         int thumbWidth = Math.max(dp(MIN_THUMB_WIDTH_DP), Math.round(
                 trackWidth * viewportWidth / (float) contentWidth));
         int travel = Math.max(0, trackWidth - thumbWidth);
-        int left = Math.round(travel * scrollView.getScrollX()
-                / (float) scrollableWidth);
 
+        // Only write the width back when it actually changed: this runs on every
+        // scroll frame, and setLayoutParams() requests a layout pass each time.
         ViewGroup.LayoutParams params = indicatorThumb.getLayoutParams();
-        params.width = thumbWidth;
-        indicatorThumb.setLayoutParams(params);
-        indicatorThumb.setTranslationX(left);
+        if (params.width != thumbWidth) {
+            params.width = thumbWidth;
+            indicatorThumb.setLayoutParams(params);
+        }
+
+        float ratio = Math.min(1f, Math.max(0f,
+                scrollView.getScrollX() / (float) scrollableWidth));
+        boolean rtl = ViewCompat.getLayoutDirection(indicatorContainer)
+                == ViewCompat.LAYOUT_DIRECTION_RTL;
+        indicatorThumb.setX(travel * (rtl ? 1f - ratio : ratio));
     }
 
     private int dp(int value) {
@@ -171,17 +243,36 @@ public class BottomSheetActionGridView {
     }
 
     public void dismiss() {
-        if (floatingView != null && floatingView.isAttachedToWindow()) {
+        detachFloatingView();
+    }
+
+    private void detachFloatingView() {
+        // The ViewTreeObserver belongs to the window, not to this view, so the
+        // listener has to be removed explicitly or it keeps this instance (and the
+        // Activity it holds) alive across every show/dismiss cycle.
+        removeScrollListener();
+
+        if (floatingView != null) {
             ViewParent parent = floatingView.getParent();
             if (parent instanceof ViewGroup) {
                 ((ViewGroup) parent).removeView(floatingView);
             }
         }
+
         floatingView = null;
         scrollView = null;
         menuGrid = null;
         indicatorContainer = null;
         indicatorThumb = null;
+    }
+
+    private void removeScrollListener() {
+        if (scrollObserver != null && scrollChangedListener != null
+                && scrollObserver.isAlive()) {
+            scrollObserver.removeOnScrollChangedListener(scrollChangedListener);
+        }
+        scrollObserver = null;
+        scrollChangedListener = null;
     }
 
     private void applyEdgeToEdge(View view) {

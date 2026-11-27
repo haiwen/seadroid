@@ -41,6 +41,9 @@ public class PermissionEntity extends BaseModel {
     @SerializedName("download_external_link")
     public boolean download_external_link;
 
+    /**
+     * By default, all permissions are false
+     * */
     public PermissionEntity() {
     }
 

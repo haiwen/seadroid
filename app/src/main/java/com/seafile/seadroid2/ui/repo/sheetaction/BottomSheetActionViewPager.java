@@ -59,65 +59,70 @@ public class BottomSheetActionViewPager {
             return;
         }
 
+        if (context.isFinishing() || context.isDestroyed()) {
+            return;
+        }
+
         int availableWidth = BottomSheetActionLayoutHelper.getAvailableWidth(context);
         columnCount = BottomSheetActionLayoutHelper.getColumnCount(context, availableWidth);
         itemWidth = BottomSheetActionLayoutHelper.getItemWidth(availableWidth, columnCount);
-        layoutHeight = (int) (itemWidth * 2.5f);
+        layoutHeight = Math.round(itemWidth * 2.5f);
 
         int perPageItemCount = columnCount * ROW_COUNT;
-        int pageCount;
-        if (menuItems.size() % perPageItemCount == 0) {
-            pageCount = menuItems.size() / perPageItemCount;
-        } else {
-            pageCount = menuItems.size() / perPageItemCount + 1;
+        int pageCount = Math.max(1,
+                (menuItems.size() + perPageItemCount - 1) / perPageItemCount);
+        if (currentPage > pageCount - 1) {
+            currentPage = pageCount - 1;
         }
         List<View> vs = getViews(menuItems, pageCount);
 
         if (floatingView != null && pager != null && floatingView.isAttachedToWindow()) {
-            pager.removeAllViews();
-
             ViewGroup.LayoutParams layoutParams = floatingView.getLayoutParams();
             if (layoutParams != null) {
                 layoutParams.height = layoutHeight;
                 floatingView.setLayoutParams(layoutParams);
             }
 
-            pagerAdapter = new ViewPagerAdapter(pageCount, vs);
+            pagerAdapter = new ViewPagerAdapter(vs);
             pager.setAdapter(pagerAdapter);
 
-            if (currentPage <= pageCount - 1) {
-                pager.setCurrentItem(currentPage);
-            }
+            pager.setCurrentItem(currentPage);
+            updatePageIndicator(currentPage, pageCount);
             return;
         }
 
-        floatingView = LayoutInflater.from(context).inflate(R.layout.layout_bottom_sheet_menu_view_pager, null, false);
+        detachFloatingView();
+
+        floatingView = LayoutInflater.from(context).inflate(
+                R.layout.layout_bottom_sheet_menu_view_pager, null, false);
         pager = floatingView.findViewById(R.id.pager);
 
-        pagerAdapter = new ViewPagerAdapter(pageCount, vs);
+        pagerAdapter = new ViewPagerAdapter(vs);
         pager.setAdapter(pagerAdapter);
 
-        pageChangeListener = new PageChangeListener(pageCount);
+        if (pageChangeListener == null) {
+            pageChangeListener = new PageChangeListener();
+        }
         pager.addOnPageChangeListener(pageChangeListener);
 
         pager.setCurrentItem(currentPage);
 
+        FrameLayout content = context.getWindow().getDecorView()
+                .findViewById(android.R.id.content);
+        if (content == null) {
+            detachFloatingView();
+            return;
+        }
 
-        View decorView = context.getWindow().getDecorView();
-        FrameLayout content = decorView.findViewById(android.R.id.content);
-
-        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-1, (int) (itemWidth * 2.5));
+        FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, layoutHeight);
         p.gravity = Gravity.BOTTOM;
 
         content.addView(floatingView, p);
+        applyEdgeToEdge(floatingView);
         ViewCompat.requestApplyInsets(floatingView);
 
-        if (pageCount > 1) {
-            updatePageIndicator(currentPage, pageCount);
-        }
-
-
-        applyEdgeToEdge(floatingView);
+        updatePageIndicator(currentPage, pageCount);
     }
 
     private List<View> getViews(List<MenuItem> menuItems, int pageCount) {
@@ -129,12 +134,9 @@ public class BottomSheetActionViewPager {
             int start = i * perPageItemCount;
             int end = (i + 1) * perPageItemCount;
 
-            List<MenuItem> items;
-            if (end > menuItems.size() - 1) {
-                items = menuItems.subList(start, menuItems.size());
-            } else {
-                items = menuItems.subList(start, end);
-            }
+            // Copy the slice: the caller may mutate its list after show() returns.
+            List<MenuItem> items = new ArrayList<>(
+                    menuItems.subList(start, Math.min(end, menuItems.size())));
 
             if (CollectionUtils.isEmpty(items)) {
                 continue;
@@ -188,17 +190,17 @@ public class BottomSheetActionViewPager {
     }
 
     private class ViewPagerAdapter extends PagerAdapter {
-        private final int pageCount;
         private final List<View> views;
 
-        ViewPagerAdapter(int pageCount, List<View> views) {
-            this.pageCount = pageCount;
+        ViewPagerAdapter(List<View> views) {
             this.views = views;
         }
 
         @Override
         public int getCount() {
-            return pageCount;
+            // Authoritative count: a page can be skipped when its slice is empty,
+            // so the requested page count and the built views can differ.
+            return views.size();
         }
 
         @Override
@@ -223,11 +225,6 @@ public class BottomSheetActionViewPager {
     }
 
     private class PageChangeListener implements ViewPager.OnPageChangeListener {
-        private final int pageCount;
-
-        PageChangeListener(int pageCount) {
-            this.pageCount = pageCount;
-        }
 
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -238,6 +235,9 @@ public class BottomSheetActionViewPager {
         public void onPageSelected(int position) {
             currentPage = position;
 
+            // Read the count from the live adapter: the menu can be rebuilt with a
+            // different number of pages between shows.
+            int pageCount = pagerAdapter == null ? 0 : pagerAdapter.getCount();
             updatePageIndicator(currentPage, pageCount);
         }
 
@@ -248,8 +248,21 @@ public class BottomSheetActionViewPager {
     }
 
     private void updatePageIndicator(int currentPage, int totalPages) {
+        if (floatingView == null) {
+            return;
+        }
+
         LinearLayout indicatorLayout = floatingView.findViewById(R.id.page_indicator);
+        if (indicatorLayout == null) {
+            return;
+        }
         indicatorLayout.removeAllViews();
+
+        if (totalPages <= 1) {
+            indicatorLayout.setVisibility(View.GONE);
+            return;
+        }
+        indicatorLayout.setVisibility(View.VISIBLE);
 
         for (int i = 0; i < totalPages; i++) {
             ImageView dot = new ImageView(context);
@@ -268,18 +281,27 @@ public class BottomSheetActionViewPager {
     }
 
     public void dismiss() {
-        if (floatingView == null || !floatingView.isAttachedToWindow()) {
-            floatingView = null;
-            return;
+        detachFloatingView();
+    }
+
+    private void detachFloatingView() {
+        if (pager != null && pageChangeListener != null) {
+            pager.removeOnPageChangeListener(pageChangeListener);
+        }
+        pageChangeListener = null;
+
+        if (floatingView != null) {
+            ViewParent parent = floatingView.getParent();
+            if (parent instanceof ViewGroup) {
+                ((ViewGroup) parent).removeView(floatingView);
+            }
         }
 
-        ViewParent parent = floatingView.getParent();
-        if (parent instanceof ViewGroup) {
-            ((ViewGroup) parent).removeView(floatingView);
+        if (pager != null) {
+            pager.setAdapter(null);
         }
 
         pagerAdapter = null;
-        pageChangeListener = null;
         pager = null;
         floatingView = null;
     }
