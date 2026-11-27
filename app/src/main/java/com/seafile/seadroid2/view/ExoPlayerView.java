@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,14 +20,16 @@ import androidx.media3.common.Player;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.ui.AspectRatioFrameLayout;
 
 import com.seafile.seadroid2.R;
 
+@UnstableApi
 public class ExoPlayerView extends ConstraintLayout {
 
     private SurfaceView surfaceView;
     private View binding;
-    private FrameLayout containerLayout;
+    private AspectRatioFrameLayout containerLayout;
 
     private final ComponentListener componentListener = new ComponentListener();
     private Player player;
@@ -86,11 +87,12 @@ public class ExoPlayerView extends ConstraintLayout {
 
     private void init() {
         surfaceView = new SurfaceView(getContext());
-        ViewGroup.LayoutParams vlp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams vlp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         surfaceView.setLayoutParams(vlp);
 
         binding = LayoutInflater.from(getContext()).inflate(R.layout.layout_exo_player_view, this, true);
         containerLayout = binding.findViewById(R.id.exo_content_frame);
+        containerLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
         containerLayout.addView(surfaceView, 0);
 
         setVisibility(View.VISIBLE);
@@ -122,14 +124,11 @@ public class ExoPlayerView extends ConstraintLayout {
     }
 
     private void updateAspectRatio() {
-        if (player != null) {
+        if (player != null && containerLayout != null) {
             VideoSize videoSize = player.getVideoSize();
             if (videoSize.width > 0 && videoSize.height > 0) {
-                ConstraintLayout.LayoutParams clp = (LayoutParams) containerLayout.getLayoutParams();
-                int w = videoSize.width;
-                int h = videoSize.height;
-                clp.dimensionRatio = w + ":" + h;
-                containerLayout.setLayoutParams(clp);
+                float videoAspectRatio = (videoSize.width * videoSize.pixelWidthHeightRatio) / videoSize.height;
+                containerLayout.setAspectRatio(videoAspectRatio);
             }
         }
     }
@@ -222,7 +221,7 @@ public class ExoPlayerView extends ConstraintLayout {
 
         @Override
         public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-            //This method is called back when playback is paused or resumed; playWhenReady is true during playback
+            // Called on play or pause; playWhenReady is true during playback
             updateProgressState();
         }
     }

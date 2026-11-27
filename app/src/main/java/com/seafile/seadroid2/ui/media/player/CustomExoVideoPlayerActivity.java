@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.OrientationEventListener;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -14,14 +15,11 @@ import androidx.lifecycle.Observer;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
-import androidx.media3.datasource.DefaultHttpDataSource;
-import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -35,26 +33,18 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.SupportAccountManager;
 import com.seafile.seadroid2.databinding.ActivityExoPlayerBinding;
-import com.seafile.seadroid2.framework.http.HttpIO;
 import com.seafile.seadroid2.framework.http.UnsafeOkHttpClient;
 import com.seafile.seadroid2.framework.util.Toasts;
-import com.seafile.seadroid2.preferences.Settings;
 import com.seafile.seadroid2.ui.base.BaseActivityWithVM;
 import com.seafile.seadroid2.view.ExoPlayerView;
 
-import java.security.SecureRandom;
 import java.util.Locale;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 
 @UnstableApi
 public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewModel> {
-    private static final String KEY_ORIENTATION_LOCKED = "isOrientationLocked";
+    private static final String KEY_USER_ORIENTATION = "userRequestedOrientation";
     private static final String KEY_ITEM_INDEX = "startItemIndex";
     private static final String KEY_POSITION = "position";
     private static final String KEY_AUTO_PLAY = "auto_play";
@@ -68,8 +58,8 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     private String repoId;
     private String filePath;
 
-    /** Whether the user has manually locked landscape orientation; when false, use auto-rotation (follow system settings) */
-    private boolean isOrientationLocked = false;
+    private int userRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+    private OrientationEventListener orientationEventListener;
     private boolean startAutoPlay;
     private int startItemIndex;
     private long startPosition;
@@ -89,7 +79,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         binding = ActivityExoPlayerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //
         BarUtils.setNavBarVisibility(this, false);
         BarUtils.setStatusBarVisibility(this, false);
 
@@ -102,14 +91,13 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             throw new IllegalArgumentException("no filePath param");
         }
 
-
         if (savedInstanceState != null) {
             fileName = savedInstanceState.getString("fileName");
             repoId = savedInstanceState.getString("repoId");
             filePath = savedInstanceState.getString("filePath");
 
             startAutoPlay = savedInstanceState.getBoolean(KEY_AUTO_PLAY);
-            isOrientationLocked = savedInstanceState.getBoolean(KEY_ORIENTATION_LOCKED);
+            userRequestedOrientation = savedInstanceState.getInt(KEY_USER_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             startPosition = savedInstanceState.getLong(KEY_POSITION);
             startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX);
 
@@ -128,16 +116,59 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
             clearStartPosition();
         }
 
-        // Auto-rotate by default (follow system settings); if landscape was previously locked manually, restore the lock
-        if (isOrientationLocked) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        if (userRequestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+            setRequestedOrientation(userRequestedOrientation);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         }
 
+        initOrientationListener();
         initUI();
 
         initViewModel();
+    }
+
+    private void initOrientationListener() {
+        orientationEventListener = new OrientationEventListener(this) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                if (orientation == ORIENTATION_UNKNOWN) {
+                    return;
+                }
+
+                // When system auto-rotation is disabled, the player must not rotate with the device
+                if (!isSystemAutoRotationEnabled()) {
+                    return;
+                }
+
+                // When system auto-rotation is enabled: if the user previously manually specified an orientation via the fullscreen button,
+                // reset to auto-rotation once the device is physically rotated to the opposite orientation
+                if (userRequestedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+                    boolean isDeviceLandscape = (orientation >= 60 && orientation <= 120) || (orientation >= 240 && orientation <= 300);
+                    boolean isDevicePortrait = (orientation >= 330 || orientation <= 30) || (orientation >= 150 && orientation <= 210);
+
+                    if (userRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT && isDeviceLandscape) {
+                        userRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+                    } else if (userRequestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE && isDevicePortrait) {
+                        userRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+                    }
+                }
+            }
+        };
+    }
+
+    private boolean isSystemAutoRotationEnabled() {
+        try {
+            return android.provider.Settings.System.getInt(
+                    getContentResolver(),
+                    android.provider.Settings.System.ACCELEROMETER_ROTATION,
+                    0
+            ) == 1;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
@@ -152,23 +183,12 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
 
         exoPlayerView = binding.playerView;
 
-        binding.back.setOnClickListener(v -> {
-            if (isOrientationLocked) {
-                // Unlock landscape and return to auto-rotation
-                unlockOrientation();
-                return;
-            }
+        // Close current page directly on back button click
+        binding.back.setOnClickListener(v -> finish());
 
-            finish();
-        });
-
-        binding.fullscreen.setOnClickListener(v -> {
-            if (isOrientationLocked) {
-                unlockOrientation();
-            } else {
-                lockToLandscape();
-            }
-        });
+        // Toggle between landscape and portrait on fullscreen button click
+        binding.fullscreen.setOnClickListener(v -> toggleFullscreen());
+        updateFullscreenIcon(getResources().getConfiguration().orientation);
 
         binding.videoSpeed.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -250,7 +270,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
 
         outState.putLong(KEY_POSITION, startPosition);
         outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
-        outState.putBoolean(KEY_ORIENTATION_LOCKED, isOrientationLocked);
+        outState.putInt(KEY_USER_ORIENTATION, userRequestedOrientation);
         outState.putInt(KEY_ITEM_INDEX, startItemIndex);
 
         outState.putString("fileName", fileName);
@@ -267,23 +287,31 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
         binding.playPause.setImageResource(isPlay ? R.drawable.ic_play_fill : R.drawable.ic_pause_fill);
     }
 
-    /** Manually lock landscape orientation, and update the icon at the same time */
-    private void lockToLandscape() {
-        isOrientationLocked = true;
-        binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    /**
+     * Toggle fullscreen / non-fullscreen mode:
+     * When currently in landscape (fullscreen), click to switch to portrait (non-fullscreen);
+     * When currently in portrait (non-fullscreen), click to switch to landscape (fullscreen, SENSOR_LANDSCAPE).
+     */
+    private void toggleFullscreen() {
+        int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Current orientation is landscape -> switch to portrait
+            userRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            updateFullscreenIcon(Configuration.ORIENTATION_PORTRAIT);
+        } else {
+            // Current orientation is portrait -> switch to landscape (SENSOR_LANDSCAPE)
+            userRequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+            updateFullscreenIcon(Configuration.ORIENTATION_LANDSCAPE);
+        }
     }
 
-    /** Release the landscape orientation lock and return to auto-rotation; update the fullscreen icon according to the current device orientation */
-    private void unlockOrientation() {
-        isOrientationLocked = false;
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
-        updateFullscreenIcon();
-    }
-
-    /** Synchronize the fullscreen button icon according to the current device orientation */
-    private void updateFullscreenIcon() {
-        int orientation = getResources().getConfiguration().orientation;
+    /**
+     * Sync fullscreen / exit fullscreen icon:
+     * Landscape displays ic_fullscreen_exit, portrait displays ic_fullscreen_enter
+     */
+    private void updateFullscreenIcon(int orientation) {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             binding.fullscreen.setImageResource(R.drawable.ic_fullscreen_exit);
         } else {
@@ -294,10 +322,7 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // Orientation change caused by auto-rotation: synchronize the fullscreen icon
-        if (!isOrientationLocked) {
-            updateFullscreenIcon();
-        }
+        updateFullscreenIcon(newConfig.orientation);
     }
 
     @OptIn(markerClass = UnstableApi.class)
@@ -330,7 +355,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
                 binding.progressBar.setDuration(duration);
                 binding.progressBar.setPosition(currentPosition);
 
-                //
                 hideControllerView();
             }
         });
@@ -347,7 +371,6 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
 
     /**
      * Must be higher than 0. 1 is normal speed, 2 is twice as fast, 0.5 is half normal speed.
-     *
      */
     private void changeVideoSpeed() {
         float speed = exoPlayer.getPlaybackParameters().speed;
@@ -424,6 +447,14 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (orientationEventListener != null && orientationEventListener.canDetectOrientation()) {
+            orientationEventListener.enable();
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         if (exoPlayer != null) {
@@ -435,6 +466,9 @@ public class CustomExoVideoPlayerActivity extends BaseActivityWithVM<PlayerViewM
     @Override
     protected void onStop() {
         super.onStop();
+        if (orientationEventListener != null) {
+            orientationEventListener.disable();
+        }
         if (exoPlayer != null) {
             exoPlayer.stop();
         }
