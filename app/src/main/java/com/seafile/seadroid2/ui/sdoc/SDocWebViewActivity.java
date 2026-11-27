@@ -116,9 +116,6 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mWebView != null) {
-            mWebView.saveState(outState);
-        }
         outState.putString("repoId", repoId);
         outState.putString("repoName", repoName);
         outState.putString("path", path);
@@ -167,12 +164,10 @@ public class SDocWebViewActivity extends BaseActivityWithVM<SDocViewModel> {
             targetUrl = savedInstanceState.getString("targetUrl");
             canNotEdit = savedInstanceState.getBoolean("canNotEdit");
             fileName = savedInstanceState.getString("fileName");
-
-            mWebView.restoreState(savedInstanceState);
-        } else {
-            //let's go
-            mWebView.load(targetUrl);
         }
+
+        //let's go
+        mWebView.load(targetUrl);
 
         checkRepoAndPermission();
     }

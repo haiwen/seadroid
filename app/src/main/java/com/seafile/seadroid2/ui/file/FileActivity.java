@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
@@ -27,9 +28,6 @@ import com.seafile.seadroid2.framework.db.entities.StarredModel;
 import com.seafile.seadroid2.framework.model.activities.ActivityModel;
 import com.seafile.seadroid2.framework.model.dirents.DirentFileModel;
 import com.seafile.seadroid2.framework.model.search.SearchModel;
-import com.seafile.seadroid2.framework.transport.LargeObjectIntent;
-import com.seafile.seadroid2.framework.transport.LargeObjectTransport;
-import com.seafile.seadroid2.framework.transport.TransportHolder;
 import com.seafile.seadroid2.framework.util.Icons;
 import com.seafile.seadroid2.framework.util.SLogs;
 import com.seafile.seadroid2.framework.util.Toasts;
@@ -76,11 +74,11 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> {
     public static Intent start(Context context, DirentModel direntModel, FileReturnActionEnum actionEnum) {
         Intent starter = new Intent(context, FileActivity.class);
         starter.putExtra("action", actionEnum.name());
-        //
-        TransportHolder.get().put("dirent", direntModel);
+        starter.putExtra("dirent", direntModel);
         return starter;
     }
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -96,7 +94,9 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> {
 
         applyEdgeToEdge(binding.getRoot());
 
-        initIntent();
+        if (!initIntent(savedInstanceState)) {
+            return;
+        }
 
         initView(direntModel.name);
 
@@ -110,7 +110,15 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> {
         }
     }
 
-    private void initIntent() {
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (direntModel != null) {
+            outState.putParcelable("dirent", direntModel);
+        }
+    }
+
+    private boolean initIntent(Bundle savedInstanceState) {
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -119,20 +127,24 @@ public class FileActivity extends BaseActivityWithVM<FileViewModel> {
 
         action = intent.getStringExtra("action");
 
-        direntModel = TransportHolder.get().get("dirent");
-        TransportHolder.get().remove("dirent");
+        if (savedInstanceState != null && savedInstanceState.containsKey("dirent")) {
+            direntModel = savedInstanceState.getParcelable("dirent");
+        } else {
+            direntModel = intent.getParcelableExtra("dirent");
+        }
 
         if (null == direntModel) {
             SLogs.e("missing dirent args, finishing FileActivity");
             Toasts.show(R.string.unknow_error);
             finishWithCancel();
-            return;
+            return false;
         }
 
         repoId = direntModel.repo_id;
 
         destinationFile = getLocalDestinationFile(repoId, direntModel.repo_name, direntModel.full_path);
         account = SupportAccountManager.getInstance().getCurrentAccount();
+        return true;
     }
 
     private void initView(String titleBarName) {

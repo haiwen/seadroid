@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.account.sso;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.InetAddresses;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +20,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
+
+import okhttp3.HttpUrl;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.NetworkUtils;
@@ -212,16 +213,26 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
             return false;
         }
 
-        Uri uri = Uri.parse(hostUrl);
-        String host = uri.getHost();
+        HttpUrl httpUrl = HttpUrl.parse(hostUrl);
+        if (httpUrl == null) {
+            Toasts.show(R.string.invalid_server_address);
+            return false;
+        }
+
+        if (httpUrl.query() != null) {
+            Toasts.show(R.string.invalid_server_address);
+            return false;
+        }
+
+        String host = httpUrl.host();
         if (TextUtils.isEmpty(host)) {
             Toasts.show(R.string.err_server_andress_empty);
             return false;
         }
 
         host = host.toLowerCase(Locale.ROOT);
-        int port = uri.getPort();
-        if (port != -1 && (port < 1 || port > 65535)) {
+        int port = httpUrl.port();
+        if (port < 1 || port > 65535) {
             Toasts.show(R.string.invalid_server_address);
             return false;
         }
@@ -248,6 +259,7 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         }
 
         String host = editable.toString().trim();
+        host = host.replace('：', ':').replaceAll("(?i)^(https?://)\\s+", "$1");
         if (!host.endsWith("/")) {
             host = host + "/";
         }
@@ -261,8 +273,9 @@ public class SingleSignOnActivity extends BaseActivityWithVM<SingleSignOnViewMod
         }
 
         Intent intent = new Intent(this, SingleSignOnAuthorizeActivity.class);
-        intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
         intent.putExtras(getIntent());
+        // The address used for this verification is written last to avoid being overwritten by the original extra of the same name in the Intent
+        intent.putExtra(SeafileAuthenticatorActivity.SINGLE_SIGN_ON_SERVER_URL, serverUrl);
         authLauncher.launch(intent);
     }
 
